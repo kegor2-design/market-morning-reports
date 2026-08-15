@@ -1,13 +1,20 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-08-15T08:52:00+00:00",
+  "generated_at_utc": "2026-08-15T09:11:23+00:00",
   "source_name": "Robert J. Shiller, U.S. Stock Markets 1871-Present and CAPE Ratio",
   "source_page": "https://www.shillerdata.com/",
-  "source_sha256": "71c3636da5269b074489db41ecf0dcf0caef6275d1f3ecaf753ddaca2b81db2f",
+  "source_sha256": "46d2bd08a14dff216e0dde26ab8e877bc76632ff8d5228049c89986502088d1f",
   "first_observation": "1871-01-01",
   "last_observation": "2026-08-01",
   "observation_count": 1868,
   "event_count": 8,
   "latest_price": 7600.5,
-  "latest_drawdown_pct": 0.0
+  "latest_drawdown_pct": 0.0,
+  "korea_first_observation": "1996-11-01",
+  "korea_last_observation": "2026-08-01",
+  "korea_observation_count": 358,
+  "korea_event_count": 8,
+  "latest_kospi": 6977.939941,
+  "latest_kosdaq": 864.650024,
+  "latest_usdkrw": 1412.0
 }
