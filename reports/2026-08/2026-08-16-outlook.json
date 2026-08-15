@@ -1,0 +1,4480 @@
+{
+  "analysis": {
+    "applied_principles": [
+      {
+        "effect": "SUPPORTS",
+        "principle_id": "MI-008",
+        "reason": "다음 거래일, 1~4주, 1~6개월 판단을 분리했습니다.",
+        "version": 1
+      },
+      {
+        "effect": "SUPPORTS",
+        "principle_id": "MI-009",
+        "reason": "누락 데이터, 반대 근거, 무효화 조건을 결론에 포함했습니다.",
+        "version": 1
+      },
+      {
+        "effect": "REQUIRES_CONFIRMATION",
+        "principle_id": "MI-001",
+        "reason": "뉴스 이벤트가 없어 상태 변화의 원인은 확인하지 않았습니다. 가격 변화만 사실로 사용했습니다.",
+        "version": 1
+      },
+      {
+        "effect": "REQUIRES_CONFIRMATION",
+        "principle_id": "MI-002",
+        "reason": "이익 전망 조정 자료가 없어 실적 방향 결론은 보류했습니다.",
+        "version": 1
+      },
+      {
+        "effect": "REQUIRES_CONFIRMATION",
+        "principle_id": "MI-003",
+        "reason": "주문, 재고, 가격, 공급 자료가 없어 산업 사이클 결론은 보류했습니다.",
+        "version": 1
+      },
+      {
+        "effect": "REQUIRES_CONFIRMATION",
+        "principle_id": "MI-005",
+        "reason": "시장 폭 자료가 없어 지수 움직임을 시장 전체 강약으로 확장하지 않았습니다.",
+        "version": 1
+      },
+      {
+        "effect": "REQUIRES_CONFIRMATION",
+        "principle_id": "MI-006",
+        "reason": "외국인 현물·선물, 프로그램, 신용 자료가 없어 수급 판단은 보류했습니다.",
+        "version": 1
+      },
+      {
+        "effect": "LIMITS",
+        "principle_id": "MI-007",
+        "reason": "가격은 확인용으로만 사용했고 원인이나 기업가치 판단을 대신하지 않았습니다.",
+        "version": 1
+      }
+    ],
+    "as_of_kst": "2026-08-16T08:10:06.187015+09:00",
+    "candidate_views": [
+      "후보 원칙은 방향 판단에 사용하지 않았습니다."
+    ],
+    "data_quality_summary": "입력에는 가격과 거시 지표가 있습니다. 하지만 verified_events가 비어 있어 확인된 뉴스 이벤트는 없습니다. 그래서 원인, 기대 대비 차이, 수급, 업종별 실적 변화는 확인할 수 없습니다.",
+    "industry_company_reviews": [
+      {
+        "confirmation": "미국 반도체 지수 반등, 한국 외국인 선물·현물 순매수, 원달러 안정 확인이 필요합니다.",
+        "current_judgment": "관찰입니다. 단기 부담은 있지만 실적과 수급 근거가 부족해 방향을 확정하지 않습니다.",
+        "earnings_cycle": "실적 사이클 자료가 없습니다. EPS(주당순이익), CAPEX(설비투자), ASP(평균판매가격), 재고 변화는 UNKNOWN입니다.",
+        "facts": "필라델피아 반도체 지수는 -0.31% 하락했습니다.",
+        "invalidation": "미국 반도체 지수가 추가 하락하고 원달러 환율이 급등하면 방어적으로 봐야 합니다.",
+        "korea_value_chain": "메모리, 장비, 소재 전반에 심리 부담이 생길 수 있습니다. 하지만 개별 종목 매수·매도 판단은 하지 않습니다.",
+        "negative_view": "미국 반도체 지수가 나스닥보다 조금 더 약했습니다. 한국 반도체 대형주에는 단기 부담입니다.",
+        "positive_view": "하락 폭은 작습니다. 변동성 지수 하락과 원달러 환율 하락은 충격을 줄이는 요인입니다.",
+        "source_event_ids": [],
+        "title": "반도체"
+      },
+      {
+        "confirmation": "유가 상승 지속 여부와 업종별 마진 자료가 필요합니다.",
+        "current_judgment": "관찰입니다. 유가 방향은 확인됐지만 원인과 지속성은 확인되지 않았습니다.",
+        "earnings_cycle": "정유, 화학, 운송 업종의 마진 자료가 없습니다.",
+        "facts": "WTI 유가는 1.42% 상승했습니다.",
+        "invalidation": "유가가 되돌리거나 원가 상승을 제품 가격에 넘길 수 있다는 자료가 확인되면 부담 판단은 약해집니다.",
+        "korea_value_chain": "정유는 관심 대상이 될 수 있습니다. 원가 부담 업종은 비용 전가 능력을 확인해야 합니다.",
+        "negative_view": "유가 상승은 항공, 운송, 일부 화학 업종에는 비용 부담입니다.",
+        "positive_view": "유가 상승은 에너지 관련 업종의 매출 기대에는 도움이 될 수 있습니다.",
+        "source_event_ids": [],
+        "title": "에너지와 원가 민감 업종"
+      }
+    ],
+    "insight_version": "MI-v1.0-2026-08-16",
+    "invalidation_conditions": [
+      "원달러 환율이 급등하면 약보합·관망 판단은 약해집니다.",
+      "외국인 선물 수급이 강한 매도로 나오면 코스피 하단 지지 판단은 약해집니다.",
+      "미국 지수선물이 큰 폭으로 반등하면 단기 부담 판단은 약해집니다.",
+      "미국 10년 금리가 더 오르고 나스닥·반도체가 함께 약하면 성장주 부담 판단은 강해집니다.",
+      "유가가 빠르게 되돌리면 에너지 업종 관심과 원가 부담 판단은 약해집니다."
+    ],
+    "investment_committee": [
+      {
+        "current_judgment": "단정하지 않습니다. 약한 조정 또는 관망 장세로 봅니다.",
+        "issue": "오늘 한국 증시를 위험회피로 단정할 수 있는가",
+        "negative_or_alternative_view": "하락 폭은 작고 변동성 지수는 내려갔습니다. 원달러 환율도 하락했습니다.",
+        "positive_view": "미국 주요 주가지수와 반도체 지수가 함께 하락했고, 입력의 가격 확인 값도 위험회피를 가리켰습니다.",
+        "principle_ids": [
+          "MI-008",
+          "MI-009"
+        ],
+        "required_confirmation": "미국 지수선물, 원달러 환율, 외국인 선물 수급이 같은 방향으로 악화되는지 확인해야 합니다."
+      },
+      {
+        "current_judgment": "반도체에는 부담을 두되, 시장 전체 방향 판단은 보류합니다.",
+        "issue": "반도체 약세를 한국 시장 전체 약세로 넓혀 볼 수 있는가",
+        "negative_or_alternative_view": "한국 수급, 업종별 확산, 실적 전망 조정 자료가 없습니다.",
+        "positive_view": "한국 지수에서 반도체 비중이 크기 때문에 미국 반도체 약세는 영향을 줄 수 있습니다.",
+        "principle_ids": [
+          "MI-005",
+          "MI-006",
+          "MI-009"
+        ],
+        "required_confirmation": "반도체 약세가 다른 업종으로 번지는지와 외국인 매도가 동반되는지 확인해야 합니다."
+      }
+    ],
+    "key_drivers": [
+      {
+        "counterevidence": "변동성 지수는 -2.60% 하락했습니다. 공포가 커진 하락으로 보기는 어렵습니다.",
+        "facts": "S&P 500은 -0.17%, 나스닥은 -0.28%, 필라델피아 반도체 지수는 -0.31% 하락했습니다.",
+        "interpretation": "하락 폭은 작지만 성장주와 반도체가 함께 약했습니다. 한국 대형 기술주에는 단기 부담이 될 수 있습니다.",
+        "korea_transmission": "반도체와 성장주에는 조심스러운 출발 압력이 생길 수 있습니다. 다만 급격한 위험회피로 단정할 근거는 부족합니다.",
+        "source_event_ids": [],
+        "title": "미국 주식의 약한 하락"
+      },
+      {
+        "counterevidence": "금리, 달러, 환율이 같은 방향으로 위험 신호를 만들지는 않았습니다.",
+        "facts": "미국 10년 금리는 4.696%로 전일 대비 올랐습니다. 달러 지수는 -0.29%, 원달러 환율은 -0.34% 하락했습니다.",
+        "interpretation": "금리 상승은 주식 가격에 부담입니다. 반면 달러와 원달러 환율 하락은 한국 시장에는 일부 완충 요인입니다.",
+        "korea_transmission": "성장주에는 금리 부담이 남습니다. 원화 약세 압력이 줄어든 점은 외국인 수급 부담을 낮출 수 있지만, 실제 수급 자료는 없습니다.",
+        "source_event_ids": [],
+        "title": "금리 상승과 환율 완충"
+      },
+      {
+        "counterevidence": "유가 상승의 원인과 지속성을 판단할 뉴스 이벤트가 없습니다.",
+        "facts": "WTI 유가는 1.42% 상승했습니다. 금은 0.38% 올랐습니다.",
+        "interpretation": "유가 상승은 비용과 물가 부담을 키울 수 있습니다. 금 상승은 방어 수요가 일부 남아 있음을 시사합니다.",
+        "korea_transmission": "에너지 업종에는 관심이 생길 수 있습니다. 항공, 운송, 일부 화학처럼 에너지 비용이 큰 업종에는 부담입니다.",
+        "source_event_ids": [],
+        "title": "유가 상승"
+      }
+    ],
+    "korea_market": {
+      "kosdaq": "미국 10년 금리 상승은 성장주에 부담입니다. 다만 나스닥 하락 폭이 작아 큰 폭 약세를 단정하기는 어렵습니다.",
+      "kospi": "약보합 출발 가능성을 기본으로 봅니다. 미국 주식과 반도체 약세는 부담입니다. 원달러 환율 하락과 낮아진 변동성은 하단을 일부 지지할 수 있습니다.",
+      "sectors": [
+        {
+          "horizon": "NEXT_SESSION",
+          "invalidation": "미국 반도체 지수선물이 반등하고 외국인 수급이 좋아지면 부담 판단을 낮춥니다.",
+          "name": "반도체",
+          "reason": "미국 반도체 지수가 소폭 하락해 단기 심리 부담이 있습니다.",
+          "stance": "WATCH"
+        },
+        {
+          "horizon": "NEXT_SESSION",
+          "invalidation": "미국 금리가 하락하고 나스닥 선물이 반등하면 부담 판단을 낮춥니다.",
+          "name": "성장주",
+          "reason": "미국 10년 금리 상승은 성장주 가격에 부담입니다.",
+          "stance": "WATCH"
+        },
+        {
+          "horizon": "SWING_1_4W",
+          "invalidation": "유가가 되돌리거나 관련 마진이 나빠졌다는 자료가 확인되면 관심을 낮춥니다.",
+          "name": "에너지",
+          "reason": "유가 상승은 에너지 업종 관심을 높일 수 있습니다. 다만 원인과 지속성 자료가 없습니다.",
+          "stance": "WATCH"
+        },
+        {
+          "horizon": "SWING_1_4W",
+          "invalidation": "유가 하락 또는 운임과 수요 개선 자료가 확인되면 부담 판단을 낮춥니다.",
+          "name": "항공·운송",
+          "reason": "유가 상승은 비용 부담입니다.",
+          "stance": "WATCH"
+        }
+      ],
+      "transmission_summary": "한국으로 오는 연결고리는 반도체 약세, 금리 상승, 유가 상승입니다. 완충 요인은 달러와 원달러 환율 하락, 낮아진 변동성입니다."
+    },
+    "macro_policy_reviews": [
+      {
+        "counterevidence": "미국 실업률은 2026년 7월 기준 4.1%입니다. 입력만으로 경기 급랭을 말하기는 어렵습니다.",
+        "facts": "미국 소비자물가 상승률은 2026년 7월 기준 3.54%입니다. 근원 소비자물가는 2.79%입니다. 미국 정책금리 목표 범위는 3.50~3.75%입니다.",
+        "interpretation": "물가가 낮다고 보기 어렵고 정책금리도 높은 편입니다. 주식에는 금리 부담이 남습니다.",
+        "korea_transmission": "금리 부담은 한국 성장주와 장기 성장 기대가 큰 업종에 불리할 수 있습니다.",
+        "source_event_ids": [],
+        "title": "미국 물가와 정책금리"
+      },
+      {
+        "counterevidence": "최근 연준 발언이나 회의 결과 이벤트는 입력에 없습니다.",
+        "facts": "2026년 6월 연준 전망에서 2026년 정책금리 중간값은 3.8%, 개인소비지출 물가는 3.6%, 근원 개인소비지출 물가는 3.3%였습니다. 입력의 최근 개인소비지출 물가는 3.67%, 근원은 3.29%입니다.",
+        "interpretation": "입력의 물가 지표는 연준 전망과 크게 다르지 않습니다. 금리 인하 기대가 강해지려면 추가 둔화 확인이 필요합니다.",
+        "korea_transmission": "금리 인하 기대만으로 한국 증시 전반의 강한 상승을 말하기에는 근거가 부족합니다.",
+        "source_event_ids": [],
+        "title": "연준 전망과 최근 물가"
+      }
+    ],
+    "missing_data": [
+      "verified_events가 비어 있어 뉴스와 정책 이벤트를 확인할 수 없습니다.",
+      "한국 현물·선물 수급 자료가 없습니다.",
+      "업종별로 오르는 종목이 얼마나 넓게 퍼지는지에 대한 자료가 없습니다.",
+      "기업 실적, EPS(주당순이익), 이익 전망 조정 자료가 없습니다.",
+      "신용 스프레드(회사채와 국채의 금리 차이) 자료가 없습니다.",
+      "미국 지수선물의 현재 가격 자료가 없습니다.",
+      "중국, 일본, 홍콩 시장 자료가 없습니다."
+    ],
+    "one_line_diagnosis": "미국 주식은 소폭 약했고 금리는 올랐지만, 변동성과 환율은 완충 신호를 보여 방향 확신이 낮은 장세입니다.",
+    "overall_confidence": "LOW",
+    "regime": {
+      "change_from_prior": "이전 판단 자료가 없어 변화는 UNKNOWN입니다.",
+      "components": [
+        {
+          "name": "LIQUIDITY",
+          "reason": "미국 10년 금리는 4.696%로 올랐지만, 달러 지수와 원달러 환율은 하락했습니다.",
+          "state": "MIXED"
+        },
+        {
+          "name": "EARNINGS",
+          "reason": "EPS(주당순이익)와 이익 전망 조정 자료가 입력에 없습니다.",
+          "state": "UNKNOWN"
+        },
+        {
+          "name": "INDUSTRY_CYCLE",
+          "reason": "주문, 재고, ASP(평균판매가격), CAPEX(설비투자) 자료가 입력에 없습니다.",
+          "state": "UNKNOWN"
+        },
+        {
+          "name": "POSITIONING",
+          "reason": "투자자 쏠림 상태와 현물·선물 수급 자료가 입력에 없습니다.",
+          "state": "UNKNOWN"
+        },
+        {
+          "name": "MARKET_INTERNALS",
+          "reason": "오르는 종목이 얼마나 넓게 퍼지는지에 대한 자료가 입력에 없습니다.",
+          "state": "UNKNOWN"
+        },
+        {
+          "name": "PRICE_CONFIRMATION",
+          "reason": "입력의 가격 확인 값은 위험회피로 표시됐고, 미국 핵심 주가지수 3개가 모두 소폭 하락했습니다.",
+          "state": "DETERIORATING"
+        }
+      ],
+      "rationale": "S&P 500, 나스닥, 반도체 지수는 모두 소폭 하락했습니다. 미국 10년 금리는 올랐습니다. 반대로 변동성 지수와 달러 지수, 원달러 환율은 내려갔습니다. 신호가 한쪽으로 모이지 않아 강한 위험선호나 강한 위험회피로 단정하기 어렵습니다.",
+      "state": "CHOPPY"
+    },
+    "regional_reviews": [
+      {
+        "counterevidence": "verified_events가 비어 있어 하락 원인은 확인할 수 없습니다.",
+        "facts": "S&P 500, 나스닥, 필라델피아 반도체 지수가 모두 소폭 하락했습니다. 변동성 지수는 하락했습니다.",
+        "interpretation": "매도 압력은 있었지만 공포성 매도로 확인되지는 않습니다.",
+        "korea_transmission": "한국 반도체와 성장주에는 단기 심리 부담입니다. 다만 큰 폭의 전염으로 단정하기는 어렵습니다.",
+        "source_event_ids": [],
+        "title": "미국"
+      },
+      {
+        "counterevidence": "유럽 업종별 가격과 정책 이벤트 자료가 없습니다.",
+        "facts": "유로스톡스50은 -0.09%, 독일 DAX는 +0.53%, 영국 FTSE 100은 -0.21%였습니다.",
+        "interpretation": "유럽 증시는 엇갈렸습니다. 지역 전체의 강한 방향 신호는 약합니다.",
+        "korea_transmission": "한국 시장으로 오는 직접 신호는 제한적입니다.",
+        "source_event_ids": [],
+        "title": "유럽"
+      },
+      {
+        "counterevidence": "신용 스프레드(회사채와 국채의 금리 차이), 한국 금리, 외국인 수급 자료가 없습니다.",
+        "facts": "미국 10년 금리는 올랐고, 달러 지수와 원달러 환율은 내렸습니다. 유가와 금은 올랐습니다.",
+        "interpretation": "금리는 부담, 환율은 완충, 유가는 비용 부담입니다. 서로 다른 신호가 섞여 있습니다.",
+        "korea_transmission": "한국 증시는 업종별로 다르게 반응할 가능성이 큽니다.",
+        "source_event_ids": [],
+        "title": "금리·환율·원자재"
+      }
+    ],
+    "report_date": "2026-08-16",
+    "scenarios": [
+      {
+        "base": "한국 증시는 약보합 흐름을 기본으로 봅니다. 반도체와 성장주는 조심스럽게 확인해야 합니다.",
+        "bear": "미국 지수선물이 추가 하락하고 원달러 환율이 급등하면 위험회피가 커질 수 있습니다.",
+        "bull": "원달러 환율이 안정되고 외국인 선물 수급이 좋아지면 낙폭은 제한될 수 있습니다.",
+        "horizon": "NEXT_SESSION",
+        "switch_conditions": "미국 지수선물, 원달러 환율, 외국인 수급 중 두 가지 이상이 같은 방향으로 움직이면 판단을 바꿉니다."
+      },
+      {
+        "base": "금리와 물가 부담이 남아 있어 지수 전체보다 업종별 차별화가 이어질 가능성이 큽니다.",
+        "bear": "금리와 유가가 동시에 오르고 주가지수 하락 폭이 커지면 방어적 접근이 필요합니다.",
+        "bull": "물가 둔화와 금리 하락이 함께 확인되면 성장주와 반도체 심리가 회복될 수 있습니다.",
+        "horizon": "SWING_1_4W",
+        "switch_conditions": "미국 10년 금리, 유가, 반도체 지수의 방향이 동시에 개선 또는 악화되는지 봅니다."
+      },
+      {
+        "base": "연준 전망과 현재 물가가 크게 어긋나지 않아, 금리 인하 기대만으로 강한 상승을 말하기 어렵습니다.",
+        "bear": "물가가 다시 높아지고 실업률도 악화되면 경기와 금리 부담이 동시에 커질 수 있습니다.",
+        "bull": "물가가 뚜렷하게 둔화되고 실적 전망이 좋아지면 중기 위험선호가 회복될 수 있습니다.",
+        "horizon": "MEDIUM_1_6M",
+        "switch_conditions": "근원 개인소비지출 물가, 실업률, 기업 이익 전망 조정이 함께 확인되어야 합니다."
+      }
+    ],
+    "schema_version": "1.0",
+    "watch_items": [
+      "미국 지수선물의 야간 방향",
+      "원달러 환율의 급변 여부",
+      "외국인 선물과 현물 수급",
+      "미국 10년 금리의 추가 상승 여부",
+      "유가 상승 지속 여부",
+      "한국 반도체 대형주의 장 초반 거래대금과 낙폭"
+    ]
+  },
+  "analysis_meta": {
+    "duration_ms": 161142,
+    "input_sha256": "f6a62066ae9fed71622918618d51be97d781017148bc236f97fd8ee112e76915",
+    "model": "CODEX_CONFIG_DEFAULT",
+    "status": "COMPLETED"
+  },
+  "collection_status": [
+    {
+      "elapsed_ms": 57,
+      "items": 20,
+      "ok": true,
+      "source_id": "fed_press"
+    },
+    {
+      "elapsed_ms": 423,
+      "items": 1,
+      "ok": true,
+      "source_id": "bls_latest"
+    },
+    {
+      "elapsed_ms": 966,
+      "items": 15,
+      "ok": true,
+      "source_id": "ecb_press"
+    },
+    {
+      "elapsed_ms": 1262,
+      "items": 20,
+      "ok": true,
+      "source_id": "ecb_mid"
+    },
+    {
+      "elapsed_ms": 522,
+      "items": 35,
+      "ok": true,
+      "source_id": "global_us_policy"
+    },
+    {
+      "elapsed_ms": 460,
+      "items": 15,
+      "ok": true,
+      "source_id": "global_europe_policy"
+    },
+    {
+      "elapsed_ms": 615,
+      "items": 53,
+      "ok": true,
+      "source_id": "global_geopolitics"
+    },
+    {
+      "elapsed_ms": 598,
+      "items": 34,
+      "ok": true,
+      "source_id": "global_semiconductors"
+    }
+  ],
+  "events": [
+    {
+      "article_count": 2,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "f770f97c4c34567ee19dad80",
+      "headline": "WTI Crude Recovers Near $80 as Geopolitical Supply Risks Persist - CryptoRank",
+      "importance_score": 59,
+      "independent_source_count": 2,
+      "insight_evidence": {
+        "evidence_level": "CROSS_CHECKED",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "달러·글로벌 위험선호를 통한 국내시장 간접 영향",
+      "market_terms": [
+        "geopolitical",
+        "supply"
+      ],
+      "published_at": "2026-08-15T03:32:39+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T03:32:39+00:00",
+          "source": "CryptoRank",
+          "source_tier": 2,
+          "title": "WTI Crude Recovers Near $80 as Geopolitical Supply Risks Persist - CryptoRank",
+          "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQQi1NblFjR0p3UWlPck5lUG83bFVwbkRybXo2Ymtzb3A4TUhxMWhicnV1UV9fRjZmREZZSjdqYldkaC1pNWFfX1poUlNoQVdSU09OLVdpRmdqc085MERQbGt1OG1FTndkQVVzc0ZweVN0V0EyRTVmUlYtWUo1QkloajVwNlRrdm5zNXlhcVAyUm1sOS1U?oc=5"
+        },
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T01:55:11+00:00",
+          "source": "bitcoinworld.co.in",
+          "source_tier": 2,
+          "title": "WTI Crude Recovers Near $80 As Geopolitical Supply Risks Persist - bitcoinworld.co.in",
+          "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxORnVoTk50aW1ndThodVh3ZDRaUnFJQ083a2FwMjlzbHdhbVQzdEdnekVNa09RNFhUVVcycFZGMFBVbmp4SWZTV2Q2cEVxVlcteDFJTU1FXzY4TlZBMVRndEdLTkJNeXpyYmZFRnVueEhXS2lRdmNSckpCaDVQYmNLLWlaTE5pdzQ?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "3e6ce80216cb356e235a118c",
+      "headline": "Energy Stocks to Watch as Russia Supply Risks Shake Oil Markets - simplywall.st",
+      "importance_score": 46,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "energy",
+        "oil",
+        "supply"
+      ],
+      "published_at": "2026-08-15T10:29:52+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T10:29:52+00:00",
+          "source": "simplywall.st",
+          "source_tier": 2,
+          "title": "Energy Stocks to Watch as Russia Supply Risks Shake Oil Markets - simplywall.st",
+          "url": "https://news.google.com/rss/articles/CBMizwFBVV95cUxOSW9NUVNWRTZqRlNSdThPMlVBZl9UMVdoaGhRVDZ6NFdGd2V6U0w3cHFZUG03UmZYSkJfb1ZxSGhvd1BESjVLdzFoeExqVDJndjVSN0tZd0xKWlJZUDlEWHBaYk5YRUFGbl95VDJ1NXN0X1lzVTdwdU5qMmY5d3Q5eE5lOTI0Yl8zaV9IMGR1LUtuYjhpdkJOTFhJa0x1TFFEQ2ozU2hUemVzUjR2N00wRUlzSkVPZmFUb0V5bVliaEoxVFJXUE9pOFUxUGlWN2PSAdQBQVVfeXFMTTNJOE83Q05wRXFnTHBjbUZnUS1aY3Z0LWdRQ0d6SnE0Sm53RWhrQmJpbTM0aGhXcFpnREo2TjRlVkFycHh0ZWhzUDZQZWRfQUM3ZFluYnJLMW13elg4SzU0cHUwb2hyRlROOFdDcEJvbFFtYW54a1dZT0Vfb1JOeFZvdU1uWHBDYlpYc1lPQk9fR0plM1BvT0VseWFwTTRRSXNtdmhubEJ3T25jeEZGZXl3Q0trZmljZlV3Z0lMZ3RuX0dmTFY5U0dnaVRIX29Rcy1rQ1Y?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "69f0f110bd45377fbd8e6046",
+      "headline": "MCX launches Crude Sunflower Oil futures contract to strengthen price discovery - Business Standard",
+      "importance_score": 46,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "futures",
+        "oil",
+        "price"
+      ],
+      "published_at": "2026-08-15T04:20:02+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T04:20:02+00:00",
+          "source": "Business Standard",
+          "source_tier": 2,
+          "title": "MCX launches Crude Sunflower Oil futures contract to strengthen price discovery - Business Standard",
+          "url": "https://news.google.com/rss/articles/CBMi8wFBVV95cUxPcVI3eVNJNlJrakpKVmxzT2MyVWhoZ29sQWl1SkpWZ0xiYTVzd1RiOW9CUGRmRlVvUUtnWklON2RaZDBWQ3ZBOGVVNnhzVVRBSmlmMWZfSkVHY3o5TGJ5MmRBaUsxVXRlMnU3V09iNzFDTkVCcDF1X2hDYmFpcmZZV19GdnVJYnRKemM0d2N0azhWUXNZeEw2TWZBTUp0c3I3NGF2MnpkekI1a1VxYk1tQ1lUR0g4bVF6NnFOTlMyX28xVWZqdkFydVNsYlJycjFYckF6ZTY2YWVOV3VtbHZncXhBR2psTDAtOEFTanNlTWd2LU3SAfgBQVVfeXFMTVFEWmpNZGJNYXJMMkphdHhsZ2pGX1FpekhWbk9LTXl3VEp3Vm5XMzF3R0lWX1RiaVBVUF9SbzdMU21hRWd3cWlGZ3NiQlhhQWdlenRYVldwQVUxQ2k2b0NZV25HUEdMalhYQTltZHJ0VUd4Ymd3UHZTcllhOHZOOHpzSjRvWDVQdml3c09NZTR1djYwZndmYm1IYmV2ZEpZcFJJWFMxMUVNQkgweDIyOHFHQXhabnVBR09qd1RxY0hwQ2RhdzM2eTd2MzZEeUMzVFZ5empyV2ZRaG5Qc3VNZDYtTlJFTFd6Tk8xNGJDZWJPMG1qaGx4TGE?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "f28dfb1f68ead7d9a6bd1168",
+      "headline": "India’s edible oil problem is not supply: It is policy uncertainty - BusinessLine",
+      "importance_score": 46,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "글로벌 금리·달러와 국내 성장주 밸류에이션 / 수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil",
+        "policy",
+        "supply"
+      ],
+      "published_at": "2026-08-15T04:00:00+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T04:00:00+00:00",
+          "source": "BusinessLine",
+          "source_tier": 2,
+          "title": "India’s edible oil problem is not supply: It is policy uncertainty - BusinessLine",
+          "url": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxOU0plc3ZSLW9JSUFVOVlHRFNZdkVVaGRZSU9WWlZuanBabXVjeFhvRWZQWmZSWThkOHBnaHFOV05TWm9jM21OZm5QNWpldG96R2EzdVpIblA4TUJ5bUVHOW1lVGRoTklOWkxXQzFUcU9lTEo2SC1IblM4Yl81Nldxd2ZCblpsZ0pxLTQwRFR4c2c2UVZ2RHNxT19tV09uTE5nalhmaWxUMmJuak1OOUJTTjFUTC00Y1p3aHN2QUFJU3ZlazJtdm1UbzQ0eGpWeXcyTTN6NVplZTVURDDSAeIBQVVfeXFMTnpzTjh1dTYxV1JDa3hRZEM0WW93RFpkdUxhWUMtdUdFeDU0aGtEYlBVRkNYNFVFbjFiYnlSbVpLYlV4X0wxTGViRlZLQkN6VndfWWtFV1U0ZkNFNEs3dTNlVnhKSlRyQk1KYVoxSzhBdGZkaTdDUXNyVGhVSFB3UnUtTFFWRGhnUHdWanJQU3JTTEFmRG9HOEN0Y1Zrampodm1pMUMzYnRMUGRYOGxVcFdfbm51UFN4eW9naG9LWVZqdFZ1QUxtb0xyYVJoUUVyem91eG1zWGM0bEJxaF9Pa0psZw?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "3ea8d1aa15386687cdbb1c63",
+      "headline": "Crude Oil Futures (Derivatives) Price Today in India | CL to INR Live Price & Chart - Binance",
+      "importance_score": 46,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "futures",
+        "oil",
+        "price"
+      ],
+      "published_at": "2026-08-14T23:16:00+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-14T23:16:00+00:00",
+          "source": "Binance",
+          "source_tier": 2,
+          "title": "Crude Oil Futures (Derivatives) Price Today in India | CL to INR Live Price & Chart - Binance",
+          "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE02WnBtVnQ3R09VVmFyN2NTeE1CaXp1TEZBTW4ybWpoUmNPOVRDU0l2Z2k5UlRlNnVPSWRoTEtONkNXSDRhUlFKaTFWS1hxYS1lTS15ZmJwV0NyczktdVE3V2hNQVRTUi1GQU9fTEpYUlRMYm8?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "c37e61f585ec8778063b11bb",
+      "headline": "Tariff Refunds: $100B Returned to Businesses, Fueling GDP Growth - News and Statistics - IndexBox",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "중국 민감 수출주와 공급망·위험선호 / 미국 경기 기대와 외국인 위험자산 선호",
+      "market_terms": [
+        "gdp",
+        "tariff"
+      ],
+      "published_at": "2026-08-15T21:20:00+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-15T21:20:00+00:00",
+          "source": "IndexBox",
+          "source_tier": 2,
+          "title": "Tariff Refunds: $100B Returned to Businesses, Fueling GDP Growth - News and Statistics - IndexBox",
+          "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxQdTRVQXQ0eGViQm5zRnFpS2xOT3RlZ0pnNXJkd2taaUgxcGtERElhRXJTVkMtUkhRQlZuZ3Y3SHJKeFN2SE8xaHJJUmFfajk4Skx3RFdXU3l3TkstcXNYQVl2YmJzYXk4RmN2UTc5MklIeXhiNjRDOXh0eERRVXJUbEF3?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "4c02d67726bdc897ce0776e7",
+      "headline": "Tariff refunds are juicing corporate profits and GDP, as tailwinds converge to propel growth to 4.3% - fortune.com",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "중국 민감 수출주와 공급망·위험선호 / 미국 경기 기대와 외국인 위험자산 선호",
+      "market_terms": [
+        "gdp",
+        "tariff"
+      ],
+      "published_at": "2026-08-15T19:08:00+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-15T19:08:00+00:00",
+          "source": "fortune.com",
+          "source_tier": 2,
+          "title": "Tariff refunds are juicing corporate profits and GDP, as tailwinds converge to propel growth to 4.3% - fortune.com",
+          "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxNS0NVTkFHZjVMUHl0VUlYMXE4YzdrbmZmS2E1WVVndjRsTUkyZ1k4b3ZaYzQxVWpYeFBFbVBodEE4RjRPTDh1NnhpVmw2LXYyTmM4MldSRFJnQmpxd3llMlNmNkFpX3lEZGt4czlBNzdrbHhYZmYxUk9fQVpFdXpSc2tPMVBnOVVqWExiVkV1X3EzOHJGSHpqTQ?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "4082c2efdf51c40f5042d035",
+      "headline": "Oil and Water Repellent Laminates Market to Reach 185 Index by 2035 on 5G and Iot Device Demand - IndexBox",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "demand",
+        "oil"
+      ],
+      "published_at": "2026-08-15T15:51:22+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T15:51:22+00:00",
+          "source": "IndexBox",
+          "source_tier": 2,
+          "title": "Oil and Water Repellent Laminates Market to Reach 185 Index by 2035 on 5G and Iot Device Demand - IndexBox",
+          "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxPZUFTX0p4RkhlN1MtOWFUTGs0UktreXJzdmlzN1NlWDByb3ZYeDNXM1M2VU9XbTQ5bFVWR3RNTEg0dC1vRWtfaFM1TFJZTDRXNWpMd3FnVDNkODRzazBHbkMzLWVaRzZWcThjTlg0RDR5RDl0c0Q0QnVJN3BLNFJ1cXJHUWR5LUJ2VXY1MFNpUlQxSVJNYlpWaUd5UjR2QzJJMm9BSGJmRjdhbnM3X09uY2t0SmREY3RPUFpNZEQwYVJ2ZUE?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "e181bd01b3c0d12b5d9fb6fc",
+      "headline": "Inflation moderated as Intel and Nvidia fueled the AI trade in last week's market - CNBC",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "글로벌 금리·달러와 국내 성장주 밸류에이션 / 중국 민감 수출주와 공급망·위험선호",
+      "market_terms": [
+        "inflation",
+        "trade"
+      ],
+      "published_at": "2026-08-15T14:22:54+00:00",
+      "sources": [
+        {
+          "feed": "Google News - semiconductors and AI",
+          "published_at": "2026-08-15T14:22:54+00:00",
+          "source": "CNBC",
+          "source_tier": 2,
+          "title": "Inflation moderated as Intel and Nvidia fueled the AI trade in last week's market - CNBC",
+          "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxOTXozT0VsTTdYQzZiRVo0YnBqMXhqTjdOd1h4VkNBVXBBLV94dmdRLUFrQUZHYWJWWFhmU3hidWZrRDFhMV9rR0xkMHVvZ0MtVzFrLXBaMTMxOVFKUU1zTF9OQThHYWxqQkprRjBBR0FTSU1tOENFa2RyUGJLeXZWV3hRVmtyUW1PUTJKcmtsYjNTV1lNdDZ6S3ZObldnRldQeS03SFFvLWU3dXZGS2lHV1dQcnNuYVk?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "2e4d6a021a342ee7bbe66c42",
+      "headline": "Not Nvidia. Not AMD. This Chip Stock Will Be the Biggest Winner of the Historic AI Semiconductor Boom - The Globe and Mail",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "반도체 업황과 외국인 대형 기술주 수급",
+      "market_terms": [
+        "chip",
+        "semiconductor"
+      ],
+      "published_at": "2026-08-15T13:50:32+00:00",
+      "sources": [
+        {
+          "feed": "Google News - semiconductors and AI",
+          "published_at": "2026-08-15T13:50:32+00:00",
+          "source": "The Globe and Mail",
+          "source_tier": 2,
+          "title": "Not Nvidia. Not AMD. This Chip Stock Will Be the Biggest Winner of the Historic AI Semiconductor Boom - The Globe and Mail",
+          "url": "https://news.google.com/rss/articles/CBMilAJBVV95cUxNekRmbTN6bElqOTBwdFFpbHZZaXd3MVNxVDVnY09ZS0MxamxiMktkSkNDZVd5RmlicG9RQ2hZM0lGc3RvWW13ekM3NTJqSzcxTkJ3bDVsTzd5eDNmclJGNFM3S21UWjVMZk8yTjdXTlRRa1gwUmU4dV9sdFkwUEpKaV8tQU9fTnJfckVuQXhNQTlJZG9UcWZ5WVBYR3lVbzFPcFp1SEI5Z1pMMlotSHpkVkdTWGhoV2FDZHk1Tll3NjdqUlEtMm1ySU85OEZfT01TWDFTTjI3NW0yazJOUUtVLWxLS2NsN0NiUnVxSHYzQUdVQXhIX05CVWxOdldjdGVzU2NSUUI5UFE5VWhYMDlkZkw0STE?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "ea7967c7163c8660d4f01acd",
+      "headline": "World Absorbs Historic Iran War Oil Supply Loss, But Depleted Stocks Bring Risks - EnergyNow.com",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil",
+        "supply"
+      ],
+      "published_at": "2026-08-15T13:10:22+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T13:10:22+00:00",
+          "source": "EnergyNow.com",
+          "source_tier": 2,
+          "title": "World Absorbs Historic Iran War Oil Supply Loss, But Depleted Stocks Bring Risks - EnergyNow.com",
+          "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxQbW5RLWt6Unk4SkNYOXIySEZqOF8tTUs3NWNZWTRWaUEzVW5MVmNqSTJqTnY5UTZZc09EY0RlLTc3UWcyTWlFcnlLdFdQSG9WSm1RcUFwNENpcGIxQkxmZU53VkFRM3o3aWtQZDRsQ0NHR0ZsejFVdHhyR09Jb1gweU1BLVFCSE1yVnBYQmV3VDRxcEJHVGMzNXh4QTlQbmQzaUJRaVBxM2FRQ3dCX0Rz?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "d04963ecd997f5b3ff709701",
+      "headline": "CHARTED: Oil Trade Through the Strait of Hormuz by Country – Visual Capitalist - EnergyNow.com",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진 / 중국 민감 수출주와 공급망·위험선호",
+      "market_terms": [
+        "oil",
+        "trade"
+      ],
+      "published_at": "2026-08-15T13:08:34+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T13:08:34+00:00",
+          "source": "EnergyNow.com",
+          "source_tier": 2,
+          "title": "CHARTED: Oil Trade Through the Strait of Hormuz by Country – Visual Capitalist - EnergyNow.com",
+          "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxQeU1tdWFDbEwyc2R5ZEFYN3Y4Q3czZEZKX2ZMWUZWUjVDaHljOVZXY1dTX1h1LXFMSlNJcGtad1VURWhBaHFPWm5nNmY5YzJDX1B1RU1ISDFKWEs1US1TNkptS3lIYXVyWUZsdUM4OTFzRk8zOU1abWE5M3IwV0dtX2VqWlhBUW5mbERvOVVoU2EyR25PQk5qbk9PNXBfbmZ3NTFlR1hXVVZNUQ?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "e9fc4a43a0540081e6ae0725",
+      "headline": "US raises pressure on EU to 'deliver' on non-tariff trade commitments - The Daily Star",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "중국 민감 수출주와 공급망·위험선호",
+      "market_terms": [
+        "tariff",
+        "trade"
+      ],
+      "published_at": "2026-08-15T12:52:21+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-15T12:52:21+00:00",
+          "source": "The Daily Star",
+          "source_tier": 2,
+          "title": "US raises pressure on EU to 'deliver' on non-tariff trade commitments - The Daily Star",
+          "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxOdGE4VExGQzVrUEpNVHBWMTBrY2NpRFl1MUFIQlNpVHBuTkJocXJfLUdYdEFVMkxuTW1SeWgzOE9LOENTMFhCZkRfUWxfd3pMWjcwNTZxWUU4YnNhYmJrRVhtUFUxdjJtekI4cHB2Wm1YN0FoVTVWOWJhaFhacTN6b3VhR3lHTXFGZ3RqaVpQSGYteDVrR0Y5VC1rREEwUkRhWkFHNFNFTDNIU2loY2c?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "05863e3c3a98571933a48c05",
+      "headline": "South Korea Chip Data: Memory Up 277%, Logic Down; AI Buys Bandwidth, Not Compute - Tech Times",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "반도체 업황과 외국인 대형 기술주 수급",
+      "market_terms": [
+        "chip",
+        "korea"
+      ],
+      "published_at": "2026-08-15T12:50:53+00:00",
+      "sources": [
+        {
+          "feed": "Google News - semiconductors and AI",
+          "published_at": "2026-08-15T12:50:53+00:00",
+          "source": "Tech Times",
+          "source_tier": 2,
+          "title": "South Korea Chip Data: Memory Up 277%, Logic Down; AI Buys Bandwidth, Not Compute - Tech Times",
+          "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxPN0VuaWY0eC1WbTBiaUYzMFp5cWxGbUl5X0FMaGdjcDhkN1lySHd3OEhxQmZjdlhkOE96WnFOenE1RlIxNW5paEFDN0dHeTF6ZEJaQzQ0bEgzUTNqak5zZFNYdkVSZ2tINmEwTVNQTGYtMnh5NGFOdTM4cWFpNHJ2dzZsY3Jua2tYbHBFZl9pOU1nOHotLU5MUkM0OGV0VHZJdEJTZjc3MnFkTlNTVW94Qnh2SVJBTUZneGFoRXlObjZsQ0pPcGhz?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "a5458e32fce3c44ee34b77d2",
+      "headline": "China has wrested control of oil markets from OPEC - Der Standard",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진 / 중국 민감 수출주와 공급망·위험선호",
+      "market_terms": [
+        "china",
+        "oil"
+      ],
+      "published_at": "2026-08-15T12:35:16+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T12:35:16+00:00",
+          "source": "Der Standard",
+          "source_tier": 2,
+          "title": "China has wrested control of oil markets from OPEC - Der Standard",
+          "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPUUg2YzJZeFl2Y0ZWbF9JV2VEbm9ITkc5VDMzc2staWlHWEw1Ml8tZVFlX1BrTllWSlk5TFdnYmdjd2JRYTFRbDdnV3BkZUdDamdfajNqVTE0ZnN0N1EtS051dUE2RVJHUHRGQUhVUWlMSENyM1I4cEdBd0kyN2RjSjRNT2JIV3hhald0a2RfYUt1WnE5enZLZFlQaG50TTlWTzRKZF9pX2lhOWlmSEJPWWFUcmloblZOdWc?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "a44d2b0942e0699a9541a42b",
+      "headline": "US inflation remains above Fed target, rate cuts unlikely soon: Bloomberg - Crypto Briefing",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "글로벌 금리·달러와 국내 성장주 밸류에이션",
+      "market_terms": [
+        "inflation",
+        "rate"
+      ],
+      "published_at": "2026-08-15T12:11:09+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-15T12:11:09+00:00",
+          "source": "Crypto Briefing",
+          "source_tier": 2,
+          "title": "US inflation remains above Fed target, rate cuts unlikely soon: Bloomberg - Crypto Briefing",
+          "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxPMUNuQ29WNzVPT1A3QVJQcEt3cXJFT2V3elhGV3U0OTFGcC00VU9pRVlTR0ZtNV9EYWw2b0NvREhSZEZWWERwcW9xVFJfSGJ5RU1hRWxYcEdfdzRQcXVEb054TTNmY0IyVnhIeEM1QzdtUUVnRDkxOFFMVWZOQVluTHVIOFExMzA0V1M2R2dURHY4LUZoRWJFN2ZjbGpSTEZy?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "cfe30d6eba28545e73b40543",
+      "headline": "Can Global Oil Stocks Withstand Another Six Months of War? - Energy Update",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "energy",
+        "oil"
+      ],
+      "published_at": "2026-08-15T11:42:38+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T11:42:38+00:00",
+          "source": "Energy Update",
+          "source_tier": 2,
+          "title": "Can Global Oil Stocks Withstand Another Six Months of War? - Energy Update",
+          "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxPMjhvX1hGVl96bUVUZE0yVTJCeU1zdkdKLU1XU29BQTQ0dy1QV3ppTUg3ZXF2aFNGeVp5RWEwVTR3ZnAzbHpvWXg1cHcwelVrUEdrT2F3YVVPZHJjTTZmQl9SSkp2V1lCV0M1empKekdUbVpIc0ZYcFhOc2V6bWdTLXE3RlM3ZlhDTWs4TXN4eHlsaS1CS0xHT3RjVTIySzg4eURN?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "b3c3f3d5a7315e665f6f0f97",
+      "headline": "Synthetic Polyol Ester Oil Market To Hit 176 Index by 2035 on Semiconductor Fab Expansion - News and Statistics - IndexBox",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "반도체 업황과 외국인 대형 기술주 수급 / 수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil",
+        "semiconductor"
+      ],
+      "published_at": "2026-08-15T11:21:13+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T11:21:13+00:00",
+          "source": "IndexBox",
+          "source_tier": 2,
+          "title": "Synthetic Polyol Ester Oil Market To Hit 176 Index by 2035 on Semiconductor Fab Expansion - News and Statistics - IndexBox",
+          "url": "https://news.google.com/rss/articles/CBMivgFBVV95cUxQdDJ4Zm5UMTh6T0VRRlViakd2X0hMaHpoWFZBT3ZHM1ZKMnVJamdETGdDdmhKTkxBTVFGWXN4VGJVTTE4SjRtcTk2NkJ4MjJqMGxHRi1VSzh3LTJiQWo1RVkyOVliYkhucmVkLUh5UVNDLVZVLW9yVk5QY3hZa0VjZ0NnUEQxN25wODZDSlBseDJCNndVcFFJZDJlRU5ROEtsc3UxazZmUHd6bEtfcTd2d05RQzVCTEE4WVRXRE1R?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "25f5f5900631156076be1da0",
+      "headline": "Cerebras Systems IPO 2026: Date, Price, Valuation, and Whether CBRS Is Worth Buying - TradingKey",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-005",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "달러·글로벌 위험선호를 통한 국내시장 간접 영향",
+      "market_terms": [
+        "price",
+        "valuation"
+      ],
+      "published_at": "2026-08-15T09:29:13+00:00",
+      "sources": [
+        {
+          "feed": "Google News - semiconductors and AI",
+          "published_at": "2026-08-15T09:29:13+00:00",
+          "source": "TradingKey",
+          "source_tier": 2,
+          "title": "Cerebras Systems IPO 2026: Date, Price, Valuation, and Whether CBRS Is Worth Buying - TradingKey",
+          "url": "https://news.google.com/rss/articles/CBMigwJBVV95cUxOX1AzQ3ZwckpWNk1qdnV5OE1nTlJHUHhVT3ZvbHBZdktYeVZnV1NlaHFmOUJIdE9GM2RMVnlERXppR1dfaFBwSms0SmY0ZS1tZHh1VlBuWm45WFNFR1VlVGxBZEV6Zl9YSlhlbWZLV1FHZ0RPMVh3TW9JLXRwZEtNeDJRaEwyaWRMYTZWZnUtemVmazRkYVdQWFRHQ1RLRTdaNUYwV2JpdjB4eUZpeU8tVktjRHNFQktlMjZXajZSMDVXdUhZMFpBYnZ1QlV2RURpNUlGMzJhUnBEYnJXczV0YUJWYWdRWFpyRGVQVWVJOTlSSWo0UzhPcktGSXI5N0pXN0NR?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "218323f1069caa26da3dfd8c",
+      "headline": "Oil Gains 4% as US-Iran Tensions Threaten Global Supply - DAILY TIMES Nigeria",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil",
+        "supply"
+      ],
+      "published_at": "2026-08-15T08:21:12+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T08:21:12+00:00",
+          "source": "DAILY TIMES Nigeria",
+          "source_tier": 2,
+          "title": "Oil Gains 4% as US-Iran Tensions Threaten Global Supply - DAILY TIMES Nigeria",
+          "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxNSDJnNVp5YmxjZW40TTBlTVVfOTFqc0gxRFVxcWp6SXdLY2wtbmRGMTFYZ1FxUGxwcE50N05HcFNSM3p2ODNSb0R0d212eHJnNXI0ajJkaFptblFfaXhMajlmZG9NemR2WVJGS01LTVZMMklfM2o4a0pUT3JmTHVkT3pQNzhGNkk?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "f19c38fd6504cb0d8ff06338",
+      "headline": "Oil prices climb amid US-Iran tensions as markets brace for supply risks - Minute Mirror",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil",
+        "supply"
+      ],
+      "published_at": "2026-08-15T06:15:44+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T06:15:44+00:00",
+          "source": "Minute Mirror",
+          "source_tier": 2,
+          "title": "Oil prices climb amid US-Iran tensions as markets brace for supply risks - Minute Mirror",
+          "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPbzZINGt1ajhrVWx1M2dSTUI3am0tVThiX01PazZFV01ncDkxZWpIanFGYTJzeWpVa2t0czZSS1FHeEk1MVg2dWZtNzN0Sl9yRlh0ZHhXNWU1SWp6Ukc4b3ZNX05KTlV0bTJwNmU3NWlNQVdHSWNsaURxZmpINU1WRkszM1M5NVpGV0JWQ0E0UXFnLVNocmdreC1zd2dub21YZ0ZRLW1LU0FHMDNS?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "b30919285649dff576ae300b",
+      "headline": "CPI in Focus: Can the Dollar Turn Lower Again? - CryptoRank",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "글로벌 금리·달러와 국내 성장주 밸류에이션",
+      "market_terms": [
+        "cpi",
+        "dollar"
+      ],
+      "published_at": "2026-08-15T06:13:28+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-15T06:13:28+00:00",
+          "source": "CryptoRank",
+          "source_tier": 2,
+          "title": "CPI in Focus: Can the Dollar Turn Lower Again? - CryptoRank",
+          "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE5tNWk0SG5KWldNYVBDeGJoZXlFSTRDZktMSEVuTFRPR3RfRWlnZERTc0dLd0xfVjIzMERjQzNhYmJrajNjNnlabDc3eFhzN09oMldaVFpURlNVMVU5ZXZyM1BuOVNrVXZJNmQ4ZmRmOFM1aDg?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "372ee83e96490892ef5e885d",
+      "headline": "US Dollar Awaits CPI Data And Fed Speeches For Next Direction – Commerzbank - bitcoinworld.co.in",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "글로벌 금리·달러와 국내 성장주 밸류에이션",
+      "market_terms": [
+        "cpi",
+        "dollar"
+      ],
+      "published_at": "2026-08-15T03:45:10+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-15T03:45:10+00:00",
+          "source": "bitcoinworld.co.in",
+          "source_tier": 2,
+          "title": "US Dollar Awaits CPI Data And Fed Speeches For Next Direction – Commerzbank - bitcoinworld.co.in",
+          "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTFBkbUdyNXQxZURxX1laZ01uNmVtdGZEZjZWSFR3V2JITDBJVnU5aVphdjNiLWctZ0JJemlIRkVkdVRIWC1OZEhNSWFNVTF2b1p5bkhXa1Myc0FBWWtBenMxMGNBd0xDeVp6RndZYmFHbUo4OTN3?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "21e1558feaa522ff8facf537",
+      "headline": "Gold heads for weekly gain as weaker dollar cools US rate hike expectations - Nation Thailand",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "글로벌 금리·달러와 국내 성장주 밸류에이션",
+      "market_terms": [
+        "dollar",
+        "rate"
+      ],
+      "published_at": "2026-08-15T01:28:00+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-15T01:28:00+00:00",
+          "source": "Nation Thailand",
+          "source_tier": 2,
+          "title": "Gold heads for weekly gain as weaker dollar cools US rate hike expectations - Nation Thailand",
+          "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE9YVWJ6a3pOZndFalRQYTVFZ0dKTkZmemRlS2FiTzhpU0xaeWdkWFRjUmp3eUYzVjZxR25LeXEtczZWaTRlUDVVYWJrOV9wWVV6ek5taEphTUQ5SENESXpGak5zeVBIcTQ?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "71e9a92482e0ac82c0e9aa2a",
+      "headline": "Oil Prices Rise 4% on U.S.-Iran Conflict, Supply Concerns - News and Statistics - IndexBox",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil",
+        "supply"
+      ],
+      "published_at": "2026-08-15T00:42:00+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T00:42:00+00:00",
+          "source": "IndexBox",
+          "source_tier": 2,
+          "title": "Oil Prices Rise 4% on U.S.-Iran Conflict, Supply Concerns - News and Statistics - IndexBox",
+          "url": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNSGNoQTllb1hCV01ESWNfc0hpak15RHN3UnpaaDdPMjdQN3J0QlFYdGE5Szc0TEE0Mkp3VnZaeTFjV01mVm9xTEJfQXJ6LWE4Wm9URmZsc2RrZGNPR2lyT2hGeFEtSExYQ25XTUVBVWNvS1RJU2FUbHg5cHphNW43OXhpY0tha0MzN1dr?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "c178bd7a1e5c94e6905a5539",
+      "headline": "IEA Slashes 2026 Oil Supply Outlook by 4.3M bpd Amid Hormuz Shutdown - News and Statistics - IndexBox",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil",
+        "supply"
+      ],
+      "published_at": "2026-08-15T00:41:00+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T00:41:00+00:00",
+          "source": "IndexBox",
+          "source_tier": 2,
+          "title": "IEA Slashes 2026 Oil Supply Outlook by 4.3M bpd Amid Hormuz Shutdown - News and Statistics - IndexBox",
+          "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNYXNmZzVNb19vR1J1LXU1RndpZVFjSFVqWURHN0VyN2tmXzhwYzVXT3JoVUNMT21yOWdnT20zTjBYZnc0VWptNVNfeVBncHRhYkNPSVhyTkczcHVTdDVjUTdjT3ViYzcya0JNMEFqQ0dVQ184VXZpRmJOSWxYdDJ1QlJ5TG1aekZtaV9nZU51aUtJRWJZelV6UFd3LWc0b0FYMlZMdF92SkN5VVlmcmwtVg?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "e9f10259fc3c6ce0b63533cd",
+      "headline": "Oil Market Clock is Ticking as Supply Crunch Looms: Bousso - EnergyNow.com",
+      "importance_score": 44,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil",
+        "supply"
+      ],
+      "published_at": "2026-08-14T23:10:40+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-14T23:10:40+00:00",
+          "source": "EnergyNow.com",
+          "source_tier": 2,
+          "title": "Oil Market Clock is Ticking as Supply Crunch Looms: Bousso - EnergyNow.com",
+          "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPWFpPQUZoWW1UOWFhT1dJdXJVSEV2OFRVX2hqanpwZFBWZlVXd0JDMjkxdjhNSkhRNlJMdER3M3R4NS1wTXRlZUZKaEZUWjA2N08zSWNrTDJjUW14aGhoNDJDbHdFT0kwd2FYUklJYkhkbVlDZ0o3ZUNVM29XLWZpUnZNSXNkcDMzNUkyUDNmVUpodw?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 2,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "efba4105516e435475dc94fb",
+      "headline": "Oil Seals and Gaskets Market Growth Driven by EV Powertrain Sealing to 2035 - News and Statistics - IndexBox",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil"
+      ],
+      "published_at": "2026-08-15T11:26:19+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T11:26:19+00:00",
+          "source": "IndexBox",
+          "source_tier": 2,
+          "title": "Oil Seals and Gaskets Market Growth Driven by EV Powertrain Sealing to 2035 - News and Statistics - IndexBox",
+          "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxPM2FUcDBlWlZYMWpZbkdSNExlTXpNdGVWUGF2WHBPUkZzWHhUNjlfVjlQbVItOEJ0RVpWbzZCaXpKN0RMZ2JaX2UxMkJFbnNLVDVwRGhpZ1FtN0JHUGNqSWI5MlRVTUVqcC13Rm93SlVMSzd6al9sX0VGSkJmVXZVaFJwT0hwanItWnZvdUkwNnFhb3J2Q3VzZG02M0J3RVBzR2hjclktQW80TXZQTU1F?oc=5"
+        },
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-14T23:11:16+00:00",
+          "source": "IndexBox",
+          "source_tier": 2,
+          "title": "Paraffinic Mineral Processing Oil Market Growth to 2035 Driven by Rubber Sector - News and Statistics - IndexBox",
+          "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxOZVJoT1l1di1GdUk5aVVDa2tFSl9odTY1U2tjbGxSVVZIWHJjV2hVdWtialRDRlQxcjltRHNyOGlETWpCQkZuS3o1N0tobU0zMzNyc0lBOEtJVnBNYWxGRlpYUzlzalY4YnBOWV8yVmdoWUZOLWpmZE96MWpIcGNQRWJxMDNfb0NwRkJTMlNuTUkzVEVteTdmaGctMGJkdm9PQTNCeUNyQVI5TGlfcjQ3Nzdjbw?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "8261d29002cc7b7d4e655458",
+      "headline": "Morgan Stanley Outlines Three Scenarios for Egyptian Pound Exchange Rate - Sada Elbalad english",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "글로벌 금리·달러와 국내 성장주 밸류에이션",
+      "market_terms": [
+        "rate"
+      ],
+      "published_at": "2026-08-15T21:09:19+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T21:09:19+00:00",
+          "source": "Sada Elbalad english",
+          "source_tier": 2,
+          "title": "Morgan Stanley Outlines Three Scenarios for Egyptian Pound Exchange Rate - Sada Elbalad english",
+          "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQeEhYZkpJZWtMQjBjSERGNWcybGRfV1FxUDVVWGM4TFJpMmU3bDdTemlYenA4cWg0YlRNaTQtS2hRNWY1YUpwakRqZDZfVVlhdm5zNUVkUktOUk9LYVM4aG9icVIxeDhheUl0aHFBRHB6ZjdpSXlmWnpndHB0dnRHYnE2SE12WGhWbVdiM2NPelg0SjQ?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "557a0bd91027c3ed134b057e",
+      "headline": "Reliable West Coast shipments of Alberta heavy oil emerge as lifeline for Asian refiners - abenergycentre.ca",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil"
+      ],
+      "published_at": "2026-08-15T21:07:18+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T21:07:18+00:00",
+          "source": "abenergycentre.ca",
+          "source_tier": 2,
+          "title": "Reliable West Coast shipments of Alberta heavy oil emerge as lifeline for Asian refiners - abenergycentre.ca",
+          "url": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxQT1hhSlIzYnRzQ1IwenB1Ykx0QS1IQ1BPUlhsN3VGa2k4T0NHUVMwUUIxZFdCWVl2RlNHOEdNZ3YxcmhEUG5LMDZ1a050VUtTMDlQMmpoSjVnLWVYbFpvNjlpWWRWSVJWd25aOVlCb2EyMXpySWFNQTBFaUFvZHBkMkctWlVrVnd0UkttUmpLb3dqdjA5RHhfSTR0Y0RBSHBibWZNNkRNTnpEanR6QzNYUFFZYmF1eWI2M3ZvM19wY3I?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "010a5fd304ce40a6a2037e6b",
+      "headline": "Crude Oil Holds Near 6-Session High - BW Businessworld",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil"
+      ],
+      "published_at": "2026-08-15T20:25:51+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T20:25:51+00:00",
+          "source": "BW Businessworld",
+          "source_tier": 2,
+          "title": "Crude Oil Holds Near 6-Session High - BW Businessworld",
+          "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxQcC1tNHZMdnhGZVZDWEV1WnIyX2lzdkZKV19KYWpWVXVwUWgzTy1uWW9HZjhzUTlERVJOQ0U0Wmc2SVpLNXQ0UDlrWHhITW9QWTJmY295cXpuT0plNVJRVHg2cDV4UThEQ3pyMVF0N1VuT3lmUXRYVTh2OGtsWGVjaEpXTnBRZWkyMFNLUWs3QXVEM18taEZzUWxDVGNZNGZDSG5mTkpzS0FkeHhkbjJsNTRR?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "EU"
+      ],
+      "event_id": "c88dc3cbc72d2dec7587813b",
+      "headline": "Ireland’s alumina exports face scrutiny over possible links to Russia’s military supply chain - weeklyblitz.net",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "달러·글로벌 위험선호를 통한 국내시장 간접 영향",
+      "market_terms": [
+        "supply"
+      ],
+      "published_at": "2026-08-15T19:41:11+00:00",
+      "sources": [
+        {
+          "feed": "Google News - Europe policy and economy",
+          "published_at": "2026-08-15T19:41:11+00:00",
+          "source": "weeklyblitz.net",
+          "source_tier": 2,
+          "title": "Ireland’s alumina exports face scrutiny over possible links to Russia’s military supply chain - weeklyblitz.net",
+          "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxOclA0R2RoeGx2dDM0dGcxNlphUUxDMEVMc21lUnpfOW55VXhwcjZSeXZwZ0pUUHhPeUV5cDJlZl9ZNldES04zZS1CWVl3eF9rcDFYaXFmc0F6OWFSNDN2c0pyWnU5S2ZJSWNiRl84bUlfZFlFd0JMeXJ6MG9zQ2tyRXlSY0RDdUFmOEVMV2pPeGx3SF9aVkZ6dGdZb21rbm8zZzI0aTlkS3MyZ3VVekVac2QyUk5jUV9PSGNfMDdSMHVtTE54UXc?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "8f32697738ab4d6c961c9adb",
+      "headline": "Strait of Hormuz crisis: Why fuel prices in Kenya could rise as global oil stocks plunge - People Daily",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil"
+      ],
+      "published_at": "2026-08-15T19:34:17+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T19:34:17+00:00",
+          "source": "People Daily",
+          "source_tier": 2,
+          "title": "Strait of Hormuz crisis: Why fuel prices in Kenya could rise as global oil stocks plunge - People Daily",
+          "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxPVVdEN1hEMmphSGF1cUllNXJYMFdzdWVySlM5ek9hVFRpSnk5bXZJYmpvNGVSdW1zY294T0R1Q2ExRzY1Q1UxclRobUlGdGhiWEtBcDNKcmR6SE8wYm9oNC1jOTFYWnVHYlV1THkxQ2NUY1BObllNeWE3b3FSYnpNbDFGU3l4WW4wV2s5UnVOQXg3Q2YwQ0FEbE1HdmdUUFBfYmR2aTNuX29XVXlSMmNLZmJSeVRrZ2NxRFZSR2phRThsUQ?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "63496784930b33067bd32bc1",
+      "headline": "Is oil stable despite the loss of 18 Russian refining capacities? - Arab Times Kuwait News",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil"
+      ],
+      "published_at": "2026-08-15T19:21:01+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T19:21:01+00:00",
+          "source": "Arab Times Kuwait News",
+          "source_tier": 2,
+          "title": "Is oil stable despite the loss of 18 Russian refining capacities? - Arab Times Kuwait News",
+          "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQVkE1TGd6N21Ea1YxZURPaGNNYjdZSGZJeVJuenpMSUd1Zm9aUXhPVllnekFSaVdNd25CaFMyT0RPQThWdDU5RXBYN05KLXR4MG03Y0RvXzg2OEluQ1RreXVoYzJmNmxEY0VmTDUxWjlMb0FJTjluenppUlVVSW9NZXNmazFGcEJsRDZLM2MzZEpjZTZudXktUjNXUXdxWi1TNV90TA?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "d0e3e40bf51577967b6928a3",
+      "headline": "Fed Rate Decision Predictions and Odds - DeFi Rate",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "글로벌 금리·달러와 국내 성장주 밸류에이션",
+      "market_terms": [
+        "rate"
+      ],
+      "published_at": "2026-08-15T18:48:20+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-15T18:48:20+00:00",
+          "source": "DeFi Rate",
+          "source_tier": 2,
+          "title": "Fed Rate Decision Predictions and Odds - DeFi Rate",
+          "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTFBJak1KdURfNlF4ckYyVlVRQWhWYmQ1VUhjbXJmOUlZQlFvM0x6NW1nZ0xWUWtuYklvMHJkZmpBRjRnZXFGM1dRYkpIX2o3UzY4RTB2NldGTEFWSnFDR3MwdGNjbE4xZlgyWWc?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "62ba9fabad6c2a4d4d985712",
+      "headline": "Middle East Tensions Flare: Tanker Attacks and Regional Escalation Hit Energy Routes - Whalesbook",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "energy"
+      ],
+      "published_at": "2026-08-15T16:45:01+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T16:45:01+00:00",
+          "source": "Whalesbook",
+          "source_tier": 2,
+          "title": "Middle East Tensions Flare: Tanker Attacks and Regional Escalation Hit Energy Routes - Whalesbook",
+          "url": "https://news.google.com/rss/articles/CBMi-wFBVV95cUxPczV2cW53enRBLTBRNjl2ZGJaZjZlOGY5LUY5eXdTcGdtQnYtbEwwQnRHV0w5eFYyci04NnUxdThHeC1oTUZCanZ6cEdhQ2hoSFM1RWhHeG5vUXB2V2hsZWg1RDF2alZrOTBhUGdwNjI2S0ZKT0JDbm9FVGhBTzJNWXZnaVNSczZnV3ZQbXkzbmdSNDB1aE5QWWEzY3FoaV9vNC0zdl9VWGcxdFV4RVNCS3lUODhIdU1YOVU1R3pndTN3S0VyblhETExrMmFLMi0xa3RScUhYZkNkS3Jhd0dOcnFmQUo5VUlFZzE3NkZCNXNQZ05qVG1vRHpTVQ?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "3b6219ca0d4a0f355d8473cc",
+      "headline": "Western Asset Reserves Price USD, WAR Price Live Charts, Market Cap & News - Bitget",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "달러·글로벌 위험선호를 통한 국내시장 간접 영향",
+      "market_terms": [
+        "price"
+      ],
+      "published_at": "2026-08-15T15:13:26+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T15:13:26+00:00",
+          "source": "Bitget",
+          "source_tier": 2,
+          "title": "Western Asset Reserves Price USD, WAR Price Live Charts, Market Cap & News - Bitget",
+          "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1iRkNfTzRkaldwX2Z1UUFrMEpYUWF3WEk2allWSHlZYkhndmdwX1dKdElVUFUtcWF3endpMUhzMFpRbzFjZjZwSmo5c21mRkVST19BUWpRN1dSZWtzOUtpbA?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "69b7c1af54f03be3f29623aa",
+      "headline": "Aramco reports sharp drop in Q2 2026 hydrocarbon output to 9.5 million barrels per day amid Strait of Hormuz supply disruption - Energies Media",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "달러·글로벌 위험선호를 통한 국내시장 간접 영향",
+      "market_terms": [
+        "supply"
+      ],
+      "published_at": "2026-08-15T15:10:49+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T15:10:49+00:00",
+          "source": "Energies Media",
+          "source_tier": 2,
+          "title": "Aramco reports sharp drop in Q2 2026 hydrocarbon output to 9.5 million barrels per day amid Strait of Hormuz supply disruption - Energies Media",
+          "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE8teVIwLWttQ1V2VVFjSEhoNXlkbFNPR21BN0llX29pbWdreEpRWlhMaV9RYmhnTzBmdndRYUJMbnpoUk0tMVhhSlBpSFVFMGVYQzlNREZ4MzBzay1oTnhOVGxOTWVCNnR2ZDRuUDZNM0pxbWZDRHc?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "2bdb85157b1b853ea6cf186b",
+      "headline": "Supertanker rates near $500,000 a day as Hormuz talks stall, threatening a diesel crunch this winter - marketscale.com",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "글로벌 금리·달러와 국내 성장주 밸류에이션",
+      "market_terms": [
+        "rates"
+      ],
+      "published_at": "2026-08-15T15:08:33+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T15:08:33+00:00",
+          "source": "marketscale.com",
+          "source_tier": 2,
+          "title": "Supertanker rates near $500,000 a day as Hormuz talks stall, threatening a diesel crunch this winter - marketscale.com",
+          "url": "https://news.google.com/rss/articles/CBMi5gFBVV95cUxPdnVQbTJ2T0FwUDNSWjRPbHNPNVNzQ2lKOUswMlYtNXlJU3psYjc2UWE0eE5CLWd1b0R3RzFsNGRpc0I1UUlpY1ZIc3I3ZUNDXzZuTXdwS2RfUXM0bkt1eUI0bVFLLUJNc3VFbU9UTVV6S0RqcEJ1UlNNM0ZEQTh1dVlOamlYWURBRm4yT2ZRay1KNWpUMnZNTmZJZnJHQWl5aUczTVUzbjZCci12Rks1bVhsQ0dKNnVCT1FyTGI1MHc1Q19fN196aUlEY2hndDlkUkJyNjhtdjhRaGNZc3pGOF9vYXQtUQ?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "4819b852350e698a9d97c0e9",
+      "headline": "Iran War Threatens a Prolonged Hit to Global Energy Markets - EnergyNow",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "energy"
+      ],
+      "published_at": "2026-08-15T13:53:22+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T13:53:22+00:00",
+          "source": "EnergyNow",
+          "source_tier": 2,
+          "title": "Iran War Threatens a Prolonged Hit to Global Energy Markets - EnergyNow",
+          "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQV3RPbFQzSUYtTVdYVTkyTUtwX0JsdmU0bzBPQjNBamRGajF6VG14QU1zUEdnOE9YMU4tSVhtZDY3MUtIU0FYNkhNQXZ2RkRERTkwWHZnNy1tYk9uaEpGdEdnLVNOR1hWZmRTbXVYUmVPUUJYUjJCU1F0OGY2MHh5SV80S1RLM1YxQmtGazB0ODdQRjg?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "cf21aabe224ac1624a4c009b",
+      "headline": "Iran War Deals Harder Blow to Natural Gas Than Oil: Maguire - EnergyNow.com",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil"
+      ],
+      "published_at": "2026-08-15T13:49:06+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T13:49:06+00:00",
+          "source": "EnergyNow.com",
+          "source_tier": 2,
+          "title": "Iran War Deals Harder Blow to Natural Gas Than Oil: Maguire - EnergyNow.com",
+          "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxPc2FSMGFORnRxVXZJcmJTbG1Ga20wZmsteEItMjktRjlBcENkUTRIQVFRQk55YUNvYVl2VUE4UlBlRkNKQmdna3VYYi1OallaN0lnblBuTFVBb3FqODFHbXVMZFI5QUFQLTdhXzlaTnpMZjFyTGRlSEZGUTc2VFQxRVBkc19xdDlhblFHRTNqZkc0UlU?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "6de21c702f4a3da5f0e7a7b4",
+      "headline": "US Gulf Coast Tanker Market Tightens as Asia Seeks to Replace Lost Supply - EnergyNow.com",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "달러·글로벌 위험선호를 통한 국내시장 간접 영향",
+      "market_terms": [
+        "supply"
+      ],
+      "published_at": "2026-08-15T13:36:46+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T13:36:46+00:00",
+          "source": "EnergyNow.com",
+          "source_tier": 2,
+          "title": "US Gulf Coast Tanker Market Tightens as Asia Seeks to Replace Lost Supply - EnergyNow.com",
+          "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxOSHNUeGRJcVdXVV9weXJWczRac1dHZmw2ZkRkbm9XdFhlN3N1V0xMRmxRSVM2c2M0elNtT2FtblVTTEVjQUJJMVBfcGNycGNEU1ZhRExjMVNOZkJCYmM1bUlTbjhvZjhRMS1id29ZWnNQX1c5dDg2NWlnUVlienBBSm9wQWk1Zk9RajRPajFYT1hWSkJHVFRMTGJaTXRTQndrcnJnZ1ZWcw?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "e04c6b7ebf2beeb30bcab1d8",
+      "headline": "NOT OUT OF THE WOODS YET: Iran Ceasefire Provides Hope, But Physical Oil Markets to Remain Stressed: Russell - EnergyNow",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil"
+      ],
+      "published_at": "2026-08-15T13:33:57+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T13:33:57+00:00",
+          "source": "EnergyNow",
+          "source_tier": 2,
+          "title": "NOT OUT OF THE WOODS YET: Iran Ceasefire Provides Hope, But Physical Oil Markets to Remain Stressed: Russell - EnergyNow",
+          "url": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxNMFlLVmlsV1ZqX0Ixd0JnU2U3TVF2MVBscTVLNTVqdnAyMU00QnhWdWR0blMxN0szSC1VbGpkLUFDVEVmRXhINzJ4a2EzRmpPV2lZaGRGVTVQZC05dnplQlluVHRndklGamgzQXNKVEF2RDBjR2xiaUM1czhTMjltcFV5bFFuV0VKRlQ1Z3lEa2pGOGo2Y0EwOUNWOVF3dDFBcGo1NnFuNGpDX0dJRlhhemNzTXRxRGFrbGtEaVpnTVBnNGdNeXVrQ3cwUjlOcUds?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "4b09ec6cff26064b9fe8b5ee",
+      "headline": "Iran War Triggers Global Race to Build Oil Reserves: Bousso - EnergyNow.com",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil"
+      ],
+      "published_at": "2026-08-15T13:28:10+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T13:28:10+00:00",
+          "source": "EnergyNow.com",
+          "source_tier": 2,
+          "title": "Iran War Triggers Global Race to Build Oil Reserves: Bousso - EnergyNow.com",
+          "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxOc0ZsRmltTEtKSGpqb1d6Q0luUTFhdUlUVS1lMWJoY0JHTC01Zl95LUtMRGY3NUZSN09CcE5TOGhyRndLU0ZBVnBJZTFqX1BCcnVsOFVzTEdVcENnRGdGLUd4YVJOSlFtaDlZVXo3MkhPNE94NnpjTVNzazZyYmM0dXk5R19rVFVFMTA1cnBUNTFuYk0?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "9bd9f73b7bfa67907ee992c9",
+      "headline": "Oil prices post 5 per cent weekly gain as Trump vows to make Strait of Hormuz a US territory - The Eastleigh Voice",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil"
+      ],
+      "published_at": "2026-08-15T13:19:23+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T13:19:23+00:00",
+          "source": "The Eastleigh Voice",
+          "source_tier": 2,
+          "title": "Oil prices post 5 per cent weekly gain as Trump vows to make Strait of Hormuz a US territory - The Eastleigh Voice",
+          "url": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxOeUppc2NIQ3FEY3VPQTlNQW0yUy0yRHQxZ1BOOVI2Vm91VmZLeEZmM0w0OGdkaU5HY1ZRWi1ieFB5QjVqWkE1eVR4Q1NJMmloeVRPbGtMQnVKNEd3ekFsRi1RU3ZwVTFlaWRHVHpUR29wYklKWk9SbjJlaEJySE05OVNsNlZCNzZRZDYtVF9fU0tXdE9GRXl0WWc5bllSd1d4T05OTlJDMnFGQjZwVXhsbVhaVF9pSDBzX200TEhxRWRjNHIwQ3lYemNBazhJZGlnQVNDM2NkX29RYXc?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "388c7eeae284b8194c39839a",
+      "headline": "Strait of Hormuz Tensions: Why a Critical Global Energy Route Remains at Risk - Vocal",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "energy"
+      ],
+      "published_at": "2026-08-15T12:36:41+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T12:36:41+00:00",
+          "source": "Vocal",
+          "source_tier": 2,
+          "title": "Strait of Hormuz Tensions: Why a Critical Global Energy Route Remains at Risk - Vocal",
+          "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPclY4RjlNQXpNT0lYay1rWmx6TjdQZlR1aWNkaWhDeTFaQVJvbGNwX1cydkU0RDVNYWlZZXowN2ZBQnNDUU1LRlB1U1p0amJLYUNMQldSNnJ3SG56YlJ3TEFoT0lEdF9yQUNLalVHR3ZGbElJR0JuLTNTLXhVQzQwS2E0c09qQzlabE54RnF4OWJSMXlzWG8tNEJwQnZyRFBFcER3dlNya0M?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "e5f45da8f4c2462453811331",
+      "headline": "Nvidia Discloses $50B Equity Stake in SpaceX and Intel: Both Exclusive Chip Buyers - Tech Times",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "반도체 업황과 외국인 대형 기술주 수급",
+      "market_terms": [
+        "chip"
+      ],
+      "published_at": "2026-08-15T12:12:35+00:00",
+      "sources": [
+        {
+          "feed": "Google News - semiconductors and AI",
+          "published_at": "2026-08-15T12:12:35+00:00",
+          "source": "Tech Times",
+          "source_tier": 2,
+          "title": "Nvidia Discloses $50B Equity Stake in SpaceX and Intel: Both Exclusive Chip Buyers - Tech Times",
+          "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxQbDRyTjF4N0V4RnVSaHZlNUZiUkVfbV9mMlh2b0c0UTM1TmFRdkk3MENaZ3JsYlpYemI1eHlBYk9BUzFiR3U4dUJMcjJUSDh2TS1jZkw0alVMa3BfcG1UUXRWWE5KQzIxbHdodW1kOTZ2UFhiWUR5WFRFRGdsZENEUFVNMWdhZVp2bHl5RlR1LUFRcktSTnVqWVVaMHg0LXdtZE45OURPOXVuemJiVUxpcmk4SHgwWFB2RmctejJLcUhjUlNub3I4?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "dac6fc4f23a03ec5f778ea3d",
+      "headline": "U.S. refiners are running at capacity as global fuel supply crunches tighten - marketscale.com",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "달러·글로벌 위험선호를 통한 국내시장 간접 영향",
+      "market_terms": [
+        "supply"
+      ],
+      "published_at": "2026-08-15T11:58:29+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T11:58:29+00:00",
+          "source": "marketscale.com",
+          "source_tier": 2,
+          "title": "U.S. refiners are running at capacity as global fuel supply crunches tighten - marketscale.com",
+          "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxNc2xiNW5GYjJQcmpWQ1VNbnNqQ3gwcXJ2clpHQTE5NGdXMGpyVld0ZzAtZEs0N0hKM0RoWG5DRkVNdG02WjBiZU5maDZWSDcwUkJob0NPMGdIMER5aWJxZDZCSldQbHBKU3U5M0hEQmVIU1paT1J4U1NNRGQ2ODNzTDIzZ3VqYUxfUjFuVnp6WEgxWUpYTVY3UVhvUVNkbGpaMG53bFM4dGJzWUFHWE56X1R5dklUM1BibnppUQ?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "bda7e9af7ab2bb1bddc4fbb8",
+      "headline": "This 2026 trade is quietly beating AI stocks: the rally may have further to run - Invezz",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "중국 민감 수출주와 공급망·위험선호",
+      "market_terms": [
+        "trade"
+      ],
+      "published_at": "2026-08-15T11:32:14+00:00",
+      "sources": [
+        {
+          "feed": "Google News - semiconductors and AI",
+          "published_at": "2026-08-15T11:32:14+00:00",
+          "source": "Invezz",
+          "source_tier": 2,
+          "title": "This 2026 trade is quietly beating AI stocks: the rally may have further to run - Invezz",
+          "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxQWUh6Wmk2WnBtN0hxZlc2ZHVEeTNDM2ZwcUx2RUxWQkJhMEZqNllzVTQ2Uk9CLUNjSnBUU3N0MFI2R3NBUnJnY1lvaVdfWW5DZDZZc0xMb1d1dm9LbzZKMjlienpiZTl1c0duaGl5R3paVDB2RTA1NVJNTWs5ZE9jSHFaNlRON1h6enluSnd0OFhaYkd4TGlZRThrQTI3cnE1NTM4elVjdWltR0RVVGV4V2pYM1BBRHhy?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "fcb3320714ac6c023fb31144",
+      "headline": "AMD, Intel and NVIDIA All Rally as Super Micro’s Blowout Numbers Reignite the AI Trade - Yahoo Finance",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "중국 민감 수출주와 공급망·위험선호",
+      "market_terms": [
+        "trade"
+      ],
+      "published_at": "2026-08-15T11:07:38+00:00",
+      "sources": [
+        {
+          "feed": "Google News - semiconductors and AI",
+          "published_at": "2026-08-15T11:07:38+00:00",
+          "source": "Yahoo Finance",
+          "source_tier": 2,
+          "title": "AMD, Intel and NVIDIA All Rally as Super Micro’s Blowout Numbers Reignite the AI Trade - Yahoo Finance",
+          "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxPLWlsNGxOUlROVEZZSE93MlR2WHFneUwzNUlzZ2d1THkxNzVlMGpjX3RaZndVamw5U1ZUMGx5Xy0yWHdnX2pUQk5COEJhUkptaTM3VVNGMlB3WUNCQk9pSDNPcU5yOVZGMmcteTJMLXVCcW8tSXNzNGVsZklvUDM0WlNHOVc3NG1IbnlsMnROVzlpY3ZkbzZB?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "f1de745c345ab9b52253d319",
+      "headline": "CZ: Over 20.07 Million Bitcoin Mined, Actual Circulating Supply Likely Lower - CryptoRank",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "달러·글로벌 위험선호를 통한 국내시장 간접 영향",
+      "market_terms": [
+        "supply"
+      ],
+      "published_at": "2026-08-15T11:04:33+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T11:04:33+00:00",
+          "source": "CryptoRank",
+          "source_tier": 2,
+          "title": "CZ: Over 20.07 Million Bitcoin Mined, Actual Circulating Supply Likely Lower - CryptoRank",
+          "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE9taVJKSEVVeFBuY0Rhd3RTV3drbncyVHFsMnBnZE5ObjNQMGxVX0RiU3hGdFl2MGVJUEpHMWhUWkZGQWJ5SHBWLUJUOFlfZFByNmpUSU1EczRQMkR2OENBTE1mczNDcHNmUDdpa19CZE84WkI0OWc?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "596284665248652626da4748",
+      "headline": "Gold prices rise 0.86 per cent as weak US data lifts demand - Telangana Today",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "달러·글로벌 위험선호를 통한 국내시장 간접 영향",
+      "market_terms": [
+        "demand"
+      ],
+      "published_at": "2026-08-15T10:58:12+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-15T10:58:12+00:00",
+          "source": "Telangana Today",
+          "source_tier": 2,
+          "title": "Gold prices rise 0.86 per cent as weak US data lifts demand - Telangana Today",
+          "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQam0wcVBaeTdFcmwtLW1wVXFMOEgyR0YxZ2ZUbUJweUZHQWtKWXFxMElDaml6dmVId3czemRScjdDamtEMHBfSGhIdU1oa0xtNThBalFnekJuSkxKYUVVTFJmSnpQS2UtZC1uOU1VYkVnd2E1ZUJxVG45WGJXTU15VkhhNTVVeUxWcTNYa3BYZw?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "c768d07028e2c5d4845cfe37",
+      "headline": "Türkiye’s Ceyhan emerges as alternative oil hub amid Hormuz risks - Türkiye Today",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil"
+      ],
+      "published_at": "2026-08-15T10:33:35+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T10:33:35+00:00",
+          "source": "Türkiye Today",
+          "source_tier": 2,
+          "title": "Türkiye’s Ceyhan emerges as alternative oil hub amid Hormuz risks - Türkiye Today",
+          "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxQWVEzeHdhWHVPcldteWxtVDNBVm5lMmlEdW9mR0VQNmZSRFJ6dmcxWUhYQ3N0TkpwU0pMZUZjQWRLNk1ldG9tbHFNMGV0ZmxwN0dvbEJCUTRnYUpHb1UxMTZ2LWcxTDBrUWJUUlZBdndCaHJlRFY0T3NDY3k4bjRTWkpxN3R0WFhWWWk5WFJiS3JLNHNDU1owcEpPdktxQ2VHRFlUbG1SekNTeHJqYklZ?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "30712522031fde191d350da3",
+      "headline": "Nvidia Stock Price Forecast: Nvidia Partners With Six Wall Street Giants to Raise $500 Billion, May Support Stock Rise to $300 - TradingKey",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "달러·글로벌 위험선호를 통한 국내시장 간접 영향",
+      "market_terms": [
+        "price"
+      ],
+      "published_at": "2026-08-15T10:07:09+00:00",
+      "sources": [
+        {
+          "feed": "Google News - semiconductors and AI",
+          "published_at": "2026-08-15T10:07:09+00:00",
+          "source": "TradingKey",
+          "source_tier": 2,
+          "title": "Nvidia Stock Price Forecast: Nvidia Partners With Six Wall Street Giants to Raise $500 Billion, May Support Stock Rise to $300 - TradingKey",
+          "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxNTF9lT3ZBdmtNd3NsMndlMGxWUkM4UUd5Q0docGdlRWgtZlZCOENpLW9MY1B2QThsaXY1MTBVZjFrTVVnT243el9hREZxMDFDWFl3bmZ4bzlleDRVV0prS2FNdGdqT2hJa0FyR0h0UWMtUGZoelh5M3dTdEpjdjA5bThyZmdfWVh0LTdWOW5ucUlJRmk4Ulc1RzZNTXRJcFJSWUVTSXk4QjMySGVyR2tNYUJ1Ynd0MlN3ek9Da0xaODdYSWpvYXhOQw?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "aec7feca7112636a705f4f0d",
+      "headline": "Gold & Silver Prices Just Got 4 Bullish Signals (And China Might Be the Biggest One) - CaptainAltcoin",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "중국 민감 수출주와 공급망·위험선호",
+      "market_terms": [
+        "china"
+      ],
+      "published_at": "2026-08-15T09:32:44+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-15T09:32:44+00:00",
+          "source": "CaptainAltcoin",
+          "source_tier": 2,
+          "title": "Gold & Silver Prices Just Got 4 Bullish Signals (And China Might Be the Biggest One) - CaptainAltcoin",
+          "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxQbVlJci1nU0ExNE9KQVBwT1Ywdzl3SGdQVFlwWlNPdnR1bHNJT3V3RTZmdndLR2FWQmlScFJ2U0FNd0h1Vjh6OUthMEZMamlwanBSRHR6cWxEWmpTdkxsU04yTlI0QmthVVljY3ZHODRDOFgxeHB2cmZIU0dGY2toX3pTUGhwWTcyNm1selJSQ3BVYlBwblNyTmNPUERmLUthTXRUVGlfclY0Umwt?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "48f3c97c9e6defe79d111165",
+      "headline": "US oil rig count up for week ending Aug. 14 - Anadolu Ajansı",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil"
+      ],
+      "published_at": "2026-08-15T09:05:27+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T09:05:27+00:00",
+          "source": "Anadolu Ajansı",
+          "source_tier": 2,
+          "title": "US oil rig count up for week ending Aug. 14 - Anadolu Ajansı",
+          "url": "https://news.google.com/rss/articles/CBMijAFBVV95cUxPM0IwUGpqaDNCRkVzUFZPenllQ25aSzl6YXh0ZVYxaHowRE5jMl9vdGdSVEtsVTkyTXBTcEtZLTZQX2R3VDdqd3hNdXBqTzd0aHpRMWZlcHVwUFJVQTZxSkhQREQ3NElxVE1lWDZ2ZXRDU1ZSLXdLa1I2dmJpZTg5cExOTFJmZEJFOFVaT9IBlAFBVV95cUxPY1FrWGMzTkMtTDBjV1plSVZGY0stY3ZwRmRSbzFDSWVqb3k4Y0VqeENOMnhWNVRQUkRrVkwtczZldWJ4ZlB5aEE5Rmh4ZFpqRXlrTlJRVWpnODlEMVNQakZjRHYzUV9iRmxFUUdkdzhkZ0hvLWNzbVAzU3FWdHplWVd0aFc0ZVhmVDNmTkJwM0YtTHJC?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "d36a85f39e51bf9f9639c22e",
+      "headline": "Australian Dollar Gains Ground as US Dollar Softens Ahead of Retail Sales Report - CryptoRank",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "달러·글로벌 위험선호를 통한 국내시장 간접 영향",
+      "market_terms": [
+        "dollar"
+      ],
+      "published_at": "2026-08-15T08:55:18+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-15T08:55:18+00:00",
+          "source": "CryptoRank",
+          "source_tier": 2,
+          "title": "Australian Dollar Gains Ground as US Dollar Softens Ahead of Retail Sales Report - CryptoRank",
+          "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxORmExdkFiUFQzS092M0kyYzMxc21BMVpsQ0pXeEVqTUNHenFOVXdhX0stNHRPd3JrSEZhQ0dCMnRpY3h3M1Zfank4dzBySnpYTkJnSV82Z1Y4aUE3WVVoRE5XdEIxd3Y5YUM0QWw2MnZOaXRMQnctMFBtSnplMG1rTnhDYkg?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "39ffef1f992e4f752ad1a7eb",
+      "headline": "Bonny Light nears $95 as Strait of Hormuz tensions keep oil markets on edge - Nairametrics",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil"
+      ],
+      "published_at": "2026-08-15T08:48:02+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T08:48:02+00:00",
+          "source": "Nairametrics",
+          "source_tier": 2,
+          "title": "Bonny Light nears $95 as Strait of Hormuz tensions keep oil markets on edge - Nairametrics",
+          "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxPUmRFUUFUdk94NmhMV2FQOXhFOG1qVkU3ZDBrcEVZQVhRUUhVeUZvcUQ5LUFRdDdmYk9DR1hJMVN1SVVBd0xfbHlFbVlsS09oR3Z5NFVlVEczcjZCXzJKS3E2MmtGZVN3Y2JhOEQ5YVdIRXRsS254TEsyWlJBM0ZBZ0J2bUFpNms0MkxuT2VCaWNMSWdmQWlXaFNKUVJhM1JwbTNfQjRYckJxeDJxaF9zUQ?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "5a221396df8f5f8e72addc1f",
+      "headline": "Wall Street week ahead: Home Depot and Walmart report earnings, minutes of Fed meeting are released - Bozeman Daily Chronicle",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-002",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "달러·글로벌 위험선호를 통한 국내시장 간접 영향",
+      "market_terms": [
+        "earnings"
+      ],
+      "published_at": "2026-08-15T08:00:08+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-15T08:00:08+00:00",
+          "source": "Bozeman Daily Chronicle",
+          "source_tier": 2,
+          "title": "Wall Street week ahead: Home Depot and Walmart report earnings, minutes of Fed meeting are released - Bozeman Daily Chronicle",
+          "url": "https://news.google.com/rss/articles/CBMimgJBVV95cUxOUWoyc0g5cHQycVU5c29uOU9tNU1QQU8tZEpvSDdqV083QlBldWRZMXJDRDhQTzdBNzhSVFM4Nm9Sb3dfdEpYRG81SjZVMDR2dnFDdkxSaWVQOWtoNDkwLU1NQTdhNHVlNUowTHF3TmlFRGk3eC1RVDlwRmFmZ0FFNVZHX2pFSU41OEVkc3NKY2xkcDVTWEJ1RW1ZYkhnMXZraWFCaGVKSHFidTZzUlVUdjJFR081c09tTHBhTGJZZnZtN3RMQlZSdTJRMFZ0U011T181M2s4UEw4SkhiNVcyUmkzZWo5cVNreVNFaDZNREhVTFNfZ1lkM3Vua1NZdXVDMmY4VlY2ZVdVNmRpb2FOUzFxeVoyWEZWX1E?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "ebaf57ab880810d6d2dc616f",
+      "headline": "Nvidia accelerates Feynman AI platform, pushing TSMC packaging expansion - scanx.trade",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "중국 민감 수출주와 공급망·위험선호",
+      "market_terms": [
+        "trade"
+      ],
+      "published_at": "2026-08-15T07:51:48+00:00",
+      "sources": [
+        {
+          "feed": "Google News - semiconductors and AI",
+          "published_at": "2026-08-15T07:51:48+00:00",
+          "source": "scanx.trade",
+          "source_tier": 2,
+          "title": "Nvidia accelerates Feynman AI platform, pushing TSMC packaging expansion - scanx.trade",
+          "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxQTjlZd3lJOHJleDFyTjFpcFN2ejhRendLSVIyUUZkRlJHS3pHQXVwUWVWYzYtZEF4dW1jbGpvd09aTXNveWtzSDlBLU5RRmxRX2VVVnRRNlRobUVQQ0dybVpQY3oyTEFBdkxIWlk4ZUlQX25abUNBSmUtYllsU3c1V0xTVDFiY0hLQ1czOGZNSFhkXzRfdmFSTEpWUDMxbG5JZlFsNEhNT0FJWnBSNW5aTTAtQ3FJSy15dUNz?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "958c25d3ab1458feb9ebb3c1",
+      "headline": "Legal battle ahead for National Treasury, and US markets bet on September rate hold - Daily Investor",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "글로벌 금리·달러와 국내 성장주 밸류에이션",
+      "market_terms": [
+        "rate"
+      ],
+      "published_at": "2026-08-15T06:48:21+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-15T06:48:21+00:00",
+          "source": "Daily Investor",
+          "source_tier": 2,
+          "title": "Legal battle ahead for National Treasury, and US markets bet on September rate hold - Daily Investor",
+          "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxPTnFHM3NVTjRnUDBvNnZSLU9ZSHdXbTQyYUlONXU0Q2pVOVZWcjFmMklLeDBKUl9TWExDNEdoaWZXUF84UnF2UkRpT29lOENHVUs0YWJnNzB2cFBOQUFhcGFENE9ON2kzUHVCUjVRUzlRX25kUTdJeXRRMlcyOHFqMl8yR0JNVjBsVzltZzhzbW5KM1Q4N3liMjNiRW9jQ2JULWRfUlF6dC1RVTQ5N3EtMkVsMXdsWllYMFVqMGdzOEotcDVM?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "12318b43a96383378be83f57",
+      "headline": "Oil Slides as Middle East Uncertainty Keeps Markets on Edge - EnergyNow",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil"
+      ],
+      "published_at": "2026-08-15T06:13:56+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T06:13:56+00:00",
+          "source": "EnergyNow",
+          "source_tier": 2,
+          "title": "Oil Slides as Middle East Uncertainty Keeps Markets on Edge - EnergyNow",
+          "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxORXB4OGcwVFVYNEpZWXQzdEp0NU45bFJ2SmYycE5DeEFPb2ozM3VndzFPaDdfZzNhWjFZM2JCVlFlcTJRMmRndzZqd0xYX0RRbUlEVmRzZ0VKQ0c2S0FXbTFjWnBDVG9ROVhEYWtsQ2VxQjdVWHhPSlF2XzdqVGM4NGE2QTk1NVIwTDNRWENTNlBOWUU?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "cea763bbaa2ec496ba629766",
+      "headline": "GBP/USD Steadies as Markets Await US CPI Data - CryptoRank",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "글로벌 금리·달러와 국내 성장주 밸류에이션",
+      "market_terms": [
+        "cpi"
+      ],
+      "published_at": "2026-08-15T06:08:20+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-15T06:08:20+00:00",
+          "source": "CryptoRank",
+          "source_tier": 2,
+          "title": "GBP/USD Steadies as Markets Await US CPI Data - CryptoRank",
+          "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE95VE51T0FwbmJfeE45alFfU3Y0YXExWEdLM3FJZ3FnelRqLTBRMU1ISGh2U00xSmNhcG9xN2hndWowc3dfTm9HTURGSTVDTGs5NDlvRXkxRk04QTNtQnl5YkMzNVlHdk5oNm9NY3dacHA4NkxK?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "53012254e9e8aa1704144102",
+      "headline": "Brent Oil Climbs Near $90 As Hormuz Talks: Explained - JournalArta",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil"
+      ],
+      "published_at": "2026-08-15T05:59:08+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T05:59:08+00:00",
+          "source": "JournalArta",
+          "source_tier": 2,
+          "title": "Brent Oil Climbs Near $90 As Hormuz Talks: Explained - JournalArta",
+          "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxPbEZYckdxRVNkaHZvSXpZTjdRblZGSWs5dnByTU4tMFlUdHVsVVhPOVIxZXoxVWltMXV6TGNWR29yRjd3QlpXMzN3Q1owTTJ1ZFZhSGVmU0dWWUotTnhUXzdmQmJuZnJ1V20xRml1MC1PWURUazMxOGswQ2xaOWRzelJwa042eml6ZWljTTR4MGowTFVlTWRoZUtKWlh4Mmlf?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "b2631e62904d79363992f485",
+      "headline": "NVIDIA Tokenized Stock (Robinhood) Exchanges NVDA Markets | Buy & Sell & Trade - CryptoRank",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "중국 민감 수출주와 공급망·위험선호",
+      "market_terms": [
+        "trade"
+      ],
+      "published_at": "2026-08-15T04:05:03+00:00",
+      "sources": [
+        {
+          "feed": "Google News - semiconductors and AI",
+          "published_at": "2026-08-15T04:05:03+00:00",
+          "source": "CryptoRank",
+          "source_tier": 2,
+          "title": "NVIDIA Tokenized Stock (Robinhood) Exchanges NVDA Markets | Buy & Sell & Trade - CryptoRank",
+          "url": "https://news.google.com/rss/articles/CBMiekFVX3lxTE9VY1QxczktS2hNLVYzSW9fQlNQQXBsRjIzUHF4V3FmbjY5ak9HdE1LdkI0TWc4VDNNd3ZJVTFmZFc5NExSSHVENjJOSC15T2VzVkZnSHNYdUstSFRRVWNWWjRENUdvVHEyblB6eG5fbVR2UkRxZGtfMnhn?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "7a372dd6736233ba619ba500",
+      "headline": "Dodge & Cox boosts Taiwan Semiconductor stake by 1.33M shares - The Globe and Mail",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "반도체 업황과 외국인 대형 기술주 수급",
+      "market_terms": [
+        "semiconductor"
+      ],
+      "published_at": "2026-08-15T03:38:20+00:00",
+      "sources": [
+        {
+          "feed": "Google News - semiconductors and AI",
+          "published_at": "2026-08-15T03:38:20+00:00",
+          "source": "The Globe and Mail",
+          "source_tier": 2,
+          "title": "Dodge & Cox boosts Taiwan Semiconductor stake by 1.33M shares - The Globe and Mail",
+          "url": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxPd2JUWXZDNGVHc1YwUmZyVTc2QmUxU3FiSW80S3oyLVRBVHNURUVqaG9NYm4zVGl1N3pLTld6cm53NWJjQ1Fsa3I2X19LVXFuOGdVdi1sR0ttZ0liNkhvOURHZnRJSWFMVlNmc0h0RHlwa0RXMXdDeVdMbFJrTWgyX1lneFFHcnZ3Tm9UQXNhVjhMcFgtWWRKOUtZMldhSjFGTG9IbXI2Q3hoWm9PV281d09UVmlqckV0c3ozSUR5cHMtLXBPOGlZXzJMRDhDLS0xMmVNRUlOYnY0Zw?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "2bd301706a16a2de20ad7222",
+      "headline": "Understanding The A.I Trade - howestreet.com",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "중국 민감 수출주와 공급망·위험선호",
+      "market_terms": [
+        "trade"
+      ],
+      "published_at": "2026-08-15T03:23:17+00:00",
+      "sources": [
+        {
+          "feed": "Google News - semiconductors and AI",
+          "published_at": "2026-08-15T03:23:17+00:00",
+          "source": "howestreet.com",
+          "source_tier": 2,
+          "title": "Understanding The A.I Trade - howestreet.com",
+          "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE9hVXJDbXFKQkNfUU5pVnVpQVRncGl4akpLNU02eXhiUzRsV3JaYm1Zb0tYQzZMQUNGY08xbXdZZnNic3ptSGlLYlZNYzluREw1ajdndkJOVHRlSXFWYTJYYkpkSm5wR09oWUhoOWw3ei0?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "7ff535428179a742df9a9423",
+      "headline": "Markets Shift Focus From Inflation to Growth Risks: What Investors Need to Know - CryptoRank",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "글로벌 금리·달러와 국내 성장주 밸류에이션",
+      "market_terms": [
+        "inflation"
+      ],
+      "published_at": "2026-08-15T02:58:54+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-15T02:58:54+00:00",
+          "source": "CryptoRank",
+          "source_tier": 2,
+          "title": "Markets Shift Focus From Inflation to Growth Risks: What Investors Need to Know - CryptoRank",
+          "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxPLWlWWXd3WUlLOEZucXJ2MHBPOThaTk1UcU5zR1dkSWhTTjczNG9sSW1zWUVsS09fb3VqY09mdEtMa24tVzh5Z0xkUUZjajlHM1JRMWJHTVY1MlBzWjQ1ZTdOMjBaRnNPQ1lPelBjbUNqX0VHZVBBdXMxR1BMZ3dlbG1n?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "ed3e7394ed921beda97f1ed3",
+      "headline": "Dow Jones Futures Steady as Investors Await US Retail Sales Data - CryptoRank",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "달러·글로벌 위험선호를 통한 국내시장 간접 영향",
+      "market_terms": [
+        "futures"
+      ],
+      "published_at": "2026-08-15T02:26:36+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-15T02:26:36+00:00",
+          "source": "CryptoRank",
+          "source_tier": 2,
+          "title": "Dow Jones Futures Steady as Investors Await US Retail Sales Data - CryptoRank",
+          "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPUmNjRFBQa2FTYTlwR1BnS3VvRHVNZU4yMGRYWVNwVzFzTnlhb0RFYXo2bi1TcEJKUFE4ajJNTHlocGpxWW9MNEExLWFsRGFYcDZod3pmVjV3b0hKSTMxaVRmeGpQSFVhQ09FMGk0WEp6UzZhcktBanp5MkpMYnhCOWllYjk?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "541870673260f526fe4880f2",
+      "headline": "Canadian Dollar Rises to Two Month High as US Economy Slows - sekbernews.id",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "달러·글로벌 위험선호를 통한 국내시장 간접 영향",
+      "market_terms": [
+        "dollar"
+      ],
+      "published_at": "2026-08-15T01:52:27+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-15T01:52:27+00:00",
+          "source": "sekbernews.id",
+          "source_tier": 2,
+          "title": "Canadian Dollar Rises to Two Month High as US Economy Slows - sekbernews.id",
+          "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE52NjItU0JMWUdvckpVMFIyd1JoZF9TMVVfNl9BSTVobHNKenFIcG12bXNTUFZHTVplWHhFbXdSRF9TRTZWV1pwVTRfalpVNGt2VGNYOFRfNFRQajFZU05SSDNZY3NNSFNnaHdPbVZiU01QejdUQlE?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "184e09f0fb03414509ede737",
+      "headline": "Soft landing explained: how central banks aim to tame inflation - qz.com",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "글로벌 금리·달러와 국내 성장주 밸류에이션",
+      "market_terms": [
+        "inflation"
+      ],
+      "published_at": "2026-08-15T01:49:32+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-15T01:49:32+00:00",
+          "source": "qz.com",
+          "source_tier": 2,
+          "title": "Soft landing explained: how central banks aim to tame inflation - qz.com",
+          "url": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE9KX0pjY1dlc0dRNEVzaTl5MllLR21GVk5yVjVUemJnWlUtbVYzSUN3N1FzeWxtaExXVHZCak1ZUGhXaVZpZlk4UG1VYS0zZw?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "dde502b668d2b093143aa854",
+      "headline": "Oil climbs over USD1 - Business Recorder",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil"
+      ],
+      "published_at": "2026-08-15T01:21:45+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T01:21:45+00:00",
+          "source": "Business Recorder",
+          "source_tier": 2,
+          "title": "Oil climbs over USD1 - Business Recorder",
+          "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE45Q2t5a0ZnNFlDOEZDX014NVZwTlAxVmx0dU5PZWJlVlVhWEpFQkx4RURGNlJLd1BKWFpFb1FmOFRqYXJiZUVCWUJsd1o2RjRsUFV0aFl30gFWQVVfeXFMTjlDa3lrRmc0WUM4RkNfTXg1VnBOUDFWbHR1Tk9lYmVWVWFYSkVCTHhFREY2Ukt3UEpYWkVvUWY4VGphcmJlRUJZQmx3WjZGNGxQVXRoWXc?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "746adcf27f7fb41f499c72b7",
+      "headline": "EV Adoption Could Get Fresh Push from Oil Disruptions and Battery Innovation: WoodMac - News and Statistics - IndexBox",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil"
+      ],
+      "published_at": "2026-08-15T00:42:00+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-15T00:42:00+00:00",
+          "source": "IndexBox",
+          "source_tier": 2,
+          "title": "EV Adoption Could Get Fresh Push from Oil Disruptions and Battery Innovation: WoodMac - News and Statistics - IndexBox",
+          "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxNeFRyXzh4cURfLV9pZ0ZYQVVzNVJWSTdkTHFiUkI2YVE2ZHJzZ2NWbHRMSi1fMGZUM3NoZkI2UUhjUFFuU2MzQXZLSkwwS1JUcXRUUUpCb1hjVlk5NGFmNGYwanktRlVqd1F0REZObmNUV1VxQnVVczhXS1BhenFJeXhBeFVpVThJaXdVcG5DMHlONnJ2S09v?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "bcb7ed0bc35166245d595343",
+      "headline": "Treasury Yields Edge Higher as Oil Gains Counter Soft Retail Sales - CryptoRank",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil"
+      ],
+      "published_at": "2026-08-15T00:08:19+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-15T00:08:19+00:00",
+          "source": "CryptoRank",
+          "source_tier": 2,
+          "title": "Treasury Yields Edge Higher as Oil Gains Counter Soft Retail Sales - CryptoRank",
+          "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxNdmZ3LXVsbE5xck50ME80aHRNQ1pYZ1RpNmQ0c0tyX1A1Wl9ONGhERk45MXBKUG0yOFA4bFhxSV9yd042ay1FLVI1VDYxdkwwaG93ZkhBWkZBZW5mWVB6ampNT0ZCT3V5am5td1dZOFFhamRhbDBORWx4LXowQm12US1qXzdaSkp4Y2YyQjczbGozU3lFNThpYmhKUmVWQQ?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "4dedd0802fccbff1613c5924",
+      "headline": "Jim Cramer Reviews NVIDIA (NVDA) and Data Center Demand - Yahoo Finance",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-003",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "달러·글로벌 위험선호를 통한 국내시장 간접 영향",
+      "market_terms": [
+        "demand"
+      ],
+      "published_at": "2026-08-14T23:58:46+00:00",
+      "sources": [
+        {
+          "feed": "Google News - semiconductors and AI",
+          "published_at": "2026-08-14T23:58:46+00:00",
+          "source": "Yahoo Finance",
+          "source_tier": 2,
+          "title": "Jim Cramer Reviews NVIDIA (NVDA) and Data Center Demand - Yahoo Finance",
+          "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxORXB6WWpsVENLNlhrRWZpOFJtcHQ3dnlEelBaMXp2c1ZqV1p3Q2VKQnNkVUw5cXNKLVUwcTg2cTB1SkhNWlZLNzA0emtrRlJCZC1uQkJIajFDU1lWZkp2dU5US2prS2VZbExfaGsweDQ5UUp2ckpYTWloeHp3cWtueFl5MGFBWmhjUnM2UHNMMUZkYmJ0US1md0tR?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "bac277b352d7b6fc67b83c1b",
+      "headline": "Federal Reserve holds rates steady; three members dissent - Arizona Daily Star",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "글로벌 금리·달러와 국내 성장주 밸류에이션",
+      "market_terms": [
+        "rates"
+      ],
+      "published_at": "2026-08-14T23:50:38+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-14T23:50:38+00:00",
+          "source": "Arizona Daily Star",
+          "source_tier": 2,
+          "title": "Federal Reserve holds rates steady; three members dissent - Arizona Daily Star",
+          "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQekd4V3dxTS1JMDZfemFjUTl5cTRLNDc2SEVxMVVidnFNZHVsa0NWOEJfdDBUNWhINXAxM0M2VzQ2dGxOX1B2NWZXTTJFcmVnYVdOMjQtN1RsWFNucU41T19RMGpseElCUTNiWEhVZWFvT2E1Y3lGWVNIRVVzdDNVeVZpajFrbUF2VzA0X3I0eDdnWUstQjJacnBEZlZfRTFUd2QxS01n?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "INTL"
+      ],
+      "event_id": "1128a91f7e6d1c430d85e947",
+      "headline": "Oil wraps up strong weekly gain with no progress toward Middle East peace (USO:NYSEARCA) - Seeking Alpha",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "수입물가·정유화학·운송 업종의 비용과 마진",
+      "market_terms": [
+        "oil"
+      ],
+      "published_at": "2026-08-14T23:47:32+00:00",
+      "sources": [
+        {
+          "feed": "Google News - market geopolitics",
+          "published_at": "2026-08-14T23:47:32+00:00",
+          "source": "Seeking Alpha",
+          "source_tier": 2,
+          "title": "Oil wraps up strong weekly gain with no progress toward Middle East peace (USO:NYSEARCA) - Seeking Alpha",
+          "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQY3NTQmFadUNJai1IWUJGeTliUk5TcjRnLVBlUWhGcXdxa2tzMmhBU2REYk8zZkxjeHZPNS1BOUhuLVBfWUxkMkxRNk1LcUlQQW9Jb3BsYXdacEgyYUtJeC1EZ3BwZHcyWkhGejdCc1I5eXh2SEkzdzNrR1ZPWndGblhqeG1PekcwdnhUREN4b0I5STFqU1RkbW9uRGNxNENKRVBMd0gzLVpYZEJTOWxFdQ?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "81dd71fae0f2c83de49d5c2c",
+      "headline": "Charles Payne: Kevin Warsh wants to change how Federal Reserve fights inflation - Fox News",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-006",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "글로벌 금리·달러와 국내 성장주 밸류에이션",
+      "market_terms": [
+        "inflation"
+      ],
+      "published_at": "2026-08-14T23:37:06+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-14T23:37:06+00:00",
+          "source": "Fox News",
+          "source_tier": 2,
+          "title": "Charles Payne: Kevin Warsh wants to change how Federal Reserve fights inflation - Fox News",
+          "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE1ZaWk3UVdBWHB1Z0VMUkd1VGN1WkcyMjgyd2hvYmpZWVlyTE5yLXdRWFFJdGltNE1rLU1kRXltS0gtR0pWd3c5Rk9jdmlkLW9mbU11eHhn?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "a21352ab1d1ac66c371eb3a9",
+      "headline": "FOMC Minutes and Key Economic Data: What to Watch in the Week Ahead - CryptoRank",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "글로벌 금리·달러와 국내 성장주 밸류에이션",
+      "market_terms": [
+        "fomc"
+      ],
+      "published_at": "2026-08-14T23:30:03+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-14T23:30:03+00:00",
+          "source": "CryptoRank",
+          "source_tier": 2,
+          "title": "FOMC Minutes and Key Economic Data: What to Watch in the Week Ahead - CryptoRank",
+          "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTFB4bnNxQjhxTTg1aFBTaTRGRU1nbDc1S1l4TUZKc2xfSVRPb3FsS3hGcE81TDlmRmJWMC05eFVVVWpNWmtIaFBzUTd5QmltV0k1MTdIaGRyNFZjRnEwVy1hWDNQSm0tYWpfT0taTTVFX2dVZXpieDNUQw?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    },
+    {
+      "article_count": 1,
+      "countries": [
+        "US"
+      ],
+      "event_id": "83d2dd31222a374a661825be",
+      "headline": "Foreign exporters absorbed nearly half of the 2025 US tariff shock - CEPR",
+      "importance_score": 42,
+      "independent_source_count": 1,
+      "insight_evidence": {
+        "evidence_level": "SINGLE_SOURCE",
+        "invalidation": [
+          "독립 출처의 반증",
+          "후속 지표와 가격 반응의 불일치"
+        ],
+        "principle_candidates": [
+          "MI-001",
+          "MI-008",
+          "MI-009",
+          "MI-007"
+        ],
+        "required_confirmation": [
+          "관련 자산 가격 반응",
+          "미래 이익 또는 산업 사이클 데이터",
+          "국내 수급·환율 전이"
+        ]
+      },
+      "korea_transmission": "중국 민감 수출주와 공급망·위험선호",
+      "market_terms": [
+        "tariff"
+      ],
+      "published_at": "2026-08-14T23:26:13+00:00",
+      "sources": [
+        {
+          "feed": "Google News - US policy and economy",
+          "published_at": "2026-08-14T23:26:13+00:00",
+          "source": "CEPR",
+          "source_tier": 2,
+          "title": "Foreign exporters absorbed nearly half of the 2025 US tariff shock - CEPR",
+          "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxOMEp3ZG5ZUzNqZTlWWC1BWUFTR3owQ19EMEF6NGFGV2hMMXpIbFRYc0hhS0g0N3h3X29Gdmw5WUVCMDU5XzhlLUNaekRWOTFFdTQzVUxZZ3IyOHhUS1FfV0kySXlUeGQ0N0dKVmRmd2JkQXJXVTBTSS16azVyOGktRUZPdjEwUEpLbi1mUmU5UGFpZzdDY1E?oc=5"
+        }
+      ],
+      "verification_reason": "단일 또는 비검증 출처",
+      "verified": false
+    }
+  ],
+  "generated_at": "2026-08-15T23:10:06.187015+00:00",
+  "macro": {
+    "collected_at": "2026-08-15T23:10:10.156210+00:00",
+    "sep": {
+      "as_of": "2026-06-17",
+      "core_pce_median": {
+        "2026": 3.3,
+        "2027": 2.5,
+        "2028": 2.1
+      },
+      "fed_funds_median": {
+        "2026": 3.8,
+        "2027": 3.6,
+        "2028": 3.4,
+        "장기": 3.1
+      },
+      "gdp_median": {
+        "2026": 2.2,
+        "2027": 2.3,
+        "2028": 2.2,
+        "장기": 2.0
+      },
+      "pce_median": {
+        "2026": 3.6,
+        "2027": 2.3,
+        "2028": 2.0,
+        "장기": 2.0
+      },
+      "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260617.htm",
+      "unemployment_median": {
+        "2026": 4.3,
+        "2027": 4.3,
+        "2028": 4.2,
+        "장기": 4.2
+      }
+    },
+    "series": {
+      "fed_target_lower": {
+        "as_of": "2026-08-15",
+        "id": "fed_target_lower",
+        "name": "Federal Funds Target Range Lower",
+        "ok": true,
+        "provider": "FRED",
+        "series_id": "DFEDTARL",
+        "unit": "%",
+        "value": 3.5
+      },
+      "fed_target_upper": {
+        "as_of": "2026-08-15",
+        "id": "fed_target_upper",
+        "name": "Federal Funds Target Range Upper",
+        "ok": true,
+        "provider": "FRED",
+        "series_id": "DFEDTARU",
+        "unit": "%",
+        "value": 3.75
+      },
+      "us_core_cpi_yoy": {
+        "as_of": "2026-07-01",
+        "id": "us_core_cpi_yoy",
+        "lag": 12,
+        "name": "US Core CPI",
+        "ok": true,
+        "provider": "FRED",
+        "series_id": "CPILFESL",
+        "transform": "yoy_pct",
+        "unit": "% YoY",
+        "value": 2.79
+      },
+      "us_core_pce_yoy": {
+        "as_of": "2026-06-01",
+        "id": "us_core_pce_yoy",
+        "lag": 12,
+        "name": "US Core PCE Price Index",
+        "ok": true,
+        "provider": "FRED",
+        "series_id": "PCEPILFE",
+        "transform": "yoy_pct",
+        "unit": "% YoY",
+        "value": 3.29
+      },
+      "us_cpi_yoy": {
+        "as_of": "2026-07-01",
+        "id": "us_cpi_yoy",
+        "lag": 12,
+        "name": "US CPI",
+        "ok": true,
+        "provider": "FRED",
+        "series_id": "CPIAUCSL",
+        "transform": "yoy_pct",
+        "unit": "% YoY",
+        "value": 3.54
+      },
+      "us_pce_yoy": {
+        "as_of": "2026-06-01",
+        "id": "us_pce_yoy",
+        "lag": 12,
+        "name": "US PCE Price Index",
+        "ok": true,
+        "provider": "FRED",
+        "series_id": "PCEPI",
+        "transform": "yoy_pct",
+        "unit": "% YoY",
+        "value": 3.67
+      },
+      "us_unemployment": {
+        "as_of": "2026-07-01",
+        "id": "us_unemployment",
+        "name": "US Unemployment Rate",
+        "ok": true,
+        "provider": "FRED",
+        "series_id": "UNRATE",
+        "unit": "%",
+        "value": 4.1
+      }
+    }
+  },
+  "market_session_expected": false,
+  "markets": [
+    {
+      "age_minutes": 1590.7,
+      "as_of_kst": "2026-08-15T05:39:27+09:00",
+      "as_of_utc": "2026-08-14T20:39:27+00:00",
+      "change_pct": -0.16964335577297485,
+      "instrument_type": "INDEX",
+      "market_state": "UNKNOWN",
+      "name": "S&P 500",
+      "ok": true,
+      "previous_close": 7798.990234375,
+      "provider": "Yahoo Finance chart",
+      "region": "미국 증시",
+      "regular_session_end_utc": "2026-08-14T20:00:00+00:00",
+      "session_date": "2026-08-14",
+      "session_status": "COMPLETED",
+      "symbol": "^GSPC",
+      "usable_for_score": true,
+      "value": 7785.759765625
+    },
+    {
+      "age_minutes": 1554.1,
+      "as_of_kst": "2026-08-15T06:15:59+09:00",
+      "as_of_utc": "2026-08-14T21:15:59+00:00",
+      "change_pct": -0.2755999697154121,
+      "instrument_type": "INDEX",
+      "market_state": "UNKNOWN",
+      "name": "NASDAQ",
+      "ok": true,
+      "previous_close": 26803.029296875,
+      "provider": "Yahoo Finance chart",
+      "region": "미국 증시",
+      "regular_session_end_utc": "2026-08-14T20:00:00+00:00",
+      "session_date": "2026-08-14",
+      "session_status": "COMPLETED",
+      "symbol": "^IXIC",
+      "usable_for_score": true,
+      "value": 26729.16015625
+    },
+    {
+      "age_minutes": 1554.1,
+      "as_of_kst": "2026-08-15T06:15:59+09:00",
+      "as_of_utc": "2026-08-14T21:15:59+00:00",
+      "change_pct": -0.3127022745062602,
+      "instrument_type": "INDEX",
+      "market_state": "UNKNOWN",
+      "name": "PHLX Semiconductor",
+      "ok": true,
+      "previous_close": 12456.0,
+      "provider": "Yahoo Finance chart",
+      "region": "미국 증시",
+      "regular_session_end_utc": "2026-08-14T20:00:00+00:00",
+      "session_date": "2026-08-14",
+      "session_status": "COMPLETED",
+      "symbol": "^SOX",
+      "usable_for_score": true,
+      "value": 12417.0498046875
+    },
+    {
+      "age_minutes": 1615.1,
+      "as_of_kst": "2026-08-15T05:15:01+09:00",
+      "as_of_utc": "2026-08-14T20:15:01+00:00",
+      "change_pct": -2.5974033593193835,
+      "instrument_type": "INDEX",
+      "market_state": "UNKNOWN",
+      "name": "VIX",
+      "ok": true,
+      "previous_close": 14.630000114440918,
+      "provider": "Yahoo Finance chart",
+      "region": "미국 증시",
+      "regular_session_end_utc": "2026-08-14T20:15:00+00:00",
+      "session_date": "2026-08-14",
+      "session_status": "COMPLETED",
+      "symbol": "^VIX",
+      "usable_for_score": false,
+      "value": 14.25
+    },
+    {
+      "age_minutes": 1870.1,
+      "as_of_kst": "2026-08-15T01:00:00+09:00",
+      "as_of_utc": "2026-08-14T16:00:00+00:00",
+      "change_pct": -0.08983878775301601,
+      "instrument_type": "INDEX",
+      "market_state": "UNKNOWN",
+      "name": "EURO STOXX 50",
+      "ok": true,
+      "previous_close": 6545.47021484375,
+      "provider": "Yahoo Finance chart",
+      "region": "유럽 증시",
+      "regular_session_end_utc": "2026-08-14T15:30:00+00:00",
+      "session_date": "2026-08-14",
+      "session_status": "COMPLETED",
+      "symbol": "^STOXX50E",
+      "usable_for_score": false,
+      "value": 6539.58984375
+    },
+    {
+      "age_minutes": 1870.1,
+      "as_of_kst": "2026-08-15T01:00:00+09:00",
+      "as_of_utc": "2026-08-14T16:00:00+00:00",
+      "change_pct": 0.5344931594277513,
+      "instrument_type": "INDEX",
+      "market_state": "UNKNOWN",
+      "name": "DAX",
+      "ok": true,
+      "previous_close": 26299.740234375,
+      "provider": "Yahoo Finance chart",
+      "region": "유럽 증시",
+      "regular_session_end_utc": "2026-08-14T15:30:00+00:00",
+      "session_date": "2026-08-14",
+      "session_status": "COMPLETED",
+      "symbol": "^GDAXI",
+      "usable_for_score": false,
+      "value": 26440.310546875
+    },
+    {
+      "age_minutes": 1894.6,
+      "as_of_kst": "2026-08-15T00:35:30+09:00",
+      "as_of_utc": "2026-08-14T15:35:30+00:00",
+      "change_pct": -0.20979499594107054,
+      "instrument_type": "INDEX",
+      "market_state": "UNKNOWN",
+      "name": "FTSE 100",
+      "ok": true,
+      "previous_close": 10772.7001953125,
+      "provider": "Yahoo Finance chart",
+      "region": "유럽 증시",
+      "regular_session_end_utc": "2026-08-14T15:30:00+00:00",
+      "session_date": "2026-08-14",
+      "session_status": "COMPLETED",
+      "symbol": "^FTSE",
+      "usable_for_score": false,
+      "value": 10750.099609375
+    },
+    {
+      "age_minutes": 1690.2,
+      "as_of_kst": "2026-08-15T03:59:53+09:00",
+      "as_of_utc": "2026-08-14T18:59:53+00:00",
+      "change_pct": 1.1850960486318396,
+      "instrument_type": "INDEX",
+      "market_state": "UNKNOWN",
+      "name": "US 10Y yield",
+      "ok": true,
+      "previous_close": 4.640999794006348,
+      "provider": "Yahoo Finance chart",
+      "region": "금리·외환·원자재",
+      "regular_session_end_utc": "2026-08-14T19:00:00+00:00",
+      "session_date": "2026-08-14",
+      "session_status": "COMPLETED",
+      "symbol": "^TNX",
+      "usable_for_score": false,
+      "value": 4.696000099182129
+    },
+    {
+      "age_minutes": 1570.1,
+      "as_of_kst": "2026-08-15T05:59:59+09:00",
+      "as_of_utc": "2026-08-14T20:59:59+00:00",
+      "change_pct": -0.2901169649694335,
+      "instrument_type": "INDEX",
+      "market_state": "UNKNOWN",
+      "name": "US Dollar Index",
+      "ok": true,
+      "previous_close": 99.95999908447266,
+      "provider": "Yahoo Finance chart",
+      "region": "금리·외환·원자재",
+      "regular_session_end_utc": "2026-08-15T03:59:00+00:00",
+      "session_date": "2026-08-14",
+      "session_status": "COMPLETED",
+      "symbol": "DX-Y.NYB",
+      "usable_for_score": false,
+      "value": 99.66999816894531
+    },
+    {
+      "age_minutes": 1179.3,
+      "as_of_kst": "2026-08-15T12:30:51+09:00",
+      "as_of_utc": "2026-08-15T03:30:51+00:00",
+      "change_pct": -0.34230692518675276,
+      "instrument_type": "CURRENCY",
+      "market_state": "UNKNOWN",
+      "name": "USD/KRW",
+      "ok": true,
+      "previous_close": 1416.8499755859375,
+      "provider": "Yahoo Finance chart",
+      "region": "금리·외환·원자재",
+      "regular_session_end_utc": "2026-08-14T22:59:00+00:00",
+      "session_date": "2026-08-15",
+      "session_status": "COMPLETED",
+      "symbol": "KRW=X",
+      "usable_for_score": false,
+      "value": 1412.0
+    },
+    {
+      "age_minutes": 1570.1,
+      "as_of_kst": "2026-08-15T05:59:59+09:00",
+      "as_of_utc": "2026-08-14T20:59:59+00:00",
+      "change_pct": 1.4153864933894145,
+      "instrument_type": "FUTURE",
+      "market_state": "UNKNOWN",
+      "name": "WTI",
+      "ok": true,
+      "previous_close": 81.25,
+      "provider": "Yahoo Finance chart",
+      "region": "금리·외환·원자재",
+      "regular_session_end_utc": "2026-08-15T03:59:00+00:00",
+      "session_date": "2026-08-14",
+      "session_status": "COMPLETED",
+      "symbol": "CL=F",
+      "usable_for_score": false,
+      "value": 82.4000015258789
+    },
+    {
+      "age_minutes": 1570.1,
+      "as_of_kst": "2026-08-15T06:00:00+09:00",
+      "as_of_utc": "2026-08-14T21:00:00+00:00",
+      "change_pct": 0.384998723795138,
+      "instrument_type": "FUTURE",
+      "market_state": "UNKNOWN",
+      "name": "Gold",
+      "ok": true,
+      "previous_close": 4363.60009765625,
+      "provider": "Yahoo Finance chart",
+      "region": "금리·외환·원자재",
+      "regular_session_end_utc": "2026-08-15T03:59:00+00:00",
+      "session_date": "2026-08-14",
+      "session_status": "COMPLETED",
+      "symbol": "GC=F",
+      "usable_for_score": false,
+      "value": 4380.39990234375
+    }
+  ],
+  "overnight_window": {
+    "end": "2026-08-15T23:10:00+00:00",
+    "start": "2026-08-14T23:10:00+00:00"
+  },
+  "publication_mode": "CLOSED_DAY_DAILY",
+  "quality": {
+    "checks": {
+      "at_least_one_source_ok": true,
+      "codex_analysis_complete": true,
+      "events_have_insight_evidence": true,
+      "events_have_transmission": true,
+      "fresh_relevant_event": true,
+      "has_disclaimer": true,
+      "has_invalidation": true,
+      "has_source_links": true,
+      "macro_dashboard_complete": true,
+      "market_coverage": true,
+      "market_data_complete": true,
+      "no_named_external_lens": true,
+      "no_secrets": true,
+      "required_horizons": true,
+      "uses_our_principles": true,
+      "verified_event": true
+    },
+    "passed": true
+  },
+  "report_date": "2026-08-16",
+  "view": {
+    "base_scenario": "가격 데이터만으로 방향 결론을 내리지 않고 Codex 분석에서 교차확인",
+    "completed_core_changes": {
+      "^GSPC": -0.16964335577297485,
+      "^IXIC": -0.2755999697154121,
+      "^SOX": -0.3127022745062602
+    },
+    "invalidation": [
+      "원달러 방향 급변",
+      "외국인 선물 수급 반전",
+      "미국 지수선물의 야간 방향 반전"
+    ],
+    "market_data_complete": true,
+    "missing_core_markets": [],
+    "price_confirmation_state": "RISK_OFF"
+  }
+}
