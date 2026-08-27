@@ -33,6 +33,12 @@
     "fallback_when_unavailable": "SHOW_RESEARCH_FEED_WITH_WAITING_STATUS",
     "no_homepage_specific_market_claim_generation": true
   },
+  "market_maps": {
+    "separate_views": true,
+    "long_term": {"label": "장기 시장지도", "path": "/p/market-history.html", "preserved": true},
+    "short_term": {"label": "단기 시장지도 (1D~20D)", "source": "LATEST_PREMARKET_MI_SCENARIO", "order": ["현재 상태", "왜?", "무엇을 확인?"]},
+    "event_risk_overlay": "CRITICAL_HIGH_ALWAYS_VISIBLE"
+  },
   "theme_application": {
     "blogger_api_supports_theme_write": false,
     "server_deploy_alone_is_not_theme_application": true,

@@ -71,6 +71,7 @@ def build_closing_input(root: Path, report_date: str, market_close: dict, events
     morning_path = root / "reports" / report_date[:7] / f"{report_date}-outlook.json"
     morning = load_json(morning_path, {})
     analysis = morning.get("analysis")
+    frozen_mi_scenario = morning.get("frozen_mi_scenario")
     compact_events = []
     for event in events[:25]:
         compact_events.append({"event_id": event.get("event_id"), "headline": event.get("headline"),
@@ -83,7 +84,9 @@ def build_closing_input(root: Path, report_date: str, market_close: dict, events
             "insight_version": INSIGHT_VERSION, "report_date": report_date,
             "generated_at_utc": generated_at.isoformat(), "as_of_kst": generated_at.astimezone(ZoneInfo("Asia/Seoul")).isoformat(),
             "morning_available": bool(analysis), "morning_analysis_status": (morning.get("analysis_meta") or {}).get("status", "MISSING"),
-            "morning_analysis": analysis, "actual_korea_close": market_close, "verified_news": compact_events,
+            "morning_analysis": analysis, "morning_frozen_mi_scenario": frozen_mi_scenario,
+            "original_prediction_ids": (frozen_mi_scenario or {}).get("prediction_ids", []),
+            "actual_korea_close": market_close, "verified_news": compact_events,
             "active_events": active_events, "rumor_watch": rumor_watch,
             "event_evaluation_axes": ["expected_direction", "actual_reaction", "event_truth_status", "source_verification_outcome"],
             "constraints": {"no_web_browsing": True, "unknown_when_missing": True, "not_investment_advice": True}}

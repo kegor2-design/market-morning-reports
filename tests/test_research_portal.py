@@ -41,7 +41,7 @@ class ResearchPortalThemeTest(unittest.TestCase):
             out = Path(td) / 'preview.html'
             build_preview(ROOT / 'blogger_theme' / 'market_morning_research_portal.xml', out)
             text = out.read_text(encoding='utf-8')
-            for marker in ('rp-home-portal', 'rp-market-board', 'rp-home-calendar', 'rp-intelligence', 'mmp-event-calendar-source', 'mmp-desktop', 'mmp-mobile', 'post-share-buttons', 'sharing-platform-button'):
+            for marker in ('rp-home-portal', 'rp-market-board', 'rp-market-map-switcher', '장기 시장지도', '단기 시장지도 (1D~20D)', 'rp-home-calendar', 'rp-intelligence', 'mmp-event-calendar-source', 'mmp-desktop', 'mmp-mobile', 'post-share-buttons', 'sharing-platform-button'):
                 self.assertIn(marker, text)
 
     def test_hotfix_hides_legacy_full_post_and_default_share_dom_on_home(self):

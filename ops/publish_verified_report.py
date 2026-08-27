@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from market_morning_publisher.core import atomic_json, blogger_publish, load_json
+from market_morning_publisher.publication_views import render_premarket_mi_markdown
 
 
 def current_report_date() -> str:
@@ -61,23 +62,39 @@ def main() -> int:
     token_req = urllib.request.Request("https://oauth2.googleapis.com/token", data=token_body, method="POST")
     access_token = json.loads(urllib.request.urlopen(token_req, timeout=30).read())["access_token"]
 
-    title_prefix = "우리의 모닝브리핑" if payload.get("market_session_expected") else "휴장일 뉴스 브리핑"
-    title = f"{title_prefix} | {report_date}"
-    query = urllib.parse.urlencode({"q": title, "fetchBodies": "false", "maxResults": "20"})
-    search_url = f"https://www.googleapis.com/blogger/v3/blogs/{os.environ['BLOGGER_BLOG_ID']}/posts/search?{query}"
-    search_req = urllib.request.Request(search_url, headers={"Authorization": "Bearer " + access_token})
-    search_result = json.loads(urllib.request.urlopen(search_req, timeout=30).read())
-    matches = [item for item in search_result.get("items", []) if item.get("title") == title]
-    prior_post_id = matches[0].get("id") if matches else None
+    def find_post_id(title: str) -> str | None:
+        query = urllib.parse.urlencode({"q": title, "fetchBodies": "false", "maxResults": "20"})
+        search_url = f"https://www.googleapis.com/blogger/v3/blogs/{os.environ['BLOGGER_BLOG_ID']}/posts/search?{query}"
+        request = urllib.request.Request(search_url, headers={"Authorization": "Bearer " + access_token})
+        result = json.loads(urllib.request.urlopen(request, timeout=30).read())
+        matches = [item for item in result.get("items", []) if item.get("title") == title]
+        return matches[0].get("id") if matches else None
+
+    title = f"[Morning Market Report] {report_date} — 오늘 시장을 움직일 핵심 변수"
+    prior_post_id = find_post_id(title)
     post = blogger_publish(title, report, prior_post_id)
+
+    mi_post = None
+    mi_prior_post_id = None
+    mi_view = payload.get("premarket_mi_view")
+    if mi_view:
+        mi_title = f"[장전 MI 시나리오] {report_date} — 오늘 시장의 핵심 시나리오와 관심종목"
+        mi_prior_post_id = find_post_id(mi_title)
+        mi_post = blogger_publish(mi_title, render_premarket_mi_markdown(mi_view), mi_prior_post_id)
 
     state_path = root / "data/state/publication_state.json"
     state = load_json(state_path, {})
     item = state.get(report_date, {})
+    views = item.setdefault("views", {})
+    views["MORNING_REPORT"] = {"blogger_post_id": post.get("id"), "blogger_url": post.get("url")}
+    if mi_post:
+        views["PREMARKET_MI_SCENARIO"] = {"blogger_post_id": mi_post.get("id"), "blogger_url": mi_post.get("url"), "scenario_id": mi_view.get("scenario_id")}
     item.update({
         "github_commit": local_commit,
         "blogger_post_id": post.get("id"),
         "blogger_url": post.get("url"),
+        "premarket_mi_action": ("updated" if mi_prior_post_id else "created") if mi_post else "skipped",
+        "premarket_mi_post_id": mi_post.get("id") if mi_post else None,
         "quality_passed": True,
         "status": "PUBLISHED",
     })

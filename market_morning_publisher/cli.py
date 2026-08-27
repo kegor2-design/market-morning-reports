@@ -17,6 +17,10 @@ from .codex_analysis import (CodexAnalysisError, build_codex_input, render_analy
 from .event_intelligence import build_event_calendar_context
 from .disclosure_intelligence import collect_dart_disclosures, disclosure_news_events
 from .mi_prediction_bridge import capture_explicit_predictions
+from .publication_views import (build_morning_report_view, build_premarket_mi_view,
+                                freeze_mi_scenario, render_premarket_mi_markdown)
+from .short_term_market_map import (build_short_term_market_map, observations_from_market_history,
+                                    observations_from_us_state)
 
 
 def root_dir() -> Path:
@@ -39,6 +43,25 @@ def merge_articles(*groups: list[dict]) -> list[dict]:
         if key:
             unique[key] = article
     return list(unique.values())
+
+
+def historical_reports(root: Path, report_date: str, limit: int = 25) -> list[dict]:
+    paths = sorted(root.glob("reports/*/*-outlook.json"))
+    return [load_json(path, {}) for path in paths if path.name[:10] < report_date][-limit:]
+
+
+def prediction_ids_for_as_of(path: Path, as_of: str) -> list[str]:
+    if not path.exists():
+        return []
+    rows = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if row.get("as_of") == as_of and row.get("prediction_id"):
+            rows.append(str(row["prediction_id"]))
+    return rows
 
 
 def run(report_date: str | None = None, dry_run: bool = False, through_now: bool = False,
@@ -77,8 +100,21 @@ def run(report_date: str | None = None, dry_run: bool = False, through_now: bool
         events = cluster_articles(relevant_articles)
         view = market_view(markets)
 
+        short_map_config = load_json(root / "config/short_term_market_map.json", {})
+        short_map_observations = observations_from_market_history(
+            markets, historical_reports(root, report_date)
+        )
+        short_map_observations.update(observations_from_us_state(
+            load_json(root / "data/state/us_state/raw_metrics_latest.json", {}), as_of=collected_at
+        ))
+        short_term_map = build_short_term_market_map(
+            short_map_config, short_map_observations, as_of=collected_at.isoformat()
+        )
+
         event_refresh = os.getenv("MMP_EVENT_INTELLIGENCE_REFRESH", "1") == "1"
         calendar_context = build_event_calendar_context(root, as_of=collected_at, refresh=event_refresh)
+        calendar_rows = calendar_context.get("upcoming_events") or []
+        short_term_map["event_risks"] = [{"event_id": row.get("event_id"), "title": row.get("title"), "event_date": row.get("event_date"), "impact": row.get("dynamic_importance")} for row in calendar_context.get("critical_upcoming_events", [])][:10]
         disclosures = collect_dart_disclosures(root, as_of=collected_at)
         statuses.extend(calendar_context.get("statuses", []))
         statuses.extend(disclosures.get("statuses", []))
@@ -106,6 +142,7 @@ def run(report_date: str | None = None, dry_run: bool = False, through_now: bool
             include_closed_day_domestic=include_closed_day_domestic,
             event_intelligence=event_intelligence,
         )
+        analysis_input["short_term_market_map"] = short_term_map
         analysis = None
         analysis_meta = {"status": "SKIPPED", "error": "--skip-codex diagnostics mode"}
         if not skip_codex and os.getenv("MMP_CODEX_ENABLED", "1") == "1":
@@ -116,25 +153,50 @@ def run(report_date: str | None = None, dry_run: bool = False, through_now: bool
         elif not skip_codex:
             analysis_meta = {"status": "DISABLED", "error": "MMP_CODEX_ENABLED is not 1"}
         if analysis:
+            prediction_ledger = root / "data/state/mi_prediction_scoreboard/predictions.jsonl"
             prediction_capture = capture_explicit_predictions(
                 analysis, as_of=collected_at.isoformat(),
-                ledger=root / "data/state/mi_prediction_scoreboard/predictions.jsonl",
+                ledger=prediction_ledger,
             )
             report = render_codex_report(analysis, analysis_input)
+            report += ("\n\n## 단기 시장지도 (1D~20D)\n\n"
+                       f"- 현재 상태: **{short_term_map['overall_state']}**\n"
+                       f"- 압력 점수: **{short_term_map['overall_score']}**\n"
+                       f"- 해석: {short_term_map['interpretation']}\n\n"
+                       "> 이 점수는 수익률 확률이 아니라 현재 단기 환경의 압력지표입니다.\n")
+            frozen_scenario = freeze_mi_scenario(
+                analysis, report_date=report_date, as_of=collected_at.isoformat(),
+                prediction_ids=prediction_ids_for_as_of(prediction_ledger, collected_at.isoformat()),
+            )
+            premarket_mi_view = build_premarket_mi_view(frozen_scenario, short_term_map=short_term_map)
+            premarket_mi_report = render_premarket_mi_markdown(premarket_mi_view)
         else:
             prediction_capture = {"created": 0, "skipped": 0}
             report = render_analysis_failure_report(report_date, events, statuses, analysis_meta["error"])
+            frozen_scenario = None
+            premarket_mi_view = None
+            premarket_mi_report = None
         quality = quality_check(events, markets, statuses, report, macro, analysis, analysis_meta, session_expected)
-        payload = {"report_date":report_date, "generated_at":collected_at.isoformat(), "publication_mode":"TRADING_DAY_CUMULATIVE" if session_expected else "CLOSED_DAY_DAILY", "market_session_expected":session_expected, "overnight_window":{"start":window_start.isoformat(), "end":window_end.isoformat()}, "macro":macro, "events":events, "markets":markets, "view":view, "event_intelligence":event_intelligence, "collection_status":statuses, "analysis":analysis, "analysis_meta":analysis_meta, "prediction_capture":prediction_capture, "quality":quality}
+        morning_public_view = build_morning_report_view({"as_of": collected_at.isoformat(), "overnight_market": markets, "major_news": events, "macro_and_policy": macro, "official_calendar": calendar_rows, "short_term_market_map_summary": {"overall_state": short_term_map["overall_state"], "overall_score": short_term_map["overall_score"], "interpretation": short_term_map["interpretation"], "event_risks": short_term_map["event_risks"]}, "brief_mi_context": [analysis.get("one_line_diagnosis")] if analysis else [], "sources": statuses})
+        payload = {"report_date":report_date, "generated_at":collected_at.isoformat(), "publication_mode":"TRADING_DAY_CUMULATIVE" if session_expected else "CLOSED_DAY_DAILY", "market_session_expected":session_expected, "overnight_window":{"start":window_start.isoformat(), "end":window_end.isoformat()}, "macro":macro, "events":events, "markets":markets, "view":view, "event_intelligence":event_intelligence, "short_term_market_map":short_term_map, "morning_report_view":morning_public_view, "frozen_mi_scenario":frozen_scenario, "premarket_mi_view":premarket_mi_view, "collection_status":statuses, "analysis":analysis, "analysis_meta":analysis_meta, "prediction_capture":prediction_capture, "quality":quality}
         day = root / "data/raw" / report_date
         atomic_json(day / "articles.json", articles)
         atomic_json(day / "collection_status.json", statuses)
         atomic_json(root / "data/normalized" / f"{report_date}-events.json", events)
         atomic_json(root / "data/private" / f"{report_date}-codex-input.json", analysis_input)
+        atomic_json(root / "data/state/short_term_market_map" / f"{report_date}.json", short_term_map)
+        if frozen_scenario:
+            frozen_path = root / "data/state/mi_scenarios" / f"{frozen_scenario['scenario_id']}.json"
+            if not frozen_path.exists():
+                atomic_json(frozen_path, frozen_scenario)
         report_dir = root / "reports" / report_date[:7]
         report_dir.mkdir(parents=True, exist_ok=True)
         report_path = report_dir / f"{report_date}-outlook.md"
         report_path.write_text(report, encoding="utf-8")
+        mi_report_path = report_dir / f"{report_date}-premarket-mi.md"
+        if premarket_mi_report:
+            mi_report_path.write_text(premarket_mi_report, encoding="utf-8")
+            atomic_json(report_dir / f"{report_date}-premarket-mi.json", premarket_mi_view)
         atomic_json(report_dir / f"{report_date}-outlook.json", payload)
         state_path = root / "data/state/publication_state.json"
         state = load_json(state_path, {})
@@ -153,8 +215,14 @@ def run(report_date: str | None = None, dry_run: bool = False, through_now: bool
             state[report_date] = item
             atomic_json(state_path, state)
         if quality["passed"] and not dry_run and os.getenv("MMP_BLOGGER_PUBLISH") == "1":
-            title_prefix = "우리의 모닝브리핑" if session_expected else "휴장일 뉴스 브리핑"
-            post = blogger_publish(f"{title_prefix} | {report_date}", report, item.get("blogger_post_id"))
+            views = item.setdefault("views", {})
+            morning_state = views.setdefault("MORNING_REPORT", {})
+            post = blogger_publish(f"[Morning Market Report] {report_date} — 오늘 시장을 움직일 핵심 변수", report, morning_state.get("blogger_post_id"))
+            morning_state.update({"blogger_post_id": post.get("id"), "blogger_url": post.get("url")})
+            if premarket_mi_report:
+                mi_state = views.setdefault("PREMARKET_MI_SCENARIO", {})
+                mi_post = blogger_publish(f"[장전 MI 시나리오] {report_date} — 오늘 시장의 핵심 시나리오와 관심종목", premarket_mi_report, mi_state.get("blogger_post_id"))
+                mi_state.update({"blogger_post_id": mi_post.get("id"), "blogger_url": mi_post.get("url"), "scenario_id": frozen_scenario["scenario_id"]})
             item.update({"blogger_post_id":post.get("id"), "blogger_url":post.get("url"), "status":"PUBLISHED"})
             state[report_date] = item
             atomic_json(state_path, state)

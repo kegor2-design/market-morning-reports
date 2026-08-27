@@ -248,3 +248,24 @@ def observations_from_market_history(markets: list[Mapping[str, Any]], historica
         age = _num(row.get("age_minutes"))
         out[iid] = {"current": value, "change_1d_pct": _num(row.get("change_pct")), "change_5d_pct": change(5), "change_20d_pct": change(20), "stale": age is None or age > 1440, "source_symbol": row.get("symbol"), "as_of": row.get("as_of_kst") or row.get("as_of_utc")}
     return out
+
+
+def observations_from_us_state(snapshot: Mapping[str, Any], *, as_of: datetime) -> dict[str, dict[str, Any]]:
+    """Reuse existing US-state histories while enforcing daily freshness."""
+    key_map = {"us_2y": "US2Y", "us_30y": "US30Y", "btc_market": "BTC"}
+    out: dict[str, dict[str, Any]] = {}
+    for key, iid in key_map.items():
+        metric = (snapshot.get("metrics") or {}).get(key) or {}
+        history = [row for row in metric.get("history", []) if _num(row.get("value")) is not None]
+        if not history:
+            continue
+        current = float(history[-1]["value"])
+        release_date = str(metric.get("as_of") or history[-1].get("date") or "")
+        try:
+            age_days = (as_of.date() - datetime.fromisoformat(release_date).date()).days
+        except ValueError:
+            age_days = 999999
+        def change(days: int) -> float | None:
+            return (current / float(history[-days]["value"]) - 1.0) * 100.0 if len(history) >= days and history[-days].get("value") else None
+        out[iid] = {"current": current, "change_1d_pct": change(2), "change_5d_pct": change(6), "change_20d_pct": change(21), "stale": age_days > 1, "as_of": release_date, "source_metric": key}
+    return out

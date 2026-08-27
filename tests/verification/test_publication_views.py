@@ -4,6 +4,7 @@ from market_morning_publisher.publication_views import (
     build_closing_review_view,
     build_morning_report_view,
     build_premarket_mi_view,
+    freeze_mi_scenario,
 )
 
 
@@ -26,6 +27,13 @@ class PublicationViewsTest(unittest.TestCase):
         out = build_closing_review_view({"prediction_id": "P-1", "direction": "UP"}, {"status": "PARTIAL"})
         self.assertEqual(out["original_prediction"]["direction"], "UP")
         self.assertEqual(out["publication_guardrail"], "ORIGINAL_PREDICTION_IMMUTABLE")
+
+    def test_frozen_identity_is_deterministic_and_predictions_are_not_created(self):
+        analysis = {"one_line_diagnosis": "중립", "overall_confidence": "MEDIUM", "scenarios": []}
+        first = freeze_mi_scenario(analysis, report_date="2026-08-27", as_of="2026-08-27T08:00:00+09:00")
+        second = freeze_mi_scenario(analysis, report_date="2026-08-27", as_of="2026-08-27T08:00:00+09:00")
+        self.assertEqual(first["scenario_id"], second["scenario_id"])
+        self.assertEqual(first["stock_predictions"], [])
 
 
 if __name__ == "__main__":

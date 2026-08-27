@@ -2,7 +2,8 @@ import json
 import unittest
 from pathlib import Path
 
-from market_morning_publisher.short_term_market_map import build_short_term_market_map
+from datetime import datetime, timezone
+from market_morning_publisher.short_term_market_map import build_short_term_market_map, observations_from_market_history, observations_from_us_state
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -58,6 +59,19 @@ class ShortTermMarketMapTest(unittest.TestCase):
     def test_missing_data_does_not_fail(self):
         out = build_short_term_market_map(self.cfg, {})
         self.assertEqual(out["overall_state"], "NO_DATA")
+
+    def test_existing_market_history_adapter_does_not_invent_sources(self):
+        markets = [{"symbol": "^IXIC", "ok": True, "value": 110, "change_pct": 1.0, "age_minutes": 10}]
+        history = [{"markets": [{"symbol": "^IXIC", "ok": True, "value": value}]} for value in range(80, 105)]
+        out = observations_from_market_history(markets, history)
+        self.assertIn("NASDAQ", out)
+        self.assertNotIn("BTC", out)
+        self.assertIsNotNone(out["NASDAQ"]["change_20d_pct"])
+
+    def test_stale_us_state_history_is_visible_but_excluded(self):
+        snapshot = {"metrics": {"us_2y": {"as_of": "2026-08-20", "history": [{"date": "2026-08-19", "value": 4.0}, {"date": "2026-08-20", "value": 4.1}]}}}
+        out = observations_from_us_state(snapshot, as_of=datetime(2026, 8, 27, tzinfo=timezone.utc))
+        self.assertTrue(out["US2Y"]["stale"])
 
 
 if __name__ == "__main__":

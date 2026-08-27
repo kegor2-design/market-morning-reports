@@ -78,6 +78,8 @@ def run(report_date: str | None = None, dry_run: bool = False, market_data: str 
                    "report_date": report_date, "generated_at": now.isoformat(), "market_close": close,
                    "collection_status": statuses, "events": events, "analysis_input_summary": {
                        "morning_available": payload_in["morning_available"], "morning_analysis_status": payload_in["morning_analysis_status"]},
+                   "original_prediction_ids": payload_in.get("original_prediction_ids", []),
+                   "morning_scenario_id": (payload_in.get("morning_frozen_mi_scenario") or {}).get("scenario_id"),
                    "analysis": analysis, "analysis_meta": meta, "quality": quality}
         report_dir = root / "reports" / report_date[:7]
         report_dir.mkdir(parents=True, exist_ok=True)
