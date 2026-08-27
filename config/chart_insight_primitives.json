@@ -1,0 +1,289 @@
+{
+  "schema_version": "1.0",
+  "mode": "SHADOW_ONLY",
+  "principle": "Chart primitives are observations, not standalone buy/sell signals. Edge must be conditioned on regime, fundamentals, flow and point-in-time evidence.",
+  "default_thresholds": {
+    "breakout_buffer_pct": 0.1,
+    "relative_volume_expansion": 1.5,
+    "relative_volume_dryup": 0.6,
+    "gap_pct": 1.0,
+    "reaction_buffer_pct": 0.5,
+    "range_compression_ratio": 0.65,
+    "volatility_expansion_ratio": 1.5
+  },
+  "primitives": [
+    {
+      "id": "BREAKOUT",
+      "aliases": [
+        "돌파",
+        "상향 돌파",
+        "breakout",
+        "break above"
+      ],
+      "family": "PRICE_STRUCTURE",
+      "auto_detector": "PRIOR_20_HIGH_CLOSE"
+    },
+    {
+      "id": "BREAKDOWN",
+      "aliases": [
+        "이탈",
+        "하향 돌파",
+        "breakdown",
+        "break below"
+      ],
+      "family": "PRICE_STRUCTURE",
+      "auto_detector": "PRIOR_20_LOW_CLOSE"
+    },
+    {
+      "id": "FAILED_BREAKOUT",
+      "aliases": [
+        "돌파 실패",
+        "페이크 돌파",
+        "failed breakout",
+        "false breakout"
+      ],
+      "family": "PRICE_STRUCTURE",
+      "auto_detector": "PRIOR_HIGH_INTRABAR_REJECT"
+    },
+    {
+      "id": "FAILED_BREAKDOWN",
+      "aliases": [
+        "이탈 실패",
+        "failed breakdown",
+        "false breakdown"
+      ],
+      "family": "PRICE_STRUCTURE",
+      "auto_detector": "PRIOR_LOW_INTRABAR_RECLAIM"
+    },
+    {
+      "id": "HIGHER_LOW",
+      "aliases": [
+        "저점 상승",
+        "higher low"
+      ],
+      "family": "PRICE_STRUCTURE",
+      "auto_detector": "THREE_SWING_LOW"
+    },
+    {
+      "id": "LOWER_HIGH",
+      "aliases": [
+        "고점 하락",
+        "lower high"
+      ],
+      "family": "PRICE_STRUCTURE",
+      "auto_detector": "THREE_SWING_HIGH"
+    },
+    {
+      "id": "RANGE_COMPRESSION",
+      "aliases": [
+        "수렴",
+        "변동성 축소",
+        "횡보 압축",
+        "compression"
+      ],
+      "family": "VOLATILITY",
+      "auto_detector": "TRUE_RANGE_COMPRESSION"
+    },
+    {
+      "id": "VOLATILITY_EXPANSION",
+      "aliases": [
+        "변동성 확대",
+        "volatility expansion"
+      ],
+      "family": "VOLATILITY",
+      "auto_detector": "TRUE_RANGE_EXPANSION"
+    },
+    {
+      "id": "VOLUME_EXPANSION",
+      "aliases": [
+        "거래량 증가",
+        "거래량 폭증",
+        "relative volume",
+        "volume expansion",
+        "거래량이 증가"
+      ],
+      "family": "VOLUME",
+      "auto_detector": "RELATIVE_VOLUME_HIGH"
+    },
+    {
+      "id": "VOLUME_DRYUP",
+      "aliases": [
+        "거래량 감소",
+        "거래량 마름",
+        "volume dry up"
+      ],
+      "family": "VOLUME",
+      "auto_detector": "RELATIVE_VOLUME_LOW"
+    },
+    {
+      "id": "GAP_AND_HOLD",
+      "aliases": [
+        "갭상승 유지",
+        "gap and hold"
+      ],
+      "family": "GAP",
+      "auto_detector": "OPEN_GAP_CLOSE_HOLD"
+    },
+    {
+      "id": "GAP_FILL",
+      "aliases": [
+        "갭 메움",
+        "gap fill"
+      ],
+      "family": "GAP",
+      "auto_detector": "PRIOR_GAP_FILL"
+    },
+    {
+      "id": "SUPPORT_REACTION",
+      "aliases": [
+        "지지",
+        "지지선 반응",
+        "support reaction",
+        "buyers stepped in"
+      ],
+      "family": "LEVEL_REACTION",
+      "auto_detector": "PRIOR_LOW_REACTION"
+    },
+    {
+      "id": "RESISTANCE_REACTION",
+      "aliases": [
+        "저항",
+        "매물대 반응",
+        "resistance reaction",
+        "supply reaction"
+      ],
+      "family": "LEVEL_REACTION",
+      "auto_detector": "PRIOR_HIGH_REACTION"
+    },
+    {
+      "id": "NEW_HIGH",
+      "aliases": [
+        "신고가",
+        "52주 신고가",
+        "new high"
+      ],
+      "family": "PRICE_STRUCTURE",
+      "auto_detector": "LOOKBACK_HIGH"
+    },
+    {
+      "id": "NEW_LOW",
+      "aliases": [
+        "신저가",
+        "52주 신저가",
+        "new low"
+      ],
+      "family": "PRICE_STRUCTURE",
+      "auto_detector": "LOOKBACK_LOW"
+    },
+    {
+      "id": "VWAP_RECLAIM",
+      "aliases": [
+        "vwap 회복",
+        "vwap reclaim",
+        "VWAP 안착"
+      ],
+      "family": "VWAP",
+      "auto_detector": "REQUIRES_INTRADAY_SESSION"
+    },
+    {
+      "id": "AVWAP_RECLAIM",
+      "aliases": [
+        "anchored vwap 회복",
+        "avwap reclaim",
+        "앵커드 vwap"
+      ],
+      "family": "VWAP",
+      "auto_detector": "REQUIRES_EXPLICIT_ANCHOR"
+    },
+    {
+      "id": "OPEN_PRICE_RECLAIM",
+      "aliases": [
+        "시가 회복",
+        "시가 재돌파",
+        "open price reclaim"
+      ],
+      "family": "LEVEL_REACTION",
+      "auto_detector": "REQUIRES_INTRADAY_SESSION"
+    },
+    {
+      "id": "RESISTANCE_RETEST",
+      "aliases": [
+        "저항 반복 테스트",
+        "여러 번 두드리",
+        "multiple resistance tests",
+        "retest resistance"
+      ],
+      "family": "LEVEL_REACTION",
+      "auto_detector": "REPEATED_PRIOR_HIGH_TOUCHES",
+      "research_status": "DISCOVERED"
+    },
+    {
+      "id": "SUPPORT_RETEST",
+      "aliases": [
+        "지지 반복 테스트",
+        "support retest",
+        "retest support"
+      ],
+      "family": "LEVEL_REACTION",
+      "auto_detector": "REPEATED_PRIOR_LOW_TOUCHES",
+      "research_status": "DISCOVERED"
+    },
+    {
+      "id": "PULLBACK",
+      "aliases": [
+        "눌림목",
+        "조정 후 눌림",
+        "pullback",
+        "retracement"
+      ],
+      "family": "PRICE_STRUCTURE",
+      "auto_detector": "TREND_PULLBACK_CANDIDATE",
+      "research_status": "DISCOVERED"
+    },
+    {
+      "id": "RELATIVE_STRENGTH_LEADERSHIP",
+      "aliases": [
+        "상대강도",
+        "relative strength",
+        "rs line",
+        "시장 대비 강함"
+      ],
+      "family": "RELATIVE_STRENGTH",
+      "auto_detector": "REQUIRES_BENCHMARK_SERIES",
+      "research_status": "DISCOVERED"
+    },
+    {
+      "id": "MOMENTUM_DIVERGENCE",
+      "aliases": [
+        "다이버전스",
+        "모멘텀 다이버전스",
+        "momentum divergence",
+        "rsi divergence"
+      ],
+      "family": "MOMENTUM",
+      "auto_detector": "REQUIRES_OSCILLATOR_DEFINITION",
+      "research_status": "DISCOVERED"
+    },
+    {
+      "id": "TREND_CONTINUATION",
+      "aliases": [
+        "추세 지속",
+        "trend continuation",
+        "continuation setup"
+      ],
+      "family": "PRICE_STRUCTURE",
+      "auto_detector": "CONTEXT_COMBINATION_ONLY",
+      "research_status": "DISCOVERED"
+    }
+  ],
+  "mapping_policy": {
+    "expert_language_to_primitive": "Alias matching is only a candidate mapping until source context/human review confirms it.",
+    "unknown": "Do not force-map ambiguous expressions."
+  },
+  "research_policy": {
+    "candidate_thresholds_are_hypotheses": true,
+    "threshold_learning": "When expert language is qualitative, estimate candidate thresholds from the distribution of verified source examples; do not present the estimate as the expert's explicit rule.",
+    "failure_examples_required": true,
+    "cross_universe_validation_required": true
+  }
+}

@@ -1,0 +1,1206 @@
+{
+  "schema_version": "1.0",
+  "decision_policy": {
+    "principle": "A metric is collected only when it tests a named hypothesis or closes a known blind spot. Expert mention alone creates a REVIEW candidate, not automatic collection.",
+    "decisions": {
+      "ACCEPT_P0": "상시 핵심. 신뢰 가능한 원천 확보 시 우선 수집/백필.",
+      "ACCEPT_P1": "중요 보조. P0 안정화 후 수집.",
+      "EVENT_ONLY": "정책/일정 발생 시 사건 레코드로 수집.",
+      "RESEARCH_ONLY": "정보가치는 있으나 비용·해석 난도가 높아 연구에서 검증.",
+      "REJECT": "중복·저품질·정보가치 부족으로 수집하지 않음."
+    },
+    "required_review_questions": [
+      "어떤 가설을 검증하는가?",
+      "기존 데이터로 대체 가능한가?",
+      "Point-in-Time이 필요한가?",
+      "역사 백필이 가능한가?",
+      "출처 신뢰도와 비용은?",
+      "한국시장 판단을 실제로 바꾸는가?"
+    ]
+  },
+  "metrics": [
+    {
+      "metric_id": "us_10y",
+      "label_ko": "미국 국채 10년물",
+      "domain": "US_TREASURY",
+      "decision": "ACCEPT_P0",
+      "why_collect": "장기 금융여건과 정책금리 기대를 관측한다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "FRED/Treasury"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "fred",
+      "adapter_status": "ACTIVE"
+    },
+    {
+      "metric_id": "us_30y",
+      "label_ko": "미국 국채 30년물",
+      "domain": "US_TREASURY",
+      "decision": "ACCEPT_P0",
+      "why_collect": "장기 duration 수급과 재정 조달 스트레스를 관측한다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "FRED/Treasury"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "fred",
+      "adapter_status": "ACTIVE"
+    },
+    {
+      "metric_id": "us_real_10y",
+      "label_ko": "미국 10년 실질금리",
+      "domain": "US_TREASURY",
+      "decision": "ACCEPT_P0",
+      "why_collect": "명목금리 변화에서 기대물가를 분리하고 성장주 할인율을 본다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "FRED"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "fred",
+      "adapter_status": "ACTIVE"
+    },
+    {
+      "metric_id": "term_premium_10y",
+      "label_ko": "미국 10년 Term Premium",
+      "domain": "US_TREASURY",
+      "decision": "ACCEPT_P0",
+      "why_collect": "장기금리 상승이 단기금리 기대가 아니라 duration 위험보상에서 오는지 분해한다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "NY Fed ACM"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "external_pending",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "move",
+      "label_ko": "MOVE 지수",
+      "domain": "US_TREASURY",
+      "decision": "ACCEPT_P0",
+      "why_collect": "미 국채 변동성 및 시장기능 스트레스의 직접 센서다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "ICE/Bloomberg or licensed source"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "external_pending",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "treasury_auction_quality",
+      "label_ko": "미 국채 입찰 품질",
+      "domain": "US_TREASURY",
+      "decision": "ACCEPT_P0",
+      "why_collect": "tail·bid-to-cover·indirect/dealer 비중으로 marginal buyer의 실제 수요를 확인한다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "US Treasury auction data"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "external_pending",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "treasury_buyback",
+      "label_ko": "미 재무부 Buyback",
+      "domain": "US_TREASURY",
+      "decision": "EVENT_ONLY",
+      "why_collect": "정책수단의 규모·만기·실제 accepted amount를 사건 단위로 검증한다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "US Treasury"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "event_state",
+      "adapter_status": "EVENT_MANAGED"
+    },
+    {
+      "metric_id": "treasury_borrowing_estimate",
+      "label_ko": "Treasury 차입 예상",
+      "domain": "US_FISCAL",
+      "decision": "ACCEPT_P0",
+      "why_collect": "향후 국채 공급 압력의 상위 원인을 파악한다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Treasury QRA"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "event_state",
+      "adapter_status": "EVENT_MANAGED"
+    },
+    {
+      "metric_id": "bill_coupon_mix",
+      "label_ko": "T-bill/Coupon 발행 비중",
+      "domain": "US_TREASURY",
+      "decision": "ACCEPT_P0",
+      "why_collect": "조달 부담을 단기와 장기 중 어디로 이동시키는지 본다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Treasury QRA/auction"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "derived_pending",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "tga",
+      "label_ko": "Treasury General Account",
+      "domain": "US_LIQUIDITY",
+      "decision": "ACCEPT_P0",
+      "why_collect": "재무부 현금축적/지출이 민간 유동성에 미치는 방향을 확인한다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "FRED/Daily Treasury Statement"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "fred",
+      "adapter_status": "ACTIVE"
+    },
+    {
+      "metric_id": "on_rrp",
+      "label_ko": "ON RRP 잔액",
+      "domain": "US_LIQUIDITY",
+      "decision": "ACCEPT_P0",
+      "why_collect": "MMF 단기자금 완충 여력과 bill 흡수 경로를 본다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "NY Fed/FRED"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "fred",
+      "adapter_status": "ACTIVE"
+    },
+    {
+      "metric_id": "mmf_total_assets",
+      "label_ko": "MMF 총자산",
+      "domain": "US_MONEY_MARKET",
+      "decision": "ACCEPT_P0",
+      "why_collect": "T-bill과 repo의 잠재 marginal buyer 자금여력을 본다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Fed Z.1/ICI"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "fred",
+      "adapter_status": "ACTIVE"
+    },
+    {
+      "metric_id": "mmf_tbill",
+      "label_ko": "MMF T-bill 보유",
+      "domain": "US_MONEY_MARKET",
+      "decision": "ACCEPT_P0",
+      "why_collect": "MMF의 실제 T-bill 흡수량과 추가 capacity를 추적한다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Fed Z.1/ICI"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "fred",
+      "adapter_status": "ACTIVE"
+    },
+    {
+      "metric_id": "sofr_iorb_spread",
+      "label_ko": "SOFR-IORB 스프레드",
+      "domain": "US_MONEY_MARKET",
+      "decision": "ACCEPT_P0",
+      "why_collect": "repo/준비금 시장의 긴장도를 확인한다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "NY Fed/FRED"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "derived",
+      "adapter_status": "ACTIVE"
+    },
+    {
+      "metric_id": "srf_usage",
+      "label_ko": "Standing Repo Facility 사용액",
+      "domain": "US_MONEY_MARKET",
+      "decision": "ACCEPT_P0",
+      "why_collect": "민간 repo가 막힐 때 Fed 안전판 사용 여부를 조기경보로 본다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "NY Fed"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "external_pending",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "fima_usage",
+      "label_ko": "FIMA Repo Facility 사용액",
+      "domain": "USD_HEGEMONY",
+      "decision": "ACCEPT_P0",
+      "why_collect": "해외 통화당국이 달러를 조달하기 위해 미 국채를 시장 매도하는 압력을 완충하는지 본다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Federal Reserve"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "external_pending",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "eslr_regime",
+      "label_ko": "eSLR 규제 상태",
+      "domain": "US_BANKING",
+      "decision": "EVENT_ONLY",
+      "why_collect": "은행/딜러의 Treasury·repo balance-sheet capacity가 정책적으로 변하는지 추적한다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Federal Reserve/OCC/FDIC"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "event_state",
+      "adapter_status": "EVENT_MANAGED"
+    },
+    {
+      "metric_id": "primary_dealer_treasury_inventory",
+      "label_ko": "Primary Dealer Treasury 포지션",
+      "domain": "US_TREASURY",
+      "decision": "ACCEPT_P1",
+      "why_collect": "딜러가 국채 공급을 떠안는 정도와 balance-sheet 병목을 본다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "NY Fed Primary Dealer Statistics"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "external_pending",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "treasury_repo_fails",
+      "label_ko": "Treasury repo fails",
+      "domain": "US_MONEY_MARKET",
+      "decision": "ACCEPT_P1",
+      "why_collect": "국채 결제·담보 시장의 기능장애를 탐지한다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "NY Fed Primary Dealer Statistics"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "treasury_basis_positioning",
+      "label_ko": "Treasury basis trade positioning",
+      "domain": "US_MONEY_MARKET",
+      "decision": "RESEARCH_ONLY",
+      "why_collect": "레버리지 basis trade가 repo 충격을 증폭할 가능성을 연구한다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "CFTC/OFI research"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "tic_treasury_flow",
+      "label_ko": "TIC 미국채 순매입",
+      "domain": "USD_HEGEMONY",
+      "decision": "ACCEPT_P0",
+      "why_collect": "해외 공공·민간 부문의 미국채 실제 수요를 확인한다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "US Treasury TIC"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "external_pending",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "usd_reserve_share",
+      "label_ko": "글로벌 외환보유액 중 USD 비중",
+      "domain": "USD_HEGEMONY",
+      "decision": "ACCEPT_P1",
+      "why_collect": "달러 준비통화 지위의 장기 구조 변화를 확인한다.",
+      "point_in_time_required": false,
+      "history_target": "20Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "IMF COFER"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "central_bank_gold_purchase",
+      "label_ko": "중앙은행 금 순매입",
+      "domain": "USD_HEGEMONY",
+      "decision": "ACCEPT_P1",
+      "why_collect": "준비자산 다변화와 달러 신뢰 변화의 보조 근거로 본다.",
+      "point_in_time_required": false,
+      "history_target": "20Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "World Gold Council/IMF"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "federal_debt",
+      "label_ko": "미 연방정부 부채",
+      "domain": "US_FISCAL",
+      "decision": "ACCEPT_P0",
+      "why_collect": "재정의 stock 부담을 측정한다.",
+      "point_in_time_required": false,
+      "history_target": "20Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Treasury/FRED"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "fred",
+      "adapter_status": "ACTIVE"
+    },
+    {
+      "metric_id": "federal_interest_expense",
+      "label_ko": "미 연방정부 이자지출",
+      "domain": "US_FISCAL",
+      "decision": "ACCEPT_P0",
+      "why_collect": "고금리가 재정 여력을 잠식하는 속도를 본다.",
+      "point_in_time_required": false,
+      "history_target": "20Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "BEA/Treasury/FRED"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "fred",
+      "adapter_status": "ACTIVE"
+    },
+    {
+      "metric_id": "federal_deficit_monthly",
+      "label_ko": "미 연방 월간 재정수지",
+      "domain": "US_FISCAL",
+      "decision": "ACCEPT_P0",
+      "why_collect": "추가 차입 필요와 국채 공급 흐름을 확인한다.",
+      "point_in_time_required": false,
+      "history_target": "20Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Monthly Treasury Statement"
+      ],
+      "source_lenses": [
+        "PARK_JONG_HOON"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "fred",
+      "adapter_status": "ACTIVE"
+    },
+    {
+      "metric_id": "forward_eps_kospi_12m",
+      "label_ko": "KOSPI 12개월 Forward EPS",
+      "domain": "EARNINGS",
+      "decision": "ACCEPT_P0",
+      "why_collect": "주가 변화와 시장이 예상하는 미래 이익 변화를 분리한다.",
+      "point_in_time_required": true,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Licensed consensus provider"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "vintage_policy": "Store observation_date, released_at, retrieved_at and every revision; historical reasoning may use only vintages released by the decision timestamp.",
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "forward_eps_sp500_12m",
+      "label_ko": "S&P500 12개월 Forward EPS",
+      "domain": "EARNINGS",
+      "decision": "ACCEPT_P0",
+      "why_collect": "미국 주가 변화가 실제 예상이익 변화와 동행하는지 판단한다.",
+      "point_in_time_required": true,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Licensed consensus provider"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "vintage_policy": "Store observation_date, released_at, retrieved_at and every revision; historical reasoning may use only vintages released by the decision timestamp.",
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "earnings_revision_breadth_kospi",
+      "label_ko": "KOSPI 이익추정 상향/하향 breadth",
+      "domain": "EARNINGS",
+      "decision": "ACCEPT_P0",
+      "why_collect": "소수 대형주가 아니라 시장 전반의 이익 방향이 개선되는지 확인한다.",
+      "point_in_time_required": true,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Licensed consensus provider"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "vintage_policy": "Store observation_date, released_at, retrieved_at and every revision; historical reasoning may use only vintages released by the decision timestamp.",
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "earnings_revision_breadth_sp500",
+      "label_ko": "S&P500 이익추정 revision breadth",
+      "domain": "EARNINGS",
+      "decision": "ACCEPT_P1",
+      "why_collect": "미국 기업 이익 기대의 확산도를 확인한다.",
+      "point_in_time_required": true,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Licensed consensus provider"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "vintage_policy": "Store observation_date, released_at, retrieved_at and every revision; historical reasoning may use only vintages released by the decision timestamp.",
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "earnings_surprise_breadth_sp500",
+      "label_ko": "S&P500 EPS Surprise 비율",
+      "domain": "EARNINGS",
+      "decision": "ACCEPT_P0",
+      "why_collect": "실적시즌에서 실제 결과가 사전 기대를 얼마나 상회/하회하는지 breadth로 본다.",
+      "point_in_time_required": true,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "SEC filings + point-in-time consensus"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "vintage_policy": "Store observation_date, released_at, retrieved_at and every revision; historical reasoning may use only vintages released by the decision timestamp.",
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "forward_per_kospi",
+      "label_ko": "KOSPI Forward PER",
+      "domain": "VALUATION",
+      "decision": "ACCEPT_P0",
+      "why_collect": "미래 이익 대비 현재 가격 수준을 역사·해외와 비교한다.",
+      "point_in_time_required": true,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Licensed consensus provider"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "vintage_policy": "Store observation_date, released_at, retrieved_at and every revision; historical reasoning may use only vintages released by the decision timestamp.",
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "forward_pbr_kospi",
+      "label_ko": "KOSPI Forward PBR",
+      "domain": "VALUATION",
+      "decision": "ACCEPT_P0",
+      "why_collect": "한국의 자본집약 산업 구조를 고려해 장부가 대비 가격 수준을 본다.",
+      "point_in_time_required": true,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Licensed consensus provider"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "vintage_policy": "Store observation_date, released_at, retrieved_at and every revision; historical reasoning may use only vintages released by the decision timestamp.",
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "forward_per_sp500",
+      "label_ko": "S&P500 Forward PER",
+      "domain": "VALUATION",
+      "decision": "ACCEPT_P1",
+      "why_collect": "미국 시장의 기대이익 대비 valuation 부담을 본다.",
+      "point_in_time_required": true,
+      "history_target": "20Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Licensed consensus provider"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "vintage_policy": "Store observation_date, released_at, retrieved_at and every revision; historical reasoning may use only vintages released by the decision timestamp.",
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "foreign_cash_flow_kospi",
+      "label_ko": "외국인 KOSPI 현물 순매매",
+      "domain": "FLOW_POSITIONING",
+      "decision": "ACCEPT_P0",
+      "why_collect": "외국인 실제 현물 방향을 추적한다.",
+      "point_in_time_required": false,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "KRX/KIS"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "foreign_kospi200_futures_net",
+      "label_ko": "외국인 KOSPI200 선물 순포지션/순매매",
+      "domain": "FLOW_POSITIONING",
+      "decision": "ACCEPT_P0",
+      "why_collect": "현물과 선물의 일치·괴리를 통해 헤지와 방향성을 구분한다.",
+      "point_in_time_required": false,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "KRX/KIS"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "foreign_options_position",
+      "label_ko": "외국인 KOSPI200 옵션 포지션",
+      "domain": "FLOW_POSITIONING",
+      "decision": "ACCEPT_P0",
+      "why_collect": "행사가별 옵션 포지션으로 시장의 비선형 헤지·만기 압력을 확인한다.",
+      "point_in_time_required": false,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "KRX"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "program_net_flow",
+      "label_ko": "프로그램 순매매",
+      "domain": "FLOW_POSITIONING",
+      "decision": "ACCEPT_P0",
+      "why_collect": "선물-현물 basis와 프로그램 거래가 지수 움직임을 왜곡하는지 본다.",
+      "point_in_time_required": false,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "KRX/KIS"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "margin_credit_kr",
+      "label_ko": "국내 신용잔고",
+      "domain": "DELEVERAGING",
+      "decision": "ACCEPT_P0",
+      "why_collect": "레버리지 누적과 강제청산 잠재력을 확인한다.",
+      "point_in_time_required": false,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "KOFIA/KRX"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "forced_liquidation_kr",
+      "label_ko": "반대매매 금액",
+      "domain": "DELEVERAGING",
+      "decision": "ACCEPT_P0",
+      "why_collect": "급락이 펀더멘털 악화보다 강제매도에 의해 증폭되는지 확인한다.",
+      "point_in_time_required": false,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "KOFIA/financial data source"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "investor_deposits_kr",
+      "label_ko": "투자자예탁금",
+      "domain": "FLOW_POSITIONING",
+      "decision": "ACCEPT_P0",
+      "why_collect": "주식시장 대기자금과 위험선호 여력을 본다.",
+      "point_in_time_required": false,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "KOFIA"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "trading_value_kr",
+      "label_ko": "국내 주식 거래대금",
+      "domain": "FLOW_POSITIONING",
+      "decision": "ACCEPT_P0",
+      "why_collect": "가격 움직임의 참여도와 유동성을 확인한다.",
+      "point_in_time_required": false,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "KRX"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "breadth_advance_pct_kr",
+      "label_ko": "한국 상승종목 비율",
+      "domain": "BREADTH",
+      "decision": "ACCEPT_P0",
+      "why_collect": "지수 방향이 시장 전체의 동의를 받는지 확인한다.",
+      "point_in_time_required": false,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "KRX/MyDream2000"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "breadth_above_60dma_kr",
+      "label_ko": "60일선 상회 종목 비율",
+      "domain": "BREADTH",
+      "decision": "ACCEPT_P0",
+      "why_collect": "중기 추세의 내부 확산도를 확인한다.",
+      "point_in_time_required": false,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "MyDream2000 derived"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "breadth_new_high_low_kr",
+      "label_ko": "신고가-신저가 breadth",
+      "domain": "BREADTH",
+      "decision": "ACCEPT_P1",
+      "why_collect": "시장 내부의 추세 강도와 약세 확산을 확인한다.",
+      "point_in_time_required": false,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "KRX/MyDream2000 derived"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "semiconductor_inventory_sales",
+      "label_ko": "반도체 재고/매출 비율",
+      "domain": "INDUSTRY_CYCLE",
+      "decision": "ACCEPT_P0",
+      "why_collect": "시크리컬 산업의 재고조정 단계와 이익 저점/고점을 판단한다.",
+      "point_in_time_required": false,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Company filings/industry statistics"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "dram_asp",
+      "label_ko": "DRAM ASP",
+      "domain": "INDUSTRY_CYCLE",
+      "decision": "ACCEPT_P0",
+      "why_collect": "재고조정이 실제 가격 회복/악화로 이어지는지 확인한다.",
+      "point_in_time_required": false,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Industry pricing source/company disclosure"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "nand_asp",
+      "label_ko": "NAND ASP",
+      "domain": "INDUSTRY_CYCLE",
+      "decision": "ACCEPT_P1",
+      "why_collect": "메모리 가격 사이클의 폭과 제품별 차이를 확인한다.",
+      "point_in_time_required": false,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Industry pricing source/company disclosure"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "semiconductor_utilization",
+      "label_ko": "반도체 가동률",
+      "domain": "INDUSTRY_CYCLE",
+      "decision": "ACCEPT_P0",
+      "why_collect": "공급조정과 수요 회복이 생산으로 전환되는지를 본다.",
+      "point_in_time_required": false,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Company filings/industry data"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "hbm_backlog",
+      "label_ko": "HBM 수주잔고/가시성",
+      "domain": "INDUSTRY_CYCLE",
+      "decision": "ACCEPT_P0",
+      "why_collect": "AI 최종수요가 메모리 주문으로 얼마나 확정되어 있는지 본다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Company IR/filings"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "semiconductor_export_10day",
+      "label_ko": "한국 반도체 10일 수출",
+      "domain": "INDUSTRY_CYCLE",
+      "decision": "ACCEPT_P0",
+      "why_collect": "월 실적보다 빠른 실제 출하/수요 변화를 선행 확인한다.",
+      "point_in_time_required": false,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "Korea Customs/MOTIE"
+      ],
+      "source_lenses": [
+        "PARK_SE_IK"
+      ],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "us_cpi_vintage",
+      "label_ko": "미국 CPI 빈티지",
+      "domain": "POINT_IN_TIME",
+      "decision": "ACCEPT_P1",
+      "why_collect": "과거 사건을 당시 공개된 물가정보로만 재현하기 위해 필요하다.",
+      "point_in_time_required": true,
+      "history_target": "30Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "ALFRED/BLS"
+      ],
+      "source_lenses": [],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "vintage_policy": "Store observation_date, released_at, retrieved_at and every revision; historical reasoning may use only vintages released by the decision timestamp.",
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "us_gdp_vintage",
+      "label_ko": "미국 GDP 빈티지",
+      "domain": "POINT_IN_TIME",
+      "decision": "ACCEPT_P1",
+      "why_collect": "수정된 GDP로 과거 판단을 왜곡하지 않기 위해 필요하다.",
+      "point_in_time_required": true,
+      "history_target": "30Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "ALFRED/BEA"
+      ],
+      "source_lenses": [],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "vintage_policy": "Store observation_date, released_at, retrieved_at and every revision; historical reasoning may use only vintages released by the decision timestamp.",
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "us_payroll_vintage",
+      "label_ko": "미국 고용 빈티지",
+      "domain": "POINT_IN_TIME",
+      "decision": "ACCEPT_P1",
+      "why_collect": "당시 시장이 알고 있던 고용 수치와 후속 수정치를 분리한다.",
+      "point_in_time_required": true,
+      "history_target": "30Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": [
+        "ALFRED/BLS"
+      ],
+      "source_lenses": [],
+      "hypotheses_tested": [],
+      "substitute_metrics": [],
+      "vintage_policy": "Store observation_date, released_at, retrieved_at and every revision; historical reasoning may use only vintages released by the decision timestamp.",
+      "current_provider": "not_implemented",
+      "adapter_status": "PENDING"
+    },
+    {
+      "metric_id": "jgb_10y",
+      "label_ko": "일본 국채 10년물 금리",
+      "domain": "JAPAN_RATES",
+      "decision": "ACCEPT_P0",
+      "why_collect": "일본 통화정책 정상화와 국내외 채권의 상대매력 변화를 관측한다.",
+      "point_in_time_required": false,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": ["BOJ/MOF Japan"],
+      "source_lenses": ["PARK_JONG_HOON"],
+      "hypotheses_tested": ["JP_TO_US_DURATION_REALLOCATION"],
+      "substitute_metrics": [],
+      "current_provider": "fred",
+      "adapter_status": "ACTIVE"
+    },
+    {
+      "metric_id": "japan_foreign_bond_flow",
+      "label_ko": "일본 투자자의 해외채권 주간 순매매",
+      "domain": "JAPAN_CROSS_BORDER_FLOW",
+      "decision": "ACCEPT_P0",
+      "why_collect": "금리 상승이 실제 해외채권 매수 축소·본국 환류로 이어지는지 검증한다.",
+      "point_in_time_required": true,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": ["MOF Japan International Transactions in Securities"],
+      "source_lenses": ["PARK_JONG_HOON"],
+      "hypotheses_tested": ["JP_TO_US_DURATION_REALLOCATION"],
+      "substitute_metrics": [],
+      "vintage_policy": "Store observation_date, released_at, retrieved_at and revisions; causal reasoning may use only releases available at the event timestamp.",
+      "current_provider": "mof_weekly_csv",
+      "adapter_status": "ACTIVE"
+    },
+    {
+      "metric_id": "japan_treasury_holdings",
+      "label_ko": "일본의 미국채 보유액",
+      "domain": "US_TREASURY_FOREIGN_DEMAND",
+      "decision": "ACCEPT_P1",
+      "why_collect": "일본계 미국채 수요 변화의 중기 확인 지표다.",
+      "point_in_time_required": true,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": ["US Treasury TIC"],
+      "source_lenses": ["PARK_JONG_HOON"],
+      "hypotheses_tested": ["JP_TO_US_DURATION_REALLOCATION"],
+      "substitute_metrics": ["japan_foreign_bond_flow"],
+      "vintage_policy": "Store observation_date, released_at, retrieved_at and revisions; causal reasoning may use only releases available at the event timestamp.",
+      "current_provider": "treasury_tic_table5",
+      "adapter_status": "ACTIVE"
+    },
+    {
+      "metric_id": "usd_jpy",
+      "label_ko": "달러/엔 환율",
+      "domain": "FX",
+      "decision": "ACCEPT_P0",
+      "why_collect": "BOJ 충격의 엔화 반응과 캐리 청산의 첫 관문을 관측한다.",
+      "point_in_time_required": false,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": ["FRED/BOJ or licensed market data"],
+      "source_lenses": ["PARK_JONG_HOON"],
+      "hypotheses_tested": ["JPY_CARRY_UNWIND"],
+      "substitute_metrics": [],
+      "current_provider": "fred",
+      "adapter_status": "ACTIVE"
+    },
+    {
+      "metric_id": "jpy_fx_vol",
+      "label_ko": "달러/엔 20일 실현변동성",
+      "domain": "FX_VOLATILITY",
+      "decision": "ACCEPT_P1",
+      "why_collect": "공개 환율로 변동성 급등을 관측한다. 옵션 내재변동성과 동일하지 않음을 명시한다.",
+      "point_in_time_required": false,
+      "history_target": "5Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": ["Derived from FRED DEXJPUS daily returns"],
+      "source_lenses": ["PARK_JONG_HOON"],
+      "hypotheses_tested": ["JPY_CARRY_UNWIND"],
+      "substitute_metrics": [],
+      "current_provider": "derived_realized_vol",
+      "adapter_status": "ACTIVE"
+    },
+    {
+      "metric_id": "vix",
+      "label_ko": "VIX 지수",
+      "domain": "US_VOLATILITY",
+      "decision": "ACCEPT_P0",
+      "why_collect": "글로벌 위험회피 및 캐리 청산의 시장 반응을 관측한다.",
+      "point_in_time_required": false,
+      "history_target": "10Y",
+      "collection_mode": "SHADOW",
+      "candidate_sources": ["CBOE/FRED"],
+      "source_lenses": [],
+      "hypotheses_tested": ["JPY_CARRY_UNWIND"],
+      "substitute_metrics": [],
+      "current_provider": "fred",
+      "adapter_status": "ACTIVE"
+    }
+  ]
+}

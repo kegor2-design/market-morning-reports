@@ -1,0 +1,1344 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-08-15T09:40:43+00:00",
+  "source_id": "kpunch",
+  "channel_url": "https://www.youtube.com/@kpunch",
+  "method_note": "Claims are paraphrases for internal analysis. Transcript files remain internal and are not republished.",
+  "claim_count": 13,
+  "status_counts": {
+    "TRACKABLE": 5,
+    "PARTIAL": 6,
+    "NEEDS_DATA": 2
+  },
+  "missing_indicator_priority": [
+    {
+      "indicator_id": "foreign_equity_flow",
+      "claim_count": 2
+    },
+    {
+      "indicator_id": "bok_rp_purchase",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "kr_nominal_gdp_yoy",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "foreign_bond_flow",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "retail_sales_kr",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "real_household_income",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "household_debt_gdp",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "interest_expense",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "kr_fiscal_balance_gdp",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "working_age_population_kr",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "old_age_dependency_kr",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "potential_growth_kr",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "welfare_spending_gdp",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "export_volume_kr",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "import_price_kr",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "terms_of_trade_kr",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "energy_import_bill",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "operating_margin_kr",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "semiconductor_exports",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "memory_price",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "samsung_sk_profit",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "pension_flow",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "regional_house_price",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "housing_transactions",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "household_credit",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "pf_delinquency",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "unsold_housing",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "china_house_price",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "china_cpi_yoy",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "china_ppi_yoy",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "china_fdi",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "china_real_gdp_yoy",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "kr_exports_china",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "hyperscaler_capex",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "data_center_power",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "gpu_shipments",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "hbm_revenue",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "electricity_reserve_margin_kr",
+      "claim_count": 1
+    },
+    {
+      "indicator_id": "free_cash_flow",
+      "claim_count": 1
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "KP-MON-001",
+      "theme": "통화정책",
+      "claim": "한국은행의 반복적인 RP 매입은 단기 안정을 주지만 채권시장의 가격 신호와 금융회사 규율을 약화시킬 수 있다.",
+      "transmission": [
+        "RP 매입 확대",
+        "채권 수요와 유동성 증가",
+        "위험 프리미엄 억제",
+        "도덕적 해이와 환율 부담"
+      ],
+      "indicators": [
+        "bok_rp_purchase",
+        "kr3y",
+        "kr10y",
+        "usdkrw",
+        "credit_spread"
+      ],
+      "videos": [
+        {
+          "video_id": "0N_6lAviiIo",
+          "anchor": "가격 신호가 마비"
+        },
+        {
+          "video_id": "T5pON5iwG64",
+          "anchor": "금융 시장을 길들여"
+        }
+      ],
+      "evidence": [
+        {
+          "video_id": "0N_6lAviiIo",
+          "title": "한국은행의 끝없는 돈뿌리기, 이미 누적 RP 62조 돌파 (박종훈의 지식한방)",
+          "upload_date": "20250114",
+          "url": "https://www.youtube.com/watch?v=0N_6lAviiIo&t=636s",
+          "anchor": "가격 신호가 마비",
+          "timestamp_seconds": 636
+        },
+        {
+          "video_id": "T5pON5iwG64",
+          "title": "한국은행 62조 시장개입이 위험한 9가지 이유 (박종훈의 지식한방)",
+          "upload_date": "20250115",
+          "url": "https://www.youtube.com/watch?v=T5pON5iwG64&t=493s",
+          "anchor": "금융 시장을 길들여",
+          "timestamp_seconds": 493
+        }
+      ],
+      "indicator_status": [
+        {
+          "indicator_id": "bok_rp_purchase",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "kr3y",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-08-01",
+            "value": 3.796,
+            "unit": "%"
+          }
+        },
+        {
+          "indicator_id": "kr10y",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-08-01",
+            "value": 4.313,
+            "unit": "%"
+          }
+        },
+        {
+          "indicator_id": "usdkrw",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-08-01",
+            "value": 1412.0,
+            "unit": "KRW/USD"
+          }
+        },
+        {
+          "indicator_id": "credit_spread",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-08-01",
+            "value": 0.696,
+            "unit": "%p"
+          }
+        }
+      ],
+      "coverage_pct": 80.0,
+      "validation_status": "TRACKABLE"
+    },
+    {
+      "claim_id": "KP-MON-002",
+      "theme": "통화가치",
+      "claim": "통화량이 실질성장보다 빠르게 증가하면 명목 자산가격은 오를 수 있지만 통화가치와 구매력은 약해질 수 있다.",
+      "transmission": [
+        "M2 증가",
+        "자산 수요 증가",
+        "명목가격 상승",
+        "물가·환율 상승",
+        "실질 구매력 저하"
+      ],
+      "indicators": [
+        "kr_m2_yoy",
+        "us_m2_yoy",
+        "kr_nominal_gdp_yoy",
+        "usdkrw",
+        "kr_cpi_yoy"
+      ],
+      "videos": [
+        {
+          "video_id": "aWUXrtOp2Hg",
+          "anchor": "M2 통화량"
+        },
+        {
+          "video_id": "UNNfxQb9Sio",
+          "anchor": "돈 가치가 떨어"
+        }
+      ],
+      "evidence": [
+        {
+          "video_id": "aWUXrtOp2Hg",
+          "title": "환율 1475원 돌파, 주가는 더 위험하다 (박종훈의 지식한방)",
+          "upload_date": "20251121",
+          "url": "https://www.youtube.com/watch?v=aWUXrtOp2Hg&t=189s",
+          "anchor": "M2 통화량",
+          "timestamp_seconds": 189
+        },
+        {
+          "video_id": "UNNfxQb9Sio",
+          "title": "금값이 폭등한 게 아니라 돈 가치가 급락한 것이다 (박종훈의 지식한방)",
+          "upload_date": "20250711",
+          "url": "https://www.youtube.com/watch?v=UNNfxQb9Sio&t=404s",
+          "anchor": "돈 가치가 떨어",
+          "timestamp_seconds": 404
+        }
+      ],
+      "indicator_status": [
+        {
+          "indicator_id": "kr_m2_yoy",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-06-01",
+            "value": 5.9768,
+            "unit": "% YoY"
+          }
+        },
+        {
+          "indicator_id": "us_m2_yoy",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-06-01",
+            "value": 5.5258,
+            "unit": "% YoY"
+          }
+        },
+        {
+          "indicator_id": "kr_nominal_gdp_yoy",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "usdkrw",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-08-01",
+            "value": 1412.0,
+            "unit": "KRW/USD"
+          }
+        },
+        {
+          "indicator_id": "kr_cpi_yoy",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-07-01",
+            "value": 2.7892,
+            "unit": "% YoY"
+          }
+        }
+      ],
+      "coverage_pct": 80.0,
+      "validation_status": "TRACKABLE"
+    },
+    {
+      "claim_id": "KP-EQT-001",
+      "theme": "주식·실질수익",
+      "claim": "주가 상승은 환율과 물가를 반영한 실질·달러 기준으로 다시 평가해야 한다.",
+      "transmission": [
+        "원화 주가지수 상승",
+        "원화 약세 또는 물가 상승",
+        "달러·실질 수익률 축소"
+      ],
+      "indicators": [
+        "kospi",
+        "usdkrw",
+        "kr_cpi",
+        "kospi_usd_real"
+      ],
+      "videos": [
+        {
+          "video_id": "UNNfxQb9Sio",
+          "anchor": "돈 가치가 폭락"
+        },
+        {
+          "video_id": "FtPu3XGQ9p8",
+          "anchor": "원화"
+        }
+      ],
+      "evidence": [
+        {
+          "video_id": "UNNfxQb9Sio",
+          "title": "금값이 폭등한 게 아니라 돈 가치가 급락한 것이다 (박종훈의 지식한방)",
+          "upload_date": "20250711",
+          "url": "https://www.youtube.com/watch?v=UNNfxQb9Sio&t=2s",
+          "anchor": "돈 가치가 폭락",
+          "timestamp_seconds": 2
+        },
+        {
+          "video_id": "FtPu3XGQ9p8",
+          "title": "주가는 오르는데, 원화는 왜 추락하나? (박종훈의 지식한방)",
+          "upload_date": "20260617",
+          "url": "https://www.youtube.com/watch?v=FtPu3XGQ9p8&t=42s",
+          "anchor": "원화",
+          "timestamp_seconds": 42
+        }
+      ],
+      "indicator_status": [
+        {
+          "indicator_id": "kospi",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-08-01",
+            "value": 6977.939941,
+            "unit": "index"
+          }
+        },
+        {
+          "indicator_id": "usdkrw",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-08-01",
+            "value": 1412.0,
+            "unit": "KRW/USD"
+          }
+        },
+        {
+          "indicator_id": "kr_cpi",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-07-01",
+            "value": 119.77,
+            "unit": "index"
+          }
+        },
+        {
+          "indicator_id": "kospi_usd_real",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-07-01",
+            "value": 398.3547,
+            "unit": "2003-12=100"
+          }
+        }
+      ],
+      "coverage_pct": 100.0,
+      "validation_status": "TRACKABLE"
+    },
+    {
+      "claim_id": "KP-FX-001",
+      "theme": "환율",
+      "claim": "원/달러 환율은 한국 금융정책의 신뢰와 해외자금 흐름을 먼저 보여주는 위험 경보다.",
+      "transmission": [
+        "정책 신뢰 또는 금리차 변화",
+        "외국인 자금 이동",
+        "원/달러 반응",
+        "주식·채권·물가 전이"
+      ],
+      "indicators": [
+        "usdkrw",
+        "kr_us_10y_gap",
+        "foreign_equity_flow",
+        "foreign_bond_flow",
+        "fx_reserves",
+        "reer_kr"
+      ],
+      "videos": [
+        {
+          "video_id": "0N_6lAviiIo",
+          "anchor": "탄광 속의 카나리아"
+        },
+        {
+          "video_id": "JrVYsBo8nDw",
+          "anchor": "환율 관찰 대상국"
+        }
+      ],
+      "evidence": [
+        {
+          "video_id": "0N_6lAviiIo",
+          "title": "한국은행의 끝없는 돈뿌리기, 이미 누적 RP 62조 돌파 (박종훈의 지식한방)",
+          "upload_date": "20250114",
+          "url": "https://www.youtube.com/watch?v=0N_6lAviiIo&t=671s",
+          "anchor": "탄광 속의 카나리아",
+          "timestamp_seconds": 671
+        },
+        {
+          "video_id": "JrVYsBo8nDw",
+          "title": "미국의 환율 조작국 위협에 원화 가치가 하락한 이유는? (박종훈의 지식한방)",
+          "upload_date": "20250611",
+          "url": "https://www.youtube.com/watch?v=JrVYsBo8nDw&t=11s",
+          "anchor": "환율 관찰 대상국",
+          "timestamp_seconds": 11
+        }
+      ],
+      "indicator_status": [
+        {
+          "indicator_id": "usdkrw",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-08-01",
+            "value": 1412.0,
+            "unit": "KRW/USD"
+          }
+        },
+        {
+          "indicator_id": "kr_us_10y_gap",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-08-01",
+            "value": -0.317,
+            "unit": "%p"
+          }
+        },
+        {
+          "indicator_id": "foreign_equity_flow",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "foreign_bond_flow",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "fx_reserves",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-07-01",
+            "value": 427948361.0,
+            "unit": "USD thousand"
+          }
+        },
+        {
+          "indicator_id": "reer_kr",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-06-01",
+            "value": 83.06,
+            "unit": "index"
+          }
+        }
+      ],
+      "coverage_pct": 66.7,
+      "validation_status": "PARTIAL"
+    },
+    {
+      "claim_id": "KP-HOU-001",
+      "theme": "부동산·금리",
+      "claim": "한국은 내수가 약해도 집값과 가계부채, 환율 때문에 미국보다 빠른 금리 인하가 어렵다.",
+      "transmission": [
+        "내수 둔화",
+        "금리 인하 압력",
+        "주택·가계대출 재상승 위험",
+        "환율 제약",
+        "정책 딜레마"
+      ],
+      "indicators": [
+        "retail_sales_kr",
+        "real_household_income",
+        "seoul_house_price",
+        "household_debt_gdp",
+        "usdkrw",
+        "bok_base_rate"
+      ],
+      "videos": [
+        {
+          "video_id": "WiXsuEGBvYI",
+          "anchor": "금리를 낮추고 싶어도"
+        },
+        {
+          "video_id": "GJXD5vQtxA4",
+          "anchor": "우리만 빠르게 인하"
+        }
+      ],
+      "evidence": [
+        {
+          "video_id": "WiXsuEGBvYI",
+          "title": "내수는 금융위기 이후 최악인데 부동산만 급등하는 이유는? (박종훈의 지식한방)",
+          "upload_date": "20240823",
+          "url": "https://www.youtube.com/watch?v=WiXsuEGBvYI&t=86s",
+          "anchor": "금리를 낮추고 싶어도",
+          "timestamp_seconds": 86
+        },
+        {
+          "video_id": "GJXD5vQtxA4",
+          "title": "3분기 GDP쇼크, 환율과 금리까지 흔들린다 (박종훈의 지식한방)",
+          "upload_date": "20241025",
+          "url": "https://www.youtube.com/watch?v=GJXD5vQtxA4&t=1194s",
+          "anchor": "우리만 빠르게 인하",
+          "timestamp_seconds": 1194
+        }
+      ],
+      "indicator_status": [
+        {
+          "indicator_id": "retail_sales_kr",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "real_household_income",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "seoul_house_price",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-07-01",
+            "value": 104.666,
+            "unit": "index"
+          }
+        },
+        {
+          "indicator_id": "household_debt_gdp",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "usdkrw",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-08-01",
+            "value": 1412.0,
+            "unit": "KRW/USD"
+          }
+        },
+        {
+          "indicator_id": "bok_base_rate",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-07-01",
+            "value": 2.75,
+            "unit": "%"
+          }
+        }
+      ],
+      "coverage_pct": 50.0,
+      "validation_status": "PARTIAL"
+    },
+    {
+      "claim_id": "KP-RATE-001",
+      "theme": "시장금리",
+      "claim": "기준금리 인하에도 장기금리가 오르면 실제 금융여건은 완화되지 않으며 국채 공급이 통화정책을 상쇄할 수 있다.",
+      "transmission": [
+        "기준금리 인하",
+        "재정적자와 국채 공급 증가",
+        "기간 프리미엄 상승",
+        "장기금리 상승",
+        "금융여건 긴축"
+      ],
+      "indicators": [
+        "bok_base_rate",
+        "kr10y",
+        "kr30y",
+        "us10y",
+        "us30y",
+        "sovereign_issuance",
+        "interest_expense"
+      ],
+      "videos": [
+        {
+          "video_id": "UNNfxQb9Sio",
+          "anchor": "10년물 국채 금리는 오히려"
+        },
+        {
+          "video_id": "l07sHuq0Uzk",
+          "anchor": "10년물"
+        }
+      ],
+      "evidence": [
+        {
+          "video_id": "UNNfxQb9Sio",
+          "title": "금값이 폭등한 게 아니라 돈 가치가 급락한 것이다 (박종훈의 지식한방)",
+          "upload_date": "20250711",
+          "url": "https://www.youtube.com/watch?v=UNNfxQb9Sio&t=602s",
+          "anchor": "10년물 국채 금리는 오히려",
+          "timestamp_seconds": 602
+        },
+        {
+          "video_id": "l07sHuq0Uzk",
+          "title": "10년물 국채금리 4.5% 재돌파, 비상걸린 트럼프 (박종훈의 지식한방)",
+          "upload_date": "20250519",
+          "url": "https://www.youtube.com/watch?v=l07sHuq0Uzk&t=18s",
+          "anchor": "10년물",
+          "timestamp_seconds": 18
+        }
+      ],
+      "indicator_status": [
+        {
+          "indicator_id": "bok_base_rate",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-07-01",
+            "value": 2.75,
+            "unit": "%"
+          }
+        },
+        {
+          "indicator_id": "kr10y",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-08-01",
+            "value": 4.313,
+            "unit": "%"
+          }
+        },
+        {
+          "indicator_id": "kr30y",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-08-01",
+            "value": 4.669,
+            "unit": "%"
+          }
+        },
+        {
+          "indicator_id": "us10y",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-08-01",
+            "value": 4.63,
+            "unit": "%"
+          }
+        },
+        {
+          "indicator_id": "us30y",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-08-01",
+            "value": 5.21,
+            "unit": "%"
+          }
+        },
+        {
+          "indicator_id": "sovereign_issuance",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-06-01",
+            "value": 20183.0,
+            "unit": "KRW billion/month"
+          }
+        },
+        {
+          "indicator_id": "interest_expense",
+          "available": false,
+          "snapshot": null
+        }
+      ],
+      "coverage_pct": 85.7,
+      "validation_status": "TRACKABLE"
+    },
+    {
+      "claim_id": "KP-FIS-001",
+      "theme": "재정",
+      "claim": "비기축통화국인 한국이 경기부양을 국채에 계속 의존하면 금리와 환율 부담 때문에 지속성 한계에 직면한다.",
+      "transmission": [
+        "적자재정",
+        "국채 발행",
+        "부채 증가",
+        "국채금리·환율 상승",
+        "추가 부양 여력 축소"
+      ],
+      "indicators": [
+        "kr_fiscal_balance_gdp",
+        "kr_debt_gdp",
+        "sovereign_issuance",
+        "kr10y",
+        "usdkrw"
+      ],
+      "videos": [
+        {
+          "video_id": "GJXD5vQtxA4",
+          "anchor": "정부주도 성장"
+        },
+        {
+          "video_id": "aWUXrtOp2Hg",
+          "anchor": "적자 국채"
+        }
+      ],
+      "evidence": [
+        {
+          "video_id": "GJXD5vQtxA4",
+          "title": "3분기 GDP쇼크, 환율과 금리까지 흔들린다 (박종훈의 지식한방)",
+          "upload_date": "20241025",
+          "url": "https://www.youtube.com/watch?v=GJXD5vQtxA4&t=804s",
+          "anchor": "정부주도 성장",
+          "timestamp_seconds": 804
+        },
+        {
+          "video_id": "aWUXrtOp2Hg",
+          "title": "환율 1475원 돌파, 주가는 더 위험하다 (박종훈의 지식한방)",
+          "upload_date": "20251121",
+          "url": "https://www.youtube.com/watch?v=aWUXrtOp2Hg&t=962s",
+          "anchor": "적자 국채",
+          "timestamp_seconds": 962
+        }
+      ],
+      "indicator_status": [
+        {
+          "indicator_id": "kr_fiscal_balance_gdp",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "kr_debt_gdp",
+          "available": true,
+          "snapshot": {
+            "as_of": "2024",
+            "value": 49.7,
+            "unit": "% GDP"
+          }
+        },
+        {
+          "indicator_id": "sovereign_issuance",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-06-01",
+            "value": 20183.0,
+            "unit": "KRW billion/month"
+          }
+        },
+        {
+          "indicator_id": "kr10y",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-08-01",
+            "value": 4.313,
+            "unit": "%"
+          }
+        },
+        {
+          "indicator_id": "usdkrw",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-08-01",
+            "value": 1412.0,
+            "unit": "KRW/USD"
+          }
+        }
+      ],
+      "coverage_pct": 80.0,
+      "validation_status": "TRACKABLE"
+    },
+    {
+      "claim_id": "KP-DEM-001",
+      "theme": "인구·부채",
+      "claim": "한국 재정의 핵심 위험은 현재 부채 수준보다 저성장·고령화·생산연령인구 감소가 결합된 증가 속도다.",
+      "transmission": [
+        "생산연령인구 감소",
+        "성장·세입 둔화",
+        "복지지출 증가",
+        "재정적자 확대",
+        "부채비율 상승"
+      ],
+      "indicators": [
+        "kr_debt_gdp",
+        "working_age_population_kr",
+        "old_age_dependency_kr",
+        "potential_growth_kr",
+        "welfare_spending_gdp"
+      ],
+      "videos": [
+        {
+          "video_id": "Sop9n4HXnf0",
+          "anchor": "생산 연령 인구"
+        },
+        {
+          "video_id": "A1eCmFSFpIE",
+          "anchor": "베이비부머"
+        }
+      ],
+      "evidence": [
+        {
+          "video_id": "Sop9n4HXnf0",
+          "title": "미국 국가부채 사상 첫 37조 달러 돌파, 과연 한국은 안전한가? (박종훈의 지식한방)",
+          "upload_date": "20250817",
+          "url": "https://www.youtube.com/watch?v=Sop9n4HXnf0&t=852s",
+          "anchor": "생산 연령 인구",
+          "timestamp_seconds": 852
+        },
+        {
+          "video_id": "A1eCmFSFpIE",
+          "title": "최대 인구 집단 베이비부머의 은퇴, 경제 충격이 '이 정도'라고? (박종훈의 지식한방)",
+          "upload_date": "20240708",
+          "url": "https://www.youtube.com/watch?v=A1eCmFSFpIE&t=836s",
+          "anchor": "베이비부머",
+          "timestamp_seconds": 836
+        }
+      ],
+      "indicator_status": [
+        {
+          "indicator_id": "kr_debt_gdp",
+          "available": true,
+          "snapshot": {
+            "as_of": "2024",
+            "value": 49.7,
+            "unit": "% GDP"
+          }
+        },
+        {
+          "indicator_id": "working_age_population_kr",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "old_age_dependency_kr",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "potential_growth_kr",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "welfare_spending_gdp",
+          "available": false,
+          "snapshot": null
+        }
+      ],
+      "coverage_pct": 20.0,
+      "validation_status": "PARTIAL"
+    },
+    {
+      "claim_id": "KP-TRADE-001",
+      "theme": "교역조건",
+      "claim": "원화 약세는 수출을 자동으로 개선하지 않으며 중간재·에너지 수입물가를 통해 기업과 가계에 부담을 줄 수 있다.",
+      "transmission": [
+        "원화 약세",
+        "수입물가 상승",
+        "기업 원가·소비자물가 상승",
+        "내수와 마진 압박"
+      ],
+      "indicators": [
+        "usdkrw",
+        "export_volume_kr",
+        "import_price_kr",
+        "terms_of_trade_kr",
+        "energy_import_bill",
+        "operating_margin_kr"
+      ],
+      "videos": [
+        {
+          "video_id": "GJXD5vQtxA4",
+          "anchor": "수입 물가"
+        },
+        {
+          "video_id": "9vOGhjSKQhI",
+          "anchor": "환율"
+        }
+      ],
+      "evidence": [
+        {
+          "video_id": "GJXD5vQtxA4",
+          "title": "3분기 GDP쇼크, 환율과 금리까지 흔들린다 (박종훈의 지식한방)",
+          "upload_date": "20241025",
+          "url": "https://www.youtube.com/watch?v=GJXD5vQtxA4&t=1223s",
+          "anchor": "수입 물가",
+          "timestamp_seconds": 1223
+        },
+        {
+          "video_id": "9vOGhjSKQhI",
+          "title": "트럼프 당선 이후, 환율 폭등하고 코스피만 헤매는 진짜 이유 (박종훈의 지식한방)",
+          "upload_date": "20241110",
+          "url": "https://www.youtube.com/watch?v=9vOGhjSKQhI&t=33s",
+          "anchor": "환율",
+          "timestamp_seconds": 33
+        }
+      ],
+      "indicator_status": [
+        {
+          "indicator_id": "usdkrw",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-08-01",
+            "value": 1412.0,
+            "unit": "KRW/USD"
+          }
+        },
+        {
+          "indicator_id": "export_volume_kr",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "import_price_kr",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "terms_of_trade_kr",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "energy_import_bill",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "operating_margin_kr",
+          "available": false,
+          "snapshot": null
+        }
+      ],
+      "coverage_pct": 16.7,
+      "validation_status": "PARTIAL"
+    },
+    {
+      "claim_id": "KP-EQT-002",
+      "theme": "한국증시",
+      "claim": "한국 증시의 급등은 실물경제 개선과 분리될 수 있으며 외국인 자금·환율·반도체 사이클·정책 수급을 함께 봐야 한다.",
+      "transmission": [
+        "외국인·정책 수급 변화",
+        "대형 반도체 가격 변화",
+        "지수 급등락",
+        "실물지표와 괴리"
+      ],
+      "indicators": [
+        "kospi",
+        "foreign_equity_flow",
+        "usdkrw",
+        "semiconductor_exports",
+        "memory_price",
+        "samsung_sk_profit",
+        "pension_flow"
+      ],
+      "videos": [
+        {
+          "video_id": "37ooENAKSPc",
+          "anchor": "코스피"
+        },
+        {
+          "video_id": "J6xA-6pjP8I",
+          "anchor": "삼성"
+        }
+      ],
+      "evidence": [
+        {
+          "video_id": "37ooENAKSPc",
+          "title": "걸핏하면 급등락, 코스피 왜 이러나? (박종훈의 지식한방)",
+          "upload_date": "20260612",
+          "url": "https://www.youtube.com/watch?v=37ooENAKSPc&t=0s",
+          "anchor": "코스피",
+          "timestamp_seconds": 0
+        },
+        {
+          "video_id": "J6xA-6pjP8I",
+          "title": "삼성 실적에도 주가 급락, 코스피 반등 위한 3가지 조건 (박종훈의 지식한방)",
+          "upload_date": "20260707",
+          "url": "https://www.youtube.com/watch?v=J6xA-6pjP8I&t=80s",
+          "anchor": "삼성",
+          "timestamp_seconds": 80
+        }
+      ],
+      "indicator_status": [
+        {
+          "indicator_id": "kospi",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-08-01",
+            "value": 6977.939941,
+            "unit": "index"
+          }
+        },
+        {
+          "indicator_id": "foreign_equity_flow",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "usdkrw",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-08-01",
+            "value": 1412.0,
+            "unit": "KRW/USD"
+          }
+        },
+        {
+          "indicator_id": "semiconductor_exports",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "memory_price",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "samsung_sk_profit",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "pension_flow",
+          "available": false,
+          "snapshot": null
+        }
+      ],
+      "coverage_pct": 28.6,
+      "validation_status": "PARTIAL"
+    },
+    {
+      "claim_id": "KP-HOU-002",
+      "theme": "부동산·금융안정",
+      "claim": "부동산 부양은 단기 가격을 지지하지만 가계부채·PF 위험·지역 격차와 자본의 비생산적 배분을 심화할 수 있다.",
+      "transmission": [
+        "규제 완화와 유동성",
+        "서울 가격 상승",
+        "대출·PF 확대",
+        "지역 양극화",
+        "금융안정 부담"
+      ],
+      "indicators": [
+        "seoul_house_price",
+        "regional_house_price",
+        "housing_transactions",
+        "household_credit",
+        "pf_delinquency",
+        "unsold_housing"
+      ],
+      "videos": [
+        {
+          "video_id": "CIB88CNbvKU",
+          "anchor": "부동산 부양책"
+        },
+        {
+          "video_id": "Jdu3Nq-T4nA",
+          "anchor": "GDP 대비 부채"
+        }
+      ],
+      "evidence": [
+        {
+          "video_id": "CIB88CNbvKU",
+          "title": "정부가 억지로 끌어올린 서울 집값...나중에 폭탄된다 (박종훈의 지식한방)",
+          "upload_date": "20240716",
+          "url": "https://www.youtube.com/watch?v=CIB88CNbvKU&t=63s",
+          "anchor": "부동산 부양책",
+          "timestamp_seconds": 63
+        },
+        {
+          "video_id": "Jdu3Nq-T4nA",
+          "title": "역대 최악의 부채 폭증, 집값까지 요동친다 (박종훈의 지식한방)",
+          "upload_date": "20240702",
+          "url": "https://www.youtube.com/watch?v=Jdu3Nq-T4nA&t=8s",
+          "anchor": "GDP 대비 부채",
+          "timestamp_seconds": 8
+        }
+      ],
+      "indicator_status": [
+        {
+          "indicator_id": "seoul_house_price",
+          "available": true,
+          "snapshot": {
+            "as_of": "2026-07-01",
+            "value": 104.666,
+            "unit": "index"
+          }
+        },
+        {
+          "indicator_id": "regional_house_price",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "housing_transactions",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "household_credit",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "pf_delinquency",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "unsold_housing",
+          "available": false,
+          "snapshot": null
+        }
+      ],
+      "coverage_pct": 16.7,
+      "validation_status": "PARTIAL"
+    },
+    {
+      "claim_id": "KP-CHN-001",
+      "theme": "중국경제",
+      "claim": "중국의 둔화는 부동산 의존·디플레이션·외국인투자 감소·정책 신뢰 하락이 겹친 구조적 문제다.",
+      "transmission": [
+        "부동산 조정",
+        "내수·물가 약화",
+        "FDI 감소",
+        "성장률 둔화",
+        "한국 수출 전이"
+      ],
+      "indicators": [
+        "china_house_price",
+        "china_cpi_yoy",
+        "china_ppi_yoy",
+        "china_fdi",
+        "china_real_gdp_yoy",
+        "kr_exports_china"
+      ],
+      "videos": [
+        {
+          "video_id": "6JP6WNhpJhQ",
+          "anchor": "해외 직접 투자"
+        },
+        {
+          "video_id": "8_Gj4VjmIVs",
+          "anchor": "디플레"
+        }
+      ],
+      "evidence": [
+        {
+          "video_id": "6JP6WNhpJhQ",
+          "title": "시진핑 집권 12년, 수렁에 빠진 중국 경제 (박종훈의 지식한방)",
+          "upload_date": "20250704",
+          "url": "https://www.youtube.com/watch?v=6JP6WNhpJhQ&t=973s",
+          "anchor": "해외 직접 투자",
+          "timestamp_seconds": 973
+        },
+        {
+          "video_id": "8_Gj4VjmIVs",
+          "title": "중국산은 이제 안사요... 최악의 디플레 불렀다 (박종훈의 지식한방)",
+          "upload_date": "20240910",
+          "url": "https://www.youtube.com/watch?v=8_Gj4VjmIVs&t=0s",
+          "anchor": "디플레",
+          "timestamp_seconds": 0
+        }
+      ],
+      "indicator_status": [
+        {
+          "indicator_id": "china_house_price",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "china_cpi_yoy",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "china_ppi_yoy",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "china_fdi",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "china_real_gdp_yoy",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "kr_exports_china",
+          "available": false,
+          "snapshot": null
+        }
+      ],
+      "coverage_pct": 0.0,
+      "validation_status": "NEEDS_DATA"
+    },
+    {
+      "claim_id": "KP-AI-001",
+      "theme": "AI·산업",
+      "claim": "AI 시대의 지속 가능한 승자는 모델뿐 아니라 전력·데이터센터·반도체·플랫폼과 자본조달 능력을 확보한 기업이다.",
+      "transmission": [
+        "AI 수요 증가",
+        "컴퓨팅·전력 병목",
+        "대규모 설비투자",
+        "인프라·반도체 이익 집중"
+      ],
+      "indicators": [
+        "hyperscaler_capex",
+        "data_center_power",
+        "gpu_shipments",
+        "hbm_revenue",
+        "electricity_reserve_margin_kr",
+        "free_cash_flow"
+      ],
+      "videos": [
+        {
+          "video_id": "A0s34BV_8Gc",
+          "anchor": "거대 언어 모델"
+        },
+        {
+          "video_id": "mVOkY5VAVCw",
+          "anchor": "데이터센터"
+        }
+      ],
+      "evidence": [
+        {
+          "video_id": "A0s34BV_8Gc",
+          "title": "AI후진국으로 전락한 한국, 반도체 산업이 살아날 길은? (한국경제부활 프로젝트3, 박종훈의 지식한방)",
+          "upload_date": "20250105",
+          "url": "https://www.youtube.com/watch?v=A0s34BV_8Gc&t=319s",
+          "anchor": "거대 언어 모델",
+          "timestamp_seconds": 319
+        },
+        {
+          "video_id": "mVOkY5VAVCw",
+          "title": "한국 인터넷 속도 하위권, 어쩌다 IT강국이 AI후진국이 됐나? (박종훈의 지식한방)",
+          "upload_date": "20241022",
+          "url": "https://www.youtube.com/watch?v=mVOkY5VAVCw&t=15s",
+          "anchor": "데이터센터",
+          "timestamp_seconds": 15
+        }
+      ],
+      "indicator_status": [
+        {
+          "indicator_id": "hyperscaler_capex",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "data_center_power",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "gpu_shipments",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "hbm_revenue",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "electricity_reserve_margin_kr",
+          "available": false,
+          "snapshot": null
+        },
+        {
+          "indicator_id": "free_cash_flow",
+          "available": false,
+          "snapshot": null
+        }
+      ],
+      "coverage_pct": 0.0,
+      "validation_status": "NEEDS_DATA"
+    }
+  ]
+}

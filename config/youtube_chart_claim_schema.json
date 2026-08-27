@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://market-morning.local/schemas/youtube-chart-claim-1.0.json",
+  "title": "Point-in-time YouTube chart claim",
+  "type": "object",
+  "required": [
+    "schema_version", "source_claim_id", "source_type", "channel_id", "video_id",
+    "video_url", "timestamp_url", "speech_start_ms", "speech_end_ms", "claim_categories",
+    "direction", "spoken_offset_ms", "publicly_actionable_at", "availability_precision",
+    "human_review_status"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "const": "1.0"},
+    "source_claim_id": {"type": "string", "pattern": "^YTC-[A-F0-9]{20}$"},
+    "source_type": {"type": "string", "const": "YOUTUBE_CHART_COMMENTARY"},
+    "channel_id": {"type": "string", "minLength": 1},
+    "channel_name": {"type": ["string", "null"]},
+    "video_id": {"type": "string", "minLength": 1},
+    "video_title": {"type": ["string", "null"]},
+    "video_url": {"type": "string", "format": "uri"},
+    "timestamp_url": {"type": "string", "format": "uri"},
+    "speech_start_ms": {"type": "integer", "minimum": 0},
+    "speech_end_ms": {"type": "integer", "minimum": 1},
+    "speech_excerpt": {"type": "string"},
+    "claim_categories": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+    "direction": {"enum": ["LONG", "SHORT", "NEUTRAL"]},
+    "timeframe_spoken": {"type": ["string", "null"]},
+    "asset_candidates": {"type": "array", "items": {"type": "object"}},
+    "numeric_mentions": {"type": "array", "items": {"type": "object"}},
+    "target_price": {"type": ["number", "null"], "exclusiveMinimum": 0},
+    "invalidation_price": {"type": ["number", "null"], "exclusiveMinimum": 0},
+    "video_published_at": {"type": ["string", "null"], "format": "date-time"},
+    "livestream_start_at": {"type": ["string", "null"], "format": "date-time"},
+    "spoken_offset_ms": {"type": "integer", "minimum": 0},
+    "content_as_of": {"type": ["string", "null"]},
+    "publicly_actionable_at": {"type": ["string", "null"], "format": "date-time"},
+    "availability_precision": {"enum": ["MILLISECOND", "SECOND", "UNKNOWN"]},
+    "availability_reason": {"type": "string"},
+    "human_review_status": {"enum": ["PENDING", "CONFIRMED", "REJECTED"]}
+  },
+  "additionalProperties": true
+}
+

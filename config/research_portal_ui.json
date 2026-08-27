@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "release": "1.6.5",
+  "theme_name": "Market Morning Research Portal",
+  "design_direction": "ASSET_MANAGER_RESEARCH_PORTAL",
+  "desktop": {
+    "max_width_px": 1420,
+    "information_density": "INSTITUTIONAL_RESEARCH",
+    "home_modules": [
+      "COMMAND_VIEW",
+      "MARKET_MONITOR",
+      "MARKET_CALENDAR",
+      "CORE_DRIVERS",
+      "CHART_MARKET_EVIDENCE",
+      "WATCH_INVALIDATION",
+      "LATEST_RESEARCH"
+    ],
+    "avoid": [
+      "HTS_STYLE_OVERLOAD",
+      "FLASHING_TICKER",
+      "DECORATIVE_CHARTS_WITHOUT_EVIDENCE"
+    ]
+  },
+  "mobile": {
+    "breakpoint_px": 820,
+    "strategy": "PRIORITIZED_BRIEF",
+    "market_monitor": "HORIZONTAL_SCROLL",
+    "research_feed": "SINGLE_COLUMN"
+  },
+  "homepage_data_contract": {
+    "source": "LATEST_PUBLISHED_RESPONSIVE_POST_DOM",
+    "same_analysis_as_post": true,
+    "fallback_when_unavailable": "SHOW_RESEARCH_FEED_WITH_WAITING_STATUS",
+    "no_homepage_specific_market_claim_generation": true
+  },
+  "theme_application": {
+    "blogger_api_supports_theme_write": false,
+    "server_deploy_alone_is_not_theme_application": true,
+    "required_final_step": "BLOGGER_THEME_BACKUP_THEN_UPLOAD_OR_EDIT_HTML",
+    "theme_file": "blogger_theme/market_morning_research_portal.xml"
+  },
+  "hotfix": {
+    "id": "BLOGGER_LEGACY_POST_SHARE_DOM",
+    "home_full_post_hidden": true,
+    "default_share_controls_hidden": true,
+    "blogger_css_enabled": true,
+    "legacy_posts_render_as_research_cards": true
+  },
+  "event_intelligence": {
+    "calendar_source": "EVENT_INTELLIGENCE_STATE_AND_DEDICATED_BLOGGER_PAGE",
+    "calendar_page_path": "/p/market-calendar.html",
+    "fallback": "LATEST_PUBLISHED_MORNING_EVENT_CALENDAR_DOM",
+    "same_calendar_as_morning": false,
+    "mobile": "HORIZONTAL_AGENDA"
+  }
+}

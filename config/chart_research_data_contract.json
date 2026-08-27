@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "mode": "SCHEMA_CONTRACT_ONLY",
+  "warning": "Do not hard-code MyDream2000 SQL until live schema is verified read-only on the server.",
+  "required_bar_fields": [
+    "symbol",
+    "timestamp",
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume"
+  ],
+  "optional_conditioning_fields": [
+    "market_regime",
+    "sector",
+    "market_cap",
+    "turnover_value",
+    "foreign_net_buy",
+    "institution_net_buy",
+    "program_net_buy",
+    "short_value",
+    "credit_balance",
+    "breadth_state",
+    "forward_eps_revision",
+    "valuation_state"
+  ],
+  "timeframes": [
+    "MONTHLY",
+    "WEEKLY",
+    "DAILY",
+    "HOUR_1",
+    "MINUTE_15",
+    "MINUTE_5",
+    "MINUTE_1"
+  ],
+  "point_in_time_fields": [
+    "observed_at",
+    "released_at",
+    "available_at",
+    "vintage"
+  ],
+  "requirements": [
+    "For each research date, feature construction may use only bars completed and data available by that timestamp.",
+    "Corporate actions and symbol changes must be handled before return comparison.",
+    "Delisted/suspended symbols must remain in historical universe where data exists to reduce survivor bias.",
+    "Training/research and out-of-sample windows must be explicitly separated."
+  ],
+  "live_adapter_status": "PENDING_CODEX_SERVER_SCHEMA_CHECK"
+}

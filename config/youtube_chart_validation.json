@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "mode": "SHADOW_ONLY",
+  "forward_windows": [1, 5, 20, 60],
+  "horizon_bars": 60,
+  "context_window": {
+    "before_ms": 15000,
+    "after_ms": 25000,
+    "caption_priority": ["ko-orig", "ko", "en-orig", "en"]
+  },
+  "classification_terms": {
+    "ACTION_RULE": [
+      "매수", "매도", "진입", "손절", "익절", "비중", "사면", "팔면",
+      "buy", "sell", "entry", "enter", "stop loss", "take profit"
+    ],
+    "FORECAST": [
+      "예상", "전망", "가능성", "것 같습니다", "것으로 보입니다", "이어질",
+      "앞으로", "향후", "올라갈", "내려갈", "상승할", "하락할",
+      "생각합니다", "생각하고", "시간 문제", "못 할", "못할", "될 것",
+      "가능하다", "가능할", "이어진다고", "이어질 것으로",
+      "expect", "likely", "should", "will", "upside", "downside"
+    ],
+    "CONDITION": [
+      "하면", "한다면", "경우", "전제", "조건", "넘으면", "깨면",
+      "돌파하면", "이탈하면", "안착하면", "회복하면",
+      "if ", "when ", "provided", "as long as"
+    ],
+    "DESCRIPTION": [
+      "지난", "당시", "기록", "나왔", "보였", "했죠", "했습니다",
+      "경신했고", "빠지지 않고", "횡보를 했", "상승했다", "하락했다",
+      "was", "were", "has been", "moved", "traded", "consolidated"
+    ]
+  },
+  "pattern_candidates": [
+    {
+      "pattern_id": "CHART-CAND-001",
+      "title": "신고가 후 시간조정 재가속",
+      "lifecycle_status": "UNDER_REVIEW",
+      "linked_principle_ids": ["MI-005", "MI-007"],
+      "required_categories_all": ["BREAKOUT"],
+      "required_categories_any": ["RANGE", "SUPPORT", "RECLAIM"],
+      "text_marker_groups": [
+        ["신고가", "전고점", "new high", "breakout"],
+        ["횡보", "버티", "빠지지", "안착", "consolidation", "held", "base"]
+      ],
+      "statement": "신고가 또는 전고점 돌파 뒤 가격 훼손보다 시간조정을 보이고 상대강도를 유지한 종목의 재돌파가 단순 돌파보다 유리한지 검증한다."
+    }
+  ]
+}

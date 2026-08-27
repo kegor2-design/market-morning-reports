@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "claim_categories": {
+    "SUPPORT": ["지지", "지지선", "받쳐", "support", "hold this level", "buyers stepped in"],
+    "RESISTANCE": ["저항", "저항선", "매물대", "resistance", "supply zone", "seller"],
+    "BREAKOUT": ["돌파", "상향 돌파", "신고가", "breakout", "break above", "new high"],
+    "BREAKDOWN": ["이탈", "하향 돌파", "무너", "breakdown", "break below", "lose this level"],
+    "RECLAIM": ["회복", "재돌파", "안착", "reclaim", "regain"],
+    "MOVING_AVERAGE": ["이동평균", "이평선", "이평", "moving average", "simple moving", "exponential moving", "50-day", "200-day"],
+    "VWAP": ["vwap", "avwap", "anchored vwap", "거래량가중평균"],
+    "VOLUME_CONFIRMATION": ["거래량", "거래대금", "volume confirmation", "volume expansion", "relative volume"],
+    "TREND": ["추세", "추세선", "상승 추세", "하락 추세", "trendline", "uptrend", "downtrend"],
+    "RANGE": ["박스권", "횡보", "레인지", "range bound", "trading range", "consolidation"]
+  },
+  "directions": {
+    "BULLISH": ["상승", "반등", "돌파", "회복", "매수", "강세", "upside", "bullish", "breakout", "reclaim", "long"],
+    "BEARISH": ["하락", "반락", "이탈", "매도", "약세", "downside", "bearish", "breakdown", "lose", "short"]
+  },
+  "timeframes": {
+    "MINUTE_1": ["1분봉", "1 minute", "1-minute"],
+    "MINUTE_5": ["5분봉", "5 minute", "5-minute"],
+    "MINUTE_15": ["15분봉", "15 minute", "15-minute"],
+    "MINUTE_30": ["30분봉", "30 minute", "30-minute"],
+    "HOUR_1": ["60분봉", "1시간봉", "hourly", "1 hour"],
+    "DAILY": ["일봉", "daily chart", "day chart"],
+    "WEEKLY": ["주봉", "weekly chart"],
+    "MONTHLY": ["월봉", "monthly chart"]
+  },
+  "assets": [
+    {"symbol": "^KS11", "name": "KOSPI", "aliases": ["코스피", "종합지수"]},
+    {"symbol": "^KQ11", "name": "KOSDAQ", "aliases": ["코스닥"]},
+    {"symbol": "005930.KS", "name": "삼성전자", "aliases": ["삼성전자", "삼전", "005930"]},
+    {"symbol": "000660.KS", "name": "SK하이닉스", "aliases": ["하이닉스", "SK하이닉스", "000660"]},
+    {"symbol": "^GSPC", "name": "S&P 500", "aliases": ["S&P", "SPX", "에스앤피"]},
+    {"symbol": "^IXIC", "name": "NASDAQ Composite", "aliases": ["NASDAQ", "나스닥"]},
+    {"symbol": "SPY", "name": "SPDR S&P 500 ETF", "aliases": ["SPY"]},
+    {"symbol": "QQQ", "name": "Invesco QQQ", "aliases": ["QQQ"]},
+    {"symbol": "NVDA", "name": "NVIDIA", "aliases": ["NVIDIA", "엔비디아", "NVDA"]},
+    {"symbol": "AAPL", "name": "Apple", "aliases": ["APPLE", "애플", "AAPL"]},
+    {"symbol": "TSLA", "name": "Tesla", "aliases": ["TESLA", "테슬라", "TSLA"]}
+  ]
+}
+

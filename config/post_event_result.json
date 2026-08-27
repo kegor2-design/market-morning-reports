@@ -1,0 +1,18 @@
+{
+  "version": "1.6.5.5",
+  "enabled": true,
+  "official_result_required": true,
+  "retain_completed_calendar_events": true,
+  "reaction_windows": ["initial", "same_day", "next_trading_day", "1w"],
+  "market_reaction_is_not_fact_verification": true,
+  "mi_review_after_result": true,
+  "ui_order_after_event": [
+    "plain_result_summary",
+    "official_result_summary",
+    "expected_vs_actual",
+    "market_reactions",
+    "mi_review_summary",
+    "what_changed",
+    "next_watch"
+  ]
+}

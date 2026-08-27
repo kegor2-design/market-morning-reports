@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "policy": "Expert lenses are methods and high-priority hypotheses, never automatic facts. Their long-run weight is updated only after enough closed hypotheses exist.",
+  "lenses": [
+    {
+      "id": "PARK_JONG_HOON",
+      "name": "박종훈",
+      "provisional_weight": "HIGH_PROVISIONAL",
+      "primary_domains": [
+        "political economy",
+        "US fiscal/Treasury",
+        "dollar system",
+        "global liquidity",
+        "geopolitics"
+      ],
+      "method_questions": [
+        "왜 지금인가?",
+        "돈은 어디서 오는가?",
+        "누가 받아주는가?",
+        "정책수단은 무엇인가?",
+        "정치적 마감시간은 언제인가?",
+        "문제를 해결했나 다른 곳으로 옮겼나?"
+      ],
+      "failure_modes_to_check": [
+        "정책 당국의 숨은 의도를 확정적으로 서술",
+        "유동성 증가를 QE와 동일시",
+        "정치적 동기를 사후적으로 과대설명"
+      ],
+      "evidence_basis": "346개 박종훈 채널 자막 전수 재검토"
+    },
+    {
+      "id": "PARK_SE_IK",
+      "name": "박세익",
+      "provisional_weight": "HIGH",
+      "primary_domains": [
+        "earnings",
+        "valuation",
+        "flow/derivatives",
+        "market breadth",
+        "industry cycle",
+        "chart confirmation"
+      ],
+      "method_questions": [
+        "이 뉴스가 Forward EPS를 바꿨나?",
+        "가격이 이익보다 과도하게 움직였나?",
+        "외국인 현물·선물·옵션은 같은 방향인가?",
+        "강제청산인가 구조적 하락인가?",
+        "시장 폭이 지수를 확인하나?",
+        "재고·ASP·가동률·수출이 같은 사이클을 가리키나?",
+        "차트가 펀더멘털/수급 판단을 확인하나?"
+      ],
+      "failure_modes_to_check": [
+        "가격 움직임 뒤에 설명을 맞추는 narrative contamination",
+        "단기 기술지표 과대해석",
+        "consensus 데이터의 look-ahead bias"
+      ],
+      "evidence_examples": [
+        {
+          "video_id": "oi5Surv_Dx4",
+          "title": "박세익 전무의 HTS 화면 1부 : 매일 시장 분석시 참고하는 지표는?"
+        },
+        {
+          "video_id": "E4uR1r_o6wU",
+          "title": "외국인은 벌고 있다.. 옵션 포지션으로 읽는 코스피 방향"
+        },
+        {
+          "video_id": "VekT-WWwZUA",
+          "title": "글로벌 주식 밸류에이션 체크 | 모닝브리프"
+        },
+        {
+          "video_id": "r7JvAY0l6JY",
+          "title": "지금은 구조적 하락 아닙니다 | 모닝브리프"
+        }
+      ],
+      "evidence_basis": "체슬리TV 2,848개 자막 중 제목상 박세익 직접 출연/Feat. 영상 약 1,740개를 분리 재검토"
+    }
+  ]
+}

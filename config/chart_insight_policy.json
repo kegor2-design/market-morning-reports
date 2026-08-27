@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "mode": "SHADOW_ONLY",
+  "namespace": "chart_insight",
+  "point_in_time_rule": "Only bars completed before publicly_actionable_at may be used to characterize the pre-claim chart state. Future bars are outcome-only.",
+  "forward_windows": [
+    1,
+    5,
+    20,
+    60
+  ],
+  "context_bars": 60,
+  "evidence_layers": [
+    "EXPERT_CLAIM",
+    "OCR_SCREEN_EVIDENCE",
+    "POINT_IN_TIME_OHLCV",
+    "CHART_PRIMITIVES",
+    "MARKET_REGIME",
+    "FLOW",
+    "FUNDAMENTALS",
+    "OUTCOME"
+  ],
+  "promotion_rule": "A source expression never becomes OUR_CHART_RULE directly. Promote only primitive + context combinations with repeatable historical evidence and explicit invalidation.",
+  "minimum_edge_sample_for_candidate": 20,
+  "providers": {
+    "YAHOO_FINANCE": "Research fallback / external validation only.",
+    "MYDREAM2000": "Preferred future source for Korean intraday and microstructure parity."
+  },
+  "outputs": {
+    "validations": "data/normalized/chart_insight/historical_validations.jsonl",
+    "edge_summary": "data/state/chart_insight/edge_summary.json",
+    "latest": "data/state/chart_insight/latest.json"
+  }
+}

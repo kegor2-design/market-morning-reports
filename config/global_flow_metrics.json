@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "history_limit": 900,
+  "metrics": [
+    {"id":"jgb_10y","provider":"fred","series_id":"IRLTLT01JPM156N","name":"Japan Government Bond 10Y","frequency":"monthly","unit":"%","stale_days":100},
+    {"id":"usd_jpy","provider":"fred","series_id":"DEXJPUS","name":"Japanese Yen per US Dollar","frequency":"daily","unit":"JPY/USD","stale_days":5},
+    {"id":"vix","provider":"fred","series_id":"VIXCLS","name":"CBOE VIX","frequency":"daily","unit":"index","stale_days":5},
+    {"id":"jpy_fx_vol","provider":"derived_realized_vol","input":"usd_jpy","name":"USD/JPY 20D Realized Volatility","frequency":"daily","unit":"annualized_pct","stale_days":5,"proxy_disclosure":"공개 일별 환율로 계산한 20일 실현변동성이며 옵션 내재변동성이 아니다."},
+    {"id":"japan_foreign_bond_flow","provider":"mof_weekly","url":"https://www.mof.go.jp/policy/international_policy/reference/itn_transactions_in_securities/week.csv","name":"Japan Residents Net Foreign Long-term Debt Purchases","frequency":"weekly","unit":"100m_jpy","stale_days":18},
+    {"id":"japan_treasury_holdings","provider":"tic_table5","url":"https://ticdata.treasury.gov/resource-center/data-chart-center/tic/Documents/slt_table5.txt","country":"Japan","name":"Japan Holdings of US Treasury Securities","frequency":"monthly","unit":"usd_billions","stale_days":100}
+  ]
+}

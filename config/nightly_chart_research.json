@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "mode": "SHADOW_ONLY",
+  "objective": "Harvest many chart ideas nightly, preserve exact source provenance, verify source examples against point-in-time charts, then queue broad historical tests. Never convert content popularity into a trading rule.",
+  "fast_scan": {
+    "minimum_importance": "LOW",
+    "include_classifications": [
+      "ACTION_RULE",
+      "FORECAST",
+      "HYPOTHESIS",
+      "OPINION"
+    ],
+    "chart_dependent_only": true,
+    "discover_dimensions": [
+      "NEW_PRIMITIVE",
+      "NEW_LEVEL_METHOD",
+      "NEW_ENTRY_RULE",
+      "NEW_EXIT_RULE",
+      "NEW_INVALIDATION",
+      "NEW_VOLUME_RULE",
+      "NEW_MULTI_TIMEFRAME_RULE",
+      "NEW_FAILURE_PATTERN",
+      "NEW_RISK_MANAGEMENT",
+      "EXISTING_RULE_CHALLENGE"
+    ]
+  },
+  "deep_research": {
+    "priority_classes": [
+      "ACTION_RULE",
+      "FORECAST"
+    ],
+    "require_source_offsets": true,
+    "require_point_in_time_source_example": true,
+    "require_failure_case_research": true,
+    "never_infer_missing_numeric_threshold_as_fact": true,
+    "unknown_threshold_policy": "ESTIMATE_CANDIDATE_FROM_SOURCE_EXAMPLES_DISTRIBUTION"
+  },
+  "historical_scan": {
+    "default_universe": "KR_ALL_LISTED",
+    "preferred_provider": "MYDREAM2000",
+    "provider_status": "PENDING_LIVE_DB_SCHEMA_VERIFICATION",
+    "fallback_provider": "YAHOO_FINANCE_RESEARCH_ONLY",
+    "point_in_time_required": true,
+    "forward_windows": [
+      1,
+      5,
+      20,
+      60
+    ],
+    "minimum_research_sample": 100,
+    "minimum_candidate_sample": 300,
+    "conditioning_dimensions": [
+      "MARKET_REGIME",
+      "SECTOR",
+      "MARKET_CAP_BUCKET",
+      "LIQUIDITY_BUCKET",
+      "VOLATILITY_BUCKET",
+      "FLOW",
+      "EARNINGS_REVISION",
+      "VALUATION_STATE",
+      "MARKET_BREADTH"
+    ],
+    "compare_success_and_failure": true,
+    "out_of_sample_required": true,
+    "costs_required_before_strategy_use": true
+  },
+  "outputs": {
+    "nightly_state": "data/state/chart_insight/nightly_research/YYYY-MM-DD.json",
+    "strategy_candidates": "data/normalized/chart_insight/strategy_candidates.jsonl",
+    "historical_queue": "data/state/chart_insight/historical_research_queue.jsonl",
+    "engine_update_candidates": "data/state/chart_insight/engine_update_candidates/YYYY-MM-DD.json"
+  }
+}

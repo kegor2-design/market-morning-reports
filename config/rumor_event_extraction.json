@@ -1,0 +1,25 @@
+{
+  "contract": "MMP_RUMOR_EVENT_EXTRACTION_V1",
+  "purpose": "Extract only time-bearing or resolution-bearing market events from unofficial source messages.",
+  "input_sources": ["YOUTUBE", "YOUTUBE_EXPERT", "TELEGRAM", "TELEGRAM_NAMED", "TELEGRAM_ANON", "NEWS_TIP"],
+  "output_required_fields": ["source_type", "source_id", "title", "claim", "event_type"],
+  "output_optional_fields": ["event_id", "published_at", "url", "source_name", "author", "entities", "event_date", "estimated_end_date", "impact_until", "impact_summary", "resolution_condition", "linked_mi", "expected_direction", "stance", "attributable", "metadata", "decision_card"],
+  "extract_when": [
+    "A future or ongoing event/date/window is stated or implied.",
+    "A policy, financing, FX flow, M&A, earnings, contract, regulation, sanction, supply/demand, buyback, issuance, lockup, sale, intervention or other market-moving process has a trackable resolution condition.",
+    "The claim can be checked later against official evidence or market reaction."
+  ],
+  "do_not_extract_when": [
+    "Pure opinion without a checkable event or time/resolution dimension.",
+    "Generic market direction prediction with no causal event.",
+    "Duplicate repost with no new evidence.",
+    "Entertainment/chat content unrelated to markets."
+  ],
+  "guardrails": [
+    "Do not invent dates, amounts, entities, official status or consensus.",
+    "Preserve source id/url/channel and the original claim meaning.",
+    "A source claiming that something is official does not make it official; official status comes from official-source verification.",
+    "Price reaction never upgrades truth status by itself.",
+    "decision_card.current_view must come from OUR_MI only; expert or rumor claims may appear only as labeled evidence/context."
+  ]
+}

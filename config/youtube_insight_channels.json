@@ -1,0 +1,438 @@
+{
+  "schema_version": "1.0",
+  "policy": {
+    "mode": "SHADOW_ONLY",
+    "lookback_hours": 48,
+    "minimum_importance": "HIGH",
+    "max_cards_per_digest": 6,
+    "publish_strategy": "DAILY_DIGEST",
+    "allow_rumor_auto_publish": false,
+    "require_chart_when_central": true,
+    "source_weight_rule": "High weight prioritizes verification; it never converts a source claim into fact.",
+    "collection_mode": "INCREMENTAL_CHECKPOINT",
+    "bootstrap_lookback_hours": 48,
+    "recovery_lookback_hours": 168,
+    "checkpoint_after": "SUCCESSFUL_ANALYSIS",
+    "nightly_synthesis": true,
+    "nightly_include_min_importance": "MEDIUM",
+    "asr_fallback_default": true,
+    "asr_model_default": "tiny",
+    "asr_fallback_rule": "Only when captions are unavailable, channel allows fallback, and MMP_YOUTUBE_ASR_FALLBACK=1.",
+    "max_recovery_lookback_hours": 720
+  },
+  "channels": [
+    {
+      "id": "kpunch",
+      "name": "박종훈의 지식한방",
+      "collection_url": "https://www.youtube.com/@kpunch/videos",
+      "language": "ko",
+      "subtitle_languages": [
+        "ko-orig",
+        "ko"
+      ],
+      "enabled": true,
+      "role": "MACRO_POLICY_PRIMARY_HYPOTHESIS",
+      "source_weight": "HIGH_PROVISIONAL",
+      "chart_mode": "ON_DEMAND",
+      "max_videos_per_run": 3,
+      "source_lens_hint": "PARK_JONG_HOON",
+      "tier": "T0",
+      "nightly_enabled": true,
+      "asr_fallback_allowed": true,
+      "max_checkpoint_ids": 500,
+      "collection_urls": [
+        {
+          "type": "videos",
+          "url": "https://www.youtube.com/@kpunch/videos"
+        },
+        {
+          "type": "streams",
+          "url": "https://www.youtube.com/@kpunch/streams"
+        },
+        {
+          "type": "shorts",
+          "url": "https://www.youtube.com/@kpunch/shorts"
+        }
+      ]
+    },
+    {
+      "id": "chesley",
+      "name": "체슬리 투자",
+      "collection_url": "https://www.youtube.com/@chesleytv/videos",
+      "language": "ko",
+      "subtitle_languages": [
+        "ko-orig",
+        "ko"
+      ],
+      "enabled": true,
+      "role": "MID_LONG_TERM_MARKET_LENS",
+      "source_weight": "HIGH",
+      "chart_mode": "ON_DEMAND",
+      "max_videos_per_run": 3,
+      "source_lens_hint": "PARK_SE_IK_WHEN_SPEAKER_OR_TITLE_IDENTIFIED",
+      "tier": "T0",
+      "nightly_enabled": true,
+      "asr_fallback_allowed": true,
+      "max_checkpoint_ids": 500,
+      "collection_urls": [
+        {
+          "type": "videos",
+          "url": "https://www.youtube.com/@chesleytv/videos"
+        },
+        {
+          "type": "streams",
+          "url": "https://www.youtube.com/@chesleytv/streams"
+        },
+        {
+          "type": "shorts",
+          "url": "https://www.youtube.com/@chesleytv/shorts"
+        }
+      ]
+    },
+    {
+      "id": "ap_investment",
+      "name": "AP 투자연구",
+      "collection_url": "https://www.youtube.com/@ap5798/videos",
+      "language": "ko",
+      "subtitle_languages": [
+        "ko-orig",
+        "ko"
+      ],
+      "enabled": true,
+      "role": "PRICE_LEVEL_OPEN_MARKET_LENS",
+      "source_weight": "HIGH",
+      "chart_mode": "ON_DEMAND",
+      "max_videos_per_run": 3,
+      "tier": "T0",
+      "nightly_enabled": true,
+      "asr_fallback_allowed": true,
+      "max_checkpoint_ids": 500,
+      "collection_urls": [
+        {
+          "type": "videos",
+          "url": "https://www.youtube.com/@ap5798/videos"
+        },
+        {
+          "type": "streams",
+          "url": "https://www.youtube.com/@ap5798/streams"
+        },
+        {
+          "type": "shorts",
+          "url": "https://www.youtube.com/@ap5798/shorts"
+        }
+      ]
+    },
+    {
+      "id": "plainbagel",
+      "name": "The Plain Bagel",
+      "collection_url": "https://www.youtube.com/@ThePlainBagel/videos",
+      "language": "en",
+      "subtitle_languages": [
+        "en-orig",
+        "en",
+        "ko"
+      ],
+      "enabled": true,
+      "role": "FINANCIAL_EDUCATION_COUNTERVIEW",
+      "source_weight": "NORMAL",
+      "chart_mode": "OFF",
+      "max_videos_per_run": 3,
+      "tier": "T1",
+      "nightly_enabled": true,
+      "asr_fallback_allowed": false,
+      "max_checkpoint_ids": 500,
+      "collection_urls": [
+        {
+          "type": "videos",
+          "url": "https://www.youtube.com/@ThePlainBagel/videos"
+        },
+        {
+          "type": "streams",
+          "url": "https://www.youtube.com/@ThePlainBagel/streams"
+        },
+        {
+          "type": "shorts",
+          "url": "https://www.youtube.com/@ThePlainBagel/shorts"
+        }
+      ]
+    },
+    {
+      "id": "park_chart_center",
+      "name": "박병창의 증시연구소",
+      "collection_url": "https://www.youtube.com/playlist?list=PLPaCRCTZ9Zg8",
+      "language": "ko",
+      "subtitle_languages": [
+        "ko-orig",
+        "ko"
+      ],
+      "enabled": true,
+      "role": "KOREA_MARKET_CHART",
+      "source_weight": "HIGH",
+      "chart_mode": "ALWAYS",
+      "max_videos_per_run": 3,
+      "tier": "T1",
+      "nightly_enabled": true,
+      "asr_fallback_allowed": true,
+      "max_checkpoint_ids": 500,
+      "collection_urls": [
+        {
+          "type": "playlist",
+          "url": "https://www.youtube.com/playlist?list=PLPaCRCTZ9Zg8"
+        }
+      ]
+    },
+    {
+      "id": "alphatrends",
+      "name": "Brian Shannon / AlphaTrends",
+      "collection_url": "https://www.youtube.com/@alphatrends/videos",
+      "language": "en",
+      "subtitle_languages": [
+        "en-orig",
+        "en",
+        "ko"
+      ],
+      "enabled": true,
+      "role": "VWAP_MARKET_STRUCTURE",
+      "source_weight": "NORMAL",
+      "chart_mode": "ALWAYS",
+      "max_videos_per_run": 3,
+      "tier": "T1",
+      "nightly_enabled": true,
+      "asr_fallback_allowed": false,
+      "max_checkpoint_ids": 500,
+      "collection_urls": [
+        {
+          "type": "videos",
+          "url": "https://www.youtube.com/@alphatrends/videos"
+        },
+        {
+          "type": "streams",
+          "url": "https://www.youtube.com/@alphatrends/streams"
+        },
+        {
+          "type": "shorts",
+          "url": "https://www.youtube.com/@alphatrends/shorts"
+        }
+      ]
+    },
+    {
+      "id": "cmt_association",
+      "name": "CMT Association",
+      "collection_url": "https://www.youtube.com/@CMTAssociation/videos",
+      "collection_urls": [
+        {
+          "type": "videos",
+          "url": "https://www.youtube.com/@CMTAssociation/videos"
+        },
+        {
+          "type": "streams",
+          "url": "https://www.youtube.com/@CMTAssociation/streams"
+        },
+        {
+          "type": "shorts",
+          "url": "https://www.youtube.com/@CMTAssociation/shorts"
+        }
+      ],
+      "language": "en",
+      "subtitle_languages": [
+        "en-orig",
+        "en",
+        "ko"
+      ],
+      "enabled": true,
+      "nightly_enabled": true,
+      "role": "TECHNICAL_ANALYSIS_METHOD_REFERENCE",
+      "source_weight": "NORMAL",
+      "chart_mode": "ALWAYS",
+      "max_videos_per_run": 2,
+      "tier": "T1",
+      "source_lens_hint": "CMT_METHOD_REFERENCE",
+      "asr_fallback_allowed": false,
+      "max_checkpoint_ids": 500,
+      "research_only": true
+    },
+    {
+      "id": "stockcharts_tv",
+      "name": "StockCharts TV",
+      "collection_url": "https://www.youtube.com/@StockChartsTV/videos",
+      "collection_urls": [
+        {
+          "type": "videos",
+          "url": "https://www.youtube.com/@StockChartsTV/videos"
+        },
+        {
+          "type": "streams",
+          "url": "https://www.youtube.com/@StockChartsTV/streams"
+        },
+        {
+          "type": "shorts",
+          "url": "https://www.youtube.com/@StockChartsTV/shorts"
+        }
+      ],
+      "language": "en",
+      "subtitle_languages": [
+        "en-orig",
+        "en",
+        "ko"
+      ],
+      "enabled": true,
+      "nightly_enabled": true,
+      "role": "MULTI_METHOD_CHART_REFERENCE",
+      "source_weight": "NORMAL",
+      "chart_mode": "ALWAYS",
+      "max_videos_per_run": 2,
+      "tier": "T1",
+      "source_lens_hint": "MULTI_METHOD_CHART_REFERENCE",
+      "asr_fallback_allowed": false,
+      "max_checkpoint_ids": 500,
+      "research_only": true
+    },
+    {
+      "id": "investors_business_daily",
+      "name": "Investor's Business Daily",
+      "collection_url": "https://www.youtube.com/@investorsbusinessdaily/videos",
+      "collection_urls": [
+        {
+          "type": "videos",
+          "url": "https://www.youtube.com/@investorsbusinessdaily/videos"
+        },
+        {
+          "type": "streams",
+          "url": "https://www.youtube.com/@investorsbusinessdaily/streams"
+        },
+        {
+          "type": "shorts",
+          "url": "https://www.youtube.com/@investorsbusinessdaily/shorts"
+        }
+      ],
+      "language": "en",
+      "subtitle_languages": [
+        "en-orig",
+        "en",
+        "ko"
+      ],
+      "enabled": true,
+      "nightly_enabled": true,
+      "role": "MARKET_TREND_GROWTH_STOCK_REFERENCE",
+      "source_weight": "NORMAL",
+      "chart_mode": "ALWAYS",
+      "max_videos_per_run": 2,
+      "tier": "T1",
+      "source_lens_hint": "IBD_MARKET_TREND_REFERENCE",
+      "asr_fallback_allowed": false,
+      "max_checkpoint_ids": 500,
+      "research_only": true
+    },
+    {
+      "id": "smb_capital",
+      "name": "SMB Capital",
+      "collection_url": "https://www.youtube.com/@smbcapital/videos",
+      "collection_urls": [
+        {
+          "type": "videos",
+          "url": "https://www.youtube.com/@smbcapital/videos"
+        },
+        {
+          "type": "streams",
+          "url": "https://www.youtube.com/@smbcapital/streams"
+        },
+        {
+          "type": "shorts",
+          "url": "https://www.youtube.com/@smbcapital/shorts"
+        }
+      ],
+      "language": "en",
+      "subtitle_languages": [
+        "en-orig",
+        "en",
+        "ko"
+      ],
+      "enabled": true,
+      "nightly_enabled": true,
+      "role": "INTRADAY_PRICE_ACTION_PLAYBOOK_REFERENCE",
+      "source_weight": "NORMAL",
+      "chart_mode": "ON_DEMAND",
+      "max_videos_per_run": 2,
+      "tier": "T1",
+      "source_lens_hint": "SMB_INTRADAY_PLAYBOOK",
+      "asr_fallback_allowed": false,
+      "max_checkpoint_ids": 500,
+      "research_only": true,
+      "chart_research_only": true
+    },
+    {
+      "id": "traderlion",
+      "name": "TraderLion",
+      "collection_url": "https://www.youtube.com/@TraderLion/videos",
+      "collection_urls": [
+        {
+          "type": "videos",
+          "url": "https://www.youtube.com/@TraderLion/videos"
+        },
+        {
+          "type": "streams",
+          "url": "https://www.youtube.com/@TraderLion/streams"
+        },
+        {
+          "type": "shorts",
+          "url": "https://www.youtube.com/@TraderLion/shorts"
+        }
+      ],
+      "language": "en",
+      "subtitle_languages": [
+        "en-orig",
+        "en",
+        "ko"
+      ],
+      "enabled": true,
+      "nightly_enabled": true,
+      "role": "GROWTH_STOCK_TECHNICAL_PLAYBOOK_REFERENCE",
+      "source_weight": "NORMAL",
+      "chart_mode": "ON_DEMAND",
+      "max_videos_per_run": 2,
+      "tier": "T1",
+      "source_lens_hint": "TRADERLION_GROWTH_TECHNICAL",
+      "asr_fallback_allowed": false,
+      "max_checkpoint_ids": 500,
+      "research_only": true,
+      "chart_research_only": true
+    },
+    {
+      "id": "rayner_teo",
+      "name": "Rayner Teo",
+      "collection_url": "https://www.youtube.com/@tradingwithrayner/videos",
+      "collection_urls": [
+        {
+          "type": "videos",
+          "url": "https://www.youtube.com/@tradingwithrayner/videos"
+        },
+        {
+          "type": "streams",
+          "url": "https://www.youtube.com/@tradingwithrayner/streams"
+        },
+        {
+          "type": "shorts",
+          "url": "https://www.youtube.com/@tradingwithrayner/shorts"
+        }
+      ],
+      "language": "en",
+      "subtitle_languages": [
+        "en-orig",
+        "en",
+        "ko"
+      ],
+      "enabled": true,
+      "nightly_enabled": true,
+      "role": "PRICE_ACTION_RISK_MANAGEMENT_REFERENCE",
+      "source_weight": "NORMAL",
+      "chart_mode": "ON_DEMAND",
+      "max_videos_per_run": 1,
+      "tier": "T2",
+      "source_lens_hint": "RAYNER_PRICE_ACTION",
+      "asr_fallback_allowed": false,
+      "max_checkpoint_ids": 500,
+      "research_only": true,
+      "chart_research_only": true
+    }
+  ]
+}

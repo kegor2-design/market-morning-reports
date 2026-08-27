@@ -1,0 +1,13 @@
+{
+  "contract": "MMP_CALENDAR_DECISION_CARD_V1",
+  "enabled": true,
+  "min_importance": "MEDIUM",
+  "beginner_first": true,
+  "headline_field": "decision_question",
+  "show_transmission_path_below_explanation": true,
+  "max_watch_items": 5,
+  "require_current_view_provenance": true,
+  "current_view_source": "OUR_MI_ONLY",
+  "never_promote_expert_or_rumor_to_our_view": true,
+  "fallback_templates_enabled": true
+}

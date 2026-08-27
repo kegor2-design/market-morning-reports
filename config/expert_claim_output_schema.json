@@ -1,0 +1,47 @@
+{
+  "type": "object",
+  "properties": {
+    "video_id": {"type": "string"},
+    "expert_id": {"type": "string"},
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "speaker": {"type": "string"},
+          "claim_text": {"type": "string"},
+          "claim_kind": {"type": "string"},
+          "evidence_summary": {"type": "string"},
+          "causal_chain": {"type": "array", "items": {"type": "string"}},
+          "premise_metrics": {"type": "array", "items": {"type": "string"}},
+          "time_horizon": {"type": "string"},
+          "related_assets": {"type": "array", "items": {"type": "string"}},
+          "related_entities": {"type": "array", "items": {"type": "string"}},
+          "topics": {"type": "array", "items": {"type": "string"}},
+          "expected_direction": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "asset": {"type": "string"},
+                "direction": {"type": "string"}
+              },
+              "required": ["asset", "direction"],
+              "additionalProperties": false
+            }
+          },
+          "invalidation_conditions": {"type": "array", "items": {"type": "string"}},
+          "primitive_key": {"type": "string"},
+          "stance": {"type": "string"},
+          "source_timestamp_start": {"type": "string"},
+          "source_timestamp_end": {"type": "string"},
+          "attribution_confidence": {"type": "string"}
+        },
+        "required": ["speaker", "claim_text", "claim_kind", "evidence_summary", "causal_chain", "premise_metrics", "time_horizon", "related_assets", "related_entities", "topics", "expected_direction", "invalidation_conditions", "primitive_key", "stance", "source_timestamp_start", "source_timestamp_end", "attribution_confidence"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["video_id", "expert_id", "claims"],
+  "additionalProperties": false
+}

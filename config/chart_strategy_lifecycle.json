@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0",
+  "mode": "RESEARCH_SHADOW",
+  "principle": "Collect chart ideas broadly, promote them narrowly. Expert popularity or repeated mention is never evidence of edge.",
+  "stages": [
+    {
+      "id": "DISCOVERED",
+      "entry": "Extracted from source content or expert screen/language.",
+      "exit": "At least one strategy structure is normalized into primitive/condition fields."
+    },
+    {
+      "id": "RESEARCH_CANDIDATE",
+      "entry": "Source example is point-in-time checkable and required data is defined.",
+      "exit": "Historical universe scan is completed with sufficient sample and failure cases."
+    },
+    {
+      "id": "HISTORICALLY_SUPPORTED",
+      "entry": "In-sample historical scan meets configured sample/effect/stability gates.",
+      "exit": "Locked out-of-sample/walk-forward test is completed."
+    },
+    {
+      "id": "OUT_OF_SAMPLE_SUPPORTED",
+      "entry": "Out-of-sample test remains positive after costs/conditioning and no leakage is detected.",
+      "exit": "Human research approval explicitly promotes the rule."
+    },
+    {
+      "id": "OUR_CHART_PRINCIPLE",
+      "entry": "Explicit approval after historical + OOS support; rule includes context and invalidation.",
+      "exit": "May be demoted if later monitoring invalidates edge."
+    },
+    {
+      "id": "REJECTED",
+      "entry": "Contradicted, untestable, leakage-contaminated, or historically unsupported.",
+      "exit": "Only reopen with new evidence/version."
+    }
+  ],
+  "allowed_transitions": {
+    "DISCOVERED": [
+      "RESEARCH_CANDIDATE",
+      "REJECTED"
+    ],
+    "RESEARCH_CANDIDATE": [
+      "HISTORICALLY_SUPPORTED",
+      "REJECTED"
+    ],
+    "HISTORICALLY_SUPPORTED": [
+      "OUT_OF_SAMPLE_SUPPORTED",
+      "REJECTED"
+    ],
+    "OUT_OF_SAMPLE_SUPPORTED": [
+      "OUR_CHART_PRINCIPLE",
+      "REJECTED"
+    ],
+    "OUR_CHART_PRINCIPLE": [
+      "REJECTED"
+    ],
+    "REJECTED": [
+      "DISCOVERED"
+    ]
+  },
+  "automatic_promotion_ceiling": "RESEARCH_CANDIDATE",
+  "human_approval_required_for": "OUR_CHART_PRINCIPLE"
+}

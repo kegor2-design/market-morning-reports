@@ -1,0 +1,174 @@
+{
+  "schema_version": "1.0",
+  "modules": [
+    {
+      "id": "BALANCE_SHEET_FLOW",
+      "title_ko": "Balance Sheet와 자금흐름",
+      "core_idea": "정책이나 거래가 발생하면 현금·증권·부채·담보가 어느 주체 사이에서 이동하는지 먼저 그린다.",
+      "questions": [
+        "새로운 돈이 생긴 것인가 자산구성만 바뀐 것인가?",
+        "누가 balance sheet capacity를 제공하는가?",
+        "레버리지와 담보 제약은?"
+      ],
+      "related_metrics": [
+        "tga",
+        "on_rrp",
+        "mmf_tbill",
+        "srf_usage",
+        "fima_usage"
+      ]
+    },
+    {
+      "id": "MARGINAL_BUYER",
+      "title_ko": "Marginal Buyer 분석",
+      "core_idea": "가격을 결정하는 것은 평균 보유자가 아니라 추가 공급을 받아줄 마지막 구매자의 가격과 capacity다.",
+      "questions": [
+        "추가 국채/주식을 누가 사는가?",
+        "그 구매자의 현금·규제·헤지 제약은?"
+      ],
+      "related_metrics": [
+        "treasury_auction_quality",
+        "mmf_tbill",
+        "primary_dealer_treasury_inventory",
+        "tic_treasury_flow"
+      ]
+    },
+    {
+      "id": "POLITICAL_CLOCK",
+      "title_ko": "정치·제도적 시계",
+      "core_idea": "정책은 경제적 최적해뿐 아니라 선거·예산·부채한도·임기 등 시간 제약 아래 선택된다.",
+      "questions": [
+        "정책 당국이 언제까지 결과를 보여줘야 하는가?",
+        "다음 QRA/선거/예산 마감은 언제인가?"
+      ],
+      "related_metrics": [
+        "treasury_borrowing_estimate",
+        "federal_deficit_monthly"
+      ]
+    },
+    {
+      "id": "EARNINGS_EXPECTATION",
+      "title_ko": "실적보다 이익 기대의 변화",
+      "core_idea": "주가는 현재 실적보다 미래 이익 기대의 변화에 반응하므로 Forward EPS와 revision breadth를 가격과 비교한다.",
+      "questions": [
+        "주가 변화만큼 Forward EPS가 변했나?",
+        "상향/하향 수정이 시장 전반으로 확산되는가?"
+      ],
+      "related_metrics": [
+        "forward_eps_kospi_12m",
+        "earnings_revision_breadth_kospi",
+        "earnings_surprise_breadth_sp500"
+      ]
+    },
+    {
+      "id": "VALUATION_RELATIVE_TO_EARNINGS",
+      "title_ko": "밸류에이션과 이익의 상대 비교",
+      "core_idea": "PER/PBR의 높고 낮음보다 역사적 percentile, 이익 방향, 금리와 함께 본다.",
+      "questions": [
+        "현재 valuation이 이익 성장률과 금리 대비 과도한가?",
+        "한국과 글로벌 peer의 차이는 구조적인가 일시적인가?"
+      ],
+      "related_metrics": [
+        "forward_per_kospi",
+        "forward_pbr_kospi",
+        "forward_per_sp500",
+        "us_real_10y"
+      ]
+    },
+    {
+      "id": "FLOW_DERIVATIVES",
+      "title_ko": "현물·선물·옵션·프로그램 통합 수급",
+      "core_idea": "현물 순매매만으로 방향성을 단정하지 않고 선물·옵션·프로그램 헤지와 만기 구조를 함께 본다.",
+      "questions": [
+        "현물과 선물이 같은 방향인가?",
+        "옵션 포지션이 만기 근처에서 지수에 비선형 압력을 주는가?"
+      ],
+      "related_metrics": [
+        "foreign_cash_flow_kospi",
+        "foreign_kospi200_futures_net",
+        "foreign_options_position",
+        "program_net_flow"
+      ]
+    },
+    {
+      "id": "DELEVERAGING_VS_FUNDAMENTAL",
+      "title_ko": "강제청산과 펀더멘털 훼손 분리",
+      "core_idea": "급락 시 신용잔고·반대매매·거래대금과 이익추정치를 비교해 강제매도인지 구조적 악화인지 분리한다.",
+      "questions": [
+        "강제청산이 증가했나?",
+        "Forward EPS도 동시에 내려가나?"
+      ],
+      "related_metrics": [
+        "margin_credit_kr",
+        "forced_liquidation_kr",
+        "forward_eps_kospi_12m",
+        "trading_value_kr"
+      ]
+    },
+    {
+      "id": "MARKET_BREADTH_CONFIRMATION",
+      "title_ko": "시장 폭 확인",
+      "core_idea": "지수의 방향이 상승종목 비율·이평선 상회 비율·신고가/신저가로 확인되는지 본다.",
+      "questions": [
+        "소수 대형주가 지수를 왜곡하는가?",
+        "breadth divergence가 커지고 있는가?"
+      ],
+      "related_metrics": [
+        "breadth_advance_pct_kr",
+        "breadth_above_60dma_kr",
+        "breadth_new_high_low_kr"
+      ]
+    },
+    {
+      "id": "CYCLICAL_INVENTORY_PRICE",
+      "title_ko": "시크리컬 재고-가격-가동률 순환",
+      "core_idea": "재고 감소만으로 회복이라 보지 않고 ASP·출하/수출·가동률·수주가 동반 개선되는지 확인한다.",
+      "questions": [
+        "재고 감소가 수요 회복인가 생산 축소인가?",
+        "가격과 가동률이 함께 오르는가?"
+      ],
+      "related_metrics": [
+        "semiconductor_inventory_sales",
+        "dram_asp",
+        "semiconductor_utilization",
+        "semiconductor_export_10day",
+        "hbm_backlog"
+      ]
+    },
+    {
+      "id": "NARRATIVE_CONTAMINATION",
+      "title_ko": "가격에 의한 사후 서사 오염 방지",
+      "core_idea": "가격을 보기 전의 가설을 저장하고 가격 이후 설명과 비교해 시세에 맞춘 사후 해석을 탐지한다.",
+      "questions": [
+        "가격이 반대로 움직였어도 같은 설명을 했을까?",
+        "원래 가설을 수정했다면 어떤 데이터 때문에 수정했나?"
+      ],
+      "related_metrics": []
+    },
+    {
+      "id": "POINT_IN_TIME_DISCIPLINE",
+      "title_ko": "Point-in-Time 역사검증",
+      "core_idea": "과거를 현재 수정치와 현재 consensus로 분석하지 않고 당시 공개돼 있던 빈티지만 사용한다.",
+      "questions": [
+        "이 수치는 당시 이미 공개됐나?",
+        "나중 수정된 값이 결론에 섞였나?"
+      ],
+      "related_metrics": [
+        "us_cpi_vintage",
+        "us_gdp_vintage",
+        "us_payroll_vintage",
+        "forward_eps_kospi_12m"
+      ]
+    },
+    {
+      "id": "CHART_AS_EVIDENCE",
+      "title_ko": "차트는 결론이 아니라 확인 증거",
+      "core_idea": "기술적 지표는 펀더멘털·수급·시장 폭 가설을 확인하거나 반증하는 보조 증거로 사용한다.",
+      "questions": [
+        "차트 신호가 독립 데이터와 일치하는가?",
+        "가격축/시간축 OCR 신뢰도가 충분한가?"
+      ],
+      "related_metrics": []
+    }
+  ]
+}

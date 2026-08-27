@@ -1,0 +1,121 @@
+{
+  "schema_version": "1.0",
+  "mode": "RESEARCH_SHADOW",
+  "policy": "Expert chart lenses are hypothesis sources. Historical outcomes determine whether a primitive/context combination enters OUR_CHART_STATE.",
+  "lenses": [
+    {
+      "id": "PARK_BYUNG_CHANG",
+      "channel_id": "park_chart_center",
+      "focus": [
+        "MARKET_STRUCTURE",
+        "SUPPORT_RESISTANCE",
+        "FLOW",
+        "SHORT_TERM_RESPONSE"
+      ],
+      "weight": "HIGH_RESEARCH",
+      "status": "PILOT"
+    },
+    {
+      "id": "AP_PRICE_LEVEL",
+      "channel_id": "ap_investment",
+      "focus": [
+        "OPEN_PRICE",
+        "PRICE_LEVEL",
+        "INFLECTION_POINT"
+      ],
+      "weight": "HIGH_RESEARCH",
+      "status": "PILOT"
+    },
+    {
+      "id": "PARK_SE_IK_CHART_CONFIRMATION",
+      "channel_id": "chesley",
+      "focus": [
+        "FUNDAMENTAL_CONFIRMATION",
+        "TREND",
+        "VALUATION_FLOW_CHART_ALIGNMENT"
+      ],
+      "weight": "HIGH_RESEARCH",
+      "status": "ON_DEMAND"
+    },
+    {
+      "id": "ALPHATRENDS",
+      "channel_id": "alphatrends",
+      "focus": [
+        "VWAP",
+        "ANCHORED_VWAP",
+        "TREND_STRUCTURE"
+      ],
+      "weight": "NORMAL_RESEARCH",
+      "status": "PILOT"
+    },
+    {
+      "id": "CMT_METHOD_REFERENCE",
+      "channel_id": "cmt_association",
+      "focus": [
+        "TECHNICAL_ANALYSIS_METHOD",
+        "RISK_MANAGEMENT",
+        "MULTI_TIMEFRAME"
+      ],
+      "weight": "NORMAL_RESEARCH",
+      "status": "EXPANSION"
+    },
+    {
+      "id": "STOCKCHARTS_MULTI_METHOD",
+      "channel_id": "stockcharts_tv",
+      "focus": [
+        "MULTI_METHOD_CHART",
+        "BREADTH",
+        "RELATIVE_STRENGTH"
+      ],
+      "weight": "NORMAL_RESEARCH",
+      "status": "EXPANSION"
+    },
+    {
+      "id": "IBD_MARKET_TREND",
+      "channel_id": "investors_business_daily",
+      "focus": [
+        "MARKET_TREND",
+        "GROWTH_STOCK",
+        "BREAKOUT_VOLUME"
+      ],
+      "weight": "NORMAL_RESEARCH",
+      "status": "EXPANSION"
+    },
+    {
+      "id": "SMB_INTRADAY_PLAYBOOK",
+      "channel_id": "smb_capital",
+      "focus": [
+        "INTRADAY_PRICE_ACTION",
+        "TRADE_PLAYBOOK",
+        "FAILURE_PATTERN",
+        "RISK_MANAGEMENT"
+      ],
+      "weight": "NORMAL_RESEARCH",
+      "status": "EXPANSION"
+    },
+    {
+      "id": "TRADERLION_GROWTH_TECHNICAL",
+      "channel_id": "traderlion",
+      "focus": [
+        "GROWTH_STOCK",
+        "BASE_BREAKOUT",
+        "RELATIVE_STRENGTH",
+        "RISK_MANAGEMENT"
+      ],
+      "weight": "NORMAL_RESEARCH",
+      "status": "EXPANSION"
+    },
+    {
+      "id": "RAYNER_PRICE_ACTION",
+      "channel_id": "rayner_teo",
+      "focus": [
+        "PRICE_ACTION",
+        "SUPPORT_RESISTANCE",
+        "TREND_PULLBACK",
+        "RISK_MANAGEMENT"
+      ],
+      "weight": "NORMAL_RESEARCH",
+      "status": "EXPANSION"
+    }
+  ]
+}

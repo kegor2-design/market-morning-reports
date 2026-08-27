@@ -1,0 +1,326 @@
+{
+  "contract": "MMP_KR_EQUITY_EXPOSURE_V1",
+  "description": "Evidence-backed runtime export from the private reference DB.",
+  "rows": [
+    {
+      "symbol": "000660",
+      "industry": "인공지능 반도체",
+      "value_chain_role": "고대역폭메모리",
+      "exposure_relation": "PRODUCER_SERVICE",
+      "candidate_eligible": true,
+      "revenue_exposure_pct": null,
+      "evidence_type": "DART_BUSINESS_REPORT",
+      "evidence_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260317000635",
+      "evidence_date": "2026-03-17",
+      "confidence": "HIGH",
+      "evidence_status": "VERIFIED",
+      "match_keywords": [
+        "HBM"
+      ]
+    },
+    {
+      "symbol": "000660",
+      "industry": "인공지능 반도체",
+      "value_chain_role": "메모리 반도체",
+      "exposure_relation": "PRODUCER_SERVICE",
+      "candidate_eligible": true,
+      "revenue_exposure_pct": null,
+      "evidence_type": "DART_BUSINESS_REPORT",
+      "evidence_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260317000635",
+      "evidence_date": "2026-03-17",
+      "confidence": "HIGH",
+      "evidence_status": "VERIFIED",
+      "match_keywords": [
+        "DRAM",
+        "D램",
+        "낸드",
+        "NAND"
+      ]
+    },
+    {
+      "symbol": "000660",
+      "industry": "인공지능 반도체",
+      "value_chain_role": "반도체 위탁생산",
+      "exposure_relation": "PRODUCER_SERVICE",
+      "candidate_eligible": true,
+      "revenue_exposure_pct": null,
+      "evidence_type": "DART_BUSINESS_REPORT",
+      "evidence_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260317000635",
+      "evidence_date": "2026-03-17",
+      "confidence": "MEDIUM",
+      "evidence_status": "VERIFIED",
+      "match_keywords": [
+        "파운드리",
+        "foundry"
+      ]
+    },
+    {
+      "symbol": "005930",
+      "industry": "인공지능 반도체",
+      "value_chain_role": "고대역폭메모리",
+      "exposure_relation": "PRODUCER_SERVICE",
+      "candidate_eligible": true,
+      "revenue_exposure_pct": null,
+      "evidence_type": "DART_BUSINESS_REPORT",
+      "evidence_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260310002820",
+      "evidence_date": "2026-03-10",
+      "confidence": "MEDIUM",
+      "evidence_status": "VERIFIED",
+      "match_keywords": [
+        "HBM"
+      ]
+    },
+    {
+      "symbol": "005930",
+      "industry": "인공지능 반도체",
+      "value_chain_role": "메모리 반도체",
+      "exposure_relation": "PRODUCER_SERVICE",
+      "candidate_eligible": true,
+      "revenue_exposure_pct": null,
+      "evidence_type": "DART_BUSINESS_REPORT",
+      "evidence_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260310002820",
+      "evidence_date": "2026-03-10",
+      "confidence": "HIGH",
+      "evidence_status": "VERIFIED",
+      "match_keywords": [
+        "DRAM",
+        "D램",
+        "낸드",
+        "NAND"
+      ]
+    },
+    {
+      "symbol": "005930",
+      "industry": "인공지능 반도체",
+      "value_chain_role": "반도체 위탁생산",
+      "exposure_relation": "PRODUCER_SERVICE",
+      "candidate_eligible": true,
+      "revenue_exposure_pct": null,
+      "evidence_type": "DART_BUSINESS_REPORT",
+      "evidence_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260310002820",
+      "evidence_date": "2026-03-10",
+      "confidence": "HIGH",
+      "evidence_status": "VERIFIED",
+      "match_keywords": [
+        "foundry"
+      ]
+    },
+    {
+      "symbol": "006400",
+      "industry": "이차전지",
+      "value_chain_role": "배터리 셀",
+      "exposure_relation": "PRODUCER_SERVICE",
+      "candidate_eligible": true,
+      "revenue_exposure_pct": null,
+      "evidence_type": "DART_BUSINESS_REPORT",
+      "evidence_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260310002954",
+      "evidence_date": "2026-03-10",
+      "confidence": "HIGH",
+      "evidence_status": "VERIFIED",
+      "match_keywords": [
+        "배터리 셀"
+      ]
+    },
+    {
+      "symbol": "006400",
+      "industry": "전력 인프라",
+      "value_chain_role": "데이터센터 전력·냉각",
+      "exposure_relation": "PRODUCER_SERVICE",
+      "candidate_eligible": true,
+      "revenue_exposure_pct": null,
+      "evidence_type": "DART_BUSINESS_REPORT",
+      "evidence_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260310002954",
+      "evidence_date": "2026-03-10",
+      "confidence": "MEDIUM",
+      "evidence_status": "VERIFIED",
+      "match_keywords": [
+        "UPS"
+      ]
+    },
+    {
+      "symbol": "010120",
+      "industry": "전력 인프라",
+      "value_chain_role": "데이터센터 전력·냉각",
+      "exposure_relation": "PRODUCER_SERVICE",
+      "candidate_eligible": true,
+      "revenue_exposure_pct": null,
+      "evidence_type": "DART_BUSINESS_REPORT",
+      "evidence_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001243",
+      "evidence_date": "2026-03-18",
+      "confidence": "MEDIUM",
+      "evidence_status": "VERIFIED",
+      "match_keywords": [
+        "UPS"
+      ]
+    },
+    {
+      "symbol": "010120",
+      "industry": "전력 인프라",
+      "value_chain_role": "변압기·배전",
+      "exposure_relation": "PRODUCER_SERVICE",
+      "candidate_eligible": true,
+      "revenue_exposure_pct": null,
+      "evidence_type": "DART_BUSINESS_REPORT",
+      "evidence_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001243",
+      "evidence_date": "2026-03-18",
+      "confidence": "HIGH",
+      "evidence_status": "VERIFIED",
+      "match_keywords": [
+        "변압기",
+        "배전기기",
+        "전력기기"
+      ]
+    },
+    {
+      "symbol": "012450",
+      "industry": "방위산업",
+      "value_chain_role": "방산 완제품·부품",
+      "exposure_relation": "PRODUCER_SERVICE",
+      "candidate_eligible": true,
+      "revenue_exposure_pct": null,
+      "evidence_type": "DART_BUSINESS_REPORT",
+      "evidence_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260316001112",
+      "evidence_date": "2026-03-16",
+      "confidence": "HIGH",
+      "evidence_status": "VERIFIED",
+      "match_keywords": [
+        "방산",
+        "유도무기",
+        "장갑차",
+        "전투기"
+      ]
+    },
+    {
+      "symbol": "034020",
+      "industry": "원자력",
+      "value_chain_role": "소형모듈원전",
+      "exposure_relation": "PRODUCER_SERVICE",
+      "candidate_eligible": true,
+      "revenue_exposure_pct": null,
+      "evidence_type": "DART_BUSINESS_REPORT",
+      "evidence_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260320001246",
+      "evidence_date": "2026-03-20",
+      "confidence": "HIGH",
+      "evidence_status": "VERIFIED",
+      "match_keywords": [
+        "SMR"
+      ]
+    },
+    {
+      "symbol": "034020",
+      "industry": "원자력",
+      "value_chain_role": "원전 주기기·건설",
+      "exposure_relation": "PRODUCER_SERVICE",
+      "candidate_eligible": true,
+      "revenue_exposure_pct": null,
+      "evidence_type": "DART_BUSINESS_REPORT",
+      "evidence_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260320001246",
+      "evidence_date": "2026-03-20",
+      "confidence": "HIGH",
+      "evidence_status": "VERIFIED",
+      "match_keywords": [
+        "원자력 발전소",
+        "원전 주기기"
+      ]
+    },
+    {
+      "symbol": "207940",
+      "industry": "바이오",
+      "value_chain_role": "신약·바이오시밀러",
+      "exposure_relation": "PRODUCER_SERVICE",
+      "candidate_eligible": true,
+      "revenue_exposure_pct": null,
+      "evidence_type": "DART_BUSINESS_REPORT",
+      "evidence_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260312001119",
+      "evidence_date": "2026-03-12",
+      "confidence": "MEDIUM",
+      "evidence_status": "VERIFIED",
+      "match_keywords": [
+        "바이오시밀러"
+      ]
+    },
+    {
+      "symbol": "207940",
+      "industry": "바이오",
+      "value_chain_role": "위탁개발생산",
+      "exposure_relation": "PRODUCER_SERVICE",
+      "candidate_eligible": true,
+      "revenue_exposure_pct": null,
+      "evidence_type": "DART_BUSINESS_REPORT",
+      "evidence_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260312001119",
+      "evidence_date": "2026-03-12",
+      "confidence": "HIGH",
+      "evidence_status": "VERIFIED",
+      "match_keywords": [
+        "CDMO",
+        "위탁개발생산"
+      ]
+    },
+    {
+      "symbol": "329180",
+      "industry": "원자력",
+      "value_chain_role": "소형모듈원전",
+      "exposure_relation": "PRODUCER_SERVICE",
+      "candidate_eligible": true,
+      "revenue_exposure_pct": null,
+      "evidence_type": "DART_BUSINESS_REPORT",
+      "evidence_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260320000859",
+      "evidence_date": "2026-03-20",
+      "confidence": "MEDIUM",
+      "evidence_status": "VERIFIED",
+      "match_keywords": [
+        "소형모듈원전"
+      ]
+    },
+    {
+      "symbol": "329180",
+      "industry": "조선",
+      "value_chain_role": "선박 건조",
+      "exposure_relation": "PRODUCER_SERVICE",
+      "candidate_eligible": true,
+      "revenue_exposure_pct": null,
+      "evidence_type": "DART_BUSINESS_REPORT",
+      "evidence_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260320000859",
+      "evidence_date": "2026-03-20",
+      "confidence": "HIGH",
+      "evidence_status": "VERIFIED",
+      "match_keywords": [
+        "LNG선",
+        "컨테이너선",
+        "선박 건조"
+      ]
+    },
+    {
+      "symbol": "329180",
+      "industry": "조선",
+      "value_chain_role": "조선 기자재",
+      "exposure_relation": "PRODUCER_SERVICE",
+      "candidate_eligible": true,
+      "revenue_exposure_pct": null,
+      "evidence_type": "DART_BUSINESS_REPORT",
+      "evidence_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260320000859",
+      "evidence_date": "2026-03-20",
+      "confidence": "HIGH",
+      "evidence_status": "VERIFIED",
+      "match_keywords": [
+        "선박용 엔진"
+      ]
+    },
+    {
+      "symbol": "373220",
+      "industry": "이차전지",
+      "value_chain_role": "배터리 셀",
+      "exposure_relation": "PRODUCER_SERVICE",
+      "candidate_eligible": true,
+      "revenue_exposure_pct": null,
+      "evidence_type": "DART_BUSINESS_REPORT",
+      "evidence_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260312000217",
+      "evidence_date": "2026-03-12",
+      "confidence": "HIGH",
+      "evidence_status": "VERIFIED",
+      "match_keywords": [
+        "배터리 셀"
+      ]
+    }
+  ]
+}

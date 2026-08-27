@@ -1,0 +1,891 @@
+{
+  "schema_version": "1.0",
+  "point_in_time_rule": "Point-in-Time rule: historical analog analysis must prefer vintages actually released by the historical decision timestamp. Revised present-day macro data may be shown separately but cannot stand in for what was known then.",
+  "cases": [
+    {
+      "case_id": "HIST-1929-GREAT-DEPRESSION",
+      "title_ko": "1929 대공황",
+      "start_date": "1929-08-01",
+      "anchor_date": "1929-08-01",
+      "category": "FINANCIAL_CRISIS",
+      "tags": [
+        "VALUATION",
+        "CREDIT",
+        "DELEVERAGING"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-1973-OIL-SHOCK",
+      "title_ko": "1973 1차 오일쇼크",
+      "start_date": "1973-10-01",
+      "anchor_date": "1973-10-01",
+      "category": "ENERGY_SHOCK",
+      "tags": [
+        "ENERGY",
+        "INFLATION",
+        "RATES"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-1979-VOLCKER",
+      "title_ko": "1979~82 Volcker 긴축",
+      "start_date": "1979-08-01",
+      "anchor_date": "1979-08-01",
+      "category": "MONETARY_TIGHTENING",
+      "tags": [
+        "INFLATION",
+        "RATES",
+        "USD"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-1985-PLAZA",
+      "title_ko": "1985 플라자합의",
+      "start_date": "1985-09-22",
+      "anchor_date": "1985-09-22",
+      "category": "FX_REGIME",
+      "tags": [
+        "USD",
+        "FX",
+        "POLITICS"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-1987-BLACK-MONDAY",
+      "title_ko": "1987 블랙먼데이",
+      "start_date": "1987-10-19",
+      "anchor_date": "1987-10-19",
+      "category": "MARKET_CRASH",
+      "tags": [
+        "DELEVERAGING",
+        "LIQUIDITY",
+        "VALUATION"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-1990-JAPAN-BUBBLE",
+      "title_ko": "일본 버블 붕괴 초기",
+      "start_date": "1990-01-01",
+      "anchor_date": "1990-01-01",
+      "category": "ASSET_BUBBLE",
+      "tags": [
+        "JAPAN",
+        "VALUATION",
+        "CREDIT"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-1994-BOND-SHOCK",
+      "title_ko": "1994 글로벌 채권 쇼크",
+      "start_date": "1994-02-04",
+      "anchor_date": "1994-02-04",
+      "category": "BOND_SHOCK",
+      "tags": [
+        "RATES",
+        "TREASURY",
+        "LIQUIDITY"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-1997-ASIA-FX",
+      "title_ko": "1997 아시아 외환위기",
+      "start_date": "1997-07-02",
+      "anchor_date": "1997-07-02",
+      "category": "FX_CRISIS",
+      "tags": [
+        "FX",
+        "USD",
+        "CREDIT",
+        "KOREA"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        },
+        {
+          "id": "kospi",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "kospi"
+        },
+        {
+          "id": "usdkrw",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "usdkrw"
+        },
+        {
+          "id": "gold",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "gold"
+        },
+        {
+          "id": "wti",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "wti"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-1998-LTCM",
+      "title_ko": "1998 LTCM 위기",
+      "start_date": "1998-09-01",
+      "anchor_date": "1998-09-01",
+      "category": "FINANCIAL_CRISIS",
+      "tags": [
+        "LEVERAGE",
+        "TREASURY",
+        "LIQUIDITY"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        },
+        {
+          "id": "kospi",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "kospi"
+        },
+        {
+          "id": "usdkrw",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "usdkrw"
+        },
+        {
+          "id": "gold",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "gold"
+        },
+        {
+          "id": "wti",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "wti"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-2000-DOTCOM",
+      "title_ko": "2000 닷컴 버블 붕괴",
+      "start_date": "2000-03-10",
+      "anchor_date": "2000-03-10",
+      "category": "VALUATION_CRASH",
+      "tags": [
+        "AI",
+        "VALUATION",
+        "EARNINGS",
+        "BREADTH"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        },
+        {
+          "id": "kospi",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "kospi"
+        },
+        {
+          "id": "usdkrw",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "usdkrw"
+        },
+        {
+          "id": "gold",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "gold"
+        },
+        {
+          "id": "wti",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "wti"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-2008-GFC",
+      "title_ko": "2008 글로벌 금융위기",
+      "start_date": "2008-09-15",
+      "anchor_date": "2008-09-15",
+      "category": "FINANCIAL_CRISIS",
+      "tags": [
+        "CREDIT",
+        "DELEVERAGING",
+        "LIQUIDITY",
+        "USD"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        },
+        {
+          "id": "kospi",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "kospi"
+        },
+        {
+          "id": "usdkrw",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "usdkrw"
+        },
+        {
+          "id": "gold",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "gold"
+        },
+        {
+          "id": "wti",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "wti"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-2011-US-DOWNGRADE",
+      "title_ko": "2011 미국 신용등급 강등/부채한도",
+      "start_date": "2011-08-05",
+      "anchor_date": "2011-08-05",
+      "category": "FISCAL_STRESS",
+      "tags": [
+        "TREASURY",
+        "FISCAL",
+        "POLITICS",
+        "USD"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        },
+        {
+          "id": "kospi",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "kospi"
+        },
+        {
+          "id": "usdkrw",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "usdkrw"
+        },
+        {
+          "id": "gold",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "gold"
+        },
+        {
+          "id": "wti",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "wti"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-2013-TAPER-TANTRUM",
+      "title_ko": "2013 Taper Tantrum",
+      "start_date": "2013-05-22",
+      "anchor_date": "2013-05-22",
+      "category": "MONETARY_SHOCK",
+      "tags": [
+        "TREASURY",
+        "RATES",
+        "USD",
+        "EM"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        },
+        {
+          "id": "kospi",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "kospi"
+        },
+        {
+          "id": "usdkrw",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "usdkrw"
+        },
+        {
+          "id": "gold",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "gold"
+        },
+        {
+          "id": "wti",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "wti"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-2015-CHINA-SHOCK",
+      "title_ko": "2015 중국·위안화 충격",
+      "start_date": "2015-08-11",
+      "anchor_date": "2015-08-11",
+      "category": "CHINA_SHOCK",
+      "tags": [
+        "CHINA",
+        "FX",
+        "COMMODITY",
+        "KOREA"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        },
+        {
+          "id": "kospi",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "kospi"
+        },
+        {
+          "id": "usdkrw",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "usdkrw"
+        },
+        {
+          "id": "gold",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "gold"
+        },
+        {
+          "id": "wti",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "wti"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-2018-TIGHTENING-TRADE",
+      "title_ko": "2018 Fed 긴축·미중 무역갈등",
+      "start_date": "2018-10-01",
+      "anchor_date": "2018-10-01",
+      "category": "POLICY_SHOCK",
+      "tags": [
+        "RATES",
+        "TRADE",
+        "CHINA",
+        "EARNINGS"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        },
+        {
+          "id": "kospi",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "kospi"
+        },
+        {
+          "id": "usdkrw",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "usdkrw"
+        },
+        {
+          "id": "gold",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "gold"
+        },
+        {
+          "id": "wti",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "wti"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-2019-REPO",
+      "title_ko": "2019 미국 Repo 시장 스트레스",
+      "start_date": "2019-09-17",
+      "anchor_date": "2019-09-17",
+      "category": "MONEY_MARKET",
+      "tags": [
+        "REPO",
+        "LIQUIDITY",
+        "TREASURY"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        },
+        {
+          "id": "kospi",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "kospi"
+        },
+        {
+          "id": "usdkrw",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "usdkrw"
+        },
+        {
+          "id": "gold",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "gold"
+        },
+        {
+          "id": "wti",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "wti"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-2020-COVID",
+      "title_ko": "2020 코로나 시장 충격",
+      "start_date": "2020-02-19",
+      "anchor_date": "2020-02-19",
+      "category": "PANDEMIC",
+      "tags": [
+        "LIQUIDITY",
+        "DELEVERAGING",
+        "EARNINGS",
+        "BREADTH"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        },
+        {
+          "id": "kospi",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "kospi"
+        },
+        {
+          "id": "usdkrw",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "usdkrw"
+        },
+        {
+          "id": "gold",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "gold"
+        },
+        {
+          "id": "wti",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "wti"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-2022-INFLATION-QT",
+      "title_ko": "2022 인플레이션·긴축",
+      "start_date": "2022-03-16",
+      "anchor_date": "2022-03-16",
+      "category": "MONETARY_TIGHTENING",
+      "tags": [
+        "INFLATION",
+        "RATES",
+        "QT",
+        "VALUATION"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        },
+        {
+          "id": "kospi",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "kospi"
+        },
+        {
+          "id": "usdkrw",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "usdkrw"
+        },
+        {
+          "id": "gold",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "gold"
+        },
+        {
+          "id": "wti",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "wti"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-2023-SVB",
+      "title_ko": "2023 SVB 사태",
+      "start_date": "2023-03-10",
+      "anchor_date": "2023-03-10",
+      "category": "BANK_STRESS",
+      "tags": [
+        "BANK",
+        "LIQUIDITY",
+        "RATES",
+        "DELEVERAGING"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        },
+        {
+          "id": "kospi",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "kospi"
+        },
+        {
+          "id": "usdkrw",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "usdkrw"
+        },
+        {
+          "id": "gold",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "gold"
+        },
+        {
+          "id": "wti",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "wti"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-2023-DEBT-CEILING",
+      "title_ko": "2023 미국 부채한도",
+      "start_date": "2023-05-01",
+      "anchor_date": "2023-05-01",
+      "category": "FISCAL_STRESS",
+      "tags": [
+        "FISCAL",
+        "TREASURY",
+        "POLITICS",
+        "TGA"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        },
+        {
+          "id": "kospi",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "kospi"
+        },
+        {
+          "id": "usdkrw",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "usdkrw"
+        },
+        {
+          "id": "gold",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "gold"
+        },
+        {
+          "id": "wti",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "wti"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-2024-TREASURY-BUYBACK",
+      "title_ko": "2024 미 재무부 정례 Buyback 재도입",
+      "start_date": "2024-05-01",
+      "anchor_date": "2024-05-01",
+      "category": "TREASURY_POLICY",
+      "tags": [
+        "TREASURY",
+        "BUYBACK",
+        "LIQUIDITY"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        },
+        {
+          "id": "kospi",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "kospi"
+        },
+        {
+          "id": "usdkrw",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "usdkrw"
+        },
+        {
+          "id": "gold",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "gold"
+        },
+        {
+          "id": "wti",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "wti"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    },
+    {
+      "case_id": "HIST-2026-BUYBACK-MIDTERM",
+      "title_ko": "2026 장기채 Buyback 확대·중간선거 클러스터",
+      "start_date": "2026-08-19",
+      "anchor_date": "2026-08-19",
+      "category": "TREASURY_POLICY",
+      "tags": [
+        "TREASURY",
+        "BUYBACK",
+        "POLITICS",
+        "AI",
+        "USD"
+      ],
+      "point_in_time_status": "BACKFILL_REQUIRED",
+      "series": [
+        {
+          "id": "us_stock",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "price"
+        },
+        {
+          "id": "us10y",
+          "path": "public/market-history/data/us-stock-market-monthly.csv",
+          "column": "gs10_pct"
+        },
+        {
+          "id": "kospi",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "kospi"
+        },
+        {
+          "id": "usdkrw",
+          "path": "public/market-history/data/korea-market-monthly.csv",
+          "column": "usdkrw"
+        },
+        {
+          "id": "gold",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "gold"
+        },
+        {
+          "id": "wti",
+          "path": "public/market-history/data/macro-commodities-monthly.csv",
+          "column": "wti"
+        }
+      ],
+      "research_status": "SEED_REQUIRES_CAUSAL_REVIEW"
+    }
+  ]
+}

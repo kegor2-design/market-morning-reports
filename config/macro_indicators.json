@@ -1,0 +1,20 @@
+{
+  "fred_series": [
+    {"id":"us_cpi_yoy","series_id":"CPIAUCSL","name":"US CPI","transform":"yoy_pct","lag":12},
+    {"id":"us_core_cpi_yoy","series_id":"CPILFESL","name":"US Core CPI","transform":"yoy_pct","lag":12},
+    {"id":"us_pce_yoy","series_id":"PCEPI","name":"US PCE Price Index","transform":"yoy_pct","lag":12},
+    {"id":"us_core_pce_yoy","series_id":"PCEPILFE","name":"US Core PCE Price Index","transform":"yoy_pct","lag":12},
+    {"id":"fed_target_lower","series_id":"DFEDTARL","name":"Federal Funds Target Range Lower","unit":"%"},
+    {"id":"fed_target_upper","series_id":"DFEDTARU","name":"Federal Funds Target Range Upper","unit":"%"},
+    {"id":"us_unemployment","series_id":"UNRATE","name":"US Unemployment Rate","unit":"%"}
+  ],
+  "sep": {
+    "as_of":"2026-06-17",
+    "source_url":"https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260617.htm",
+    "fed_funds_median":{"2026":3.8,"2027":3.6,"2028":3.4,"장기":3.1},
+    "pce_median":{"2026":3.6,"2027":2.3,"2028":2.0,"장기":2.0},
+    "core_pce_median":{"2026":3.3,"2027":2.5,"2028":2.1},
+    "gdp_median":{"2026":2.2,"2027":2.3,"2028":2.2,"장기":2.0},
+    "unemployment_median":{"2026":4.3,"2027":4.3,"2028":4.2,"장기":4.2}
+  }
+}

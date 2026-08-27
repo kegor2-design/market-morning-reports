@@ -1,0 +1,82 @@
+{
+  "version": "1.6.5.7",
+  "as_of_contract": "POINT_IN_TIME_ONLY",
+  "default_windows": ["1D", "5D", "20D"],
+  "stale_policy": {
+    "market_price_max_minutes": 1440,
+    "daily_flow_max_days": 2,
+    "macro_release_max_days": 45,
+    "stale_indicator_score_weight": 0.0
+  },
+  "score_bands": {
+    "STRONG_RISK_ON": 35,
+    "RISK_ON": 15,
+    "NEUTRAL_LOW": -15,
+    "RISK_OFF": -35,
+    "STRONG_RISK_OFF": -100
+  },
+  "groups": [
+    {
+      "group_id": "FX_DOLLAR",
+      "label": "달러·환율",
+      "beginner_question": "달러 강세가 한국 시장의 부담으로 커지고 있나?",
+      "weight": 1.25,
+      "indicators": [
+        {"id": "DXY", "label": "달러지수", "risk_on_when": "DOWN", "weight": 1.0},
+        {"id": "USDKRW", "label": "원/달러", "risk_on_when": "DOWN", "weight": 1.4},
+        {"id": "USDJPY", "label": "달러/엔", "risk_on_when": "DOWN", "weight": 0.45},
+        {"id": "USDCNY", "label": "달러/위안", "risk_on_when": "DOWN", "weight": 0.45}
+      ]
+    },
+    {
+      "group_id": "RATES_BONDS",
+      "label": "금리·국채",
+      "beginner_question": "시장 금리가 주식의 할인율 부담을 키우고 있나?",
+      "weight": 1.2,
+      "indicators": [
+        {"id": "US2Y", "label": "미국 2년물", "risk_on_when": "DOWN", "weight": 1.0},
+        {"id": "US10Y", "label": "미국 10년물", "risk_on_when": "DOWN", "weight": 1.2},
+        {"id": "US30Y", "label": "미국 30년물", "risk_on_when": "DOWN", "weight": 0.7},
+        {"id": "KR3Y", "label": "한국 국고채 3년", "risk_on_when": "DOWN", "weight": 0.8},
+        {"id": "KR10Y", "label": "한국 국고채 10년", "risk_on_when": "DOWN", "weight": 0.8}
+      ]
+    },
+    {
+      "group_id": "CREDIT",
+      "label": "회사채·신용",
+      "beginner_question": "기업 자금조달 시장에서 스트레스가 커지고 있나?",
+      "weight": 1.15,
+      "indicators": [
+        {"id": "US_HY_OAS", "label": "미국 하이일드 스프레드", "risk_on_when": "DOWN", "weight": 1.0},
+        {"id": "KR_CORP_AA3Y_SPREAD", "label": "국내 회사채 AA- 3년 스프레드", "risk_on_when": "DOWN", "weight": 1.2},
+        {"id": "KR_CP_CD_SPREAD", "label": "CP-CD 스프레드", "risk_on_when": "DOWN", "weight": 0.65}
+      ]
+    },
+    {
+      "group_id": "INFLATION_COMMODITY",
+      "label": "물가·원자재",
+      "beginner_question": "물가 압력이 다시 금리 상승을 자극할 위험이 커지고 있나?",
+      "weight": 0.9,
+      "indicators": [
+        {"id": "US_CPI_SURPRISE", "label": "미국 CPI 서프라이즈", "risk_on_when": "DOWN", "weight": 1.0, "event_metric": true},
+        {"id": "US_CORE_CPI_3M_ANNUALIZED", "label": "미국 근원 CPI 3개월 연율", "risk_on_when": "DOWN", "weight": 0.8, "slow_metric": true},
+        {"id": "GOLD", "label": "금", "risk_on_when": "CONTEXT", "weight": 0.45},
+        {"id": "WTI", "label": "WTI 유가", "risk_on_when": "CONTEXT", "weight": 0.6},
+        {"id": "COPPER", "label": "구리", "risk_on_when": "CONTEXT", "weight": 0.35}
+      ]
+    },
+    {
+      "group_id": "RISK_LIQUIDITY",
+      "label": "위험선호·유동성",
+      "beginner_question": "투자자들이 위험자산을 더 사려는 쪽인가, 피하려는 쪽인가?",
+      "weight": 1.1,
+      "indicators": [
+        {"id": "VIX", "label": "VIX", "risk_on_when": "DOWN", "weight": 1.1},
+        {"id": "BTC", "label": "비트코인", "risk_on_when": "UP", "weight": 0.55},
+        {"id": "NASDAQ", "label": "나스닥", "risk_on_when": "UP", "weight": 0.8},
+        {"id": "SOX", "label": "필라델피아 반도체", "risk_on_when": "UP", "weight": 0.9},
+        {"id": "KOSPI_FOREIGN_NET", "label": "코스피 외국인 순매수", "risk_on_when": "UP", "weight": 1.25, "flow_metric": true}
+      ]
+    }
+  ]
+}

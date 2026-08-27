@@ -1,0 +1,14 @@
+[
+  {"symbol":"^GSPC","name":"S&P 500","region":"미국 증시"},
+  {"symbol":"^IXIC","name":"NASDAQ","region":"미국 증시"},
+  {"symbol":"^SOX","name":"PHLX Semiconductor","region":"미국 증시"},
+  {"symbol":"^VIX","name":"VIX","region":"미국 증시"},
+  {"symbol":"^STOXX50E","name":"EURO STOXX 50","region":"유럽 증시"},
+  {"symbol":"^GDAXI","name":"DAX","region":"유럽 증시"},
+  {"symbol":"^FTSE","name":"FTSE 100","region":"유럽 증시"},
+  {"symbol":"^TNX","name":"US 10Y yield","region":"금리·외환·원자재"},
+  {"symbol":"DX-Y.NYB","name":"US Dollar Index","region":"금리·외환·원자재"},
+  {"symbol":"KRW=X","name":"USD/KRW","region":"금리·외환·원자재"},
+  {"symbol":"CL=F","name":"WTI","region":"금리·외환·원자재"},
+  {"symbol":"GC=F","name":"Gold","region":"금리·외환·원자재"}
+]

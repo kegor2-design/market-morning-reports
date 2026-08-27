@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "source_id": "kpunch",
+  "channel_url": "https://www.youtube.com/@kpunch",
+  "claims": [
+    {
+      "claim_id": "KP-MON-001",
+      "theme": "통화정책",
+      "claim": "한국은행의 반복적인 RP 매입은 단기 안정을 주지만 채권시장의 가격 신호와 금융회사 규율을 약화시킬 수 있다.",
+      "transmission": ["RP 매입 확대", "채권 수요와 유동성 증가", "위험 프리미엄 억제", "도덕적 해이와 환율 부담"],
+      "indicators": ["bok_rp_purchase", "kr3y", "kr10y", "usdkrw", "credit_spread"],
+      "videos": [{"video_id": "0N_6lAviiIo", "anchor": "가격 신호가 마비"}, {"video_id": "T5pON5iwG64", "anchor": "금융 시장을 길들여"}]
+    },
+    {
+      "claim_id": "KP-MON-002",
+      "theme": "통화가치",
+      "claim": "통화량이 실질성장보다 빠르게 증가하면 명목 자산가격은 오를 수 있지만 통화가치와 구매력은 약해질 수 있다.",
+      "transmission": ["M2 증가", "자산 수요 증가", "명목가격 상승", "물가·환율 상승", "실질 구매력 저하"],
+      "indicators": ["kr_m2_yoy", "us_m2_yoy", "kr_nominal_gdp_yoy", "usdkrw", "kr_cpi_yoy"],
+      "videos": [{"video_id": "aWUXrtOp2Hg", "anchor": "M2 통화량"}, {"video_id": "UNNfxQb9Sio", "anchor": "돈 가치가 떨어"}]
+    },
+    {
+      "claim_id": "KP-EQT-001",
+      "theme": "주식·실질수익",
+      "claim": "주가 상승은 환율과 물가를 반영한 실질·달러 기준으로 다시 평가해야 한다.",
+      "transmission": ["원화 주가지수 상승", "원화 약세 또는 물가 상승", "달러·실질 수익률 축소"],
+      "indicators": ["kospi", "usdkrw", "kr_cpi", "kospi_usd_real"],
+      "videos": [{"video_id": "UNNfxQb9Sio", "anchor": "돈 가치가 폭락"}, {"video_id": "FtPu3XGQ9p8", "anchor": "원화"}]
+    },
+    {
+      "claim_id": "KP-FX-001",
+      "theme": "환율",
+      "claim": "원/달러 환율은 한국 금융정책의 신뢰와 해외자금 흐름을 먼저 보여주는 위험 경보다.",
+      "transmission": ["정책 신뢰 또는 금리차 변화", "외국인 자금 이동", "원/달러 반응", "주식·채권·물가 전이"],
+      "indicators": ["usdkrw", "kr_us_10y_gap", "foreign_equity_flow", "foreign_bond_flow", "fx_reserves", "reer_kr"],
+      "videos": [{"video_id": "0N_6lAviiIo", "anchor": "탄광 속의 카나리아"}, {"video_id": "JrVYsBo8nDw", "anchor": "환율 관찰 대상국"}]
+    },
+    {
+      "claim_id": "KP-HOU-001",
+      "theme": "부동산·금리",
+      "claim": "한국은 내수가 약해도 집값과 가계부채, 환율 때문에 미국보다 빠른 금리 인하가 어렵다.",
+      "transmission": ["내수 둔화", "금리 인하 압력", "주택·가계대출 재상승 위험", "환율 제약", "정책 딜레마"],
+      "indicators": ["retail_sales_kr", "real_household_income", "seoul_house_price", "household_debt_gdp", "usdkrw", "bok_base_rate"],
+      "videos": [{"video_id": "WiXsuEGBvYI", "anchor": "금리를 낮추고 싶어도"}, {"video_id": "GJXD5vQtxA4", "anchor": "우리만 빠르게 인하"}]
+    },
+    {
+      "claim_id": "KP-RATE-001",
+      "theme": "시장금리",
+      "claim": "기준금리 인하에도 장기금리가 오르면 실제 금융여건은 완화되지 않으며 국채 공급이 통화정책을 상쇄할 수 있다.",
+      "transmission": ["기준금리 인하", "재정적자와 국채 공급 증가", "기간 프리미엄 상승", "장기금리 상승", "금융여건 긴축"],
+      "indicators": ["bok_base_rate", "kr10y", "kr30y", "us10y", "us30y", "sovereign_issuance", "interest_expense"],
+      "videos": [{"video_id": "UNNfxQb9Sio", "anchor": "10년물 국채 금리는 오히려"}, {"video_id": "l07sHuq0Uzk", "anchor": "10년물"}]
+    },
+    {
+      "claim_id": "KP-FIS-001",
+      "theme": "재정",
+      "claim": "비기축통화국인 한국이 경기부양을 국채에 계속 의존하면 금리와 환율 부담 때문에 지속성 한계에 직면한다.",
+      "transmission": ["적자재정", "국채 발행", "부채 증가", "국채금리·환율 상승", "추가 부양 여력 축소"],
+      "indicators": ["kr_fiscal_balance_gdp", "kr_debt_gdp", "sovereign_issuance", "kr10y", "usdkrw"],
+      "videos": [{"video_id": "GJXD5vQtxA4", "anchor": "정부주도 성장"}, {"video_id": "aWUXrtOp2Hg", "anchor": "적자 국채"}]
+    },
+    {
+      "claim_id": "KP-DEM-001",
+      "theme": "인구·부채",
+      "claim": "한국 재정의 핵심 위험은 현재 부채 수준보다 저성장·고령화·생산연령인구 감소가 결합된 증가 속도다.",
+      "transmission": ["생산연령인구 감소", "성장·세입 둔화", "복지지출 증가", "재정적자 확대", "부채비율 상승"],
+      "indicators": ["kr_debt_gdp", "working_age_population_kr", "old_age_dependency_kr", "potential_growth_kr", "welfare_spending_gdp"],
+      "videos": [{"video_id": "Sop9n4HXnf0", "anchor": "생산 연령 인구"}, {"video_id": "A1eCmFSFpIE", "anchor": "베이비부머"}]
+    },
+    {
+      "claim_id": "KP-TRADE-001",
+      "theme": "교역조건",
+      "claim": "원화 약세는 수출을 자동으로 개선하지 않으며 중간재·에너지 수입물가를 통해 기업과 가계에 부담을 줄 수 있다.",
+      "transmission": ["원화 약세", "수입물가 상승", "기업 원가·소비자물가 상승", "내수와 마진 압박"],
+      "indicators": ["usdkrw", "export_volume_kr", "import_price_kr", "terms_of_trade_kr", "energy_import_bill", "operating_margin_kr"],
+      "videos": [{"video_id": "GJXD5vQtxA4", "anchor": "수입 물가"}, {"video_id": "9vOGhjSKQhI", "anchor": "환율"}]
+    },
+    {
+      "claim_id": "KP-EQT-002",
+      "theme": "한국증시",
+      "claim": "한국 증시의 급등은 실물경제 개선과 분리될 수 있으며 외국인 자금·환율·반도체 사이클·정책 수급을 함께 봐야 한다.",
+      "transmission": ["외국인·정책 수급 변화", "대형 반도체 가격 변화", "지수 급등락", "실물지표와 괴리"],
+      "indicators": ["kospi", "foreign_equity_flow", "usdkrw", "semiconductor_exports", "memory_price", "samsung_sk_profit", "pension_flow"],
+      "videos": [{"video_id": "37ooENAKSPc", "anchor": "코스피"}, {"video_id": "J6xA-6pjP8I", "anchor": "삼성"}]
+    },
+    {
+      "claim_id": "KP-HOU-002",
+      "theme": "부동산·금융안정",
+      "claim": "부동산 부양은 단기 가격을 지지하지만 가계부채·PF 위험·지역 격차와 자본의 비생산적 배분을 심화할 수 있다.",
+      "transmission": ["규제 완화와 유동성", "서울 가격 상승", "대출·PF 확대", "지역 양극화", "금융안정 부담"],
+      "indicators": ["seoul_house_price", "regional_house_price", "housing_transactions", "household_credit", "pf_delinquency", "unsold_housing"],
+      "videos": [{"video_id": "CIB88CNbvKU", "anchor": "부동산 부양책"}, {"video_id": "Jdu3Nq-T4nA", "anchor": "GDP 대비 부채"}]
+    },
+    {
+      "claim_id": "KP-CHN-001",
+      "theme": "중국경제",
+      "claim": "중국의 둔화는 부동산 의존·디플레이션·외국인투자 감소·정책 신뢰 하락이 겹친 구조적 문제다.",
+      "transmission": ["부동산 조정", "내수·물가 약화", "FDI 감소", "성장률 둔화", "한국 수출 전이"],
+      "indicators": ["china_house_price", "china_cpi_yoy", "china_ppi_yoy", "china_fdi", "china_real_gdp_yoy", "kr_exports_china"],
+      "videos": [{"video_id": "6JP6WNhpJhQ", "anchor": "해외 직접 투자"}, {"video_id": "8_Gj4VjmIVs", "anchor": "디플레"}]
+    },
+    {
+      "claim_id": "KP-AI-001",
+      "theme": "AI·산업",
+      "claim": "AI 시대의 지속 가능한 승자는 모델뿐 아니라 전력·데이터센터·반도체·플랫폼과 자본조달 능력을 확보한 기업이다.",
+      "transmission": ["AI 수요 증가", "컴퓨팅·전력 병목", "대규모 설비투자", "인프라·반도체 이익 집중"],
+      "indicators": ["hyperscaler_capex", "data_center_power", "gpu_shipments", "hbm_revenue", "electricity_reserve_margin_kr", "free_cash_flow"],
+      "videos": [{"video_id": "A0s34BV_8Gc", "anchor": "거대 언어 모델"}, {"video_id": "mVOkY5VAVCw", "anchor": "데이터센터"}]
+    }
+  ]
+}

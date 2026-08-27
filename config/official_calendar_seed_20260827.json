@@ -1,0 +1,308 @@
+{
+  "as_of": "2026-08-27",
+  "purpose": "Bootstrap only. Import when absent, then reconcile with live official collectors.",
+  "events": [
+    {
+      "event_id": "OFFICIAL-BOK-20260827",
+      "title": "한국은행 금융통화위원회",
+      "event_type": "BOK",
+      "event_date": "2026-08-27",
+      "source_type": "BOK",
+      "source_id": "BOK_MPB",
+      "source_url": "https://www.bok.or.kr/portal/bbs/B0000502/view.do?menuNo=200690&nttId=10094300",
+      "truth_class": "OFFICIAL_FACT",
+      "status": "VERIFIED",
+      "result_expected_at": "2026-08-27T23:59:59+09:00",
+      "evidence": [
+        {
+          "source_type": "BOK",
+          "source_id": "BOK_MPB",
+          "claim": "Official forward calendar confirms: 한국은행 금융통화위원회",
+          "url": "https://www.bok.or.kr/portal/bbs/B0000502/view.do?menuNo=200690&nttId=10094300",
+          "official": true,
+          "attributable": true,
+          "stance": "SUPPORT",
+          "metadata": {
+            "bootstrap_seed_as_of": "2026-08-27",
+            "corroboration_eligible": true
+          }
+        }
+      ]
+    },
+    {
+      "event_id": "OFFICIAL-KC-JH-20260827",
+      "title": "Jackson Hole Economic Policy Symposium",
+      "event_type": "JACKSON_HOLE",
+      "event_date": "2026-08-27",
+      "estimated_end_date": "2026-08-29",
+      "source_type": "KANSASCITYFED",
+      "source_id": "KC_JACKSON_HOLE",
+      "source_url": "https://www.kansascityfed.org/research/jackson-hole-economic-symposium/jackson-hole-faqs/",
+      "truth_class": "OFFICIAL_FACT",
+      "status": "VERIFIED",
+      "result_expected_at": "2026-08-29T23:59:59-06:00",
+      "evidence": [
+        {
+          "source_type": "KANSASCITYFED",
+          "source_id": "KC_JACKSON_HOLE",
+          "claim": "Official forward calendar confirms: Jackson Hole Economic Policy Symposium",
+          "url": "https://www.kansascityfed.org/research/jackson-hole-economic-symposium/jackson-hole-faqs/",
+          "official": true,
+          "attributable": true,
+          "stance": "SUPPORT",
+          "metadata": {
+            "bootstrap_seed_as_of": "2026-08-27",
+            "corroboration_eligible": true
+          }
+        }
+      ]
+    },
+    {
+      "event_id": "OFFICIAL-BLS-NFP-20260904",
+      "title": "미국 8월 고용보고서",
+      "event_type": "NFP",
+      "event_date": "2026-09-04T08:30:00-04:00",
+      "source_type": "BLS",
+      "source_id": "BLS_RELEASES",
+      "source_url": "https://www.bls.gov/schedule/news_release/empsit.htm",
+      "truth_class": "OFFICIAL_FACT",
+      "status": "VERIFIED",
+      "result_expected_at": "2026-09-04T08:30:00-04:00",
+      "evidence": [
+        {
+          "source_type": "BLS",
+          "source_id": "BLS_RELEASES",
+          "claim": "Official forward calendar confirms: 미국 8월 고용보고서",
+          "url": "https://www.bls.gov/schedule/news_release/empsit.htm",
+          "official": true,
+          "attributable": true,
+          "stance": "SUPPORT",
+          "metadata": {
+            "bootstrap_seed_as_of": "2026-08-27",
+            "corroboration_eligible": true
+          }
+        }
+      ]
+    },
+    {
+      "event_id": "OFFICIAL-ECB-20260909",
+      "title": "ECB 통화정책회의",
+      "event_type": "ECB",
+      "event_date": "2026-09-09",
+      "estimated_end_date": "2026-09-10",
+      "source_type": "ECB",
+      "source_id": "ECB_MPOL",
+      "source_url": "https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html",
+      "truth_class": "OFFICIAL_FACT",
+      "status": "VERIFIED",
+      "result_expected_at": "2026-09-10T23:59:59+02:00",
+      "evidence": [
+        {
+          "source_type": "ECB",
+          "source_id": "ECB_MPOL",
+          "claim": "Official forward calendar confirms: ECB 통화정책회의",
+          "url": "https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html",
+          "official": true,
+          "attributable": true,
+          "stance": "SUPPORT",
+          "metadata": {
+            "bootstrap_seed_as_of": "2026-08-27",
+            "corroboration_eligible": true
+          }
+        }
+      ]
+    },
+    {
+      "event_id": "OFFICIAL-UST-BUYBACK-20260909",
+      "title": "미 재무부 장기채 유동성지원 바이백 확대 시행",
+      "event_type": "TREASURY_BUYBACK",
+      "event_date": "2026-09-09",
+      "impact_until": "2026-11-04",
+      "source_type": "TREASURY",
+      "source_id": "UST_REFUNDING",
+      "source_url": "https://home.treasury.gov/news/press-releases/sb0607",
+      "truth_class": "OFFICIAL_FACT",
+      "status": "VERIFIED",
+      "result_expected_at": "2026-09-09T23:59:59-04:00",
+      "evidence": [
+        {
+          "source_type": "TREASURY",
+          "source_id": "UST_REFUNDING",
+          "claim": "Official forward calendar confirms: 미 재무부 장기채 유동성지원 바이백 확대 시행",
+          "url": "https://home.treasury.gov/news/press-releases/sb0607",
+          "official": true,
+          "attributable": true,
+          "stance": "SUPPORT",
+          "metadata": {
+            "bootstrap_seed_as_of": "2026-08-27",
+            "corroboration_eligible": true
+          }
+        }
+      ]
+    },
+    {
+      "event_id": "OFFICIAL-BLS-CPI-20260911",
+      "title": "미국 8월 소비자물가지수(CPI)",
+      "event_type": "CPI",
+      "event_date": "2026-09-11T08:30:00-04:00",
+      "source_type": "BLS",
+      "source_id": "BLS_RELEASES",
+      "source_url": "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "truth_class": "OFFICIAL_FACT",
+      "status": "VERIFIED",
+      "result_expected_at": "2026-09-11T08:30:00-04:00",
+      "evidence": [
+        {
+          "source_type": "BLS",
+          "source_id": "BLS_RELEASES",
+          "claim": "Official forward calendar confirms: 미국 8월 소비자물가지수(CPI)",
+          "url": "https://www.bls.gov/schedule/news_release/cpi.htm",
+          "official": true,
+          "attributable": true,
+          "stance": "SUPPORT",
+          "metadata": {
+            "bootstrap_seed_as_of": "2026-08-27",
+            "corroboration_eligible": true
+          }
+        }
+      ]
+    },
+    {
+      "event_id": "OFFICIAL-BOJ-MPM-20260917",
+      "title": "일본은행 금융정책결정회의",
+      "event_type": "BOJ",
+      "event_date": "2026-09-17",
+      "estimated_end_date": "2026-09-18",
+      "source_type": "BOJ",
+      "source_id": "BOJ_MPM",
+      "source_url": "https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm",
+      "truth_class": "OFFICIAL_FACT",
+      "status": "VERIFIED",
+      "result_expected_at": "2026-09-18T23:59:59+09:00",
+      "evidence": [
+        {
+          "source_type": "BOJ",
+          "source_id": "BOJ_MPM",
+          "claim": "Official forward calendar confirms: 일본은행 금융정책결정회의",
+          "url": "https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm",
+          "official": true,
+          "attributable": true,
+          "stance": "SUPPORT",
+          "metadata": {
+            "bootstrap_seed_as_of": "2026-08-27",
+            "corroboration_eligible": true
+          }
+        }
+      ]
+    },
+    {
+      "event_id": "OFFICIAL-FED-FOMC-20260915",
+      "title": "9월 FOMC",
+      "event_type": "FOMC",
+      "event_date": "2026-09-15",
+      "estimated_end_date": "2026-09-16",
+      "source_type": "FED",
+      "source_id": "FED_FOMC",
+      "source_url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "truth_class": "OFFICIAL_FACT",
+      "status": "VERIFIED",
+      "result_expected_at": "2026-09-16T23:59:59-04:00",
+      "evidence": [
+        {
+          "source_type": "FED",
+          "source_id": "FED_FOMC",
+          "claim": "Official forward calendar confirms: 9월 FOMC",
+          "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+          "official": true,
+          "attributable": true,
+          "stance": "SUPPORT",
+          "metadata": {
+            "bootstrap_seed_as_of": "2026-08-27",
+            "corroboration_eligible": true
+          }
+        }
+      ]
+    },
+    {
+      "event_id": "OFFICIAL-BEA-PCE-20260930",
+      "title": "미국 8월 개인소득·지출 및 PCE",
+      "event_type": "PCE",
+      "event_date": "2026-09-30T08:30:00-04:00",
+      "source_type": "BEA",
+      "source_id": "BEA_RELEASES",
+      "source_url": "https://www.bea.gov/news/schedule",
+      "truth_class": "OFFICIAL_FACT",
+      "status": "VERIFIED",
+      "result_expected_at": "2026-09-30T08:30:00-04:00",
+      "evidence": [
+        {
+          "source_type": "BEA",
+          "source_id": "BEA_RELEASES",
+          "claim": "Official forward calendar confirms: 미국 8월 개인소득·지출 및 PCE",
+          "url": "https://www.bea.gov/news/schedule",
+          "official": true,
+          "attributable": true,
+          "stance": "SUPPORT",
+          "metadata": {
+            "bootstrap_seed_as_of": "2026-08-27",
+            "corroboration_eligible": true
+          }
+        }
+      ]
+    },
+    {
+      "event_id": "OFFICIAL-FEC-ELECTION-20261103",
+      "title": "미국 중간선거(연방 General Election)",
+      "event_type": "ELECTION",
+      "event_date": "2026-11-03",
+      "source_type": "FEC",
+      "source_id": "FEC_ELECTIONS",
+      "source_url": "https://www.fec.gov/introduction-campaign-finance/election-results-and-voting-information/",
+      "truth_class": "OFFICIAL_FACT",
+      "status": "VERIFIED",
+      "result_expected_at": "2026-11-04T12:00:00-05:00",
+      "evidence": [
+        {
+          "source_type": "FEC",
+          "source_id": "FEC_ELECTIONS",
+          "claim": "Official forward calendar confirms: 미국 중간선거(연방 General Election)",
+          "url": "https://www.fec.gov/introduction-campaign-finance/election-results-and-voting-information/",
+          "official": true,
+          "attributable": true,
+          "stance": "SUPPORT",
+          "metadata": {
+            "bootstrap_seed_as_of": "2026-08-27",
+            "corroboration_eligible": true
+          }
+        }
+      ]
+    },
+    {
+      "event_id": "OFFICIAL-UST-REFUNDING-20261104",
+      "title": "미 재무부 Quarterly Refunding 발표",
+      "event_type": "TREASURY_REFUNDING",
+      "event_date": "2026-11-04",
+      "source_type": "TREASURY",
+      "source_id": "UST_REFUNDING",
+      "source_url": "https://home.treasury.gov/policy-issues/financing-the-government/quarterly-refunding/most-recent-quarterly-refunding-documents",
+      "truth_class": "OFFICIAL_FACT",
+      "status": "VERIFIED",
+      "result_expected_at": "2026-11-04T23:59:59-05:00",
+      "evidence": [
+        {
+          "source_type": "TREASURY",
+          "source_id": "UST_REFUNDING",
+          "claim": "Official forward calendar confirms: 미 재무부 Quarterly Refunding 발표",
+          "url": "https://home.treasury.gov/policy-issues/financing-the-government/quarterly-refunding/most-recent-quarterly-refunding-documents",
+          "official": true,
+          "attributable": true,
+          "stance": "SUPPORT",
+          "metadata": {
+            "bootstrap_seed_as_of": "2026-08-27",
+            "corroboration_eligible": true
+          }
+        }
+      ]
+    }
+  ]
+}

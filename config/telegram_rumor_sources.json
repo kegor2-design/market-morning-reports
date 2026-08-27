@@ -1,0 +1,346 @@
+{
+  "contract": "MMP_TELEGRAM_RUMOR_SOURCE_V1",
+  "version": "1.6.5.1",
+  "enabled": true,
+  "collector": "MTProto via separate Telethon runtime",
+  "max_messages_per_source": 100,
+  "source_registry": "config/source_registry.json",
+  "sources": [
+    {
+      "registry_id": "tg_stockinfojji",
+      "handle": "@stockinfojji",
+      "enabled": true,
+      "tier": "D",
+      "role": "RUMOR_DISCOVERY",
+      "default_source_type": "TELEGRAM",
+      "attributable": false,
+      "corroboration_eligible": false,
+      "independence_group": "stockinfo7_network",
+      "origin_group": "stockinfo7_network",
+      "categories": [
+        "KR_STOCKS",
+        "RUMOR",
+        "THEME",
+        "NEWS"
+      ],
+      "max_messages_per_run": 100
+    },
+    {
+      "registry_id": "tg_jjitalk",
+      "handle": "@jjitalk",
+      "enabled": true,
+      "tier": "D",
+      "role": "AGGREGATOR_DISCOVERY",
+      "default_source_type": "TELEGRAM",
+      "attributable": false,
+      "corroboration_eligible": false,
+      "independence_group": "jjitalk_aggregator",
+      "origin_group": "multi_source_aggregator",
+      "categories": [
+        "KR_STOCKS",
+        "MACRO",
+        "NEWS",
+        "RUMOR"
+      ],
+      "max_messages_per_run": 100
+    },
+    {
+      "registry_id": "tg_stocknews_today",
+      "handle": "@stocknews_today",
+      "enabled": true,
+      "tier": "C",
+      "role": "NEWS_DISCOVERY",
+      "default_source_type": "TELEGRAM",
+      "attributable": false,
+      "corroboration_eligible": false,
+      "independence_group": "stockinfo7_network",
+      "origin_group": "stockinfo7_network",
+      "categories": [
+        "KR_STOCKS",
+        "NEWS",
+        "DISCLOSURE"
+      ],
+      "max_messages_per_run": 100
+    },
+    {
+      "registry_id": "tg_companyreport",
+      "handle": "@companyreport",
+      "enabled": true,
+      "tier": "C",
+      "role": "RESEARCH_AGGREGATOR",
+      "default_source_type": "TELEGRAM",
+      "attributable": false,
+      "corroboration_eligible": false,
+      "independence_group": "stockinfo7_network",
+      "origin_group": "stockinfo7_network",
+      "categories": [
+        "KR_STOCKS",
+        "RESEARCH"
+      ],
+      "max_messages_per_run": 100
+    },
+    {
+      "registry_id": "tg_stockinfo7",
+      "handle": "@stockinfo7",
+      "enabled": true,
+      "tier": "C",
+      "role": "NEWS_DISCOVERY",
+      "default_source_type": "TELEGRAM",
+      "attributable": false,
+      "corroboration_eligible": false,
+      "independence_group": "stockinfo7_network",
+      "origin_group": "stockinfo7_network",
+      "categories": [
+        "KR_STOCKS",
+        "NEWS"
+      ],
+      "max_messages_per_run": 100
+    },
+    {
+      "registry_id": "tg_stockinfodart",
+      "handle": "@stockinfodart",
+      "enabled": true,
+      "tier": "B",
+      "role": "OFFICIAL_MIRROR",
+      "default_source_type": "TELEGRAM",
+      "attributable": false,
+      "corroboration_eligible": false,
+      "independence_group": "stockinfo7_network",
+      "origin_group": "stockinfo7_network",
+      "categories": [
+        "KR_STOCKS",
+        "DISCLOSURE"
+      ],
+      "max_messages_per_run": 100
+    },
+    {
+      "registry_id": "tg_infodart",
+      "handle": "@infodart",
+      "enabled": true,
+      "tier": "B",
+      "role": "OFFICIAL_MIRROR",
+      "default_source_type": "TELEGRAM",
+      "attributable": false,
+      "corroboration_eligible": false,
+      "independence_group": "infodart_mirror",
+      "origin_group": "dart_mirror",
+      "categories": [
+        "KR_STOCKS",
+        "DISCLOSURE"
+      ],
+      "max_messages_per_run": 100
+    },
+    {
+      "registry_id": "tg_pogba9981",
+      "handle": "@pogba9981",
+      "enabled": true,
+      "tier": "D",
+      "role": "RUMOR_DISCOVERY",
+      "default_source_type": "TELEGRAM_ANON",
+      "attributable": false,
+      "corroboration_eligible": true,
+      "independence_group": "pogba9981",
+      "origin_group": "pogba9981",
+      "categories": [
+        "KR_STOCKS",
+        "RUMOR",
+        "THEME"
+      ],
+      "max_messages_per_run": 100
+    },
+    {
+      "registry_id": "tg_newszzang",
+      "handle": "@newszzang",
+      "enabled": true,
+      "tier": "C",
+      "role": "NEWS_DISCOVERY",
+      "default_source_type": "TELEGRAM",
+      "attributable": false,
+      "corroboration_eligible": false,
+      "independence_group": "newszzang",
+      "origin_group": "news_aggregator",
+      "categories": [
+        "KR_STOCKS",
+        "NEWS",
+        "EXCLUSIVE"
+      ],
+      "max_messages_per_run": 100
+    },
+    {
+      "registry_id": "tg_shmstory",
+      "handle": "@shmstory",
+      "enabled": true,
+      "tier": "B",
+      "role": "ATTRIBUTABLE_COMMENTARY",
+      "default_source_type": "TELEGRAM_NAMED",
+      "attributable": true,
+      "corroboration_eligible": true,
+      "independence_group": "shmstory",
+      "origin_group": "shmstory",
+      "categories": [
+        "KR_STOCKS",
+        "US_STOCKS",
+        "MARKET_CONTEXT"
+      ],
+      "max_messages_per_run": 100
+    },
+    {
+      "registry_id": "tg_sksresearch",
+      "handle": "@sksresearch",
+      "enabled": true,
+      "tier": "A",
+      "role": "ATTRIBUTABLE_RESEARCH",
+      "default_source_type": "TELEGRAM_NAMED",
+      "attributable": true,
+      "corroboration_eligible": true,
+      "independence_group": "sk_securities_research",
+      "origin_group": "sk_securities",
+      "categories": [
+        "KR_STOCKS",
+        "MACRO",
+        "SECTOR"
+      ],
+      "max_messages_per_run": 100
+    },
+    {
+      "registry_id": "tg_skitteam",
+      "handle": "@skitteam",
+      "enabled": true,
+      "tier": "A",
+      "role": "ATTRIBUTABLE_RESEARCH",
+      "default_source_type": "TELEGRAM_NAMED",
+      "attributable": true,
+      "corroboration_eligible": true,
+      "independence_group": "sk_securities_research",
+      "origin_group": "sk_securities",
+      "categories": [
+        "SEMICONDUCTOR",
+        "IT",
+        "BATTERY"
+      ],
+      "max_messages_per_run": 100
+    },
+    {
+      "registry_id": "tg_sk_research_asset",
+      "handle": "@SK_Research_Asset",
+      "enabled": true,
+      "tier": "A",
+      "role": "ATTRIBUTABLE_RESEARCH",
+      "default_source_type": "TELEGRAM_NAMED",
+      "attributable": true,
+      "corroboration_eligible": true,
+      "independence_group": "sk_securities_research",
+      "origin_group": "sk_securities",
+      "categories": [
+        "MACRO",
+        "RATES",
+        "FX",
+        "KR_STOCKS"
+      ],
+      "max_messages_per_run": 100
+    },
+    {
+      "registry_id": "tg_hanaresearch",
+      "handle": "@HanaResearch",
+      "enabled": true,
+      "tier": "A",
+      "role": "ATTRIBUTABLE_RESEARCH",
+      "default_source_type": "TELEGRAM_NAMED",
+      "attributable": true,
+      "corroboration_eligible": true,
+      "independence_group": "hana_securities_research",
+      "origin_group": "hana_securities",
+      "categories": [
+        "KR_STOCKS",
+        "GLOBAL_STOCKS",
+        "MACRO",
+        "SECTOR"
+      ],
+      "max_messages_per_run": 100
+    },
+    {
+      "registry_id": "tg_hanachina",
+      "handle": "@hanachina",
+      "enabled": true,
+      "tier": "A",
+      "role": "ATTRIBUTABLE_COMMENTARY",
+      "default_source_type": "TELEGRAM_NAMED",
+      "attributable": true,
+      "corroboration_eligible": true,
+      "independence_group": "hana_securities_research",
+      "origin_group": "hana_securities",
+      "categories": [
+        "CHINA",
+        "EMERGING_MARKETS",
+        "MACRO",
+        "COMMODITIES"
+      ],
+      "max_messages_per_run": 100
+    },
+    {
+      "registry_id": "tg_hanabondview",
+      "handle": "@hanabondview",
+      "enabled": true,
+      "tier": "A",
+      "role": "ATTRIBUTABLE_COMMENTARY",
+      "default_source_type": "TELEGRAM_NAMED",
+      "attributable": true,
+      "corroboration_eligible": true,
+      "independence_group": "hana_securities_research",
+      "origin_group": "hana_securities",
+      "categories": [
+        "RATES",
+        "FX",
+        "FED",
+        "BOK",
+        "MACRO"
+      ],
+      "max_messages_per_run": 100
+    },
+    {
+      "registry_id": "tg_meritz_research",
+      "handle": "@meritz_research",
+      "enabled": true,
+      "tier": "A",
+      "role": "ATTRIBUTABLE_RESEARCH",
+      "default_source_type": "TELEGRAM_NAMED",
+      "attributable": true,
+      "corroboration_eligible": true,
+      "independence_group": "meritz_research",
+      "origin_group": "meritz_securities",
+      "categories": [
+        "KR_STOCKS",
+        "MACRO",
+        "RATES",
+        "SECTOR"
+      ],
+      "max_messages_per_run": 100
+    },
+    {
+      "registry_id": "tg_shinhanresearch",
+      "handle": "@shinhanresearch",
+      "enabled": true,
+      "tier": "A",
+      "role": "ATTRIBUTABLE_RESEARCH",
+      "default_source_type": "TELEGRAM_NAMED",
+      "attributable": true,
+      "corroboration_eligible": true,
+      "independence_group": "shinhan_research",
+      "origin_group": "shinhan_securities",
+      "categories": [
+        "KR_STOCKS",
+        "GLOBAL_STOCKS",
+        "MACRO",
+        "SECTOR"
+      ],
+      "max_messages_per_run": 100
+    }
+  ],
+  "notes": [
+    "Allowlist public channels explicitly; do not auto-discover or scrape private channels.",
+    "Credentials and session files are runtime secrets and are excluded from release packages.",
+    "Collected messages remain unverified source material until Event Intelligence verifies them.",
+    "Global enabled=false is intentional until Telegram API credentials/session are configured.",
+    "Source tier is provenance quality, not accuracy or investment recommendation quality."
+  ]
+}

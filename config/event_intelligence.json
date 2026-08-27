@@ -1,0 +1,437 @@
+{
+  "schema_version": 1,
+  "contract": "MMP_EVENT_INTELLIGENCE_V1",
+  "timezone": "Asia/Seoul",
+  "horizon_days": 180,
+  "critical_horizon_days": 7,
+  "max_calendar_items": 40,
+  "calendar_sources": [
+    {
+      "id": "BLS",
+      "name": "U.S. Bureau of Labor Statistics",
+      "kind": "ICS",
+      "url": "https://www.bls.gov/schedule/news_release/bls.ics",
+      "fallback_url_template": "https://www.bls.gov/schedule/{year}/home.htm",
+      "timezone": "America/New_York",
+      "minimum_items": 1,
+      "enabled": true,
+      "title_rules": [
+        {
+          "contains": "Consumer Price Index",
+          "event_type": "US_CPI",
+          "base_importance": "S+",
+          "korea_relevance": 5
+        },
+        {
+          "contains": "Employment Situation",
+          "event_type": "US_EMPLOYMENT",
+          "base_importance": "S+",
+          "korea_relevance": 5
+        },
+        {
+          "contains": "Producer Price Index",
+          "event_type": "US_PPI",
+          "base_importance": "S",
+          "korea_relevance": 4
+        },
+        {
+          "contains": "Job Openings and Labor Turnover",
+          "event_type": "US_JOLTS",
+          "base_importance": "A",
+          "korea_relevance": 3
+        },
+        {
+          "contains": "Employment Cost Index",
+          "event_type": "US_ECI",
+          "base_importance": "A",
+          "korea_relevance": 3
+        }
+      ]
+    },
+    {
+      "id": "BEA",
+      "name": "U.S. Bureau of Economic Analysis",
+      "kind": "BEA_HTML",
+      "url": "https://www.bea.gov/news/schedule",
+      "timezone": "America/New_York",
+      "enabled": true,
+      "title_rules": [
+        {
+          "contains": "Personal Income and Outlays",
+          "event_type": "US_PCE",
+          "base_importance": "S+",
+          "korea_relevance": 5
+        },
+        {
+          "contains": "GDP",
+          "event_type": "US_GDP",
+          "base_importance": "S",
+          "korea_relevance": 4
+        },
+        {
+          "contains": "International Trade in Goods and Services",
+          "event_type": "US_TRADE",
+          "base_importance": "A",
+          "korea_relevance": 3
+        },
+        {
+          "contains": "International Transactions and Investment Position",
+          "event_type": "US_EXTERNAL",
+          "base_importance": "A",
+          "korea_relevance": 3
+        }
+      ]
+    },
+    {
+      "id": "FED",
+      "name": "Federal Reserve FOMC",
+      "kind": "FED_FOMC_HTML",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "timezone": "America/New_York",
+      "minimum_items": 1,
+      "enabled": true
+    },
+    {
+      "id": "BOK",
+      "name": "Bank of Korea event calendar",
+      "kind": "BOK_HTML_MONTHS",
+      "url_template": "https://www.bok.or.kr/portal/singl/mainEvent/listCldr.do?date={year}-{month:02d}&menuNo=200035",
+      "months_ahead": 6,
+      "timezone": "Asia/Seoul",
+      "enabled": true
+    },
+    {
+      "id": "BOJ",
+      "name": "Bank of Japan Monetary Policy Meetings",
+      "kind": "BOJ_HTML",
+      "url": "https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm",
+      "timezone": "Asia/Tokyo",
+      "enabled": true
+    },
+    {
+      "id": "ECB",
+      "name": "European Central Bank Governing Council",
+      "kind": "ECB_HTML",
+      "url": "https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html",
+      "timezone": "Europe/Berlin",
+      "enabled": true
+    },
+    {
+      "id": "TREASURY", "name": "U.S. Treasury debt management calendar",
+      "kind": "TREASURY_FORWARD_HTML", "url": "https://home.treasury.gov/policy-issues/financing-the-government/quarterly-refunding/most-recent-quarterly-refunding-documents",
+      "timezone": "America/New_York", "enabled": true, "minimum_items": 1, "required": true,
+      "title_rules": [
+        {"contains": "refunding", "name": "U.S. Treasury quarterly refunding", "event_type": "TREASURY_REFUNDING", "base_importance": "S", "korea_relevance": 4},
+        {"contains": "buyback", "name": "U.S. Treasury buyback", "event_type": "TREASURY_BUYBACK", "base_importance": "S", "korea_relevance": 4}
+      ]
+    },
+    {
+      "id": "KC_FED", "name": "Jackson Hole Economic Policy Symposium",
+      "kind": "KC_FED_FORWARD_HTML", "url": "https://www.kansascityfed.org/research/jackson-hole-economic-symposium/",
+      "timezone": "America/Denver", "enabled": true, "minimum_items": 1,
+      "title_rules": [{"contains": "Jackson Hole", "name": "Jackson Hole Economic Policy Symposium", "event_type": "JACKSON_HOLE", "base_importance": "S", "korea_relevance": 4}]
+    },
+    {
+      "id": "CONGRESS", "name": "U.S. Senate legislative schedule",
+      "kind": "CONGRESS_FORWARD_HTML", "url": "https://www.senate.gov/legislative/legislative_home.htm",
+      "timezone": "America/New_York", "enabled": true, "minimum_items": 1, "required": false,
+      "title_rules": [
+        {"contains": "legislative", "name": "U.S. Congress legislative proceeding", "event_type": "REGULATION", "base_importance": "A", "korea_relevance": 3},
+        {"contains": "vote", "name": "U.S. Congress vote", "event_type": "REGULATION", "base_importance": "A", "korea_relevance": 3},
+        {"contains": "hearing", "name": "U.S. Senate scheduled hearing", "event_type": "REGULATION", "base_importance": "B", "korea_relevance": 2},
+        {"contains": "convene", "name": "U.S. Senate floor session", "event_type": "REGULATION", "base_importance": "B", "korea_relevance": 2}
+      ]
+    },
+    {
+      "id": "FEC", "name": "U.S. federal election calendar",
+      "kind": "FEC_FORWARD_HTML", "url": "https://www.fec.gov/introduction-campaign-finance/election-results-and-voting-information/",
+      "timezone": "America/New_York", "enabled": true, "minimum_items": 1,
+      "title_rules": [{"contains": "election", "name": "U.S. federal election", "event_type": "ELECTION", "base_importance": "S", "korea_relevance": 4}]
+    }
+  ],
+  "seed_events": [
+    {
+      "event_id": "FED_FOMC_2026_09",
+      "name": "FOMC 9월 회의 + SEP",
+      "event_type": "FOMC",
+      "country": "US",
+      "scheduled_at_kst": "2026-09-17T03:00:00+09:00",
+      "base_importance": "S+",
+      "korea_relevance": 5,
+      "affected_assets": [
+        "US2Y",
+        "US10Y",
+        "DXY",
+        "USD/KRW",
+        "NASDAQ",
+        "KOSPI"
+      ],
+      "affected_sectors": [
+        "반도체",
+        "성장주",
+        "금융"
+      ],
+      "why_it_matters": "정책금리·점도표·경제전망이 글로벌 할인율과 달러 방향을 동시에 바꿀 수 있습니다.",
+      "korea_transmission": "미국 금리 → 달러/원 → 외국인 수급 → KOSPI 성장주·반도체",
+      "source_id": "FED",
+      "source_url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "source_verified_on": "2026-08-25"
+    },
+    {
+      "event_id": "NVDA_FY27_Q2_2026_08_27",
+      "name": "NVIDIA FY2027 2분기 실적 발표",
+      "event_type": "GLOBAL_EARNINGS",
+      "country": "US",
+      "scheduled_at_kst": "2026-08-27T05:20:00+09:00",
+      "base_importance": "S+",
+      "korea_relevance": 5,
+      "affected_assets": [
+        "NVDA",
+        "SOX",
+        "NASDAQ",
+        "KOSPI"
+      ],
+      "affected_sectors": [
+        "반도체",
+        "HBM",
+        "AI 인프라"
+      ],
+      "affected_symbols": [
+        "005930",
+        "000660"
+      ],
+      "why_it_matters": "AI 데이터센터 수요와 HBM 수요에 대한 가장 직접적인 글로벌 실적 이벤트입니다.",
+      "korea_transmission": "NVIDIA 실적·가이던스 → AI CAPEX/HBM 수요 → SK하이닉스·삼성전자 → KOSPI",
+      "source_id": "NVIDIA_IR",
+      "source_url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Sets-Conference-Call-for-Second-Quarter-Financial-Results/default.aspx",
+      "source_verified_on": "2026-08-25"
+    },
+    {
+      "event_id": "NVDA_FY27_Q2_CALL_2026_08_27",
+      "name": "NVIDIA FY2027 2분기 컨퍼런스콜",
+      "event_type": "GLOBAL_EARNINGS_CALL",
+      "country": "US",
+      "scheduled_at_kst": "2026-08-27T06:00:00+09:00",
+      "base_importance": "S+",
+      "korea_relevance": 5,
+      "affected_assets": [
+        "NVDA",
+        "SOX",
+        "NASDAQ",
+        "KOSPI"
+      ],
+      "affected_sectors": [
+        "반도체",
+        "HBM",
+        "AI 인프라"
+      ],
+      "affected_symbols": [
+        "005930",
+        "000660"
+      ],
+      "why_it_matters": "가이던스·공급 제약·중국 매출·AI 투자 지속성에 대한 경영진 발언을 확인합니다.",
+      "korea_transmission": "경영진 가이던스 → AI 투자 사이클 → 한국 반도체 실적 기대",
+      "source_id": "NVIDIA_IR",
+      "source_url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Sets-Conference-Call-for-Second-Quarter-Financial-Results/default.aspx",
+      "source_verified_on": "2026-08-25"
+    },
+    {
+      "event_id": "BOK_MPC_2026_08_27",
+      "name": "한국은행 금융통화위원회 통화정책방향 결정회의",
+      "event_type": "BOK_MPC",
+      "country": "KR",
+      "scheduled_at_kst": "2026-08-27T10:00:00+09:00",
+      "time_precision": "DATE_CONFIRMED_TIME_OPERATIONAL_DEFAULT",
+      "base_importance": "S+",
+      "korea_relevance": 5,
+      "affected_assets": [
+        "KTB",
+        "USD/KRW",
+        "KOSPI",
+        "KOSDAQ"
+      ],
+      "affected_sectors": [
+        "금융",
+        "건설",
+        "성장주",
+        "내수"
+      ],
+      "why_it_matters": "기준금리와 향후 경로가 원화·채권·부동산·가계신용·주식 할인율에 직접 영향을 줍니다.",
+      "korea_transmission": "한국은행 정책 → 국내 금리/원화 → 외국인·가계 유동성 → KOSPI/KOSDAQ",
+      "source_id": "BOK",
+      "source_url": "https://www.bok.or.kr/portal/singl/mainEvent/listCldr.do?menuNo=200035",
+      "source_verified_on": "2026-08-25"
+    },
+    {
+      "event_id": "JACKSON_HOLE_2026",
+      "name": "Jackson Hole Economic Policy Symposium",
+      "event_type": "CENTRAL_BANK_SYMPOSIUM",
+      "country": "US",
+      "scheduled_at_kst": "2026-08-27T00:00:00+09:00",
+      "end_at_kst": "2026-08-30T00:00:00+09:00",
+      "time_precision": "DATE_RANGE",
+      "base_importance": "S",
+      "korea_relevance": 4,
+      "affected_assets": [
+        "US2Y",
+        "US10Y",
+        "DXY",
+        "NASDAQ",
+        "KOSPI"
+      ],
+      "affected_sectors": [
+        "성장주",
+        "반도체",
+        "금융"
+      ],
+      "why_it_matters": "중앙은행의 정책 반응함수와 금융여건 해석이 바뀔 수 있는 정책 커뮤니케이션 구간입니다.",
+      "korea_transmission": "Fed 정책 기대 → 미국 금리/달러 → 원화와 외국인 수급",
+      "source_id": "KC_FED",
+      "source_url": "https://www.kansascityfed.org/research/jackson-hole-economic-symposium/",
+      "source_verified_on": "2026-08-25"
+    },
+    {
+      "event_id": "FED_WARSH_JH_2026_08_28",
+      "name": "Fed 의장 Kevin Warsh Jackson Hole 기조연설",
+      "event_type": "FED_SPEECH",
+      "country": "US",
+      "scheduled_at_kst": "2026-08-28T23:00:00+09:00",
+      "base_importance": "S+",
+      "korea_relevance": 5,
+      "affected_assets": [
+        "US2Y",
+        "US10Y",
+        "DXY",
+        "NASDAQ",
+        "KOSPI"
+      ],
+      "affected_sectors": [
+        "성장주",
+        "반도체",
+        "금융"
+      ],
+      "why_it_matters": "9월 FOMC를 앞두고 정책 반응함수와 물가·고용 균형에 대한 신호를 확인합니다.",
+      "korea_transmission": "Fed 발언 → 금리 기대/달러 → 원화·외국인 수급 → 국내 성장주",
+      "source_id": "FED_CALENDAR",
+      "source_url": "https://www.federalreserve.gov/newsevents/2026-august.htm",
+      "source_verified_on": "2026-08-25"
+    },
+    {
+      "event_id": "ECB_MPC_2026_09_10",
+      "name": "ECB 통화정책회의 및 기자회견",
+      "event_type": "ECB_MPC",
+      "country": "EU",
+      "scheduled_at_kst": "2026-09-10T21:15:00+09:00",
+      "time_precision": "DATE_CONFIRMED_TIME_ESTIMATED",
+      "base_importance": "A",
+      "korea_relevance": 3,
+      "affected_assets": [
+        "EUR/USD",
+        "DXY",
+        "GLOBAL_RATES"
+      ],
+      "affected_sectors": [
+        "수출주",
+        "성장주"
+      ],
+      "why_it_matters": "유럽 금리 경로가 달러와 글로벌 금리 상대가치에 영향을 줍니다.",
+      "korea_transmission": "ECB 정책 → EUR/USD·DXY → USD/KRW → 한국 수급",
+      "source_id": "ECB",
+      "source_url": "https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html",
+      "source_verified_on": "2026-08-25"
+    },
+    {
+      "event_id": "BOJ_MPM_2026_09_18",
+      "name": "일본은행 금융정책결정회의",
+      "event_type": "BOJ_MPM",
+      "country": "JP",
+      "scheduled_at_kst": "2026-09-18T12:00:00+09:00",
+      "time_precision": "DATE_CONFIRMED_TIME_ESTIMATED",
+      "base_importance": "S",
+      "korea_relevance": 4,
+      "affected_assets": [
+        "USD/JPY",
+        "JGB",
+        "KOSPI"
+      ],
+      "affected_sectors": [
+        "수출주",
+        "금융",
+        "성장주"
+      ],
+      "why_it_matters": "엔화와 캐리 포지션 변화가 글로벌 위험자산 및 한국 외국인 수급에 영향을 줄 수 있습니다.",
+      "korea_transmission": "BOJ 정책 → 엔화/캐리 → 글로벌 레버리지 → 한국 외국인 수급",
+      "source_id": "BOJ",
+      "source_url": "https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm",
+      "source_verified_on": "2026-08-25"
+    }
+  ],
+  "disclosures": {
+    "enabled": true,
+    "provider": "OpenDART",
+    "url": "https://opendart.fss.or.kr/api/list.json",
+    "lookback_calendar_days": 2,
+    "max_pages": 20,
+    "page_count": 100,
+    "corp_classes": [
+      "Y",
+      "K"
+    ],
+    "high_impact_keywords": [
+      "단일판매",
+      "공급계약",
+      "계약해지",
+      "유상증자",
+      "무상증자",
+      "전환사채",
+      "신주인수권부사채",
+      "교환사채",
+      "감자",
+      "합병",
+      "분할",
+      "영업양수",
+      "영업양도",
+      "타법인주식",
+      "자기주식",
+      "최대주주",
+      "경영권",
+      "영업정지",
+      "생산중단",
+      "회생절차",
+      "파산",
+      "횡령",
+      "배임",
+      "소송",
+      "잠정실적",
+      "매출액또는손익구조",
+      "현금배당",
+      "주식배당",
+      "상장폐지",
+      "거래정지"
+    ],
+    "document_url": "https://opendart.fss.or.kr/api/document.xml",
+    "enrich_original_document": true,
+    "max_document_fetches": 8,
+    "detail_excerpt_chars": 2200,
+    "detail_keywords": [
+      "계약금액",
+      "최근매출액",
+      "매출액 대비",
+      "매출액대비",
+      "계약기간",
+      "계약상대",
+      "판매ㆍ공급지역",
+      "영업이익",
+      "당기순이익",
+      "증자방식",
+      "자금조달",
+      "발행가액",
+      "시설투자",
+      "투자금액",
+      "생산중단",
+      "영업정지",
+      "배당금",
+      "배당성향"
+    ]
+  }
+}

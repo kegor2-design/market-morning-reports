@@ -1,0 +1,2 @@
+matplotlib==3.11.1
+xlrd==2.0.2

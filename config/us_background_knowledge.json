@@ -1,0 +1,266 @@
+{
+  "schema_version": 1,
+  "policy": "Mechanics and stated intent are distinct from realized effects. Park Jong-hoon is a high-provisional analytical lens until internal validation matures. Unknown evidence remains UNKNOWN.",
+  "modules": [
+    {
+      "id": "US_FISCAL_CORE",
+      "question": "Can the US finance deficits and debt service without progressively worse funding terms?",
+      "concepts": [
+        "fiscal deficit",
+        "primary balance",
+        "interest burden",
+        "debt held by public",
+        "refinancing wall"
+      ],
+      "metrics": [
+        "federal_debt",
+        "federal_debt_public",
+        "federal_debt_gdp",
+        "federal_deficit_monthly",
+        "primary_deficit",
+        "federal_interest_expense",
+        "federal_receipts_monthly",
+        "federal_outlays_monthly",
+        "average_interest_rate_debt",
+        "average_maturity_debt",
+        "debt_maturity_1y"
+      ],
+      "guardrails": [
+        "A large debt stock alone is not a timing signal.",
+        "Separate debt stock, flow deficit, interest burden and refinancing maturity."
+      ]
+    },
+    {
+      "id": "TREASURY_DEBT_MANAGEMENT",
+      "question": "How is Treasury shifting funding across bills, coupons, auctions and buybacks?",
+      "concepts": [
+        "bill",
+        "note",
+        "bond",
+        "duration supply",
+        "QRA",
+        "auction",
+        "buyback",
+        "cash management"
+      ],
+      "metrics": [
+        "treasury_borrowing_estimate",
+        "tga_target",
+        "treasury_bill_issuance",
+        "treasury_coupon_issuance",
+        "bill_coupon_mix",
+        "treasury_qra",
+        "treasury_buyback",
+        "treasury_auction_quality",
+        "us_2y",
+        "us_10y",
+        "us_20y",
+        "us_30y",
+        "term_premium_10y"
+      ],
+      "guardrails": [
+        "Treasury buyback is not automatically Fed QE.",
+        "Separate liquidity-support buybacks from cash-management buybacks."
+      ]
+    },
+    {
+      "id": "MONEY_MARKET_PLUMBING",
+      "question": "Who can absorb short-term Treasury supply and where are funding-market constraints appearing?",
+      "concepts": [
+        "MMF",
+        "ON RRP",
+        "repo",
+        "SOFR",
+        "IORB",
+        "SRF",
+        "reserves",
+        "TGA"
+      ],
+      "metrics": [
+        "mmf_total_assets",
+        "mmf_tbill",
+        "mmf_treasury",
+        "mmf_repo",
+        "on_rrp",
+        "sofr",
+        "iorb",
+        "sofr_iorb_spread",
+        "srf_usage",
+        "reserve_balances",
+        "tga",
+        "repo_market_volume"
+      ],
+      "guardrails": [
+        "Do not equate ON RRP depletion with net liquidity by itself.",
+        "Check SOFR-IORB, SRF usage, reserves and Treasury cash flows together."
+      ]
+    },
+    {
+      "id": "BANK_TREASURY_CAPACITY",
+      "question": "Can banks/dealers intermediate more Treasury and repo risk?",
+      "concepts": [
+        "SLR",
+        "eSLR",
+        "dealer balance sheet",
+        "Treasury inventory",
+        "repo intermediation"
+      ],
+      "metrics": [
+        "eslr_regime",
+        "bank_treasury_holdings",
+        "primary_dealer_treasury_inventory",
+        "repo_market_volume"
+      ],
+      "guardrails": [
+        "eSLR easing increases capacity; it does not prove banks will buy long Treasuries."
+      ]
+    },
+    {
+      "id": "FED_IMPLEMENTATION",
+      "question": "Is a Fed balance-sheet action QE-like, reserve management, reinvestment, QT adjustment or a funding backstop?",
+      "concepts": [
+        "SOMA",
+        "QE",
+        "QT",
+        "reinvestment",
+        "reserve-management purchases",
+        "SRF",
+        "IORB"
+      ],
+      "metrics": [
+        "fed_total_assets",
+        "fed_treasury_holdings",
+        "fed_mbs_holdings",
+        "reserve_balances",
+        "iorb",
+        "sofr",
+        "srf_usage"
+      ],
+      "guardrails": [
+        "Official classification is stored as official intent/mechanics, not accepted as realized economic effect.",
+        "Judge duration removal, reserves, term premium, real yields, credit spreads and persistence."
+      ]
+    },
+    {
+      "id": "DOLLAR_BACKSTOPS_AND_FOREIGN_DEMAND",
+      "question": "Can foreign holders obtain dollars without disorderly Treasury selling, and is external Treasury demand changing?",
+      "concepts": [
+        "TIC",
+        "FIMA Repo Facility",
+        "swap lines",
+        "foreign official holdings",
+        "reserve currency demand"
+      ],
+      "metrics": [
+        "tic_treasury_flow",
+        "foreign_treasury_holdings_all",
+        "foreign_official_treasury_holdings",
+        "japan_treasury_holdings",
+        "china_treasury_holdings",
+        "fima_usage",
+        "swap_line_usage",
+        "dxy_market",
+        "gold_market",
+        "btc_market"
+      ],
+      "guardrails": [
+        "FIMA availability is not evidence of actual usage.",
+        "Gold/BTC moves are corroborating market signals, not proof of dollar-hegemony decline."
+      ]
+    },
+    {
+      "id": "STABLECOIN_TBILL_CHANNEL",
+      "question": "Is stablecoin growth becoming a meaningful marginal source of T-bill demand?",
+      "concepts": [
+        "stablecoin reserves",
+        "T-bills",
+        "Treasury demand"
+      ],
+      "metrics": [
+        "stablecoin_market_cap",
+        "stablecoin_tbill_holdings",
+        "stablecoin_treasury_demand",
+        "treasury_bill_issuance"
+      ],
+      "guardrails": [
+        "Separate gross stablecoin growth from actual reserve composition and net Treasury demand."
+      ]
+    },
+    {
+      "id": "POLITICAL_FISCAL_CLOCK",
+      "question": "Which election, tax, budget, debt-limit or QRA deadlines can alter policy timing?",
+      "concepts": [
+        "midterm election",
+        "presidential election",
+        "tax dates",
+        "debt limit",
+        "shutdown",
+        "QRA"
+      ],
+      "metrics": [
+        "tax_liquidity_calendar",
+        "debt_limit_shutdown_state",
+        "treasury_qra",
+        "tga",
+        "treasury_borrowing_estimate"
+      ],
+      "guardrails": [
+        "Political timing is a hypothesis unless supported by policy changes around the deadline.",
+        "Never invent debt-limit or shutdown deadlines; require a primary source."
+      ]
+    },
+    {
+      "id": "AI_FINANCING_CHAIN",
+      "question": "Can AI capex and contracted semiconductor demand be financed at prevailing long-term rates?",
+      "concepts": [
+        "AI capex",
+        "credit spread",
+        "refinancing",
+        "project finance",
+        "GPU",
+        "HBM",
+        "bullwhip effect"
+      ],
+      "metrics": [
+        "us_real_10y",
+        "ai_funding_stress",
+        "nvda_market",
+        "coreweave_market",
+        "sox_market",
+        "mu_market"
+      ],
+      "guardrails": [
+        "Backlog or sold-out language is not cash-flow certainty.",
+        "Check financing cost, debt maturities, contract quality, capex and free cash flow."
+      ]
+    },
+    {
+      "id": "REALIZED_EFFECT_VALIDATION",
+      "question": "Did the policy actually create the effect claimed by officials, Park, or our own hypothesis?",
+      "concepts": [
+        "official fact",
+        "official intent",
+        "mechanical effect",
+        "initial reaction",
+        "persistent reaction",
+        "realized effect"
+      ],
+      "metrics": [
+        "us_10y",
+        "us_30y",
+        "us_real_10y",
+        "term_premium_10y",
+        "move",
+        "dxy_market",
+        "gold_market",
+        "btc_market",
+        "vix_market",
+        "sox_market"
+      ],
+      "guardrails": [
+        "Initial market reaction is evidence, not final proof.",
+        "Use T+30M, T+1D, T+5D and T+20D and check competing shocks."
+      ]
+    }
+  ]
+}

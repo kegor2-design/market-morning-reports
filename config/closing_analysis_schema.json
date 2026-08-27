@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "insight_version", "report_date", "as_of_kst", "one_line_diagnosis", "overall_confidence", "market_review", "prediction_evaluations", "news_reactions", "mi_evaluations", "differences", "carry_forward", "missing_data", "invalidation_conditions"],
+  "properties": {
+    "schema_version": {"type": "string", "const": "1.0"},
+    "insight_version": {"type": "string", "minLength": 1},
+    "report_date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "as_of_kst": {"type": "string", "minLength": 1},
+    "one_line_diagnosis": {"type": "string", "minLength": 1},
+    "overall_confidence": {"enum": ["LOW", "MEDIUM", "HIGH"]},
+    "market_review": {"type": "object", "additionalProperties": false, "required": ["facts", "interpretation", "hypothesis"], "properties": {"facts": {"type": "array", "items": {"type": "string"}}, "interpretation": {"type": "array", "items": {"type": "string"}}, "hypothesis": {"type": "array", "items": {"type": "string"}}}},
+    "prediction_evaluations": {"type": "array", "items": {"$ref": "#/$defs/evaluation"}, "maxItems": 12},
+    "news_reactions": {"type": "array", "items": {"$ref": "#/$defs/news"}, "maxItems": 10},
+    "mi_evaluations": {"type": "array", "items": {"$ref": "#/$defs/mi"}, "maxItems": 12},
+    "differences": {"type": "array", "items": {"type": "string"}, "maxItems": 12},
+    "carry_forward": {"type": "array", "items": {"type": "string"}, "minItems": 1, "maxItems": 12},
+    "missing_data": {"type": "array", "items": {"type": "string"}, "minItems": 1, "maxItems": 20},
+    "invalidation_conditions": {"type": "array", "items": {"type": "string"}, "minItems": 1, "maxItems": 12}
+  },
+  "$defs": {
+    "evaluation": {"type": "object", "additionalProperties": false, "required": ["prediction", "result", "evidence", "lesson"], "properties": {"prediction": {"type": "string", "minLength": 1}, "result": {"enum": ["HIT", "PARTIAL_HIT", "MISS", "NOT_EVALUABLE"]}, "evidence": {"type": "string", "minLength": 1}, "lesson": {"type": "string", "minLength": 1}}},
+    "news": {"type": "object", "additionalProperties": false, "required": ["issue", "expected", "actual", "judgment", "source_urls"], "properties": {"issue": {"type": "string", "minLength": 1}, "expected": {"type": "string", "minLength": 1}, "actual": {"type": "string", "minLength": 1}, "judgment": {"enum": ["CONFIRMED", "PARTIAL", "CONTRADICTED", "UNKNOWN"]}, "source_urls": {"type": "array", "items": {"type": "string"}}}},
+    "mi": {"type": "object", "additionalProperties": false, "required": ["principle_id", "result", "evidence", "update"], "properties": {"principle_id": {"type": "string", "pattern": "^MI-[0-9]{3}$"}, "result": {"enum": ["SUPPORTED", "LIMITED", "CONTRADICTED", "NOT_EVALUABLE"]}, "evidence": {"type": "string", "minLength": 1}, "update": {"type": "string", "minLength": 1}}}
+  }
+}

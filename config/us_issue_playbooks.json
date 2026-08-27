@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "source_policy": {
+    "park_jong_hoon_weight": "HIGH_PROVISIONAL",
+    "rule": "Park Jong-hoon's repeated hypotheses are high-priority working hypotheses until the internal validation framework matures. Official sources verify mechanics and stated intent; realized effects are judged by balance-sheet changes, market reaction, persistence, and later data.",
+    "statuses": [
+      "UNKNOWN",
+      "SUPPORTED",
+      "PARTIAL",
+      "REJECTED"
+    ]
+  },
+  "playbooks": [
+    {
+      "id": "US_TREASURY_STRESS",
+      "questions": [
+        "Why are long yields moving now?",
+        "Who is the marginal buyer?",
+        "Is the pressure policy-rate expectations or term/duration supply?",
+        "What policy tools can absorb or shift the pressure?"
+      ],
+      "required_metrics": [
+        "us_2y",
+        "us_10y",
+        "us_20y",
+        "us_30y",
+        "us_real_10y",
+        "term_premium_10y",
+        "move",
+        "treasury_auction_quality",
+        "tga",
+        "on_rrp",
+        "mmf_total_assets",
+        "mmf_tbill",
+        "federal_deficit_monthly",
+        "federal_outlays_monthly",
+        "treasury_borrowing_estimate",
+        "bill_coupon_mix",
+        "primary_dealer_treasury_inventory",
+        "bank_treasury_holdings",
+        "sofr_iorb_spread"
+      ],
+      "policy_tools": [
+        "TREASURY_BUYBACK",
+        "QRA",
+        "BILL_COUPON_MIX",
+        "ESLR",
+        "SRF",
+        "FIMA"
+      ],
+      "causal_paths": [
+        "fiscal_deficit -> treasury_supply -> duration_supply -> term_premium -> long_yield",
+        "buyback_or_maturity_shift -> long_duration_supply_relief -> long_yield_relief"
+      ],
+      "invalidation": [
+        "auction quality normalizes",
+        "term premium falls persistently",
+        "long real yields normalize without policy support"
+      ],
+      "knowledge_modules": [
+        "US_FISCAL_CORE",
+        "TREASURY_DEBT_MANAGEMENT",
+        "MONEY_MARKET_PLUMBING",
+        "BANK_TREASURY_CAPACITY",
+        "REALIZED_EFFECT_VALIDATION"
+      ]
+    },
+    {
+      "id": "TREASURY_BUYBACK",
+      "questions": [
+        "Why now?",
+        "Liquidity support or cash management?",
+        "Does it remove meaningful duration or only improve off-the-run liquidity?",
+        "How is it financed?",
+        "Does relief persist beyond announcement day?"
+      ],
+      "required_metrics": [
+        "treasury_buyback",
+        "us_10y",
+        "us_20y",
+        "us_30y",
+        "us_real_10y",
+        "term_premium_10y",
+        "move",
+        "tga",
+        "on_rrp",
+        "mmf_tbill",
+        "dxy_market",
+        "gold_market",
+        "btc_market",
+        "treasury_borrowing_estimate",
+        "bill_coupon_mix",
+        "tga_target"
+      ],
+      "park_hypothesis": "Treasury can use buybacks and maturity composition as a policy-adjacent tool to suppress long-end stress, potentially with political timing.",
+      "verify_windows": [
+        "T+30M",
+        "T+1D",
+        "T+5D",
+        "T+20D"
+      ],
+      "invalidation": [
+        "long yields fully retrace within 1-5 sessions",
+        "auction stress remains or worsens",
+        "term premium does not improve"
+      ],
+      "knowledge_modules": [
+        "TREASURY_DEBT_MANAGEMENT",
+        "MONEY_MARKET_PLUMBING",
+        "POLITICAL_FISCAL_CLOCK",
+        "REALIZED_EFFECT_VALIDATION"
+      ]
+    },
+    {
+      "id": "US_MONEY_MARKET_PLUMBING",
+      "questions": [
+        "Where does marginal short-term funding come from?",
+        "Can MMFs absorb more bills?",
+        "Is ON RRP still a buffer?",
+        "Are repo markets forcing Fed backstops?"
+      ],
+      "required_metrics": [
+        "sofr",
+        "iorb",
+        "on_rrp",
+        "reserve_balances",
+        "srf_usage",
+        "mmf_total_assets",
+        "mmf_tbill",
+        "mmf_treasury",
+        "tga",
+        "sofr_iorb_spread",
+        "mmf_repo",
+        "repo_market_volume",
+        "primary_dealer_treasury_inventory",
+        "eslr_regime"
+      ],
+      "policy_tools": [
+        "SRF",
+        "IORB",
+        "ON_RRP",
+        "BILL_ISSUANCE",
+        "ESLR"
+      ],
+      "invalidation": [
+        "SOFR-IORB remains contained",
+        "SRF usage stays negligible",
+        "reserves remain ample"
+      ],
+      "knowledge_modules": [
+        "MONEY_MARKET_PLUMBING",
+        "BANK_TREASURY_CAPACITY",
+        "FED_IMPLEMENTATION"
+      ]
+    },
+    {
+      "id": "USD_HEGEMONY",
+      "questions": [
+        "Can the US continue funding externally at acceptable yields?",
+        "Are foreign official buyers reducing Treasury exposure?",
+        "Are dollar backstops such as FIMA or swap lines being used?",
+        "Do gold/BTC/dollar reactions signal credibility stress or ordinary risk positioning?"
+      ],
+      "required_metrics": [
+        "foreign_treasury_holdings_all",
+        "tic_treasury_flow",
+        "fima_usage",
+        "us_10y",
+        "us_30y",
+        "us_real_10y",
+        "us_be_10y",
+        "dxy_market",
+        "gold_market",
+        "btc_market",
+        "foreign_official_treasury_holdings",
+        "swap_line_usage",
+        "stablecoin_tbill_holdings"
+      ],
+      "policy_tools": [
+        "FIMA",
+        "SWAP_LINES",
+        "TREASURY_ISSUANCE_MIX",
+        "STABLECOIN_TBILL_DEMAND"
+      ],
+      "invalidation": [
+        "foreign demand strengthens",
+        "dollar remains firm while real yields normalize",
+        "FIMA/swap usage remains negligible"
+      ],
+      "knowledge_modules": [
+        "DOLLAR_BACKSTOPS_AND_FOREIGN_DEMAND",
+        "STABLECOIN_TBILL_CHANNEL",
+        "US_FISCAL_CORE",
+        "REALIZED_EFFECT_VALIDATION"
+      ]
+    },
+    {
+      "id": "AI_FINANCING",
+      "questions": [
+        "Who finances AI capex?",
+        "What is the refinancing wall?",
+        "Are spreads and interest burdens rising faster than operating cash flow?",
+        "Are contracted GPU/HBM orders financially durable?"
+      ],
+      "required_metrics": [
+        "us_real_10y",
+        "ai_funding_stress",
+        "sox_market",
+        "nvda_market",
+        "mu_market",
+        "coreweave_market"
+      ],
+      "causal_paths": [
+        "long_real_yield -> ai_funding_cost -> datacenter_capex -> gpu_orders -> hbm_orders -> korea_semiconductor"
+      ],
+      "invalidation": [
+        "credit spreads tighten",
+        "refinancing clears at sustainable cost",
+        "capex and FCF improve together"
+      ],
+      "knowledge_modules": [
+        "AI_FINANCING_CHAIN",
+        "US_FISCAL_CORE",
+        "REALIZED_EFFECT_VALIDATION"
+      ]
+    },
+    {
+      "id": "POLITICAL_LIQUIDITY_CLOCK",
+      "questions": [
+        "What political deadline is approaching?",
+        "Which policy levers can operate before that date?",
+        "Does policy materially change after the deadline?"
+      ],
+      "required_events": [
+        "US_POLITICS",
+        "TREASURY_QRA",
+        "FOMC",
+        "US_TAX",
+        "DEBT_LIMIT_SHUTDOWN"
+      ],
+      "park_hypothesis": "Election and fiscal calendars can influence the timing and choice of market-stabilization tools.",
+      "invalidation": [
+        "policy remains unchanged after political deadline",
+        "official financing needs explain timing without additional political evidence"
+      ],
+      "knowledge_modules": [
+        "POLITICAL_FISCAL_CLOCK",
+        "TREASURY_DEBT_MANAGEMENT",
+        "REALIZED_EFFECT_VALIDATION"
+      ]
+    }
+  ]
+}

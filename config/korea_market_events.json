@@ -1,0 +1,10 @@
+[
+  {"start_date":"1997-11-21","end_date":"1998-12-31","title_ko":"외환위기와 IMF 구제금융","event_type":"RANGE","source_url":"https://www.imf.org/en/News/Articles/2015/09/14/01/49/pr9755"},
+  {"start_date":"2000-03-10","end_date":"2001-09-30","title_ko":"닷컴 버블 붕괴","event_type":"RANGE","source_url":"https://www.federalreservehistory.org/essays/stock-market-crash-of-2001"},
+  {"start_date":"2003-03-14","end_date":"2003-03-14","title_ko":"SK글로벌 분식회계·카드채 불안","event_type":"POINT","source_url":"https://www.imf.org/external/pubs/ft/scr/2003/cr03232.pdf"},
+  {"start_date":"2008-09-15","end_date":"2009-03-31","title_ko":"글로벌 금융위기","event_type":"RANGE","source_url":"https://www.federalreservehistory.org/essays/lehman-brothers-files-for-bankruptcy"},
+  {"start_date":"2011-08-05","end_date":"2011-10-31","title_ko":"미국 신용등급 강등·유럽 재정위기","event_type":"RANGE","source_url":"https://www.gao.gov/products/gao-12-701"},
+  {"start_date":"2020-02-20","end_date":"2020-04-30","title_ko":"코로나19 팬데믹 충격","event_type":"RANGE","source_url":"https://www.who.int/director-general/speeches/detail/who-director-general-s-opening-remarks-at-the-media-briefing-on-covid-19---11-march-2020"},
+  {"start_date":"2022-02-24","end_date":"2022-10-31","title_ko":"러시아의 우크라이나 침공·글로벌 긴축","event_type":"RANGE","source_url":"https://www.un.org/press/en/2022/ga12407.doc.htm"},
+  {"start_date":"2024-12-03","end_date":"2025-04-04","title_ko":"비상계엄 선포 이후 정치 불확실성","event_type":"RANGE","source_url":"https://www.reuters.com/world/asia-pacific/south-koreas-president-yoon-declares-martial-law-2024-12-03/"}
+]

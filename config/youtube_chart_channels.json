@@ -1,0 +1,179 @@
+{
+  "schema_version": "1.0",
+  "pilot_policy": {
+    "mode": "SHADOW_ONLY",
+    "publish_to_morning_brief": false,
+    "default_lookback_days": 1,
+    "standard_forward_bars": [
+      1,
+      5,
+      20,
+      60
+    ]
+  },
+  "channels": [
+    {
+      "id": "park_chart_center",
+      "name": "박병창의 증시연구소",
+      "collection_url": "https://www.youtube.com/playlist?list=PLPaCRCTZ9Zg8",
+      "language": "ko",
+      "subtitle_languages": [
+        "ko-orig"
+      ],
+      "enabled": true,
+      "role": "KOREA_MARKET_CHART",
+      "validation_status": "PILOT"
+    },
+    {
+      "id": "alphatrends",
+      "name": "Brian Shannon / AlphaTrends",
+      "collection_url": "https://www.youtube.com/@alphatrends/videos",
+      "language": "en",
+      "subtitle_languages": [
+        "en-orig",
+        "en",
+        "ko"
+      ],
+      "enabled": true,
+      "role": "VWAP_MARKET_STRUCTURE",
+      "validation_status": "PILOT"
+    },
+    {
+      "id": "cmt_association",
+      "name": "CMT Association",
+      "collection_url": "https://www.youtube.com/@CMTAssociation/videos",
+      "language": "en",
+      "subtitle_languages": [
+        "en-orig",
+        "en",
+        "ko"
+      ],
+      "enabled": false,
+      "role": "TECHNICAL_ANALYSIS_REFERENCE",
+      "validation_status": "CANDIDATE"
+    },
+    {
+      "id": "stockcharts_tv",
+      "name": "StockCharts TV",
+      "collection_url": "https://www.youtube.com/@StockChartsTV/videos",
+      "language": "en",
+      "subtitle_languages": [
+        "en-orig",
+        "en",
+        "ko"
+      ],
+      "enabled": false,
+      "role": "MULTI_METHOD_CHART",
+      "validation_status": "CANDIDATE"
+    },
+    {
+      "id": "investors_business_daily",
+      "name": "Investor's Business Daily",
+      "collection_url": "https://www.youtube.com/@investorsbusinessdaily/videos",
+      "language": "en",
+      "subtitle_languages": [
+        "en-orig",
+        "en",
+        "ko"
+      ],
+      "enabled": false,
+      "role": "MARKET_TREND_REFERENCE",
+      "validation_status": "CANDIDATE"
+    },
+    {
+      "id": "kpunch",
+      "name": "박종훈의 지식한방",
+      "collection_url": "https://www.youtube.com/@kpunch/videos",
+      "language": "ko",
+      "subtitle_languages": [
+        "ko-orig",
+        "ko"
+      ],
+      "enabled": false,
+      "role": "MACRO_POLICY_PRIMARY_HYPOTHESIS",
+      "validation_status": "ON_DEMAND_CANDIDATE"
+    },
+    {
+      "id": "chesley",
+      "name": "체슬리 투자",
+      "collection_url": "https://www.youtube.com/@chesleytv/videos",
+      "language": "ko",
+      "subtitle_languages": [
+        "ko-orig",
+        "ko"
+      ],
+      "enabled": false,
+      "role": "MID_LONG_TERM_MARKET_LENS",
+      "validation_status": "ON_DEMAND_CANDIDATE"
+    },
+    {
+      "id": "ap_investment",
+      "name": "AP 투자연구",
+      "collection_url": "https://www.youtube.com/@ap5798/videos",
+      "language": "ko",
+      "subtitle_languages": [
+        "ko-orig",
+        "ko"
+      ],
+      "enabled": false,
+      "role": "PRICE_LEVEL_OPEN_MARKET_LENS",
+      "validation_status": "ON_DEMAND_CANDIDATE"
+    },
+    {
+      "id": "plainbagel",
+      "name": "The Plain Bagel",
+      "collection_url": "https://www.youtube.com/@ThePlainBagel/videos",
+      "language": "en",
+      "subtitle_languages": [
+        "en-orig",
+        "en",
+        "ko"
+      ],
+      "enabled": false,
+      "role": "FINANCIAL_EDUCATION_COUNTERVIEW",
+      "validation_status": "ON_DEMAND_CANDIDATE"
+    },
+    {
+      "id": "smb_capital",
+      "name": "SMB Capital",
+      "collection_url": "https://www.youtube.com/@smbcapital/videos",
+      "language": "en",
+      "subtitle_languages": [
+        "en-orig",
+        "en",
+        "ko"
+      ],
+      "enabled": false,
+      "role": "INTRADAY_PRICE_ACTION_PLAYBOOK_REFERENCE",
+      "validation_status": "ON_DEMAND_CANDIDATE"
+    },
+    {
+      "id": "traderlion",
+      "name": "TraderLion",
+      "collection_url": "https://www.youtube.com/@TraderLion/videos",
+      "language": "en",
+      "subtitle_languages": [
+        "en-orig",
+        "en",
+        "ko"
+      ],
+      "enabled": false,
+      "role": "GROWTH_STOCK_TECHNICAL_PLAYBOOK_REFERENCE",
+      "validation_status": "ON_DEMAND_CANDIDATE"
+    },
+    {
+      "id": "rayner_teo",
+      "name": "Rayner Teo",
+      "collection_url": "https://www.youtube.com/@tradingwithrayner/videos",
+      "language": "en",
+      "subtitle_languages": [
+        "en-orig",
+        "en",
+        "ko"
+      ],
+      "enabled": false,
+      "role": "PRICE_ACTION_RISK_MANAGEMENT_REFERENCE",
+      "validation_status": "ON_DEMAND_CANDIDATE"
+    }
+  ]
+}

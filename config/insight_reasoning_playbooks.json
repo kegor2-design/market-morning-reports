@@ -1,0 +1,349 @@
+{
+  "schema_version": "1.0",
+  "standard_reasoning_steps": [
+    {
+      "step": 1,
+      "id": "EVENT_FACT",
+      "question": "무슨 일이 발생했는가? 확인된 사실과 주장/해석을 분리한다."
+    },
+    {
+      "step": 2,
+      "id": "SURPRISE",
+      "question": "사전 기대와 무엇이 달랐는가?"
+    },
+    {
+      "step": 3,
+      "id": "WHY_NOW",
+      "question": "왜 지금 발생했는가? 직전 상태 변화와 병목을 찾는다."
+    },
+    {
+      "step": 4,
+      "id": "CONSTRAINT",
+      "question": "정치·제도·재정·기업의 제약조건과 마감시간은 무엇인가?"
+    },
+    {
+      "step": 5,
+      "id": "MONEY_SOURCE",
+      "question": "돈은 어디서 오는가? 세금·부채·현금·신용·통화 중 무엇인가?"
+    },
+    {
+      "step": 6,
+      "id": "MARGINAL_BUYER",
+      "question": "추가 물량의 marginal buyer는 누구이며 capacity가 남아 있는가?"
+    },
+    {
+      "step": 7,
+      "id": "BALANCE_SHEET",
+      "question": "어느 주체의 자산·부채·담보·레버리지가 어떻게 변하는가?"
+    },
+    {
+      "step": 8,
+      "id": "FUNDAMENTALS",
+      "question": "매출·이익·EPS·현금흐름이 실제로 바뀌는가?"
+    },
+    {
+      "step": 9,
+      "id": "INDUSTRY_CYCLE",
+      "question": "재고·출하·ASP·가동률·수주·CAPEX는 어느 사이클인가?"
+    },
+    {
+      "step": 10,
+      "id": "VALUATION",
+      "question": "현재 가격은 미래 이익 변화와 비교해 얼마나 반영했는가?"
+    },
+    {
+      "step": 11,
+      "id": "POSITIONING",
+      "question": "누가 사고팔고 있으며 헤지·레버리지·강제청산이 있는가?"
+    },
+    {
+      "step": 12,
+      "id": "BREADTH",
+      "question": "지수 움직임을 시장 전체가 동의하는가?"
+    },
+    {
+      "step": 13,
+      "id": "CHART_CONFIRMATION",
+      "question": "차트와 가격행동이 가설을 확인하는가? 차트는 단독 결론이 아니라 증거다."
+    },
+    {
+      "step": 14,
+      "id": "HISTORY",
+      "question": "당시 알 수 있었던 정보 기준으로 가장 유사한 역사 사례는 무엇이며 차이는 무엇인가?"
+    },
+    {
+      "step": 15,
+      "id": "ALTERNATIVES",
+      "question": "서로 독립적인 대안 가설을 최소 2개 만든다."
+    },
+    {
+      "step": 16,
+      "id": "SCENARIOS",
+      "question": "BASE/BULL/BEAR 시나리오와 전환조건을 정의한다."
+    },
+    {
+      "step": 17,
+      "id": "INVALIDATION",
+      "question": "어떤 데이터가 나오면 현재 가설을 폐기하거나 수정해야 하는가?"
+    },
+    {
+      "step": 18,
+      "id": "REACTION",
+      "question": "T+30M/D+1/D+5/D+20 시장반응과 지속성을 확인한다."
+    },
+    {
+      "step": 19,
+      "id": "KR_TRANSMISSION",
+      "question": "환율·외국인 현선물·산업·기업이익을 통해 한국에 어떻게 전달되는가?"
+    },
+    {
+      "step": 20,
+      "id": "LEARN",
+      "question": "결과를 Hypothesis Ledger·Historical Case·Metric Registry·Playbook에 다시 반영한다."
+    }
+  ],
+  "playbooks": [
+    {
+      "id": "GENERAL_EVENT_REASONING",
+      "triggers": [],
+      "tags": [
+        "GENERAL"
+      ],
+      "questions": [
+        "가격이 먼저 움직였다는 이유로 사후 서사를 만들고 있지 않은가?",
+        "공식 설명·전문가 가설·우리 판단을 분리했는가?"
+      ],
+      "required_metrics": []
+    },
+    {
+      "id": "TREASURY_FUNDING",
+      "triggers": [
+        "TREASURY",
+        "BUYBACK",
+        "QRA",
+        "BOND",
+        "YIELD",
+        "국채",
+        "바이백"
+      ],
+      "tags": [
+        "TREASURY",
+        "FISCAL",
+        "LIQUIDITY"
+      ],
+      "questions": [
+        "장기금리 변화가 정책금리 기대인가 term premium인가?",
+        "추가 국채를 누가 사는가?",
+        "조달 부담을 다른 만기로 옮긴 것인가?"
+      ],
+      "required_metrics": [
+        "us_10y",
+        "us_30y",
+        "us_real_10y",
+        "term_premium_10y",
+        "move",
+        "treasury_auction_quality",
+        "treasury_borrowing_estimate",
+        "bill_coupon_mix",
+        "tga",
+        "on_rrp",
+        "mmf_tbill",
+        "sofr_iorb_spread"
+      ]
+    },
+    {
+      "id": "DOLLAR_HEGEMONY",
+      "triggers": [
+        "DOLLAR",
+        "USD",
+        "FIMA",
+        "TIC",
+        "달러",
+        "엔화",
+        "위안"
+      ],
+      "tags": [
+        "USD",
+        "TREASURY",
+        "FX"
+      ],
+      "questions": [
+        "해외 달러 수요와 미국채 수요가 함께 약해지는가?",
+        "FIMA/swap line 같은 안전판이 작동하는가?"
+      ],
+      "required_metrics": [
+        "tic_treasury_flow",
+        "fima_usage",
+        "usd_reserve_share",
+        "central_bank_gold_purchase",
+        "us_30y"
+      ]
+    },
+    {
+      "id": "POLITICAL_ECONOMY",
+      "triggers": [
+        "ELECTION",
+        "MIDTERM",
+        "SHUTDOWN",
+        "DEBT LIMIT",
+        "선거",
+        "예산",
+        "관세"
+      ],
+      "tags": [
+        "POLITICS",
+        "FISCAL"
+      ],
+      "questions": [
+        "정책 당국이 언제까지 버텨야 하는가?",
+        "경제적으로 최적이 아닌 정치적으로 가능한 선택은 무엇인가?"
+      ],
+      "required_metrics": [
+        "federal_deficit_monthly",
+        "federal_interest_expense",
+        "treasury_borrowing_estimate"
+      ]
+    },
+    {
+      "id": "EARNINGS_VALUATION",
+      "triggers": [
+        "EARNINGS",
+        "EPS",
+        "VALUATION",
+        "PER",
+        "PBR",
+        "실적",
+        "이익",
+        "밸류"
+      ],
+      "tags": [
+        "EARNINGS",
+        "VALUATION"
+      ],
+      "questions": [
+        "가격 변화만큼 Forward EPS가 변했는가?",
+        "이익추정 revision breadth가 같은 방향인가?",
+        "역사적 valuation percentile은 어디인가?"
+      ],
+      "required_metrics": [
+        "forward_eps_kospi_12m",
+        "earnings_revision_breadth_kospi",
+        "earnings_surprise_breadth_sp500",
+        "forward_per_kospi",
+        "forward_pbr_kospi"
+      ]
+    },
+    {
+      "id": "FLOW_POSITIONING",
+      "triggers": [
+        "FOREIGN",
+        "FUTURES",
+        "OPTION",
+        "PROGRAM",
+        "MARGIN",
+        "외국인",
+        "선물",
+        "옵션",
+        "반대매매",
+        "신용"
+      ],
+      "tags": [
+        "FLOW",
+        "POSITIONING",
+        "DELEVERAGING"
+      ],
+      "questions": [
+        "현물·선물·옵션이 같은 방향인가?",
+        "하락이 구조적 펀더멘털 변화인가 강제청산인가?"
+      ],
+      "required_metrics": [
+        "foreign_cash_flow_kospi",
+        "foreign_kospi200_futures_net",
+        "foreign_options_position",
+        "program_net_flow",
+        "margin_credit_kr",
+        "forced_liquidation_kr",
+        "investor_deposits_kr",
+        "trading_value_kr"
+      ]
+    },
+    {
+      "id": "MARKET_BREADTH",
+      "triggers": [
+        "BREADTH",
+        "ADVANCE",
+        "DECLINE",
+        "상승종목",
+        "하락종목",
+        "시장 폭"
+      ],
+      "tags": [
+        "BREADTH"
+      ],
+      "questions": [
+        "지수 방향과 상승종목 비율이 일치하는가?",
+        "소수 대형주만 지수를 끌고 있는가?"
+      ],
+      "required_metrics": [
+        "breadth_advance_pct_kr",
+        "breadth_above_60dma_kr",
+        "breadth_new_high_low_kr"
+      ]
+    },
+    {
+      "id": "INDUSTRY_CYCLE",
+      "triggers": [
+        "INVENTORY",
+        "ASP",
+        "UTILIZATION",
+        "EXPORT",
+        "SEMICONDUCTOR",
+        "HBM",
+        "재고",
+        "가동률",
+        "수출",
+        "반도체"
+      ],
+      "tags": [
+        "INDUSTRY",
+        "SEMICONDUCTOR"
+      ],
+      "questions": [
+        "재고가 줄면서 ASP와 출하가 개선되는가?",
+        "수요 증가가 신규 수주와 가동률로 전환되는가?"
+      ],
+      "required_metrics": [
+        "semiconductor_inventory_sales",
+        "dram_asp",
+        "semiconductor_utilization",
+        "hbm_backlog",
+        "semiconductor_export_10day"
+      ]
+    },
+    {
+      "id": "AI_FINANCING",
+      "triggers": [
+        "AI",
+        "NVIDIA",
+        "COREWEAVE",
+        "GPU",
+        "HBM"
+      ],
+      "tags": [
+        "AI",
+        "CREDIT",
+        "SEMICONDUCTOR"
+      ],
+      "questions": [
+        "AI CAPEX의 최종 자금원은 영업현금인가 부채인가?",
+        "차환금리 상승이 GPU/HBM 주문에 언제 전달되는가?"
+      ],
+      "required_metrics": [
+        "us_real_10y",
+        "us_30y",
+        "hbm_backlog",
+        "semiconductor_export_10day"
+      ]
+    }
+  ]
+}

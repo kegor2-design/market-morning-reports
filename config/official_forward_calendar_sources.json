@@ -1,0 +1,16 @@
+{
+  "version": "1.6.5.6",
+  "lookahead_days": 365,
+  "coverage_fail_if_required_source_has_zero_future_events": true,
+  "sources": [
+    {"source_id":"FED_FOMC","source_type":"FED","required":true,"freshness_hours":168,"url":"https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm","event_types":["FOMC","FOMC_MINUTES"]},
+    {"source_id":"BOK_MPB","source_type":"BOK","required":true,"freshness_hours":336,"url":"https://www.bok.or.kr/portal/bbs/B0000502/view.do?menuNo=200690&nttId=10094300","event_types":["BOK"]},
+    {"source_id":"BLS_RELEASES","source_type":"BLS","required":true,"freshness_hours":72,"url":"https://www.bls.gov/schedule/2026/home.htm","calendar_url":"https://www.bls.gov/schedule/news_release/bls.ics","event_types":["CPI","PPI","NFP","JOLTS","ECI"]},
+    {"source_id":"BEA_RELEASES","source_type":"BEA","required":true,"freshness_hours":72,"url":"https://www.bea.gov/news/schedule","event_types":["PCE","GDP","TRADE"]},
+    {"source_id":"UST_REFUNDING","source_type":"TREASURY","required":true,"freshness_hours":72,"url":"https://home.treasury.gov/policy-issues/financing-the-government/quarterly-refunding/most-recent-quarterly-refunding-documents","event_types":["TREASURY_REFUNDING","TREASURY_BUYBACK","TREASURY_AUCTION"]},
+    {"source_id":"ECB_MPOL","source_type":"ECB","required":true,"freshness_hours":336,"url":"https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html","event_types":["ECB"]},
+    {"source_id":"BOJ_MPM","source_type":"BOJ","required":true,"freshness_hours":336,"url":"https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm","event_types":["BOJ"]},
+    {"source_id":"KC_JACKSON_HOLE","source_type":"KANSASCITYFED","required":false,"freshness_hours":336,"url":"https://www.kansascityfed.org/research/jackson-hole-economic-symposium/jackson-hole-faqs/","event_types":["JACKSON_HOLE"]},
+    {"source_id":"FEC_ELECTIONS","source_type":"FEC","required":false,"freshness_hours":336,"url":"https://www.fec.gov/introduction-campaign-finance/election-results-and-voting-information/","event_types":["ELECTION"]}
+  ]
+}

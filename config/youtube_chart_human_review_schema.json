@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://market-morning.local/schemas/youtube-chart-human-review-1.0.json",
+  "title": "Human review for a YouTube chart claim",
+  "type": "object",
+  "required": ["review_version", "source_claim_id", "review_status", "claim_type"],
+  "properties": {
+    "review_version": {"type": "string", "const": "1.0"},
+    "source_claim_id": {"type": "string", "pattern": "^YTC-[A-F0-9]{20}$"},
+    "review_status": {"enum": ["PENDING", "CONFIRMED", "REJECTED"]},
+    "claim_type": {"enum": ["DESCRIPTION", "FORECAST", "ACTION_RULE", "CONDITION", "MIXED", "UNKNOWN"]},
+    "asset_symbol": {"type": ["string", "null"]},
+    "timeframe": {"type": ["string", "null"]},
+    "direction": {"enum": ["LONG", "SHORT", "NEUTRAL"]},
+    "target_price": {"type": ["number", "null"], "exclusiveMinimum": 0},
+    "invalidation_price": {"type": ["number", "null"], "exclusiveMinimum": 0},
+    "pattern_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "reviewer": {"type": ["string", "null"]},
+    "reviewed_at": {"type": ["string", "null"], "format": "date-time"},
+    "notes": {"type": ["string", "null"]}
+  },
+  "additionalProperties": true
+}

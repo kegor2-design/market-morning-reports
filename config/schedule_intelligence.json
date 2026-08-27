@@ -1,0 +1,20 @@
+{
+  "contract": "MMP_SCHEDULE_DISCOVERY_V1",
+  "enabled": true,
+  "lookback_days_for_active_event_discovery": 90,
+  "forward_calendar_days": 180,
+  "extract_from": ["NEWS", "YOUTUBE", "YOUTUBE_EXPERT", "TELEGRAM", "TELEGRAM_NAMED", "TELEGRAM_ANON"],
+  "official_validation_required_for_confirmed_badge": true,
+  "keep_unverified_date_candidates_as_watch": true,
+  "official_date_overrides_source_claim_date": true,
+  "date_correction_must_preserve_original_claim": true,
+  "calendar_decision_card_contract": "MMP_CALENDAR_DECISION_CARD_V1",
+  "official_forward_sources": [
+    "official_fed",
+    "official_bok",
+    "official_us_treasury",
+    "official_kansas_city_fed",
+    "official_us_congress",
+    "official_fec"
+  ]
+}

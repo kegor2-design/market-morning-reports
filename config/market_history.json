@@ -1,0 +1,57 @@
+{
+  "source": {
+    "name": "Robert J. Shiller, U.S. Stock Markets 1871-Present and CAPE Ratio",
+    "url": "https://img1.wsimg.com/blobby/go/e5e77e0b-59d1-44d9-ab25-4763ac982e53/downloads/e27e58c1-8ae0-488c-a976-a298708c7175/ie_data.xls?ver=1785857394436",
+    "source_page": "https://www.shillerdata.com/"
+  },
+  "korea": {
+    "source_name": "Yahoo Finance chart",
+    "source_page": "https://finance.yahoo.com/",
+    "series": [
+      {"symbol": "^KS11", "id": "kospi", "name": "KOSPI", "min_value": 100},
+      {"symbol": "^KQ11", "id": "kosdaq", "name": "KOSDAQ", "min_value": 100},
+      {"symbol": "KRW=X", "id": "usdkrw", "name": "USD/KRW", "min_value": 500, "max_value": 3000}
+    ]
+  },
+  "macro": {
+    "commodities": [
+      {"symbol": "GC=F", "id": "gold", "name": "Gold"},
+      {"symbol": "CL=F", "id": "wti", "name": "WTI"},
+      {"symbol": "BZ=F", "id": "brent", "name": "Brent"}
+    ],
+    "fred": [
+      {"series_id": "CPIAUCSL", "id": "us_cpi", "name": "미국 CPI", "frequency": "M"},
+      {"series_id": "DGS10", "id": "us10y", "name": "미국 국채 10년", "frequency": "D"},
+      {"series_id": "DGS30", "id": "us30y", "name": "미국 국채 30년", "frequency": "D"},
+      {"series_id": "M2SL", "id": "us_m2", "name": "미국 M2", "frequency": "M"},
+      {"series_id": "RBKRBIS", "id": "kr_reer", "name": "한국 실질실효환율", "frequency": "M"}
+    ],
+    "ecos": [
+      {"stat_code": "901Y009", "cycle": "M", "item_code": "0", "id": "kr_cpi", "name": "한국 CPI", "start": "196501"},
+      {"stat_code": "817Y002", "cycle": "D", "item_code": "010200000", "id": "kr3y", "name": "국고채 3년", "start": "20000101"},
+      {"stat_code": "817Y002", "cycle": "D", "item_code": "010210000", "id": "kr10y", "name": "국고채 10년", "start": "20000101"},
+      {"stat_code": "817Y002", "cycle": "D", "item_code": "010230000", "id": "kr30y", "name": "국고채 30년", "start": "20000101"}
+      ,{"stat_code": "161Y005", "cycle": "M", "item_code": "BBHS00", "id": "kr_m2", "name": "한국 M2", "start": "198601"}
+      ,{"stat_code": "722Y001", "cycle": "M", "item_code": "0101000", "id": "bok_base_rate", "name": "한국은행 기준금리", "start": "199901"}
+      ,{"stat_code": "732Y001", "cycle": "M", "item_code": "99", "id": "fx_reserves", "name": "외환보유액", "start": "197101"}
+      ,{"stat_code": "901Y062", "cycle": "M", "item_code": "P63AD", "id": "seoul_house_price", "name": "서울 주택매매가격", "start": "198601"}
+      ,{"stat_code": "901Y062", "cycle": "M", "item_code": "P63A", "id": "national_house_price", "name": "전국 주택매매가격", "start": "198601"}
+      ,{"stat_code": "191Y001", "cycle": "M", "item_codes": ["0200000", "3"], "id": "sovereign_issuance", "name": "국고채 발행액", "start": "200001"}
+      ,{"stat_code": "817Y002", "cycle": "D", "item_code": "010300000", "id": "corp_aa_3y", "name": "회사채 AA- 3년", "start": "20000101"}
+      ,{"stat_code": "731Y004", "cycle": "M", "item_code": "0000001", "id": "krwusd", "name": "원/달러", "start": "199001"}
+      ,{"stat_code": "731Y004", "cycle": "M", "item_code": "0000002", "id": "krwjpy100", "name": "원/100엔", "start": "199001"}
+      ,{"stat_code": "731Y004", "cycle": "M", "item_code": "0000003", "id": "krweur", "name": "원/유로", "start": "199901"}
+      ,{"stat_code": "731Y004", "cycle": "M", "item_code": "0000053", "id": "krwcny", "name": "원/위안", "start": "200501"}
+    ],
+    "debt": {
+      "indicator": "GGXWDG_NGDP",
+      "forecast_start": 2025,
+      "countries": {"KOR":"한국","USA":"미국","JPN":"일본","CHN":"중국","DEU":"독일","GBR":"영국","FRA":"프랑스","ITA":"이탈리아"},
+      "source_page": "https://www.imf.org/external/datamapper/GGXWDG_NGDP@WEO/"
+    }
+  },
+  "public": {
+    "github_raw_base": "https://raw.githubusercontent.com/kegor2-design/market-morning-reports/main/market-history",
+    "blogger_page_url": "https://mmorningbriefing.blogspot.com/p/market-history.html"
+  }
+}

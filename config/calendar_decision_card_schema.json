@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MMP Calendar Decision Card",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "decision_question": {"type": "string", "minLength": 8},
+    "plain_summary": {"type": "string", "minLength": 10},
+    "why_it_matters": {"type": "string", "minLength": 10},
+    "current_view": {"type": ["string", "null"]},
+    "current_view_confidence": {"type": ["string", "null"], "enum": ["LOW", "MEDIUM", "HIGH", null]},
+    "transmission_path": {"type": "array", "items": {"type": "string"}, "maxItems": 6},
+    "watch_items": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "label": {"type": "string"},
+          "what_to_check": {"type": "string"},
+          "positive_interpretation": {"type": ["string", "null"]},
+          "negative_interpretation": {"type": ["string", "null"]},
+          "beginner_note": {"type": ["string", "null"]}
+        },
+        "required": ["label", "what_to_check"]
+      }
+    },
+    "scenario_up": {"type": ["string", "null"]},
+    "scenario_down": {"type": ["string", "null"]},
+    "invalidation_conditions": {"type": "array", "items": {"type": "string"}, "maxItems": 5},
+    "beginner_glossary": {"type": "object", "additionalProperties": {"type": "string"}}
+  },
+  "required": ["decision_question", "plain_summary", "why_it_matters", "transmission_path", "watch_items"]
+}

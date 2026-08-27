@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["impact_profile", "outcome_scenarios"],
+  "properties": {
+    "impact_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "score", "badge", "plain_label", "reason", "impacted_assets", "methodology"],
+      "properties": {
+        "level": {"enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]},
+        "score": {"type": "integer", "minimum": 0, "maximum": 100},
+        "badge": {"type": "string"},
+        "plain_label": {"type": "string"},
+        "reason": {"type": "string"},
+        "impacted_assets": {"type": "array", "items": {"type": "string"}},
+        "methodology": {"type": "string"}
+      }
+    },
+    "outcome_scenarios": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["scenario_id", "name", "if_result", "beginner_summary", "expected_changes", "confirmation_signals", "probability", "probability_source"],
+        "properties": {
+          "scenario_id": {"type": "string"},
+          "name": {"type": "string"},
+          "if_result": {"type": "string"},
+          "beginner_summary": {"type": "string"},
+          "expected_changes": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["asset", "direction", "why"], "properties": {"asset": {"type": "string"}, "direction": {"type": "string"}, "why": {"type": "string"}}}},
+          "confirmation_signals": {"type": "array", "items": {"type": "string"}},
+          "probability": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+          "probability_source": {"type": ["string", "null"], "enum": ["OUR_MI", null]}
+        }
+      }
+    }
+  }
+}

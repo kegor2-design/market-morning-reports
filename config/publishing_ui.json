@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "release": "1.6.5",
+  "strategy": "ONE_ANALYSIS_TWO_RENDERERS",
+  "desktop": {
+    "min_width_px": 821,
+    "layout": "INVESTMENT_DESK_DASHBOARD",
+    "max_width_px": 1320,
+    "show_summary_dashboard": true,
+    "show_full_research_below": true
+  },
+  "mobile": {
+    "max_width_px": 820,
+    "layout": "COMPACT_BRIEF_CARDS",
+    "market_tiles": "HORIZONTAL_SCROLL",
+    "detail_sections": "COLLAPSIBLE",
+    "important_sections_default_open": true
+  },
+  "content_contract": {
+    "same_source_analysis": true,
+    "no_mobile_specific_claim_generation": true,
+    "no_desktop_specific_claim_generation": true,
+    "source_and_verification_status_must_match": true
+  },
+  "supported_posts": [
+    "MORNING_BRIEF",
+    "CLOSING_REVIEW",
+    "YOUTUBE_MARKET_VIEW_CARD"
+  ],
+  "blogger": {
+    "single_post_url": true,
+    "responsive_css_media_query": true,
+    "theme_change_required": true,
+    "homepage_theme_change": "RESEARCH_PORTAL_THEME_INCLUDED_MANUAL_BLOGGER_APPLY_REQUIRED",
+    "theme_file": "blogger_theme/market_morning_research_portal.xml"
+  }
+}

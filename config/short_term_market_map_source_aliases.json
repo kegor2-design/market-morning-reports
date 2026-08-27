@@ -1,0 +1,28 @@
+{
+  "version": "1.6.5.7",
+  "policy": "RESOLVE_EXISTING_COLLECTORS_FIRST_NO_FAKE_FALLBACK",
+  "aliases": {
+    "DXY": ["DXY", "DXY_BROAD", "DTWEXBGS"],
+    "USDKRW": ["USD/KRW", "USDKRW", "USDKRW_FRED"],
+    "USDJPY": ["USD/JPY", "USDJPY", "USDJPY_FRED"],
+    "USDCNY": ["USD/CNY", "USDCNY", "USDCNY_FRED"],
+    "US2Y": ["US2Y", "DGS2"],
+    "US10Y": ["US10Y", "DGS10"],
+    "US30Y": ["US30Y", "DGS30"],
+    "KR3Y": ["KR3Y", "KTB3Y", "국고채3년"],
+    "KR10Y": ["KR10Y", "KTB10Y", "국고채10년"],
+    "US_HY_OAS": ["US_HY_OAS", "BAMLH0A0HYM2"],
+    "KR_CORP_AA3Y_SPREAD": ["KR_CORP_AA3Y_SPREAD", "회사채AA-3Y_SPREAD"],
+    "KR_CP_CD_SPREAD": ["KR_CP_CD_SPREAD", "CP_CD_SPREAD"],
+    "US_CPI_SURPRISE": ["US_CPI_SURPRISE", "CPI_SURPRISE"],
+    "US_CORE_CPI_3M_ANNUALIZED": ["US_CORE_CPI_3M_ANNUALIZED", "CORE_CPI_3M_ANN"],
+    "GOLD": ["GOLD", "XAUUSD", "GC=F"],
+    "WTI": ["WTI", "CL=F", "DCOILWTICO"],
+    "COPPER": ["COPPER", "HG=F"],
+    "VIX": ["VIX", "^VIX"],
+    "BTC": ["BTC", "BTC-USD"],
+    "NASDAQ": ["NASDAQ", "^IXIC"],
+    "SOX": ["SOX", "^SOX", "PHLX"],
+    "KOSPI_FOREIGN_NET": ["KOSPI_FOREIGN_NET", "foreign_net_kospi"]
+  }
+}

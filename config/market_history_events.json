@@ -1,0 +1,82 @@
+[
+  {
+    "event_id": "EVT-US-1929-GREAT-DEPRESSION",
+    "short_label": "Great Depression",
+    "title_ko": "대공황",
+    "start_date": "1929-08-01",
+    "end_date": "1933-03-31",
+    "event_type": "RANGE",
+    "category": "ECONOMIC_CRISIS",
+    "source_url": "https://www.federalreservehistory.org/essays/great-depression"
+  },
+  {
+    "event_id": "EVT-US-1973-OIL-SHOCK",
+    "short_label": "Oil Shock",
+    "title_ko": "1차 오일쇼크",
+    "start_date": "1973-10-01",
+    "end_date": "1974-03-31",
+    "event_type": "RANGE",
+    "category": "ENERGY_SHOCK",
+    "source_url": "https://www.federalreservehistory.org/essays/oil-shock-of-1973-74"
+  },
+  {
+    "event_id": "EVT-US-1987-BLACK-MONDAY",
+    "short_label": "Black Monday",
+    "title_ko": "블랙먼데이",
+    "start_date": "1987-10-19",
+    "end_date": "1987-10-19",
+    "event_type": "POINT",
+    "category": "MARKET_CRASH",
+    "source_url": "https://www.federalreservehistory.org/essays/stock-market-crash-of-1987"
+  },
+  {
+    "event_id": "EVT-US-2000-DOTCOM",
+    "short_label": "Dot-com Bust",
+    "title_ko": "닷컴 버블 붕괴",
+    "start_date": "2000-03-10",
+    "end_date": "2002-10-09",
+    "event_type": "RANGE",
+    "category": "VALUATION_CRASH",
+    "source_url": "https://www.federalreservehistory.org/essays/stock-market-bubble-of-1990s"
+  },
+  {
+    "event_id": "EVT-US-2008-GFC",
+    "short_label": "Global Financial Crisis",
+    "title_ko": "글로벌 금융위기",
+    "start_date": "2007-10-09",
+    "end_date": "2009-03-09",
+    "event_type": "RANGE",
+    "category": "FINANCIAL_CRISIS",
+    "source_url": "https://www.federalreservehistory.org/essays/great-recession-and-its-aftermath"
+  },
+  {
+    "event_id": "EVT-US-2008-LEHMAN",
+    "short_label": "Lehman",
+    "title_ko": "리먼브러더스 파산",
+    "start_date": "2008-09-15",
+    "end_date": "2008-09-15",
+    "event_type": "POINT",
+    "category": "FINANCIAL_CRISIS",
+    "source_url": "https://www.federalreservehistory.org/essays/lehman-brothers-files-for-bankruptcy"
+  },
+  {
+    "event_id": "EVT-US-2020-COVID",
+    "short_label": "COVID-19 Crash",
+    "title_ko": "코로나19 시장 충격",
+    "start_date": "2020-02-19",
+    "end_date": "2020-03-23",
+    "event_type": "RANGE",
+    "category": "PANDEMIC",
+    "source_url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+  },
+  {
+    "event_id": "EVT-US-2022-INFLATION-HIKES",
+    "short_label": "Inflation & Tightening",
+    "title_ko": "인플레이션과 연준 긴축",
+    "start_date": "2022-03-16",
+    "end_date": "2023-07-26",
+    "event_type": "RANGE",
+    "category": "MONETARY_TIGHTENING",
+    "source_url": "https://www.federalreserve.gov/monetarypolicy/openmarket.htm"
+  }
+]

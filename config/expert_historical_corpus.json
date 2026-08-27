@@ -1,0 +1,57 @@
+{
+  "contract": "MMP_EXPERT_HISTORICAL_CORPUS_V1",
+  "version": "1.6.5.2",
+  "storage_root": "data/state/expert_corpus",
+  "read_only_source_archives": true,
+  "experts": [
+    {
+      "expert_id": "chesley_park_seik",
+      "display_name": "체슬리TV / 박세익",
+      "platform": "YOUTUBE",
+      "channel_aliases": ["@chesleytv", "chesley", "체슬리", "박세익"],
+      "path_keywords": ["chesley", "체슬리", "park_seik", "parkseik"],
+      "expected_metadata_min": 2857,
+      "expected_subtitle_min": 2848,
+      "known_missing_subtitles": 9,
+      "known_period_start": "2022-02-26",
+      "known_period_end": "2026-08-04",
+      "speaker_policy": "SEPARATE_PRIMARY_EXPERT_FROM_GUEST_AND_QUOTED_MATERIAL",
+      "weight_policy": "EXPERT_HISTORICAL_CLAIM_ONLY_NOT_OFFICIAL_FACT"
+    },
+    {
+      "expert_id": "park_jonghoon_kpunch",
+      "display_name": "박종훈 / KPUNCH",
+      "platform": "YOUTUBE",
+      "channel_aliases": ["@kpunch", "kpunch", "박종훈"],
+      "path_keywords": ["kpunch", "park_jonghoon", "parkjonghoon", "박종훈"],
+      "expected_metadata_min": 346,
+      "expected_subtitle_min": 346,
+      "known_missing_subtitles": 0,
+      "known_period_start": "2024-04-04",
+      "known_period_end": "2026-08-11",
+      "speaker_policy": "SEPARATE_PRIMARY_HYPOTHESIS_FROM_OFFICIAL_EXPLANATION_AND_QUOTED_MATERIAL",
+      "weight_policy": "HIGH_PROVISIONAL_HYPOTHESIS_NOT_OFFICIAL_FACT"
+    }
+  ],
+  "discovery": {
+    "candidate_roots": [
+      "data/private",
+      "data/youtube",
+      "data/research",
+      "research",
+      "archive"
+    ],
+    "subtitle_suffixes": [".ko-orig.vtt", ".ko.vtt", ".vtt", ".txt"],
+    "metadata_suffixes": [".info.json", ".json", ".metadata.json"],
+    "max_files_per_scan": 25000
+  },
+  "claim_policy": {
+    "required_source_timestamp_for_timestamp_verified": true,
+    "allow_text_verified_without_timestamp": true,
+    "never_invent_timestamp": true,
+    "allow_historical_claim_to_be_official_fact": false,
+    "allowed_delta_states": ["NEW", "REINFORCED", "MODIFIED", "CONTRADICTED", "UNCHANGED"],
+    "allowed_validation_states": ["PENDING", "SUPPORTED", "PARTIAL", "CONTRADICTED", "INCONCLUSIVE", "NOT_TESTABLE"],
+    "allowed_horizons": ["INTRADAY", "DAYS", "WEEKS", "MONTHS", "QUARTERS", "YEARS", "STRUCTURAL", "UNKNOWN"]
+  }
+}

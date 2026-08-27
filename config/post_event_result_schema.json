@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["result_state", "verification_class", "mi_review_status"],
+  "properties": {
+    "result_state": {"enum": ["NOT_DUE", "AWAITING_RESULT", "PROVISIONAL", "RESULT_CONFIRMED", "REACTION_TRACKING", "REVIEW_COMPLETE", "INCONCLUSIVE"]},
+    "verification_class": {"enum": ["UNVERIFIED", "ATTRIBUTABLE_REPORT", "OFFICIAL_FACT"]},
+    "official_result_summary": {"type": ["string", "null"]},
+    "plain_result_summary": {"type": ["string", "null"]},
+    "expected_vs_actual": {"type": ["string", "null"]},
+    "surprise_summary": {"type": ["string", "null"]},
+    "result_verified_at": {"type": ["string", "null"]},
+    "official_source_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "market_reactions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["window", "asset"],
+        "properties": {
+          "window": {"type": "string"},
+          "asset": {"type": "string"},
+          "metric": {"type": "string"},
+          "baseline_value": {"type": ["number", "null"]},
+          "observed_value": {"type": ["number", "null"]},
+          "change_pct": {"type": ["number", "null"]},
+          "observed_at": {"type": ["string", "null"]},
+          "interpretation": {"type": ["string", "null"]},
+          "source_id": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "mi_review_status": {"enum": ["PENDING", "SUPPORTED", "PARTIAL", "CONTRADICTED", "INCONCLUSIVE", "NOT_SCORED"]},
+    "mi_review_summary": {"type": ["string", "null"]},
+    "what_changed": {"type": ["string", "null"]},
+    "next_watch": {"type": "array", "items": {"type": "string"}},
+    "beginner_explanation": {"type": ["string", "null"]}
+  }
+}

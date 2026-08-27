@@ -1,0 +1,97 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "mi_id",
+    "target_asset",
+    "target_metric",
+    "horizon",
+    "direction",
+    "confidence",
+    "baseline_value",
+    "as_of",
+    "rationale_snapshot",
+    "invalidation_conditions"
+  ],
+  "properties": {
+    "mi_id": {
+      "type": "string"
+    },
+    "predictor_id": {
+      "type": "string"
+    },
+    "target_asset": {
+      "type": "string"
+    },
+    "target_metric": {
+      "type": "string"
+    },
+    "horizon": {
+      "type": "string"
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "UP",
+        "DOWN",
+        "FLAT"
+      ]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "baseline_value": {
+      "type": "number"
+    },
+    "flat_band_pct": {
+      "type": "number"
+    },
+    "expected_range_low": {
+      "type": "number"
+    },
+    "expected_range_high": {
+      "type": "number"
+    },
+    "as_of": {
+      "type": "string"
+    },
+    "regime": {
+      "type": "string"
+    },
+    "rationale_snapshot": {
+      "type": "string"
+    },
+    "invalidation_conditions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "event_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "primitive_keys": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "expert_claim_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_registry_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

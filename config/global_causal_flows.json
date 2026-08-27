@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.0",
+  "purpose": "현상에서 미국·세계·한국까지 이어지는 자금 및 비용 이전 경로를 증거 조건부로 판정한다.",
+  "templates": [
+    {
+      "id": "JAPAN_RATE_NORMALIZATION",
+      "name_ko": "일본 금리 정상화의 국경 간 전달",
+      "triggers": ["BOJ", "BANK OF JAPAN", "JGB", "JAPAN RATE", "일본은행", "일본 금리", "일본 국채"],
+      "paths": [
+        {
+          "id": "JP_TO_US_DURATION_REALLOCATION",
+          "name_ko": "일본 자금의 미국채 수요 약화 경로",
+          "horizon": "WEEKS_TO_QUARTERS",
+          "chain": [
+            "일본 장기금리 상승",
+            "환헤지 후 해외채권 상대매력 하락",
+            "일본 투자자의 해외채권 매수 축소 또는 환류",
+            "미국채 한계수요 약화",
+            "미국 장기금리·기간프리미엄 상승 압력"
+          ],
+          "actor_constraints": [
+            "일본 생명보험·은행은 부채 듀레이션과 환헤지 비용을 함께 고려한다.",
+            "미 재무부는 높은 발행 수요 속에서 대체 한계매수자를 확보해야 한다."
+          ],
+          "policy_options": [
+            "BOJ의 인상 속도 조절 또는 국채 매입 조정",
+            "미 재무부의 발행 만기 구성 조절",
+            "시장기능 악화 시 유동성 안전판 사용"
+          ],
+          "cost_transfer": [
+            "일본 예금자·채권자의 수익 개선과 차입자·정부의 조달비용 상승",
+            "미국 정부의 장기 조달비용 및 위험자산 할인율 상승"
+          ],
+          "us_impact": ["장기금리 상승", "주택·기업 금융여건 긴축", "장기 성장주 밸류에이션 압박"],
+          "global_impact": ["글로벌 무위험 할인율 상승", "고부채 국가와 달러차입자의 차환 부담 확대"],
+          "korea_impact": ["국고채 금리 상승 압력", "외국인 채권·주식 자금 변동성", "성장주 할인율 부담"],
+          "activation": {
+            "all": [
+              {"metric_id": "jgb_10y", "states": ["RISING", "HIGH"]},
+              {"metric_id": "japan_foreign_bond_flow", "states": ["OUTFLOW_SLOWING", "NET_SELLING", "REPATRIATING"]}
+            ],
+            "any": [
+              {"metric_id": "us_10y", "states": ["RISING", "HIGH"]},
+              {"metric_id": "term_premium_10y", "states": ["RISING", "HIGH"]},
+              {"metric_id": "japan_treasury_holdings", "states": ["FALLING", "LOW"]}
+            ]
+          },
+          "invalidation_conditions": [
+            "일본 장기금리가 상승해도 일본의 해외채권 순매수가 지속적으로 확대된다.",
+            "미국 기간프리미엄과 장기금리가 안정되고 입찰 수요가 개선된다.",
+            "관측된 미국채 매도가 일본계가 아닌 다른 주체 변화로 설명된다."
+          ]
+        },
+        {
+          "id": "JPY_CARRY_UNWIND",
+          "name_ko": "엔 캐리 청산 경로",
+          "horizon": "HOURS_TO_WEEKS",
+          "chain": [
+            "일본 금리 상승 또는 매파적 서프라이즈",
+            "엔화 강세·변동성 확대",
+            "엔화 조달 레버리지 포지션 축소",
+            "글로벌 위험자산 매도 및 변동성 확대"
+          ],
+          "actor_constraints": ["레버리지 투자자는 담보·변동성 한도와 마진콜에 제약된다."],
+          "policy_options": ["BOJ 커뮤니케이션 완화", "시장기능 악화 시 유동성 공급"],
+          "cost_transfer": ["저비용 엔화 조달의 이익이 차입자에서 엔화 자금 제공자 쪽으로 이동"],
+          "us_impact": ["주식·크레딧 변동성", "레버리지 포지션 축소", "단기 안전자산 선호"],
+          "global_impact": ["고베타 통화·주식 매도", "교차시장 상관관계 급등"],
+          "korea_impact": ["외국인 선물·현물 매도 가능성", "원화 변동성", "KOSDAQ·성장주 압박"],
+          "activation": {
+            "all": [
+              {"metric_id": "usd_jpy", "states": ["FALLING", "JPY_STRENGTHENING"]},
+              {"metric_id": "jpy_fx_vol", "states": ["RISING", "HIGH"]}
+            ],
+            "any": [
+              {"metric_id": "vix", "states": ["RISING", "HIGH"]},
+              {"metric_id": "foreign_kospi200_futures_net", "states": ["SELLING", "NET_SELLING"]},
+              {"metric_id": "foreign_cash_flow_kospi", "states": ["SELLING", "NET_SELLING"]}
+            ]
+          },
+          "invalidation_conditions": [
+            "엔화 강세에도 글로벌 레버리지·위험자산 포지션 축소가 관측되지 않는다.",
+            "위험자산 하락이 독립적인 미국 경기·실적 충격으로 더 잘 설명된다."
+          ]
+        }
+      ]
+    }
+  ]
+}

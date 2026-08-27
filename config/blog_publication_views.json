@@ -1,0 +1,68 @@
+{
+  "version": "1.6.5.7",
+  "principle": "ONE_ENGINE_MULTIPLE_RENDERERS",
+  "views": [
+    {
+      "view_id": "MORNING_REPORT",
+      "label": "Morning Market Report",
+      "purpose": "사실·시장배경·공식일정 중심의 공개 Report View",
+      "must_not_regenerate_mi": true,
+      "sections": [
+        "overnight_market",
+        "major_news",
+        "macro_and_policy",
+        "official_calendar",
+        "short_term_market_map_summary",
+        "brief_mi_context",
+        "sources"
+      ],
+      "title_template": "[Morning Market Report] {date} — 오늘 시장을 움직일 핵심 변수"
+    },
+    {
+      "view_id": "PREMARKET_MI_SCENARIO",
+      "label": "장전 MI 시나리오",
+      "purpose": "앱과 동일한 MI Scenario snapshot을 공개 기록",
+      "must_use_frozen_scenario": true,
+      "sections": [
+        "as_of",
+        "core_market_judgement",
+        "short_term_market_map",
+        "base_scenario",
+        "upside_scenario",
+        "risk_scenario",
+        "critical_events",
+        "watch_indicators",
+        "sector_bias",
+        "stock_predictions",
+        "invalidation_conditions",
+        "prediction_ids"
+      ],
+      "title_template": "[장전 MI 시나리오] {date} — 오늘 시장의 핵심 시나리오와 관심종목"
+    },
+    {
+      "view_id": "CLOSING_MI_REVIEW",
+      "label": "MI 장마감 검증",
+      "purpose": "사전 예상과 실제 결과를 공개 검증",
+      "must_use_original_prediction_snapshot": true,
+      "sections": [
+        "morning_prediction_snapshot",
+        "actual_market_path",
+        "event_results",
+        "prediction_scorecard",
+        "what_worked",
+        "what_failed",
+        "mi_updates",
+        "next_watch"
+      ],
+      "title_template": "[MI 장마감 검증] {date} — 오늘 예상은 무엇이 맞고 틀렸나"
+    }
+  ],
+  "publication_safety": {
+    "do_not_publish_unverified_as_fact": true,
+    "show_prediction_timestamp": true,
+    "show_prediction_id": true,
+    "show_confidence_source": true,
+    "preserve_failed_predictions": true,
+    "never_overwrite_historical_prediction_snapshot": true
+  }
+}

@@ -1,0 +1,271 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "video_id",
+    "claims"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "1.0"
+      ]
+    },
+    "video_id": {
+      "type": "string"
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "classification",
+          "importance",
+          "confidence",
+          "speech_start_ms",
+          "speech_end_ms",
+          "claim_summary_ko",
+          "card_title_ko",
+          "verification_status",
+          "verification_summary_ko",
+          "our_interpretation_ko",
+          "causal_chain",
+          "data_needed",
+          "metric_ids",
+          "playbook_ids",
+          "calendar_event_ids",
+          "events_to_watch",
+          "korea_transmission_ko",
+          "invalidation_conditions",
+          "source_event_ids",
+          "supported_by_state",
+          "counterevidence_ko",
+          "chart_analysis_requested"
+        ],
+        "properties": {
+          "classification": {
+            "type": "string",
+            "enum": [
+              "FACT_CLAIM",
+              "HYPOTHESIS",
+              "OPINION",
+              "FORECAST",
+              "RUMOR",
+              "ACTION_RULE"
+            ]
+          },
+          "importance": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "CRITICAL"
+            ]
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH"
+            ]
+          },
+          "speech_start_ms": {
+            "type": "integer"
+          },
+          "speech_end_ms": {
+            "type": "integer"
+          },
+          "claim_summary_ko": {
+            "type": "string"
+          },
+          "card_title_ko": {
+            "type": "string"
+          },
+          "verification_status": {
+            "type": "string",
+            "enum": [
+              "SUPPORTED",
+              "PARTIAL",
+              "UNVERIFIED",
+              "CONTRADICTED",
+              "UNKNOWN"
+            ]
+          },
+          "verification_summary_ko": {
+            "type": "string"
+          },
+          "our_interpretation_ko": {
+            "type": "string"
+          },
+          "causal_chain": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "data_needed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "metric_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "playbook_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "calendar_event_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "events_to_watch": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "korea_transmission_ko": {
+            "type": "string"
+          },
+          "invalidation_conditions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "source_event_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "supported_by_state": {
+            "type": "boolean"
+          },
+          "counterevidence_ko": {
+            "type": "string"
+          },
+          "chart_analysis_requested": {
+            "type": "boolean"
+          },
+          "stance": {
+            "type": "string",
+            "enum": [
+              "BULLISH",
+              "BEARISH",
+              "NEUTRAL",
+              "MIXED",
+              "UNKNOWN"
+            ]
+          },
+          "issue_tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "chart_strategy": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "is_strategy_candidate": {
+                "type": "boolean"
+              },
+              "method_family": {
+                "type": "string"
+              },
+              "primitive_candidates": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "entry_conditions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "confirmation_conditions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exit_conditions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "invalidation_conditions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "risk_management": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "timeframe_hint": {
+                "type": "string"
+              },
+              "asset_hint": {
+                "type": "string"
+              },
+              "explicit_numeric_rules": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "reasoning": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "failure_pattern": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "new_method_terms": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "existing_rule_challenge": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

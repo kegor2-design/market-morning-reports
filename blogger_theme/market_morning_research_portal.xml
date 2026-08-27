@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html b:css='true' b:defaultwidgetversion='2' b:layoutsVersion='3' b:responsive='true'
+      expr:dir='data:blog.languageDirection' expr:lang='data:blog.locale'
+      xmlns='http://www.w3.org/1999/xhtml'
+      xmlns:b='http://www.google.com/2005/gml/b'
+      xmlns:data='http://www.google.com/2005/gml/data'
+      xmlns:expr='http://www.google.com/2005/gml/expr'>
+<head>
+  <b:include data='blog' name='all-head-content'/>
+  <meta content='width=device-width, initial-scale=1, viewport-fit=cover' name='viewport'/>
+  <title><data:view.title.escaped/></title>
+  <b:skin><![CDATA[
+/* Market Morning Briefing — Research Portal Theme 1.6.5 (includes 1.6.4.1 Hotfix)
+   Design goal: institutional asset-management research portal, not an HTS clone. */
+:root{--rp-navy:#071624;--rp-navy2:#0c263f;--rp-blue:#1e5f91;--rp-sky:#eaf3f8;--rp-ink:#15263a;--rp-muted:#66788b;--rp-line:#d7e1e9;--rp-bg:#eef3f6;--rp-card:#fff;--rp-up:#0b7657;--rp-down:#ba3b46;--rp-watch:#9b6610;--rp-radius:12px;--rp-shadow:0 5px 20px rgba(12,38,63,.07)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--rp-bg);color:var(--rp-ink);font-family:Inter,"Noto Sans KR","Apple SD Gothic Neo",Arial,sans-serif;-webkit-font-smoothing:antialiased}a{color:inherit}.rp-shell{min-height:100vh}.rp-site-header{position:sticky;top:0;z-index:50;background:rgba(7,22,36,.97);border-bottom:1px solid rgba(255,255,255,.09);backdrop-filter:blur(10px)}.rp-header-inner{max-width:1420px;margin:0 auto;height:66px;padding:0 28px;display:flex;align-items:center;gap:28px}.rp-brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:#fff;white-space:nowrap}.rp-mark{width:31px;height:31px;border:1px solid rgba(255,255,255,.3);border-radius:7px;display:grid;place-items:center;font-weight:900;letter-spacing:-.05em;background:linear-gradient(145deg,#163f62,#0a1f34)}.rp-brand-copy b{display:block;font-size:14px;letter-spacing:.01em}.rp-brand-copy small{display:block;margin-top:1px;font-size:9px;color:#8eabc4;letter-spacing:.16em;text-transform:uppercase}.rp-nav{display:flex;align-items:center;gap:5px;margin-left:auto}.rp-nav a{padding:9px 10px;border-radius:6px;color:#c6d4df;text-decoration:none;font-size:11px;font-weight:700}.rp-nav a:hover{background:rgba(255,255,255,.08);color:#fff}.rp-header-status{display:flex;align-items:center;gap:7px;margin-left:8px;color:#9fc0da;font-size:10px}.rp-status-dot{width:7px;height:7px;border-radius:50%;background:#55c89b;box-shadow:0 0 0 3px rgba(85,200,155,.12)}
+.rp-home-portal{max-width:1420px;margin:0 auto;padding:28px}.rp-home-hero{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(320px,.7fr);gap:14px}.rp-command{position:relative;overflow:hidden;min-height:235px;padding:30px 32px;border-radius:16px;background:linear-gradient(135deg,#061521 0%,#0c2f4e 58%,#174f77 100%);color:#fff;box-shadow:0 14px 34px rgba(7,22,36,.18)}.rp-command:after{content:"";position:absolute;width:270px;height:270px;border-radius:50%;right:-80px;top:-115px;border:1px solid rgba(255,255,255,.1);box-shadow:0 0 0 35px rgba(255,255,255,.025),0 0 0 70px rgba(255,255,255,.018)}.rp-kicker{position:relative;z-index:2;font-size:10px;font-weight:900;letter-spacing:.18em;color:#8db8d8}.rp-command h1{position:relative;z-index:2;margin:9px 0 12px;max-width:800px;font-size:31px;line-height:1.28;letter-spacing:-.03em}.rp-command .rp-diagnosis{position:relative;z-index:2;max-width:820px;margin:0;color:#dce8f1;font-size:14px;line-height:1.75}.rp-command-actions{position:relative;z-index:2;display:flex;gap:8px;margin-top:22px}.rp-btn{display:inline-flex;align-items:center;justify-content:center;padding:9px 12px;border:1px solid rgba(255,255,255,.2);border-radius:7px;color:#e7f0f7;text-decoration:none;font-size:10px;font-weight:800}.rp-btn.primary{background:#fff;color:#0b2c48;border-color:#fff}.rp-asof{position:absolute;left:32px;bottom:16px;z-index:2;color:#7fa6c4;font-size:9px;letter-spacing:.08em}.rp-risk-card{padding:21px;border-radius:16px;background:#fff;border:1px solid var(--rp-line);box-shadow:var(--rp-shadow)}.rp-risk-card h2{margin:0 0 14px;font-size:13px;color:var(--rp-navy);letter-spacing:.02em}.rp-risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.rp-risk-cell{padding:11px;border-radius:8px;background:#f5f8fa;border:1px solid #e7edf2}.rp-risk-cell small{display:block;color:var(--rp-muted);font-size:9px}.rp-risk-cell b{display:block;margin-top:4px;color:var(--rp-navy);font-size:13px}.rp-risk-card .rp-note{margin-top:13px;padding-top:12px;border-top:1px solid var(--rp-line);color:var(--rp-muted);font-size:10px;line-height:1.6}
+.rp-section-head{display:flex;align-items:end;justify-content:space-between;margin:25px 2px 10px}.rp-section-head h2{margin:0;color:var(--rp-navy);font-size:14px}.rp-section-head span{color:#8091a1;font-size:9px;letter-spacing:.1em;text-transform:uppercase}.rp-market-board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.rp-market-board .rp-market{min-height:93px;padding:13px 14px;border:1px solid var(--rp-line);border-top:3px solid #9aa8b5;border-radius:9px;background:#fff;box-shadow:0 1px 3px rgba(7,22,36,.03)}.rp-market.up{border-top-color:var(--rp-up)}.rp-market.down{border-top-color:var(--rp-down)}.rp-market small{display:block;color:var(--rp-muted);font-size:9px}.rp-market b{display:block;margin-top:5px;color:var(--rp-navy);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rp-market strong{display:block;margin-top:4px;font-size:17px}.rp-market em{font-style:normal;font-size:10px;font-weight:900}.rp-market.up em{color:var(--rp-up)}.rp-market.down em{color:var(--rp-down)}
+.rp-intelligence{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:11px}.rp-module{min-height:200px;padding:18px 19px;border:1px solid var(--rp-line);border-radius:11px;background:#fff;box-shadow:0 1px 4px rgba(7,22,36,.035)}.rp-module-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.rp-module-head b{font-size:12px;color:var(--rp-navy)}.rp-module-head span{padding:4px 6px;border-radius:4px;background:#edf4f8;color:#4d6f87;font-size:8px;font-weight:900;letter-spacing:.08em}.rp-module ul{margin:0;padding-left:18px}.rp-module li{margin:7px 0;color:#3a4d60;font-size:11px;line-height:1.55}.rp-module p{margin:6px 0;color:#3a4d60;font-size:11px;line-height:1.65}.rp-module .rp-empty{color:#8b99a7}.rp-module.rp-driver{border-top:3px solid #225f8e}.rp-module.rp-chart{border-top:3px solid #5a7290}.rp-module.rp-watch{border-top:3px solid #a7751b}
+.rp-research-layout{max-width:1420px;margin:0 auto;padding:0 28px 44px}.rp-feed-title{margin:4px 0 12px;display:flex;align-items:center;justify-content:space-between}.rp-feed-title h2{margin:0;font-size:14px;color:var(--rp-navy)}.rp-feed-title small{font-size:9px;color:#8795a3}.main.section{margin:0}.widget.Blog{background:transparent}.blog-posts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.post-outer,.post-outer-container{margin:0!important;padding:0!important;border:0!important}.post{height:100%;padding:18px 18px 16px!important;border:1px solid var(--rp-line)!important;border-radius:11px!important;background:#fff!important;box-shadow:0 1px 4px rgba(7,22,36,.035)!important}.post-title,.post-title.entry-title{margin:0 0 8px!important;font-size:14px!important;line-height:1.45!important}.post-title a,.post-title.entry-title a{text-decoration:none;color:var(--rp-navy)!important}.post-header,.post-header-line-1,.post-footer{color:#8796a4!important;font-size:9px!important}.post-snippet,.post-body{color:#4a5d70;font-size:11px;line-height:1.65}
+/* HOTFIX 1.6.4.1: Homepage must never render Blogger's full post/share DOM. Older posts may not contain .mmp-responsive. */
+.rp-home .post-body,.rp-home .post-footer,.rp-home .post-footer-line,.rp-home .post-icons,.rp-home .post-icons-area,.rp-home .post-share-buttons,.rp-home .sharing,.rp-home .share-buttons,.rp-home .sharing-button,.rp-home .sharing-platform-button,.rp-home .byline.post-share-buttons,.rp-home .item-control,.rp-home .feed-links{display:none!important}
+.rp-home .post-header{margin:0 0 10px!important}.rp-home .post-header-line-1{margin:0!important}.rp-home .post{position:relative;min-height:164px;padding:20px 20px 18px!important;display:flex;flex-direction:column}.rp-home .post-title,.rp-home .post-title.entry-title{font-size:16px!important;line-height:1.45!important;margin:2px 0 8px!important}.rp-card-type{display:inline-flex;align-self:flex-start;margin-bottom:10px;padding:4px 7px;border-radius:5px;background:#edf4f8;color:#41627a;font-size:8px;font-weight:900;letter-spacing:.1em}.rp-card-summary{margin:0 0 14px;color:#566a7c;font-size:10px;line-height:1.6;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}.rp-card-actions{margin-top:auto;padding-top:8px}.rp-card-link{display:inline-flex;align-items:center;gap:5px;text-decoration:none;color:#164c75;font-size:9px;font-weight:900;letter-spacing:.04em}.rp-card-link:after{content:'→';font-size:12px}.rp-home .post a img,.rp-home .post svg,.rp-home .post .svg-icon{max-width:24px!important;max-height:24px!important}
+/* Default Blogger share controls are intentionally suppressed on item pages too. Responsive research body owns the reading experience. */
+.rp-item .post-share-buttons,.rp-item .sharing,.rp-item .share-buttons,.rp-item .sharing-button,.rp-item .sharing-platform-button,.rp-item .byline.post-share-buttons,.rp-item .post-icons,.rp-item .post-icons-area{display:none!important}.rp-item .post-share-buttons svg,.rp-item .sharing-button svg,.rp-item .sharing-platform-button svg{width:18px!important;height:18px!important;max-width:18px!important;max-height:18px!important}
+.rp-item .rp-research-layout{max-width:1390px;padding-top:25px}.rp-item .blog-posts{display:block}.rp-item .post{padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}.rp-item .post-title{max-width:1240px;margin:0 auto 13px!important;font-size:24px!important}.rp-item .post-header{max-width:1240px;margin:0 auto 10px!important}.rp-item .post-body{display:block!important;max-width:none!important;width:100%!important;margin:0!important;padding:0!important}.rp-item .post-body>.mmp-responsive{width:100%;max-width:1320px!important}.rp-item .post-footer{max-width:1240px;margin:18px auto!important;padding:14px 0;border-top:1px solid var(--rp-line)}
+.rp-utility{max-width:1420px;margin:0 auto;padding:0 28px 30px;display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:11px}.rp-utility .widget{padding:17px 18px;border:1px solid var(--rp-line);border-radius:11px;background:#fff}.rp-utility h2,.rp-utility .title{margin:0 0 10px;font-size:12px;color:var(--rp-navy)}.rp-utility ul{margin:0;padding-left:18px}.rp-utility li{margin:5px 0;font-size:10px}.rp-utility input{max-width:100%;padding:8px;border:1px solid var(--rp-line);border-radius:6px}.rp-utility button{padding:8px 10px;border:0;border-radius:6px;background:var(--rp-navy2);color:#fff}.rp-site-footer{border-top:1px solid #d9e2e9;background:#e7edf1}.rp-footer-inner{max-width:1420px;margin:0 auto;padding:25px 28px;color:#64788b;font-size:10px}.rp-footer-inner b{color:#2b4257}.Attribution,.feed-links{font-size:9px;color:#8998a6}
+@media(max-width:1050px){.rp-market-board{grid-template-columns:repeat(3,1fr)}.rp-intelligence{grid-template-columns:1fr 1fr}.rp-module.rp-watch{grid-column:span 2}.blog-posts{grid-template-columns:repeat(2,1fr)}}
+.rp-calendar-board{min-width:0}.rp-calendar-months{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.rp-calendar-month{min-width:0;padding:14px;border:1px solid var(--rp-line);border-radius:11px;background:#fff;box-shadow:var(--rp-shadow)}.rp-calendar-month-title{display:flex;align-items:center;justify-content:space-between;margin:0 0 10px;color:var(--rp-navy);font-size:12px}.rp-calendar-month-title small{color:var(--rp-muted);font-size:8px;letter-spacing:.08em}.rp-calendar-week,.rp-calendar-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.rp-calendar-week span{text-align:center;color:#8795a3;font-size:8px;font-weight:800}.rp-cal-day{min-width:0;min-height:72px;padding:6px;border:1px solid #e5ebf0;border-radius:7px;background:#fbfcfd}.rp-cal-day.empty{border-color:transparent;background:transparent}.rp-cal-day .rp-day-num{display:block;margin-bottom:4px;color:#607286;font-size:8px;font-weight:900}.rp-cal-event{display:block;margin:2px 0;padding:3px 4px;border-left:2px solid #70869a;border-radius:3px;background:#f2f6f9;color:#385067;font-size:7.5px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rp-cal-event.hot{border-left-color:#b84040;background:#fbf1f1;color:#763737}.rp-cal-event.watch{border-left-color:#b27a19;background:#fbf6ea;color:#765a25}.rp-calendar-agenda{display:none}.rp-calendar-item{min-width:0;padding:13px 14px;border:1px solid var(--rp-line);border-top:3px solid #70869a;border-radius:9px;background:#fff;box-shadow:var(--rp-shadow)}.rp-calendar-item.hot{border-top-color:#b84040}.rp-calendar-item.watch{border-top-color:#b27a19}.rp-calendar-item small{display:flex;justify-content:space-between;gap:8px;color:var(--rp-muted);font-size:9px}.rp-calendar-item b{display:block;margin-top:5px;color:var(--rp-navy);font-size:12px;line-height:1.45}.rp-calendar-item p{margin:6px 0 0;color:#607286;font-size:9px;line-height:1.5}.rp-calendar-empty{padding:14px;border:1px dashed var(--rp-line);border-radius:9px;background:#fff;color:var(--rp-muted);font-size:10px}@media(max-width:1050px){.rp-calendar-months{grid-template-columns:1fr}}@media(max-width:820px){.rp-header-inner{height:58px;padding:0 15px}.rp-brand-copy small,.rp-nav,.rp-header-status{display:none}.rp-brand-copy b{font-size:13px}.rp-home-portal{padding:14px 12px}.rp-home-hero{display:block}.rp-command{min-height:auto;padding:22px 19px 49px;border-radius:12px}.rp-command h1{font-size:23px}.rp-command .rp-diagnosis{font-size:12px;line-height:1.6}.rp-command-actions{margin-top:16px}.rp-risk-card{margin-top:10px;padding:15px}.rp-section-head{margin-top:18px}.rp-market-board{display:flex;overflow-x:auto;gap:8px;padding-bottom:5px;scroll-snap-type:x proximity}.rp-market-board .rp-market{flex:0 0 145px;scroll-snap-align:start}.rp-calendar-months{display:none}.rp-calendar-agenda{display:flex;overflow-x:auto;gap:8px;padding-bottom:5px;scroll-snap-type:x proximity}.rp-calendar-item{flex:0 0 230px;scroll-snap-align:start}.rp-intelligence{display:block}.rp-module{min-height:0;margin-bottom:9px;padding:15px}.rp-research-layout{padding:0 12px 30px}.blog-posts{display:block}.post{height:auto;margin-bottom:9px!important;padding:16px!important}.rp-home .post{min-height:142px}.rp-card-summary{font-size:10px;-webkit-line-clamp:2}.rp-item .rp-research-layout{padding-top:13px}.rp-item .post-title,.rp-item .post-header{padding-left:4px;padding-right:4px}.rp-item .post-title{font-size:19px!important}.rp-item .post-body>.mmp-responsive{max-width:none!important}.rp-utility{display:block;padding:0 12px 22px}.rp-utility .section{margin-bottom:9px}.rp-footer-inner{padding:20px 15px}}
+  ]]></b:skin>
+  <style type='text/css'>
+  .rp-cal-day.today{border-color:#2068a0;background:#eef6fc;box-shadow:inset 0 0 0 1px #2068a0}.rp-cal-day.today .rp-day-num{color:#145e9d}.rp-today-label{margin-left:4px;padding:1px 3px;border-radius:3px;background:#2068a0;color:#fff;font-size:7px;font-style:normal}.rp-cal-event{cursor:pointer;text-decoration:none}.rp-cal-event:hover{text-decoration:underline;background:#e8f1f7}.rp-calendar-item>a{display:block;color:inherit;text-decoration:none}.rp-calendar-item>a:hover b{text-decoration:underline}
+  </style>
+</head>
+<body>
+  <div class='rp-shell' data-rp-theme='1.6.5'>
+    <header class='rp-site-header'>
+      <div class='rp-header-inner'>
+        <a class='rp-brand' expr:href='data:blog.homepageUrl'>
+          <span class='rp-mark'>M</span>
+          <span class='rp-brand-copy'><b><data:blog.title/></b><small>Research Portal</small></span>
+        </a>
+        <nav class='rp-nav'>
+          <a expr:href='data:blog.homepageUrl'>Research Desk</a>
+          <a href='/search?q=우리의+모닝브리핑&amp;by-date=true&amp;max-results=1' id='rp-nav-morning'>Morning</a>
+          <a href='/p/market-calendar.html'>Calendar</a>
+          <a href='/p/rumor-watch.html'>Rumor Watch</a>
+          <a href='/search?q=Closing+Review'>Closing</a>
+          <a href='/search/label/Market%20View'>Market View</a>
+          <a href='/search?q=Chart+Research'>Chart Research</a>
+        </nav>
+        <div class='rp-header-status'><span class='rp-status-dot'></span><span>RESEARCH SYSTEM</span></div>
+      </div>
+    </header>
+
+    <b:if cond='data:view.isHomepage'>
+      <div class='rp-home-portal' id='rp-home-portal'>
+        <section class='rp-home-hero'>
+          <div class='rp-command'>
+            <div class='rp-kicker'>MARKET MORNING · INVESTMENT RESEARCH DESK</div>
+            <h1 id='rp-home-title'>오늘의 시장을 한 화면에서 판단합니다.</h1>
+            <p class='rp-diagnosis' id='rp-home-diagnosis'>최신 브리핑의 핵심 진단을 불러오는 중입니다.</p>
+            <div class='rp-command-actions'><a class='rp-btn primary' href='#rp-latest-research' id='rp-latest-link'>최신 리서치</a><a class='rp-btn' href='/search?q=Chart+Research'>Chart Research</a></div>
+            <div class='rp-asof' id='rp-home-asof'>LATEST VERIFIED RESEARCH</div>
+          </div>
+          <aside class='rp-risk-card'>
+            <h2>Research Framework</h2>
+            <div class='rp-risk-grid'>
+              <div class='rp-risk-cell'><small>MACRO / POLICY</small><b>Insight Engine</b></div>
+              <div class='rp-risk-cell'><small>EARNINGS</small><b>Fundamental</b></div>
+              <div class='rp-risk-cell'><small>FLOW</small><b>Positioning</b></div>
+              <div class='rp-risk-cell'><small>CHART</small><b>Price Evidence</b></div>
+            </div>
+            <div class='rp-note'>뉴스·공식 데이터·전문가 가설·차트 증거를 분리해 보고, 가설은 사후 시장 반응으로 다시 검증합니다.</div>
+          </aside>
+        </section>
+        <div class='rp-section-head'><h2>Market Monitor</h2><span>Overnight · Rates · FX · Risk</span></div>
+        <section class='rp-market-board' id='rp-home-market'><div class='rp-market'><small>STATUS</small><b>최신 브리핑 연동</b><strong>—</strong><em>WAITING</em></div></section>
+        <div class='rp-section-head'><h2>Market Calendar</h2><span>Official Schedule · KST · Continuously Refreshed</span></div>
+        <section class='rp-calendar-board' id='rp-home-calendar'><div class='rp-calendar-empty'>최신 모닝브리핑의 주요 일정을 불러오는 중입니다.</div></section>
+        <div class='rp-section-head'><h2>Investment Intelligence</h2><span>Drivers · Chart · Watch</span></div>
+        <section class='rp-intelligence'>
+          <article class='rp-module rp-driver'><div class='rp-module-head'><b>Core Drivers</b><span>WHY NOW</span></div><div id='rp-home-drivers' class='rp-empty'>최신 브리핑에서 핵심 동인을 불러옵니다.</div></article>
+          <article class='rp-module rp-chart'><div class='rp-module-head'><b>Chart / Market Evidence</b><span>PRICE ACTION</span></div><div id='rp-home-chart' class='rp-empty'>차트·수급·시장 반응 근거를 불러옵니다.</div></article>
+          <article class='rp-module rp-watch'><div class='rp-module-head'><b>Watch &amp; Invalidation</b><span>RISK CONTROL</span></div><div id='rp-home-watch' class='rp-empty'>오늘 확인해야 할 지표와 반증조건을 불러옵니다.</div></article>
+        </section>
+      </div>
+    </b:if>
+
+    <main class='rp-research-layout' id='rp-latest-research'>
+      <b:if cond='data:view.isHomepage'><div class='rp-feed-title'><h2>Latest Research</h2><small>MORNING · CLOSING · MARKET VIEW · CHART</small></div></b:if>
+      <b:section class='main' id='main' name='Research Feed' showaddelement='false'>
+        <b:widget id='Blog1' locked='true' title='Research' type='Blog' version='2' visible='true'/>
+      </b:section>
+    </main>
+
+    <section class='rp-utility' aria-label='Research library'>
+      <b:section id='utility-search' name='Research Search' showaddelement='true'>
+        <b:widget id='BlogSearch1' locked='false' title='Research Search' type='BlogSearch' version='2' visible='true'/>
+      </b:section>
+      <b:section id='utility-library' name='Research Library' showaddelement='true'>
+        <b:widget id='Label1' locked='false' title='Research Library' type='Label' version='2' visible='true'/>
+        <b:widget id='BlogArchive1' locked='false' title='Archive' type='BlogArchive' version='2' visible='true'/>
+      </b:section>
+      <b:section id='utility-profile' name='Research Profile' showaddelement='true'>
+        <b:widget id='Profile1' locked='false' title='About Research Desk' type='Profile' version='2' visible='true'/>
+      </b:section>
+    </section>
+
+    <footer class='rp-site-footer'><div class='rp-footer-inner'><b><data:blog.title/></b> · Independent market research framework. 전문가 의견은 사실과 분리하여 검증합니다.</div></footer>
+  </div>
+
+  <script type='text/javascript'>
+  //<![CDATA[
+  (function(){
+    function txt(node){return node ? (node.textContent||'').trim() : '';}
+    function firstPost(){return document.querySelector('.post-body .mmp-responsive');}
+    function esc(v){return String(v||'').replace(/[&<>\"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c];});}
+    function classifyTitle(t){var u=(t||'').toUpperCase();if(u.indexOf('장마감')>=0||u.indexOf('CLOSING')>=0)return 'CLOSING REVIEW';if(u.indexOf('차트')>=0||u.indexOf('CHART')>=0)return 'CHART RESEARCH';if(u.indexOf('관점')>=0||u.indexOf('MARKET VIEW')>=0)return 'MARKET VIEW';return 'MORNING BRIEF';}
+    function safeSummary(post){var body=post.querySelector('.post-body');if(!body)return '';var desk=body.querySelector('.mmp-desktop .mmp-desk-view strong,.mmp-mobile .mmp-desk-view strong');if(desk&&txt(desk))return txt(desk).slice(0,180);var p=body.querySelector('p');if(p){var v=txt(p).replace(/공유 링크 만들기|Facebook|Pinterest|Twitter|\bX\b/gi,'').trim();if(v.length>8)return v.slice(0,180);}return '';}
+    function decorateResearchCards(){var posts=document.querySelectorAll('.blog-posts .post');for(var i=0;i<posts.length;i++){var post=posts[i];if(post.getAttribute('data-rp-card')==='1')continue;post.setAttribute('data-rp-card','1');var title=post.querySelector('.post-title a,.entry-title a');if(!title)continue;var badge=document.createElement('span');badge.className='rp-card-type';badge.textContent=classifyTitle(txt(title));post.insertBefore(badge,post.firstChild);var sum=safeSummary(post);if(sum){var p=document.createElement('p');p.className='rp-card-summary';p.textContent=sum;var header=post.querySelector('.post-header,.post-header-line-1');(header||title.parentNode).insertAdjacentElement('afterend',p);}var actions=document.createElement('div');actions.className='rp-card-actions';actions.innerHTML='<a class="rp-card-link" href="'+esc(title.href)+'">리서치 열기</a>';post.appendChild(actions);}}
+    function panelByLabel(root, words){
+      if(!root) return null;
+      var labels=root.querySelectorAll('.mmp-section-label');
+      for(var i=0;i<labels.length;i++){
+        var t=txt(labels[i]).toUpperCase();
+        for(var j=0;j<words.length;j++) if(t.indexOf(words[j])>=0) return labels[i].closest('.mmp-panel');
+      }
+      return null;
+    }
+    function compact(node, limit){
+      if(!node) return '';
+      var lis=node.querySelectorAll('li'), out=[];
+      for(var i=0;i<lis.length && out.length<limit;i++) if(txt(lis[i])) out.push('<li>'+txt(lis[i])+'</li>');
+      if(out.length) return '<ul>'+out.join('')+'</ul>';
+      var ps=node.querySelectorAll('p');out=[];
+      for(var k=0;k<ps.length && out.length<limit;k++) if(txt(ps[k])) out.push('<p>'+txt(ps[k])+'</p>');
+      return out.join('');
+    }
+    function buildCalendar(root){
+      var board=document.getElementById('rp-home-calendar');if(!board||!root)return;
+      var panel=root.querySelector('.mmp-desktop .mmp-event-calendar-source')||root.querySelector('.mmp-event-calendar-source');
+      if(!panel)return;var rows=panel.querySelectorAll('tbody tr'),events=[];
+      for(var i=0;i<rows.length;i++){var cells=rows[i].querySelectorAll('td');if(cells.length<5)continue;var stamp=txt(cells[0]),m=stamp.match(/^(\d{4})-(\d{2})-(\d{2})(?:\s+(\d{2}:\d{2}))?/);if(!m)continue;events.push({year:+m[1],month:+m[2],day:+m[3],time:m[4]||'',dday:txt(cells[1]),imp:txt(cells[2]),name:txt(cells[3]),why:txt(cells[4])});}
+      if(!events.length){board.innerHTML='<div class="rp-calendar-empty">확인된 주요 예정 일정이 없습니다.</div>';return;}
+      events.sort(function(a,b){return (a.year-b.year)||(a.month-b.month)||(a.day-b.day)||a.time.localeCompare(b.time);});
+      var detailHref='/p/market-calendar.html#calendar-upcoming';
+      var todayParts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).split('-');
+      var todayKey=todayParts[0]+'-'+todayParts[1]+'-'+todayParts[2];
+      var monthKeys=[],seen={};for(var j=0;j<events.length;j++){var key=events[j].year+'-'+String(events[j].month).padStart(2,'0');if(!seen[key]){seen[key]=1;monthKeys.push(key);}if(monthKeys.length>=2)break;}
+      var months=document.createElement('div');months.className='rp-calendar-months';var weekdays=['월','화','수','목','금','토','일'];
+      for(var k=0;k<monthKeys.length;k++){var parts=monthKeys[k].split('-'),y=+parts[0],mo=+parts[1],card=document.createElement('section');card.className='rp-calendar-month';var title=document.createElement('div');title.className='rp-calendar-month-title';title.innerHTML='<b>'+y+'년 '+mo+'월</b><small>KST · A등급 이상</small>';card.appendChild(title);var week=document.createElement('div');week.className='rp-calendar-week';for(var w=0;w<7;w++){var ws=document.createElement('span');ws.textContent=weekdays[w];week.appendChild(ws);}card.appendChild(week);var days=document.createElement('div');days.className='rp-calendar-days';var first=(new Date(Date.UTC(y,mo-1,1)).getUTCDay()+6)%7,last=new Date(Date.UTC(y,mo,0)).getUTCDate();for(var blank=0;blank<first;blank++){var e=document.createElement('div');e.className='rp-cal-day empty';days.appendChild(e);}for(var dnum=1;dnum<=last;dnum++){var day=document.createElement('div'),dayKey=y+'-'+String(mo).padStart(2,'0')+'-'+String(dnum).padStart(2,'0'),isToday=dayKey===todayKey;day.className='rp-cal-day'+(isToday?' today':'');day.innerHTML='<span class="rp-day-num">'+dnum+(isToday?'<em class="rp-today-label">오늘</em>':'')+'</span>';var count=0;for(var ei=0;ei<events.length;ei++){var ev=events[ei];if(ev.year!==y||ev.month!==mo||ev.day!==dnum)continue;var line=document.createElement('a'),cl=(ev.imp==='S+'||ev.imp==='S')?'hot':(ev.imp==='A'?'watch':'');line.className='rp-cal-event '+cl;line.href=detailHref;line.textContent=(ev.time?ev.time+' ':'')+ev.name;line.title=ev.name;line.setAttribute('aria-label',ev.name+' 상세 보기');day.appendChild(line);count++;if(count>=3)break;}days.appendChild(day);}card.appendChild(days);months.appendChild(card);}
+      var agenda=document.createElement('div');agenda.className='rp-calendar-agenda';for(var ai=0;ai<events.length && ai<10;ai++){var a=events[ai],item=document.createElement('article'),cls=(a.imp==='S+'||a.imp==='S')?'hot':(a.imp==='A'?'watch':'');item.className='rp-calendar-item '+cls;item.innerHTML='<a href="'+esc(detailHref)+'" aria-label="'+esc(a.name)+' 상세 보기"><small><span>'+a.year+'-'+String(a.month).padStart(2,'0')+'-'+String(a.day).padStart(2,'0')+' '+esc(a.time)+'</span><span>'+esc(a.dday+' · '+a.imp)+'</span></small><b>'+esc(a.name)+'</b><p>'+esc(a.why)+'</p></a>';agenda.appendChild(item);}
+      board.innerHTML='';board.appendChild(months);board.appendChild(agenda);
+    }
+    function buildHome(){
+      var portal=document.getElementById('rp-home-portal');
+      document.body.classList.add(portal?'rp-home':'rp-item');
+      if(portal) decorateResearchCards();
+      if(!portal) return;
+      var root=firstPost();
+      if(!root) return;
+      var d=root.querySelector('.mmp-desktop') || root;
+      buildCalendar(root);
+      var diagnosis=d.querySelector('.mmp-desk-view strong');
+      if(diagnosis){document.getElementById('rp-home-title').textContent='오늘의 Research Desk';document.getElementById('rp-home-diagnosis').textContent=txt(diagnosis);}
+      var meta=d.querySelector('.mmp-hero-meta'); if(meta) document.getElementById('rp-home-asof').textContent=txt(meta);
+      var titleLink=document.querySelector('.post-title a,.entry-title a'); if(titleLink){var l=document.getElementById('rp-latest-link');l.href=titleLink.href;l.textContent='최신 리서치 열기';}
+      var board=document.getElementById('rp-home-market'), tiles=d.querySelectorAll('.mmp-market-tile');
+      if(tiles.length){board.innerHTML='';for(var i=0;i<tiles.length && i<10;i++){var src=tiles[i], c=document.createElement('div');c.className='rp-market '+(src.classList.contains('up')?'up':src.classList.contains('down')?'down':'');var sm=src.querySelector('small'),b=src.querySelector('b'),s=src.querySelector('strong'),e=src.querySelector('em');c.innerHTML='<small>'+txt(sm)+'</small><b>'+txt(b)+'</b><strong>'+txt(s)+'</strong><em>'+txt(e)+'</em>';board.appendChild(c);}}
+      var drivers=panelByLabel(d,['CORE DRIVERS','DRIVERS','핵심 동인']);
+      var chart=panelByLabel(d,['CHART','MARKET EVIDENCE','FLOW','BREADTH']);
+      var watch=panelByLabel(d,['WATCH','INVALIDATION','NEXT SESSION']);
+      var dh=compact(drivers,5),ch=compact(chart,5),wh=compact(watch,5);
+      if(dh) document.getElementById('rp-home-drivers').innerHTML=dh;
+      if(ch) document.getElementById('rp-home-chart').innerHTML=ch;
+      if(wh) document.getElementById('rp-home-watch').innerHTML=wh;
+    }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',buildHome); else buildHome();
+  })();
+  //]]>
+  </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "timezone": "America/New_York",
+  "events": [
+    {"id":"2026-08-26_pce_gdp","date":"2026-08-26","time":"08:30","type":"US_MACRO","importance":"P0","name":"US Personal Income & Outlays + Q2 GDP second estimate","watch":["core_pce","real_income","corporate_profits","us_real_10y","dxy"]},
+    {"id":"2026-09-01_jolts","date":"2026-09-01","time":"10:00","type":"US_LABOR","importance":"P0","name":"US JOLTS July 2026","watch":["job_openings","quits","us_2y","us_10y"]},
+    {"id":"2026-09-04_nfp","date":"2026-09-04","time":"08:30","type":"US_LABOR","importance":"P0","name":"US Employment Situation August 2026","watch":["payroll","unemployment","wages","us_2y","us_10y","dxy"]},
+    {"id":"2026-09-10_ppi","date":"2026-09-10","time":"08:30","type":"US_INFLATION","importance":"P0","name":"US PPI August 2026","watch":["ppi","us_be_5y","us_be_10y","us_10y"]},
+    {"id":"2026-09-11_cpi","date":"2026-09-11","time":"08:30","type":"US_INFLATION","importance":"P0","name":"US CPI August 2026","watch":["cpi","core_cpi","us_real_10y","us_be_10y","dxy"]},
+    {"id":"2026-09-15_16_fomc","date":"2026-09-16","time":"14:00","type":"FOMC","importance":"P0","name":"FOMC Sep 15-16 2026 + SEP","watch":["fed_target","dot_plot","qt","us_2y","us_10y","us_30y","dxy"]},
+    {"id":"2026-09-30_pce_gdp","date":"2026-09-30","time":"08:30","type":"US_MACRO","importance":"P0","name":"US PCE August + Q2 GDP third estimate","watch":["core_pce","corporate_profits","us_real_10y"]},
+    {"id":"2026-10-14_cpi","date":"2026-10-14","time":"08:30","type":"US_INFLATION","importance":"P0","name":"US CPI September 2026","watch":["cpi","core_cpi","us_10y","dxy"]},
+    {"id":"2026-10-27_28_fomc","date":"2026-10-28","time":"14:00","type":"FOMC","importance":"P0","name":"FOMC Oct 27-28 2026","watch":["fed_target","qt","us_2y","us_10y","dxy"]},
+    {"id":"2026-10-29_gdp_pce","date":"2026-10-29","time":"08:30","type":"US_MACRO","importance":"P0","name":"US Q3 GDP advance + PCE September 2026","watch":["gdp","core_pce","us_real_10y","dxy"]},
+    {"id":"2026-11-02_treasury_financing","date":"2026-11-02","type":"TREASURY_QRA","importance":"P0","name":"Treasury quarterly borrowing / financing estimates","watch":["borrowing_estimate","tga_target","bill_coupon_mix"]},
+    {"id":"2026-11-03_midterm","date":"2026-11-03","type":"US_POLITICS","importance":"P0","name":"US Federal Midterm Election","watch":["house","senate","fiscal_policy","treasury_policy"]},
+    {"id":"2026-11-04_qra","date":"2026-11-04","type":"TREASURY_QRA","importance":"P0","name":"Treasury Quarterly Refunding policy statement","watch":["treasury_qra","treasury_buyback","bill_coupon_mix","tga_target","us_30y"]},
+    {"id":"2026-12-08_09_fomc","date":"2026-12-09","time":"14:00","type":"FOMC","importance":"P0","name":"FOMC Dec 8-9 2026 + SEP","watch":["fed_target","dot_plot","qt","us_10y","dxy"]}
+  ],
+  "recurring_rules": [
+    {"type":"TREASURY_AUCTION","importance":"P0","source":"Treasury official auction schedule","note":"Refresh from official source before production calendar publication."},
+    {"type":"TREASURY_BUYBACK","importance":"P0","source":"Treasury official buyback schedule","note":"Refresh from official source before production calendar publication."},
+    {"type":"US_TAX","importance":"P0","source":"IRS official calendar","note":"Tax-payment dates alter TGA/liquidity; refresh annually."},
+    {"type":"DEBT_LIMIT_SHUTDOWN","importance":"P0","source":"Treasury/Congress official notices","note":"Event-driven; do not infer a deadline without a primary source."}
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "mode": "SHADOW_ONLY",
+  "objective": "Cross-channel nightly intelligence. Preserve disagreement; never turn consensus into fact.",
+  "roles": [
+    "MACRO_POLICY",
+    "EARNINGS_VALUATION",
+    "FLOW_POSITIONING",
+    "CHART_TECHNICAL",
+    "COUNTER_VIEW"
+  ],
+  "consensus_policy": {
+    "minimum_distinct_sources": 2,
+    "stances": [
+      "BULLISH",
+      "BEARISH",
+      "NEUTRAL",
+      "MIXED",
+      "UNKNOWN"
+    ],
+    "agreement_rule": "At least two distinct sources share the same non-UNKNOWN stance and no opposite stance is present.",
+    "disagreement_rule": "At least one BULLISH and one BEARISH source occur under the same issue key.",
+    "fact_rule": "Agreement is source consensus only; factual status still comes from independent evidence."
+  },
+  "collection": {
+    "mode": "INCREMENTAL_CHECKPOINT",
+    "bootstrap_lookback_hours": 48,
+    "recovery_lookback_hours": 168,
+    "sections": [
+      "videos",
+      "streams",
+      "shorts"
+    ],
+    "dedupe_key": "video_id",
+    "checkpoint_after": "SUCCESSFUL_ANALYSIS"
+  },
+  "outputs": {
+    "state": "data/state/nightly_youtube/YYYY-MM-DD.json",
+    "report": "reports/YYYY-MM/YYYY-MM-DD-nightly-youtube-intelligence.md"
+  }
+}

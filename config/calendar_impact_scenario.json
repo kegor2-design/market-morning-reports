@@ -1,0 +1,16 @@
+{
+  "version": "1.6.5.6",
+  "enabled": true,
+  "impact_levels": ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
+  "critical_badge": "🔥 매우 중요",
+  "high_badge": "▲ 중요",
+  "score_is_market_reach_not_prediction_accuracy": true,
+  "show_impact_badge_on_month_grid": true,
+  "show_impact_reason_on_detail": true,
+  "show_impacted_assets": true,
+  "show_conditional_outcome_scenarios": true,
+  "scenario_probabilities_default_to_null": true,
+  "scenario_probability_source_allowed": ["OUR_MI"],
+  "never_invent_probability_from_fallback_template": true,
+  "compare_realized_result_with_pre_event_scenario": true
+}

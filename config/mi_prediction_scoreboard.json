@@ -1,0 +1,22 @@
+{
+  "contract": "MMP_MI_PREDICTION_SCOREBOARD_V1",
+  "version": "1.6.5.3",
+  "storage_root": "data/state/mi_prediction_scoreboard",
+  "default_flat_band_pct": 0.25,
+  "confidence_buckets": [
+    {"label": "LOW", "min": 0.0, "max": 0.60},
+    {"label": "MEDIUM", "min": 0.60, "max": 0.75},
+    {"label": "HIGH", "min": 0.75, "max": 1.01}
+  ],
+  "allowed_directions": ["UP", "DOWN", "FLAT"],
+  "allowed_horizons": ["INTRADAY", "1D", "3D", "1W", "2W", "1M", "3M", "6M", "1Y"],
+  "evaluation": {
+    "require_frozen_snapshot": true,
+    "point_in_time_only": true,
+    "score_only_after_horizon": true,
+    "separate_direction_from_causal_validation": true,
+    "record_mfe_mae": true,
+    "record_terminal_return": true,
+    "no_backfill_overwrite": true
+  }
+}

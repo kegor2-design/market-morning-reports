@@ -1,0 +1,28 @@
+{
+  "contract": "MMP_RUMOR_INTELLIGENCE_V1",
+  "enabled": true,
+  "default_recheck_hours": 6,
+  "unverified_ttl_hours": 72,
+  "normalized_event_inputs": ["data/normalized/rumor/events.jsonl"],
+  "source_policy": {
+    "YOUTUBE": {"truth_class": "UNVERIFIED", "calendar_badge": "미확인"},
+    "YOUTUBE_EXPERT": {"truth_class": "ATTRIBUTABLE_REPORT", "calendar_badge": "전문가 주장"},
+    "TELEGRAM": {"truth_class": "UNVERIFIED", "calendar_badge": "텔레그램 미확인"},
+    "TELEGRAM_NAMED": {"truth_class": "ATTRIBUTABLE_REPORT", "calendar_badge": "텔레그램 주장"},
+    "TELEGRAM_ANON": {"truth_class": "UNVERIFIED", "calendar_badge": "익명 미확인"},
+    "NEWS_TIP": {"truth_class": "UNVERIFIED", "calendar_badge": "제보/미확인"}
+  },
+  "guardrails": {
+    "rumor_never_becomes_official_by_count_only": true,
+    "unverified_cannot_set_actual": true,
+    "official_denial_rejects_event": true,
+    "keep_source_history": true,
+    "show_unverified_separately_in_calendar": true,
+    "show_unverified_separately_in_brief": true
+  },
+  "calendar": {
+    "section_title": "시장 이벤트 · 미확인/추적",
+    "show_statuses": ["UNVERIFIED", "CORROBORATED_UNVERIFIED", "VERIFIED", "ACTIVE", "RESOLVING"],
+    "hide_statuses": ["REJECTED", "EXPIRED"]
+  }
+}

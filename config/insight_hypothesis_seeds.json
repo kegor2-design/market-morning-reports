@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0",
+  "hypotheses": [
+    {
+      "source_lens": "PARK_JONG_HOON",
+      "source_weight": "HIGH_PROVISIONAL",
+      "hypothesis": "2026년 장기채 바이백 확대에는 시장 유동성 개선 외에 장기금리 억제와 정치 일정의 유인이 일부 존재할 수 있다.",
+      "playbook_ids": [
+        "TREASURY_FUNDING",
+        "POLITICAL_ECONOMY"
+      ],
+      "tags": [
+        "TREASURY",
+        "BUYBACK",
+        "POLITICS"
+      ],
+      "status": "OPEN",
+      "invalidation_conditions": [
+        "선거 이후에도 동일하거나 더 큰 규모로 구조적으로 지속되고 장기금리 스트레스와 무관하게 운영될 경우 정치 타이밍 가설 가중치를 낮춘다."
+      ]
+    },
+    {
+      "source_lens": "PARK_JONG_HOON",
+      "source_weight": "HIGH_PROVISIONAL",
+      "hypothesis": "FIMA는 해외 통화당국의 달러 조달 시 미국채 강제매도를 줄이는 완충장치로 작동할 수 있다.",
+      "playbook_ids": [
+        "DOLLAR_HEGEMONY"
+      ],
+      "tags": [
+        "FIMA",
+        "USD",
+        "TREASURY"
+      ],
+      "status": "OPEN",
+      "invalidation_conditions": [
+        "달러 스트레스 국면에서도 FIMA 사용이 없고 해외 공식부문의 미국채 매도가 지속될 경우 영향 가중치를 낮춘다."
+      ]
+    },
+    {
+      "source_lens": "PARK_JONG_HOON",
+      "source_weight": "HIGH_PROVISIONAL",
+      "hypothesis": "AI 인프라 기업의 자금조달 비용 상승은 GPU/HBM 수요의 질을 악화시키고 한국 반도체에 증폭 전달될 수 있다.",
+      "playbook_ids": [
+        "AI_FINANCING",
+        "INDUSTRY_CYCLE"
+      ],
+      "tags": [
+        "AI",
+        "CREDIT",
+        "SEMICONDUCTOR"
+      ],
+      "status": "OPEN",
+      "invalidation_conditions": [
+        "실질금리·credit spread 상승에도 AI CAPEX·신규주문·HBM backlog가 장기간 가속되면 전파 강도를 낮춘다."
+      ]
+    },
+    {
+      "source_lens": "PARK_SE_IK",
+      "source_weight": "HIGH",
+      "hypothesis": "주가가 급락해도 12개월 Forward EPS와 이익 revision breadth가 훼손되지 않으면 구조적 펀더멘털 하락보다 valuation·수급 충격일 가능성을 우선 검토해야 한다.",
+      "playbook_ids": [
+        "EARNINGS_VALUATION",
+        "FLOW_POSITIONING"
+      ],
+      "tags": [
+        "EARNINGS",
+        "VALUATION",
+        "DELEVERAGING"
+      ],
+      "status": "OPEN",
+      "invalidation_conditions": [
+        "Forward EPS와 revision breadth가 이후 빠르게 하향되고 산업 데이터도 악화될 경우 구조적 하락 가설로 전환한다."
+      ]
+    },
+    {
+      "source_lens": "PARK_SE_IK",
+      "source_weight": "HIGH",
+      "hypothesis": "외국인 현물과 선물·옵션이 같은 방향으로 강하게 정렬될 때 단기 지수 방향의 신뢰도가 높아진다.",
+      "playbook_ids": [
+        "FLOW_POSITIONING"
+      ],
+      "tags": [
+        "FLOW",
+        "POSITIONING"
+      ],
+      "status": "OPEN",
+      "invalidation_conditions": [
+        "반복 표본에서 현선물·옵션 정렬과 후속 지수 방향의 관계가 비용·만기 조정 후 유의하지 않으면 폐기한다."
+      ]
+    },
+    {
+      "source_lens": "PARK_SE_IK",
+      "source_weight": "HIGH",
+      "hypothesis": "반도체 재고 감소와 ASP·수출·가동률 개선이 동시에 나타날 때 시크리컬 업턴 신뢰도가 높아진다.",
+      "playbook_ids": [
+        "INDUSTRY_CYCLE"
+      ],
+      "tags": [
+        "SEMICONDUCTOR",
+        "INDUSTRY"
+      ],
+      "status": "OPEN",
+      "invalidation_conditions": [
+        "재고 감소가 출하 부진에 의한 생산축소일 뿐 ASP·수출·이익이 개선되지 않으면 업턴 가설을 기각한다."
+      ]
+    }
+  ]
+}
