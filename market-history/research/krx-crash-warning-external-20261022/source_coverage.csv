@@ -1,0 +1,3 @@
+variable,source,first_observation,last_observation,weekday_rows,observed_rows,missing_rows,missing_rate,publication_rule,vintage_status
+US2Y,Federal Reserve H.15 official DDP,2010-01-04,2026-10-19,4382,4201,181,0.04130534002738476,next H.15 release date 16:15 America/New_York,UNVERIFIED_CURRENT_HISTORICAL_SNAPSHOT
+US10Y,Federal Reserve H.15 official DDP,2010-01-04,2026-10-19,4382,4201,181,0.04130534002738476,next H.15 release date 16:15 America/New_York,UNVERIFIED_CURRENT_HISTORICAL_SNAPSHOT

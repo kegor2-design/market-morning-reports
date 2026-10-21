@@ -1,0 +1,7 @@
+index,period,krx_sessions,linked_sessions,missing_sessions,max_age_days,median_age_days,future_release_violations,vintage_verified
+KOSPI,development,1976,1976,0,5,2.0,0,0
+KOSPI,validation,986,986,0,5,2.0,0,0
+KOSPI,final,1171,1171,0,5,2,0,0
+KOSDAQ,development,1976,1976,0,5,2.0,0,0
+KOSDAQ,validation,986,986,0,5,2.0,0,0
+KOSDAQ,final,1171,1171,0,5,2,0,0
