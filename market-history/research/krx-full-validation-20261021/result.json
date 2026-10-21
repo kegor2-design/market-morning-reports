@@ -1,0 +1,621 @@
+{
+  "started_at_utc": "2026-10-21T13:01:32.461037+00:00",
+  "source": "KRX Data Marketplace MDCSTAT00301",
+  "rate_limit_seconds": 2.5,
+  "max_queries": 50,
+  "login_http": [
+    {
+      "http_status": 200,
+      "krx_error_code": "CD001"
+    }
+  ],
+  "queries": [
+    {
+      "number": 1,
+      "index": "KOSPI",
+      "start": "2010-01-01",
+      "end": "2010-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 251
+    },
+    {
+      "number": 2,
+      "index": "KOSDAQ",
+      "start": "2010-01-01",
+      "end": "2010-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 251
+    },
+    {
+      "number": 3,
+      "index": "KOSPI",
+      "start": "2011-01-01",
+      "end": "2011-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 248
+    },
+    {
+      "number": 4,
+      "index": "KOSDAQ",
+      "start": "2011-01-01",
+      "end": "2011-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 248
+    },
+    {
+      "number": 5,
+      "index": "KOSPI",
+      "start": "2012-01-01",
+      "end": "2012-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 248
+    },
+    {
+      "number": 6,
+      "index": "KOSDAQ",
+      "start": "2012-01-01",
+      "end": "2012-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 248
+    },
+    {
+      "number": 7,
+      "index": "KOSPI",
+      "start": "2013-01-01",
+      "end": "2013-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 247
+    },
+    {
+      "number": 8,
+      "index": "KOSDAQ",
+      "start": "2013-01-01",
+      "end": "2013-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 247
+    },
+    {
+      "number": 9,
+      "index": "KOSPI",
+      "start": "2014-01-01",
+      "end": "2014-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 245
+    },
+    {
+      "number": 10,
+      "index": "KOSDAQ",
+      "start": "2014-01-01",
+      "end": "2014-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 245
+    },
+    {
+      "number": 11,
+      "index": "KOSPI",
+      "start": "2015-01-01",
+      "end": "2015-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 248
+    },
+    {
+      "number": 12,
+      "index": "KOSDAQ",
+      "start": "2015-01-01",
+      "end": "2015-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 248
+    },
+    {
+      "number": 13,
+      "index": "KOSPI",
+      "start": "2016-01-01",
+      "end": "2016-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 246
+    },
+    {
+      "number": 14,
+      "index": "KOSDAQ",
+      "start": "2016-01-01",
+      "end": "2016-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 246
+    },
+    {
+      "number": 15,
+      "index": "KOSPI",
+      "start": "2017-01-01",
+      "end": "2017-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 243
+    },
+    {
+      "number": 16,
+      "index": "KOSDAQ",
+      "start": "2017-01-01",
+      "end": "2017-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 243
+    },
+    {
+      "number": 17,
+      "index": "KOSPI",
+      "start": "2018-01-01",
+      "end": "2018-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 244
+    },
+    {
+      "number": 18,
+      "index": "KOSDAQ",
+      "start": "2018-01-01",
+      "end": "2018-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 244
+    },
+    {
+      "number": 19,
+      "index": "KOSPI",
+      "start": "2019-01-01",
+      "end": "2019-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 246
+    },
+    {
+      "number": 20,
+      "index": "KOSDAQ",
+      "start": "2019-01-01",
+      "end": "2019-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 246
+    },
+    {
+      "number": 21,
+      "index": "KOSPI",
+      "start": "2020-01-01",
+      "end": "2020-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 248
+    },
+    {
+      "number": 22,
+      "index": "KOSDAQ",
+      "start": "2020-01-01",
+      "end": "2020-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 248
+    },
+    {
+      "number": 23,
+      "index": "KOSPI",
+      "start": "2021-01-01",
+      "end": "2021-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 248
+    },
+    {
+      "number": 24,
+      "index": "KOSDAQ",
+      "start": "2021-01-01",
+      "end": "2021-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 248
+    },
+    {
+      "number": 25,
+      "index": "KOSPI",
+      "start": "2022-01-01",
+      "end": "2022-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 246
+    },
+    {
+      "number": 26,
+      "index": "KOSDAQ",
+      "start": "2022-01-01",
+      "end": "2022-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 246
+    },
+    {
+      "number": 27,
+      "index": "KOSPI",
+      "start": "2023-01-01",
+      "end": "2023-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 245
+    },
+    {
+      "number": 28,
+      "index": "KOSDAQ",
+      "start": "2023-01-01",
+      "end": "2023-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 245
+    },
+    {
+      "number": 29,
+      "index": "KOSPI",
+      "start": "2024-01-01",
+      "end": "2024-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 244
+    },
+    {
+      "number": 30,
+      "index": "KOSDAQ",
+      "start": "2024-01-01",
+      "end": "2024-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 244
+    },
+    {
+      "number": 31,
+      "index": "KOSPI",
+      "start": "2025-01-01",
+      "end": "2025-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 242
+    },
+    {
+      "number": 32,
+      "index": "KOSDAQ",
+      "start": "2025-01-01",
+      "end": "2025-12-31",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 242
+    },
+    {
+      "number": 33,
+      "index": "KOSPI",
+      "start": "2026-01-01",
+      "end": "2026-10-20",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 194
+    },
+    {
+      "number": 34,
+      "index": "KOSDAQ",
+      "start": "2026-01-01",
+      "end": "2026-10-20",
+      "purpose": "full",
+      "http_status": 200,
+      "returned_rows": 194
+    },
+    {
+      "number": 35,
+      "index": "KOSPI",
+      "start": "1996-01-03",
+      "end": "1996-01-05",
+      "purpose": "early_sample",
+      "http_status": 200,
+      "returned_rows": 3
+    },
+    {
+      "number": 36,
+      "index": "KOSDAQ",
+      "start": "1996-07-02",
+      "end": "1996-07-05",
+      "purpose": "early_sample",
+      "http_status": 200,
+      "returned_rows": 4
+    },
+    {
+      "number": 37,
+      "index": "KOSPI",
+      "start": "2008-10-01",
+      "end": "2008-10-05",
+      "purpose": "early_sample",
+      "http_status": 200,
+      "returned_rows": 2
+    },
+    {
+      "number": 38,
+      "index": "KOSDAQ",
+      "start": "2008-10-01",
+      "end": "2008-10-05",
+      "purpose": "early_sample",
+      "http_status": 200,
+      "returned_rows": 2
+    },
+    {
+      "number": 39,
+      "index": "KOSPI",
+      "start": "1997-08-12",
+      "end": "1997-08-12",
+      "purpose": "mismatch_check",
+      "http_status": 200,
+      "returned_rows": 1
+    },
+    {
+      "number": 40,
+      "index": "KOSPI",
+      "start": "1998-09-15",
+      "end": "1998-09-15",
+      "purpose": "mismatch_check",
+      "http_status": 200,
+      "returned_rows": 1
+    },
+    {
+      "number": 41,
+      "index": "KOSPI",
+      "start": "1998-11-25",
+      "end": "1998-11-25",
+      "purpose": "mismatch_check",
+      "http_status": 200,
+      "returned_rows": 1
+    },
+    {
+      "number": 42,
+      "index": "KOSPI",
+      "start": "1999-01-05",
+      "end": "1999-01-05",
+      "purpose": "mismatch_check",
+      "http_status": 200,
+      "returned_rows": 1
+    },
+    {
+      "number": 43,
+      "index": "KOSPI",
+      "start": "1999-03-05",
+      "end": "1999-03-05",
+      "purpose": "mismatch_check",
+      "http_status": 200,
+      "returned_rows": 1
+    },
+    {
+      "number": 44,
+      "index": "KOSPI",
+      "start": "1999-03-11",
+      "end": "1999-03-11",
+      "purpose": "mismatch_check",
+      "http_status": 200,
+      "returned_rows": 1
+    },
+    {
+      "number": 45,
+      "index": "KOSPI",
+      "start": "1999-05-03",
+      "end": "1999-05-03",
+      "purpose": "mismatch_check",
+      "http_status": 200,
+      "returned_rows": 1
+    },
+    {
+      "number": 46,
+      "index": "KOSPI",
+      "start": "2000-02-18",
+      "end": "2000-02-18",
+      "purpose": "mismatch_check",
+      "http_status": 200,
+      "returned_rows": 1
+    },
+    {
+      "number": 47,
+      "index": "KOSPI",
+      "start": "2000-03-08",
+      "end": "2000-03-08",
+      "purpose": "mismatch_check",
+      "http_status": 200,
+      "returned_rows": 1
+    },
+    {
+      "number": 48,
+      "index": "KOSPI",
+      "start": "2000-08-23",
+      "end": "2000-08-23",
+      "purpose": "mismatch_check",
+      "http_status": 200,
+      "returned_rows": 1
+    },
+    {
+      "number": 49,
+      "index": "KOSDAQ",
+      "start": "2001-11-01",
+      "end": "2001-11-01",
+      "purpose": "mismatch_check",
+      "http_status": 200,
+      "returned_rows": 1
+    }
+  ],
+  "status": "COMPLETE",
+  "login_success": true,
+  "planned_queries": 49,
+  "finished_at_utc": "2026-10-21T13:03:40.483455+00:00",
+  "full_validation": {
+    "KOSPI": {
+      "official_dates": 4148,
+      "first_official_date": "1996-01-03",
+      "last_official_date": "2026-10-20",
+      "providers": {
+        "Naver": {
+          "2010_2026_comparisons": 4133,
+          "mismatches": 0,
+          "official_dates_missing_in_provider": 0,
+          "provider_dates_missing_in_official": 0,
+          "official_dates_missing_in_provider_sample": [],
+          "provider_dates_missing_in_official_sample": [],
+          "pre2010_sample_comparisons": 15,
+          "pre2010_sample_mismatches": 0
+        },
+        "Yahoo": {
+          "2010_2026_comparisons": 4128,
+          "mismatches": 2,
+          "official_dates_missing_in_provider": 5,
+          "provider_dates_missing_in_official": 0,
+          "official_dates_missing_in_provider_sample": [
+            "2011-10-04",
+            "2017-09-22",
+            "2017-12-20",
+            "2022-01-03",
+            "2022-05-09"
+          ],
+          "provider_dates_missing_in_official_sample": [],
+          "pre2010_sample_comparisons": 12,
+          "pre2010_sample_mismatches": 10
+        }
+      }
+    },
+    "KOSDAQ": {
+      "official_dates": 4140,
+      "first_official_date": "1996-07-02",
+      "last_official_date": "2026-10-20",
+      "providers": {
+        "Naver": {
+          "2010_2026_comparisons": 4133,
+          "mismatches": 0,
+          "official_dates_missing_in_provider": 0,
+          "provider_dates_missing_in_official": 0,
+          "official_dates_missing_in_provider_sample": [],
+          "provider_dates_missing_in_official_sample": [],
+          "pre2010_sample_comparisons": 7,
+          "pre2010_sample_mismatches": 1
+        },
+        "Yahoo": {
+          "2010_2026_comparisons": 4129,
+          "mismatches": 0,
+          "official_dates_missing_in_provider": 4,
+          "provider_dates_missing_in_official": 0,
+          "official_dates_missing_in_provider_sample": [
+            "2017-09-22",
+            "2017-12-20",
+            "2022-01-03",
+            "2022-05-09"
+          ],
+          "provider_dates_missing_in_official_sample": [],
+          "pre2010_sample_comparisons": 3,
+          "pre2010_sample_mismatches": 0
+        }
+      }
+    }
+  },
+  "comparisons": 16523,
+  "mismatches": 2,
+  "provider_mismatch_adjudication": [
+    {
+      "date": "1997-08-12",
+      "index": "KOSPI",
+      "verdict": "NAVER",
+      "naver_absolute_error": "0.00",
+      "yahoo_absolute_error": "0.899980"
+    },
+    {
+      "date": "1998-09-15",
+      "index": "KOSPI",
+      "verdict": "NAVER",
+      "naver_absolute_error": "0.00",
+      "yahoo_absolute_error": "3.020011"
+    },
+    {
+      "date": "1998-11-25",
+      "index": "KOSPI",
+      "verdict": "NAVER",
+      "naver_absolute_error": "0.00",
+      "yahoo_absolute_error": "2.999990"
+    },
+    {
+      "date": "1999-01-05",
+      "index": "KOSPI",
+      "verdict": "NAVER",
+      "naver_absolute_error": "0.00",
+      "yahoo_absolute_error": "21.769971"
+    },
+    {
+      "date": "1999-03-05",
+      "index": "KOSPI",
+      "verdict": "NAVER",
+      "naver_absolute_error": "0.00",
+      "yahoo_absolute_error": "1.000002"
+    },
+    {
+      "date": "1999-03-11",
+      "index": "KOSPI",
+      "verdict": "NAVER",
+      "naver_absolute_error": "0.00",
+      "yahoo_absolute_error": "0.070007"
+    },
+    {
+      "date": "1999-05-03",
+      "index": "KOSPI",
+      "verdict": "NAVER",
+      "naver_absolute_error": "0.00",
+      "yahoo_absolute_error": "0.060027"
+    },
+    {
+      "date": "2000-02-18",
+      "index": "KOSPI",
+      "verdict": "NAVER",
+      "naver_absolute_error": "0.00",
+      "yahoo_absolute_error": "18.380020"
+    },
+    {
+      "date": "2000-03-08",
+      "index": "KOSPI",
+      "verdict": "NAVER",
+      "naver_absolute_error": "0.00",
+      "yahoo_absolute_error": "0.700010"
+    },
+    {
+      "date": "2000-08-23",
+      "index": "KOSPI",
+      "verdict": "NAVER",
+      "naver_absolute_error": "0.00",
+      "yahoo_absolute_error": "0.079978"
+    },
+    {
+      "date": "2021-04-23",
+      "index": "KOSPI",
+      "verdict": "NAVER",
+      "naver_absolute_error": "0.00",
+      "yahoo_absolute_error": "5.019922"
+    },
+    {
+      "date": "2021-05-06",
+      "index": "KOSPI",
+      "verdict": "NAVER",
+      "naver_absolute_error": "0.00",
+      "yahoo_absolute_error": "18.310068"
+    },
+    {
+      "date": "2001-11-01",
+      "index": "KOSDAQ",
+      "verdict": "YAHOO",
+      "naver_absolute_error": "10.90",
+      "yahoo_absolute_error": "0.000024"
+    }
+  ]
+}
