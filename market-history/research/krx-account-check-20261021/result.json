@@ -1,0 +1,48 @@
+{
+  "checked_at_utc": "2026-10-21T12:54:25.709049+00:00",
+  "method": "MMP PyKRX login_krx; KRX Data Marketplace MDCSTAT00301",
+  "sample": {
+    "start": "20201005",
+    "end": "20201009"
+  },
+  "login_http": [
+    {
+      "step": "login_warmup",
+      "http_status": 200
+    },
+    {
+      "step": "login_warmup",
+      "http_status": 200
+    },
+    {
+      "step": "login_warmup",
+      "http_status": 200
+    },
+    {
+      "step": "login_warmup",
+      "http_status": 200
+    },
+    {
+      "step": "login",
+      "http_status": 200,
+      "krx_error_code": "CD001"
+    }
+  ],
+  "login_success": true,
+  "queries": [
+    {
+      "index": "KOSPI",
+      "http_status": 200,
+      "official_rows": 4
+    },
+    {
+      "index": "KOSDAQ",
+      "http_status": 200,
+      "official_rows": 4
+    }
+  ],
+  "official_rows": 8,
+  "comparisons": 16,
+  "mismatches": 0,
+  "result": "OFFICIAL_ROWS_RECEIVED"
+}
