@@ -1,0 +1,8 @@
+# Local vendor responses and full price series; publication rights not established.
+yahoo_*_raw.json
+naver_*_raw.xml
+kospi_daily.csv
+kosdaq_daily.csv
+naver_kospi_daily.csv
+naver_kosdaq_daily.csv
+provider_daily_comparison.csv

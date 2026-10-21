@@ -1,0 +1,5 @@
+index,start_date,end_date,row_count,source,verification_status,raw_file
+KOSPI,1996-01-03,2026-10-20,7730,Naver Finance chart,OFFICIAL_UNVERIFIED,naver_kospi_raw.xml
+KOSPI,1996-12-11,2026-10-20,7347,Yahoo Finance chart API,OFFICIAL_UNVERIFIED,yahoo_kospi_raw.json
+KOSDAQ,1996-07-02,2026-10-20,7574,Naver Finance chart,OFFICIAL_UNVERIFIED,naver_kosdaq_raw.xml
+KOSDAQ,2000-10-16,2026-10-20,6408,Yahoo Finance chart API,OFFICIAL_UNVERIFIED,yahoo_kosdaq_raw.json

@@ -1,0 +1,30 @@
+[
+  {
+    "index": "KOSPI",
+    "url": "https://fchart.stock.naver.com/sise.nhn?symbol=KOSPI&timeframe=day&requestType=1&startTime=19960101&endTime=20261020",
+    "retrieved_at_utc": "2026-10-21T05:00:09.948204+00:00",
+    "raw_file": "naver_kospi_raw.xml",
+    "raw_sha256": "6c1413b675069bb117e41bc648c051ffd31f4b22b321060d42199a780b58b90d",
+    "raw_bytes": 543314,
+    "csv_file": "naver_kospi_daily.csv",
+    "csv_sha256": "b243b958aae4ac360527f8d85e38c2696b8be4379bd77a0833ef977ec2595ae3",
+    "rows": 7730,
+    "first": "1996-01-03",
+    "last": "2026-10-20",
+    "origin_time": "19900104"
+  },
+  {
+    "index": "KOSDAQ",
+    "url": "https://fchart.stock.naver.com/sise.nhn?symbol=KOSDAQ&timeframe=day&requestType=1&startTime=19960101&endTime=20261020",
+    "retrieved_at_utc": "2026-10-21T05:00:10.369185+00:00",
+    "raw_file": "naver_kosdaq_raw.xml",
+    "raw_sha256": "de2a914c6e4c4215c63935e4b80e8b8a610ed76860a1c967d0c630dec4a5588f",
+    "raw_bytes": 507680,
+    "csv_file": "naver_kosdaq_daily.csv",
+    "csv_sha256": "a3cccdd46ef9b6eb3cb6edf69f753f3b4e888f2b887b7b26f4c2e31126ade9fd",
+    "rows": 7574,
+    "first": "1996-07-02",
+    "last": "2026-10-20",
+    "origin_time": "19960702"
+  }
+]

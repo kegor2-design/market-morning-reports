@@ -1,0 +1,23 @@
+{
+  "target": "KRX Data Marketplace 개별지수 시세 추이 MDCSTAT00301",
+  "request": {
+    "method": "POST",
+    "url": "https://data.krx.co.kr/comm/bldAttendant/getJsonData.cmd",
+    "parameters": {
+      "bld": "dbms/MDC/STAT/standard/MDCSTAT00301",
+      "locale": "ko_KR",
+      "indIdx": "1",
+      "indIdx2": "001",
+      "strtDd": "20201001",
+      "endDd": "20201031"
+    }
+  },
+  "observations": [
+    {"method": "POST without login", "http_status": 400, "body": "LOGOUT"},
+    {"method": "GET main page then POST in same session", "main_page_http_status": 200, "session_cookie_received": true, "post_http_status": 400, "post_body": "LOGOUT"}
+  ],
+  "open_api_service_page": "https://openapi.krx.co.kr/contents/OPP/INFO/service/OPPINFO004.cmd",
+  "open_api_key_available": false,
+  "official_price_rows_received": 0,
+  "result": "UNVERIFIED"
+}

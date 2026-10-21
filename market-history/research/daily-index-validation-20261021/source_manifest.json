@@ -1,0 +1,30 @@
+[
+  {
+    "index": "KOSPI",
+    "url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EKS11?period1=820454400&period2=1792540800&interval=1d&events=history",
+    "retrieved_at_utc": "2026-10-21T04:49:45.358721+00:00",
+    "raw_file": "yahoo_kospi_raw.json",
+    "raw_sha256": "c60abbeea10e80cc795b8c93fab4e70f7e6d060cba06caa0daaf5b9c3d6114e2",
+    "raw_bytes": 771257,
+    "csv_file": "kospi_daily.csv",
+    "csv_sha256": "64acbd58f733ae80ed76e5f530bc6d16f6cca186d60c5aab4b571f17bf87d04d",
+    "rows": 7496,
+    "first": "1996-12-11",
+    "last": "2026-10-20",
+    "meta_first_trade_date": 850262400
+  },
+  {
+    "index": "KOSDAQ",
+    "url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EKQ11?period1=820454400&period2=1792540800&interval=1d&events=history",
+    "retrieved_at_utc": "2026-10-21T04:49:46.046026+00:00",
+    "raw_file": "yahoo_kosdaq_raw.json",
+    "raw_sha256": "264bef8b833be0320ab192654afcaad6d3683a955ae331e1871215f79ee374b7",
+    "raw_bytes": 669754,
+    "csv_file": "kosdaq_daily.csv",
+    "csv_sha256": "92bbfce7fb1c49fee3b24407273295b21bf17a700f0ea42671917d302e5d1290",
+    "rows": 6493,
+    "first": "2000-10-16",
+    "last": "2026-10-20",
+    "meta_first_trade_date": 971654400
+  }
+]
