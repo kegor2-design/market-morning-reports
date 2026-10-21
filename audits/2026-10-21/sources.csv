@@ -1,0 +1,71 @@
+source_id,source_name,source_type,source_url,collector_name,enabled,last_attempt,last_success,last_failure,failure_reason,attempts7,success7,success_rate_7d,attempts17,success17,success_rate_17d,attempts30,success30,success_rate_30d,items7,latest_item_lag_minutes,source_reliability
+abc_australia_direct,ABC News Australia direct,rss,https://www.abc.net.au/news/feed/51120/rss.xml,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,175,7.0,UNVERIFIED
+aljazeera_direct,Al Jazeera direct,rss,https://www.aljazeera.com/xml/rss/all.xml,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,175,52.5,UNVERIFIED
+bbc_business_direct,BBC News Business direct,rss,https://feeds.bbci.co.uk/news/business/rss.xml,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,351,13.3,UNVERIFIED
+bbc_world_direct,BBC News World direct,rss,https://feeds.bbci.co.uk/news/world/rss.xml,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,208,52.5,UNVERIFIED
+bls_latest,U.S. Bureau of Labor Statistics,rss,https://www.bls.gov/feed/bls_latest.rss,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,7,497.5,UNVERIFIED
+china_taiwan_supply,Google News - China Taiwan supply chain,rss,https://news.google.com/rss/search?q=%28China+Taiwan%29+%28semiconductor+OR+rare+earth+OR+export+control+OR+military%29+when%3A1d&hl=en-US&gl=US&ceid=US%3Aen,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,72,274.8,UNVERIFIED
+cnbc_markets_direct,CNBC Markets direct,rss,https://www.cnbc.com/id/100003114/device/rss/rss.html,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,210,19.0,UNVERIFIED
+cnbc_world_direct,CNBC World direct,rss,https://www.cnbc.com/id/100727362/device/rss/rss.html,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,210,50.1,UNVERIFIED
+ecb_mid,ECB market information,rss,https://mid.ecb.europa.eu/rss/mid.xml,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,140,380.1,UNVERIFIED
+ecb_press,European Central Bank press releases,rss,https://www.ecb.europa.eu/rss/press.html,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,105,920.1,UNVERIFIED
+eia_press_direct,U.S. EIA press releases direct,rss,https://www.eia.gov/rss/press_rss.xml,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,84,20480.2,UNVERIFIED
+eia_today_direct,U.S. EIA Today in Energy direct,rss,https://www.eia.gov/rss/todayinenergy.xml,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,125,1940.2,UNVERIFIED
+etnews_today_direct,전자신문 오늘의 뉴스 direct,rss,https://rss.etnews.com/Section901.xml,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,186,80.2,UNVERIFIED
+event_calendar_bea,,,,,,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,70,,UNVERIFIED
+event_calendar_bls,,,,,,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,812,,UNVERIFIED
+event_calendar_boj,,,,,,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,112,,UNVERIFIED
+event_calendar_bok,,,,,,2026-10-21,2026-10-21,2026-10-13,The read operation timed out,7,7,1.0,17,16,0.9412,30,29,0.9667,14,,UNVERIFIED
+event_calendar_china_nbs,,,,,,2026-10-21,2026-10-21,2026-09-29,<urlopen error [Errno 101] Network is unreachable>,7,7,1.0,17,17,1.0,30,27,0.9,406,,UNVERIFIED
+event_calendar_congress,,,,,,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,0,,UNVERIFIED
+event_calendar_ecb,,,,,,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,126,,UNVERIFIED
+event_calendar_eia,,,,,,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,183,,UNVERIFIED
+event_calendar_fec,,,,,,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,7,,UNVERIFIED
+event_calendar_fed,,,,,,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,119,,UNVERIFIED
+event_calendar_fed_calendar,,,,,,2026-10-21,,2026-10-21,"calendar health failure: FED_CALENDAR returned 0 rows, minimum=1",7,0,0.0,17,0,0.0,30,0,0.0,0,,UNVERIFIED
+event_calendar_iea,,,,,,2026-10-21,,2026-10-21,HTTP Error 403: Forbidden,7,0,0.0,17,0,0.0,30,0,0.0,0,,UNVERIFIED
+event_calendar_japan_mof_fx,,,,,,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,21,,UNVERIFIED
+event_calendar_kc_fed,,,,,,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,7,,UNVERIFIED
+event_calendar_kostat,,,,,,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,84,,UNVERIFIED
+event_calendar_opec,,,,,,2026-10-21,,2026-10-21,HTTP Error 403: Forbidden,7,0,0.0,17,0,0.0,30,0,0.0,0,,UNVERIFIED
+event_calendar_treasury,,,,,,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,35,,UNVERIFIED
+fed_press,Federal Reserve press releases,rss,https://www.federalreserve.gov/feeds/press_all.xml,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,140,6200.1,UNVERIFIED
+france24_direct,France 24 direct,rss,https://www.france24.com/en/rss,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,168,61.4,UNVERIFIED
+global_europe_policy,Google News - Europe policy and economy,rss,https://news.google.com/rss/search?q=%28Europe+economy+OR+ECB+OR+EU+trade+OR+European+sanctions%29+when%3A1d&hl=en-US&gl=US&ceid=US%3Aen,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,361,18.7,UNVERIFIED
+global_geopolitics,Google News - market geopolitics,rss,https://news.google.com/rss/search?q=%28geopolitical+OR+war+OR+sanctions+OR+oil+supply%29+markets+when%3A1d&hl=en-US&gl=US&ceid=US%3Aen,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,413,63.2,UNVERIFIED
+global_market_catalyst_discovery,Google News - broad market catalyst discovery,rss,https://news.google.com/rss/search?q=%28markets+OR+stocks+OR+bonds+OR+oil+OR+currency%29+%28unexpected+OR+surprise+OR+emergency+OR+halt+OR+shock+OR+decision%29+when%3A1d&hl=en-US&gl=US&ceid=US%3Aen,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,374,19.8,UNVERIFIED
+global_semiconductors,Google News - semiconductors and AI,rss,https://news.google.com/rss/search?q=%28semiconductor+OR+AI+chips+OR+Nvidia+OR+TSMC%29+trade+when%3A1d&hl=en-US&gl=US&ceid=US%3Aen,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,332,26.3,UNVERIFIED
+global_us_policy,Google News - US policy and economy,rss,https://news.google.com/rss/search?q=%28US+economy+OR+Federal+Reserve+OR+Treasury+OR+tariff+OR+sanctions%29+when%3A1d&hl=en-US&gl=US&ceid=US%3Aen,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,448,157.5,UNVERIFIED
+google_news_url_resolution,,,,,,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,0,,UNVERIFIED
+guardian_business_direct,The Guardian Business direct,rss,https://www.theguardian.com/business/rss,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,280,235.4,UNVERIFIED
+guardian_world_direct,The Guardian World direct,rss,https://www.theguardian.com/world/rss,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,315,17.4,UNVERIFIED
+hankyung_economy_direct,한국경제 경제 direct,rss,https://www.hankyung.com/feed/economy,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,350,80.0,UNVERIFIED
+hankyung_finance_direct,한국경제 금융 direct,rss,https://www.hankyung.com/feed/finance,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,350,46.6,UNVERIFIED
+iran_hormuz,Google News - Iran and Hormuz,rss,https://news.google.com/rss/search?q=%28Iran+war+OR+Strait+of+Hormuz%29+%28oil+OR+shipping+OR+sanctions%29+when%3A1d&hl=en-US&gl=US&ceid=US%3Aen,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,700,19.7,UNVERIFIED
+korea_after_close_corporate,Korea after-close corporate news,rss,https://news.google.com/rss/search?q=%28%EA%B3%B5%EC%8B%9C+OR+%EC%8B%A4%EC%A0%81+OR+%EC%88%98%EC%A3%BC+OR+%EA%B3%B5%EA%B8%89%EA%B3%84%EC%95%BD+OR+%EC%A6%9D%EC%9E%90+OR+%EC%9D%B8%EC%88%98%ED%95%A9%EB%B3%91+OR+%EC%83%9D%EC%82%B0%EC%A4%91%EB%8B%A8%29+%28%EC%BD%94%EC%8A%A4%ED%94%BC+OR+%EC%BD%94%EC%8A%A4%EB%8B%A5+OR+%EC%83%81%EC%9E%A5%EC%82%AC%29+when%3A1d&hl=ko&gl=KR&ceid=KR%3Ako,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,382,30.3,UNVERIFIED
+korea_after_close_industry,Korea after-close industry news,rss,https://news.google.com/rss/search?q=%28%EB%B0%98%EB%8F%84%EC%B2%B4+OR+%EB%B0%B0%ED%84%B0%EB%A6%AC+OR+%EC%A1%B0%EC%84%A0+OR+%EC%9E%90%EB%8F%99%EC%B0%A8+OR+%EB%B0%94%EC%9D%B4%EC%98%A4+OR+%EB%B0%A9%EC%82%B0+OR+%EC%9B%90%EC%A0%84%29+%28%EC%88%98%EC%A3%BC+OR+%ED%88%AC%EC%9E%90+OR+%EC%88%98%EC%B6%9C+OR+%EA%B7%9C%EC%A0%9C+OR+%EA%B3%B5%EA%B8%89%EB%A7%9D%29+when%3A1d&hl=ko&gl=KR&ceid=KR%3Ako,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,662,12.4,UNVERIFIED
+korea_after_close_policy,Korea after-close policy and regulation,rss,https://news.google.com/rss/search?q=%28site%3Afsc.go.kr+OR+site%3Amotie.go.kr+OR+site%3Amoef.go.kr+OR+site%3Afss.or.kr+OR+site%3Akrx.co.kr%29+%28%EC%A0%95%EC%B1%85+OR+%EA%B7%9C%EC%A0%9C+OR+%EC%A7%80%EC%9B%90+OR+%EA%B3%B5%EC%8B%9C+OR+%EC%8B%9C%ED%96%89%29+when%3A1d&hl=ko&gl=KR&ceid=KR%3Ako,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,466,102.1,UNVERIFIED
+korea_government_meetings,Korea government policy meetings,rss,https://news.google.com/rss/search?q=%28site%3Aopm.go.kr+OR+site%3Amoef.go.kr%29+%28%EA%B5%AD%EC%A0%95%ED%98%84%EC%95%88%EA%B4%80%EA%B3%84%EC%9E%A5%EA%B4%80%ED%9A%8C%EC%9D%98+OR+%EA%B2%BD%EC%A0%9C%EA%B4%80%EA%B3%84%EC%9E%A5%EA%B4%80%ED%9A%8C%EC%9D%98+OR+%EA%B5%AD%EB%AC%B4%ED%9A%8C%EC%9D%98%29+when%3A7d&hl=ko&gl=KR&ceid=KR%3Ako,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,24,490.2,UNVERIFIED
+korea_presidential_meetings_direct,Korea presidential policy meetings direct,president_json,https://www.president.go.kr/ajaxf/frBoard/bbsViewGalleryList.do,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,154,925.3,UNVERIFIED
+korea_presidential_meetings_search,Korea presidential policy meetings search fallback,rss,https://news.google.com/rss/search?q=site%3Apresident.go.kr+%28%EA%B5%AD%EB%AC%B4%ED%9A%8C%EC%9D%98+OR+%EB%B9%84%EC%83%81%EA%B2%BD%EC%A0%9C%EC%A0%90%EA%B2%80%ED%9A%8C%EC%9D%98%29+when%3A7d&hl=ko&gl=KR&ceid=KR%3Ako,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,16,484.6,UNVERIFIED
+market_reaction_reverse_1,,,,,,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,332,40.3,UNVERIFIED
+market_reaction_reverse_2,,,,,,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,293,57.0,UNVERIFIED
+market_reaction_reverse_3,,,,,,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,113,,UNVERIFIED
+market_reaction_reverse_4,,,,,,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,200,,UNVERIFIED
+marketwatch_top_direct,MarketWatch direct,rss,https://feeds.marketwatch.com/marketwatch/topstories/,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,70,33.2,UNVERIFIED
+mk_business_direct,매일경제 기업 direct,rss,https://www.mk.co.kr/rss/50100032/,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,350,0,UNVERIFIED
+mk_economy_direct,매일경제 경제 direct,rss,https://www.mk.co.kr/rss/30100041/,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,350,0,UNVERIFIED
+mk_market_direct,매일경제 증권 direct,rss,https://www.mk.co.kr/rss/50200011/,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,350,0,UNVERIFIED
+npr_business_direct,NPR Business direct,rss,https://feeds.npr.org/1006/rss.xml,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,70,710.2,UNVERIFIED
+npr_world_direct,NPR World direct,rss,https://feeds.npr.org/1004/rss.xml,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,70,112.8,UNVERIFIED
+opendart_disclosures,,,,,,2026-10-21,2026-10-21,2026-10-11,Expecting value: line 1 column 1 (char 0),7,7,1.0,17,14,0.8235,30,27,0.9,863,,UNVERIFIED
+opendart_documents,,,,,,2026-10-21,2026-10-21,,,7,7,1.0,15,15,1.0,28,28,1.0,0,,UNVERIFIED
+ukraine_war,Google News - Russia Ukraine war,rss,https://news.google.com/rss/search?q=%28Russia+Ukraine+war%29+%28sanctions+OR+energy+OR+ceasefire+OR+aid%29+when%3A1d&hl=en-US&gl=US&ceid=US%3Aen,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,700,3.5,UNVERIFIED
+us_congress_market_policy,Google News - US Congress market policy,rss,https://news.google.com/rss/search?q=%28Congress+OR+Senate+OR+House%29+%28cloture+OR+vote+OR+bill+OR+legislation%29+%28market+OR+economy+OR+finance+OR+crypto+OR+trade+OR+energy%29+when%3A2d&hl=en-US&gl=US&ceid=US%3Aen,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,387,58.4,UNVERIFIED
+us_courts_market_policy,Google News - US courts market policy,rss,https://news.google.com/rss/search?q=%28Supreme+Court+OR+federal+court%29+%28tariff+OR+regulation+OR+antitrust+OR+SEC+OR+trade+OR+energy%29+when%3A2d&hl=en-US&gl=US&ceid=US%3Aen,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,405,43.1,UNVERIFIED
+us_election_policy,Google News - US midterm policy,rss,https://news.google.com/rss/search?q=%28%22US+midterm%22+OR+%22United+States+midterm%22+OR+%22Trump%22%29+%28tariff+OR+tax+OR+immigration+OR+energy+OR+Treasury%29+when%3A1d&hl=en-US&gl=US&ceid=US%3Aen,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,694,17.3,UNVERIFIED
+us_financial_regulation,Google News - US financial regulation,rss,https://news.google.com/rss/search?q=%28SEC+OR+CFTC+OR+Treasury+OR+Federal+Reserve%29+%28rule+OR+regulation+OR+enforcement+OR+guidance+OR+digital+asset+OR+crypto%29+when%3A2d&hl=en-US&gl=US&ceid=US%3Aen,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,386,193.1,UNVERIFIED
+yna_economy_direct,연합뉴스 경제 direct,rss,https://www.yna.co.kr/rss/economy.xml,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,840,20.1,UNVERIFIED
+yna_industry_direct,연합뉴스 산업 direct,rss,https://www.yna.co.kr/rss/industry.xml,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,840,20.1,UNVERIFIED
+yna_market_direct,연합뉴스 증권 direct,rss,https://www.yna.co.kr/rss/market.xml,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,840,23.6,UNVERIFIED
+zdnet_korea_official,지디넷코리아 official-domain,rss,https://news.google.com/rss/search?q=site%3Azdnet.co.kr+%28%EB%B0%98%EB%8F%84%EC%B2%B4+OR+AI+OR+%EC%82%B0%EC%97%85+OR+%EC%8B%A4%EC%A0%81+OR+%EC%A0%95%EC%B1%85%29+when%3A1d&hl=ko&gl=KR&ceid=KR%3Ako,,True,2026-10-21,2026-10-21,,,7,7,1.0,17,17,1.0,30,30,1.0,612,429.8,UNVERIFIED

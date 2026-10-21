@@ -1,0 +1,4 @@
+channel_id,channel_name,url,enabled,video_count_30d,transcript_success_30d,summary_success_30d,claim_extraction_30d,chart_validation_30d,MI_usage_30d
+yt_chesleytv,체슬리TV,https://www.youtube.com/@chesleytv,True,UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED
+yt_ap5798,AP투자연구소 김용재소장,https://www.youtube.com/@ap5798,True,UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED
+yt_kpunch,박종훈의 지식한방,https://www.youtube.com/@kpunch,True,UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED,UNVERIFIED
