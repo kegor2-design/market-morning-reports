@@ -1,0 +1,106 @@
+{
+  "generated_at_utc": "2026-10-21T13:10:58.673987+00:00",
+  "scope": {
+    "start": "2010-01-04",
+    "end": "2026-10-20",
+    "indices": [
+      "KOSPI",
+      "KOSDAQ"
+    ],
+    "rows_per_index": 4133,
+    "status": "KRX_OFFICIAL_CLOSE_AND_TRADING_DAY_VERIFIED"
+  },
+  "input_lineage": {
+    "krx_local_sha256": "607a02494b63d5570f26cc2b3e7c09c58b7f4f07c58dabb0625b35a939cbe039",
+    "validation_result_sha256": "be1f159a1ce7362df6e10758c472b22daf5450bea9c2c5581990f44f37b97846",
+    "isolated_local_sha256": "9fce942c68e3b77bae770e844f4ade18ef83b8f1e7a5e8181390fe485f047fda"
+  },
+  "baseline": {
+    "name": "20-session drawdown alert",
+    "signal": "At close t, close / max(closes t-19..t) - 1 <= -5%",
+    "target": "Any close t+1..t+20 <= 90% of close t",
+    "fixed_thresholds": true,
+    "training_or_tuning": false,
+    "test_period": "2018-01-01 to 2026-10-20",
+    "development_period": "2010-01-04 to 2017-12-31"
+  },
+  "results": {
+    "KOSPI": {
+      "development": {
+        "dates": 1957,
+        "first_date": "2010-01-29",
+        "last_date": "2017-12-28",
+        "tp": 6,
+        "fp": 174,
+        "fn": 43,
+        "tn": 1734,
+        "alert_days": 180,
+        "alert_episodes": 41,
+        "event_days": 49,
+        "event_rate": 0.025038323965252938,
+        "precision": 0.03333333333333333,
+        "recall": 0.12244897959183673,
+        "false_positive_rate": 0.09119496855345911,
+        "precision_lift": 1.3312925170068026,
+        "median_lead_sessions_for_true_alerts": 12.0
+      },
+      "test": {
+        "dates": 2137,
+        "first_date": "2018-01-02",
+        "last_date": "2026-09-16",
+        "tp": 53,
+        "fp": 354,
+        "fn": 109,
+        "tn": 1621,
+        "alert_days": 407,
+        "alert_episodes": 64,
+        "event_days": 162,
+        "event_rate": 0.07580720636406177,
+        "precision": 0.13022113022113022,
+        "recall": 0.3271604938271605,
+        "false_positive_rate": 0.17924050632911392,
+        "precision_lift": 1.7177935511268845,
+        "median_lead_sessions_for_true_alerts": 6
+      }
+    },
+    "KOSDAQ": {
+      "development": {
+        "dates": 1957,
+        "first_date": "2010-01-29",
+        "last_date": "2017-12-28",
+        "tp": 34,
+        "fp": 329,
+        "fn": 82,
+        "tn": 1512,
+        "alert_days": 363,
+        "alert_episodes": 63,
+        "event_days": 116,
+        "event_rate": 0.05927439959121104,
+        "precision": 0.09366391184573003,
+        "recall": 0.29310344827586204,
+        "false_positive_rate": 0.17870722433460076,
+        "precision_lift": 1.5801747886387385,
+        "median_lead_sessions_for_true_alerts": 11.0
+      },
+      "test": {
+        "dates": 2137,
+        "first_date": "2018-01-02",
+        "last_date": "2026-09-16",
+        "tp": 163,
+        "fp": 482,
+        "fn": 163,
+        "tn": 1329,
+        "alert_days": 645,
+        "alert_episodes": 93,
+        "event_days": 326,
+        "event_rate": 0.1525503041647169,
+        "precision": 0.2527131782945736,
+        "recall": 0.5,
+        "false_positive_rate": 0.26615129762562123,
+        "precision_lift": 1.6565891472868215,
+        "median_lead_sessions_for_true_alerts": 9
+      }
+    }
+  },
+  "long_horizon_30y_reevaluation": "PENDING_1996_2009_FULL_OFFICIAL_VERIFICATION"
+}
