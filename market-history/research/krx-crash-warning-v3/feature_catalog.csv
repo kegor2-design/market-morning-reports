@@ -1,0 +1,28 @@
+feature,category,source,pit,experiment,lookback_or_lag
+KOSPI/KOSDAQ close and trading day,price,local KRX-verified v1 series,PASS_NEXT_SESSION,PRICE_ONLY/PRICE_VOLATILITY,up to 120 sessions; t close to t+1 response
+returns_5_20_60_120,derived_price,causal transform of verified close,PASS_NEXT_SESSION,PRICE_ONLY/PRICE_VOLATILITY,up to 120 sessions; t close to t+1 response
+realized_vol20,derived_price,causal transform of verified close,PASS_NEXT_SESSION,PRICE_ONLY/PRICE_VOLATILITY,up to 120 sessions; t close to t+1 response
+max_drawdown20,derived_price,causal transform of verified close,PASS_NEXT_SESSION,PRICE_ONLY/PRICE_VOLATILITY,up to 120 sessions; t close to t+1 response
+ma20_60_slope,derived_price,causal transform of verified close,PASS_NEXT_SESSION,PRICE_ONLY/PRICE_VOLATILITY,up to 120 sessions; t close to t+1 response
+trend_and_vol_expansion,derived_price,causal transform of verified close,PASS_NEXT_SESSION,PRICE_ONLY/PRICE_VOLATILITY,up to 120 sessions; t close to t+1 response
+advance_decline_ratio,market_internal,MyDream2000 market_breadth_summary / sector shadow; historical archive unverified,FAIL,EXCLUDED,undefined
+market_breadth,market_internal,MyDream2000 market_breadth_summary / sector shadow; historical archive unverified,FAIL,EXCLUDED,undefined
+equal_vs_cap_weight_return,market_internal,MyDream2000 market_breadth_summary / sector shadow; historical archive unverified,FAIL,EXCLUDED,undefined
+sector_breadth,market_internal,MyDream2000 market_breadth_summary / sector shadow; historical archive unverified,FAIL,EXCLUDED,undefined
+large_cap_concentration,market_internal,MyDream2000 market_breadth_summary / sector shadow; historical archive unverified,FAIL,EXCLUDED,undefined
+foreign_kospi_cash,flow,MMP configuration or MyDream2000 investor_flow_snapshot; index-level history unverified,FAIL,EXCLUDED,undefined
+foreign_kospi200_futures,flow,MMP configuration or MyDream2000 investor_flow_snapshot; index-level history unverified,FAIL,EXCLUDED,undefined
+institutional_flow,flow,MMP configuration or MyDream2000 investor_flow_snapshot; index-level history unverified,FAIL,EXCLUDED,undefined
+retail_flow,flow,MMP configuration or MyDream2000 investor_flow_snapshot; index-level history unverified,FAIL,EXCLUDED,undefined
+flow_5_20,flow,MMP configuration or MyDream2000 investor_flow_snapshot; index-level history unverified,FAIL,EXCLUDED,undefined
+program_trading,flow,MMP configuration or MyDream2000 investor_flow_snapshot; index-level history unverified,FAIL,EXCLUDED,undefined
+USD/KRW,macro_overseas,MMP configuration / public provider candidate; no audited local daily vintage,FAIL,EXCLUDED,undefined
+US2Y,macro_overseas,MMP configuration / public provider candidate; no audited local daily vintage,FAIL,EXCLUDED,undefined
+US10Y,macro_overseas,MMP configuration / public provider candidate; no audited local daily vintage,FAIL,EXCLUDED,undefined
+US10Y-US2Y,macro_overseas,MMP configuration / public provider candidate; no audited local daily vintage,FAIL,EXCLUDED,undefined
+VIX,macro_overseas,MMP configuration / public provider candidate; no audited local daily vintage,FAIL,EXCLUDED,undefined
+S&P500,macro_overseas,MMP configuration / public provider candidate; no audited local daily vintage,FAIL,EXCLUDED,undefined
+NASDAQ,macro_overseas,MMP configuration / public provider candidate; no audited local daily vintage,FAIL,EXCLUDED,undefined
+SOX,macro_overseas,MMP configuration / public provider candidate; no audited local daily vintage,FAIL,EXCLUDED,undefined
+credit_spread,macro_overseas,MMP configuration / public provider candidate; no audited local daily vintage,FAIL,EXCLUDED,undefined
+dollar_strength,macro_overseas,MMP configuration / public provider candidate; no audited local daily vintage,FAIL,EXCLUDED,undefined

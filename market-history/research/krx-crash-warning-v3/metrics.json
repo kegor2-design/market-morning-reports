@@ -1,0 +1,1079 @@
+{
+  "generated_at_utc": "2026-10-21T14:31:15.659245+00:00",
+  "source_sha256": "9fce942c68e3b77bae770e844f4ade18ef83b8f1e7a5e8181390fe485f047fda",
+  "source_v2_commit": "045bd0d",
+  "signal_time": "after confirmed Korean close t",
+  "response_time": "session t+1",
+  "selection": "prespecified DD20_5 and DD20_5 AND (TREND60 OR VOL20_RISE); no optimization",
+  "stage_rule": "NORMAL=0, WATCH=DD20<=-3%, WARNING=model alert, CRITICAL=DD20<=-10%; downgrade after 3 consecutive lower raw states",
+  "reproduction": {
+    "KOSPI": {
+      "v2_early_exact": true,
+      "v1_confusion_exact": true,
+      "final_v2_early": {
+        "eligible_events": 9,
+        "hit_events": 9,
+        "event_recall": 1.0,
+        "eligible_episodes": 44,
+        "tp_episodes": 21,
+        "fp_episodes": 23,
+        "episode_precision": 0.4772727272727273,
+        "false_episodes_per_1000_sessions": 19.64133219470538,
+        "median_first_warning_lead_sessions": 13,
+        "events_with_at_least_lead": {
+          "1": 9,
+          "3": 7,
+          "5": 7,
+          "10": 5,
+          "20": 0
+        }
+      },
+      "v1_confusion": {
+        "tp": 53,
+        "fp": 354,
+        "fn": 109,
+        "tn": 1621
+      }
+    },
+    "KOSDAQ": {
+      "v2_early_exact": true,
+      "v1_confusion_exact": true,
+      "final_v2_early": {
+        "eligible_events": 7,
+        "hit_events": 7,
+        "event_recall": 1.0,
+        "eligible_episodes": 57,
+        "tp_episodes": 13,
+        "fp_episodes": 44,
+        "episode_precision": 0.22807017543859648,
+        "false_episodes_per_1000_sessions": 37.57472245943637,
+        "median_first_warning_lead_sessions": 10,
+        "events_with_at_least_lead": {
+          "1": 7,
+          "3": 5,
+          "5": 5,
+          "10": 4,
+          "20": 0
+        }
+      },
+      "v1_confusion": {
+        "tp": 163,
+        "fp": 482,
+        "fn": 163,
+        "tn": 1329
+      }
+    }
+  },
+  "periods": {
+    "development": {
+      "KOSPI": {
+        "PRICE_ONLY": {
+          "early": {
+            "eligible_events": 6,
+            "hit_events": 6,
+            "event_recall": 1.0,
+            "eligible_episodes": 41,
+            "tp_episodes": 10,
+            "fp_episodes": 31,
+            "episode_precision": 0.24390243902439024,
+            "false_episodes_per_1000_sessions": 15.68825910931174,
+            "median_first_warning_lead_sessions": 6.5,
+            "events_with_at_least_lead": {
+              "1": 6,
+              "3": 4,
+              "5": 4,
+              "10": 1,
+              "20": 0
+            }
+          },
+          "further": {
+            "5": {
+              "evaluated_days": 1937,
+              "tp": 36,
+              "fp": 144,
+              "fn": 210,
+              "tn": 1547,
+              "event_days": 246,
+              "alert_days": 180,
+              "event_rate": 0.12700051626226122,
+              "precision": 0.2,
+              "recall": 0.14634146341463414,
+              "false_positive_rate": 0.08515671200473093,
+              "precision_lift": 1.5747967479674798,
+              "eligible_episodes": 41,
+              "tp_episodes": 11,
+              "fp_episodes": 30,
+              "episode_precision": 0.2682926829268293
+            },
+            "7": {
+              "evaluated_days": 1937,
+              "tp": 15,
+              "fp": 165,
+              "fn": 116,
+              "tn": 1641,
+              "event_days": 131,
+              "alert_days": 180,
+              "event_rate": 0.06763035622096025,
+              "precision": 0.08333333333333333,
+              "recall": 0.11450381679389313,
+              "false_positive_rate": 0.09136212624584718,
+              "precision_lift": 1.2321882951653942,
+              "eligible_episodes": 41,
+              "tp_episodes": 4,
+              "fp_episodes": 37,
+              "episode_precision": 0.0975609756097561
+            },
+            "10": {
+              "evaluated_days": 1937,
+              "tp": 6,
+              "fp": 174,
+              "fn": 43,
+              "tn": 1714,
+              "event_days": 49,
+              "alert_days": 180,
+              "event_rate": 0.025296850800206504,
+              "precision": 0.03333333333333333,
+              "recall": 0.12244897959183673,
+              "false_positive_rate": 0.09216101694915255,
+              "precision_lift": 1.317687074829932,
+              "eligible_episodes": 41,
+              "tp_episodes": 1,
+              "fp_episodes": 40,
+              "episode_precision": 0.024390243902439025
+            }
+          },
+          "stage_sessions": {
+            "NORMAL": 1347,
+            "WATCH": 378,
+            "WARNING": 211,
+            "CRITICAL": 40
+          }
+        },
+        "PRICE_VOLATILITY": {
+          "early": {
+            "eligible_events": 6,
+            "hit_events": 6,
+            "event_recall": 1.0,
+            "eligible_episodes": 40,
+            "tp_episodes": 10,
+            "fp_episodes": 30,
+            "episode_precision": 0.25,
+            "false_episodes_per_1000_sessions": 15.182186234817813,
+            "median_first_warning_lead_sessions": 6.5,
+            "events_with_at_least_lead": {
+              "1": 6,
+              "3": 4,
+              "5": 4,
+              "10": 1,
+              "20": 0
+            }
+          },
+          "further": {
+            "5": {
+              "evaluated_days": 1937,
+              "tp": 36,
+              "fp": 123,
+              "fn": 210,
+              "tn": 1568,
+              "event_days": 246,
+              "alert_days": 159,
+              "event_rate": 0.12700051626226122,
+              "precision": 0.22641509433962265,
+              "recall": 0.14634146341463414,
+              "false_positive_rate": 0.07273802483737433,
+              "precision_lift": 1.7827887712839394,
+              "eligible_episodes": 40,
+              "tp_episodes": 11,
+              "fp_episodes": 29,
+              "episode_precision": 0.275
+            },
+            "7": {
+              "evaluated_days": 1937,
+              "tp": 15,
+              "fp": 144,
+              "fn": 116,
+              "tn": 1662,
+              "event_days": 131,
+              "alert_days": 159,
+              "event_rate": 0.06763035622096025,
+              "precision": 0.09433962264150944,
+              "recall": 0.11450381679389313,
+              "false_positive_rate": 0.07973421926910298,
+              "precision_lift": 1.3949301454702578,
+              "eligible_episodes": 40,
+              "tp_episodes": 4,
+              "fp_episodes": 36,
+              "episode_precision": 0.1
+            },
+            "10": {
+              "evaluated_days": 1937,
+              "tp": 6,
+              "fp": 153,
+              "fn": 43,
+              "tn": 1735,
+              "event_days": 49,
+              "alert_days": 159,
+              "event_rate": 0.025296850800206504,
+              "precision": 0.03773584905660377,
+              "recall": 0.12244897959183673,
+              "false_positive_rate": 0.08103813559322035,
+              "precision_lift": 1.4917212167886023,
+              "eligible_episodes": 40,
+              "tp_episodes": 1,
+              "fp_episodes": 39,
+              "episode_precision": 0.025
+            }
+          },
+          "stage_sessions": {
+            "NORMAL": 1347,
+            "WATCH": 400,
+            "WARNING": 189,
+            "CRITICAL": 40
+          }
+        }
+      },
+      "KOSDAQ": {
+        "PRICE_ONLY": {
+          "early": {
+            "eligible_events": 10,
+            "hit_events": 9,
+            "event_recall": 0.9,
+            "eligible_episodes": 61,
+            "tp_episodes": 12,
+            "fp_episodes": 49,
+            "episode_precision": 0.19672131147540983,
+            "false_episodes_per_1000_sessions": 24.79757085020243,
+            "median_first_warning_lead_sessions": 7,
+            "events_with_at_least_lead": {
+              "1": 9,
+              "3": 6,
+              "5": 5,
+              "10": 3,
+              "20": 0
+            }
+          },
+          "further": {
+            "5": {
+              "evaluated_days": 1937,
+              "tp": 107,
+              "fp": 252,
+              "fn": 390,
+              "tn": 1188,
+              "event_days": 497,
+              "alert_days": 359,
+              "event_rate": 0.25658234383066597,
+              "precision": 0.298050139275766,
+              "recall": 0.2152917505030181,
+              "false_positive_rate": 0.175,
+              "precision_lift": 1.1616159351653095,
+              "eligible_episodes": 61,
+              "tp_episodes": 17,
+              "fp_episodes": 44,
+              "episode_precision": 0.2786885245901639
+            },
+            "7": {
+              "evaluated_days": 1937,
+              "tp": 69,
+              "fp": 290,
+              "fn": 205,
+              "tn": 1373,
+              "event_days": 274,
+              "alert_days": 359,
+              "event_rate": 0.14145585957666496,
+              "precision": 0.19220055710306408,
+              "recall": 0.2518248175182482,
+              "false_positive_rate": 0.17438364401683704,
+              "precision_lift": 1.3587316755789602,
+              "eligible_episodes": 61,
+              "tp_episodes": 11,
+              "fp_episodes": 50,
+              "episode_precision": 0.18032786885245902
+            },
+            "10": {
+              "evaluated_days": 1937,
+              "tp": 34,
+              "fp": 325,
+              "fn": 82,
+              "tn": 1496,
+              "event_days": 116,
+              "alert_days": 359,
+              "event_rate": 0.059886422302529684,
+              "precision": 0.0947075208913649,
+              "recall": 0.29310344827586204,
+              "false_positive_rate": 0.17847336628226249,
+              "precision_lift": 1.5814523100566709,
+              "eligible_episodes": 61,
+              "tp_episodes": 5,
+              "fp_episodes": 56,
+              "episode_precision": 0.08196721311475409
+            }
+          },
+          "stage_sessions": {
+            "NORMAL": 1191,
+            "WATCH": 307,
+            "WARNING": 391,
+            "CRITICAL": 87
+          }
+        },
+        "PRICE_VOLATILITY": {
+          "early": {
+            "eligible_events": 10,
+            "hit_events": 8,
+            "event_recall": 0.8,
+            "eligible_episodes": 55,
+            "tp_episodes": 11,
+            "fp_episodes": 44,
+            "episode_precision": 0.2,
+            "false_episodes_per_1000_sessions": 22.267206477732792,
+            "median_first_warning_lead_sessions": 7.0,
+            "events_with_at_least_lead": {
+              "1": 8,
+              "3": 6,
+              "5": 5,
+              "10": 3,
+              "20": 0
+            }
+          },
+          "further": {
+            "5": {
+              "evaluated_days": 1937,
+              "tp": 101,
+              "fp": 227,
+              "fn": 396,
+              "tn": 1213,
+              "event_days": 497,
+              "alert_days": 328,
+              "event_rate": 0.25658234383066597,
+              "precision": 0.3079268292682927,
+              "recall": 0.20321931589537223,
+              "false_positive_rate": 0.15763888888888888,
+              "precision_lift": 1.2001091917357805,
+              "eligible_episodes": 55,
+              "tp_episodes": 16,
+              "fp_episodes": 39,
+              "episode_precision": 0.2909090909090909
+            },
+            "7": {
+              "evaluated_days": 1937,
+              "tp": 66,
+              "fp": 262,
+              "fn": 208,
+              "tn": 1401,
+              "event_days": 274,
+              "alert_days": 328,
+              "event_rate": 0.14145585957666496,
+              "precision": 0.20121951219512196,
+              "recall": 0.24087591240875914,
+              "false_positive_rate": 0.15754660252555622,
+              "precision_lift": 1.4224897632188,
+              "eligible_episodes": 55,
+              "tp_episodes": 11,
+              "fp_episodes": 44,
+              "episode_precision": 0.2
+            },
+            "10": {
+              "evaluated_days": 1937,
+              "tp": 31,
+              "fp": 297,
+              "fn": 85,
+              "tn": 1524,
+              "event_days": 116,
+              "alert_days": 328,
+              "event_rate": 0.059886422302529684,
+              "precision": 0.09451219512195122,
+              "recall": 0.2672413793103448,
+              "false_positive_rate": 0.1630971993410214,
+              "precision_lift": 1.5781907064760303,
+              "eligible_episodes": 55,
+              "tp_episodes": 5,
+              "fp_episodes": 50,
+              "episode_precision": 0.09090909090909091
+            }
+          },
+          "stage_sessions": {
+            "NORMAL": 1185,
+            "WATCH": 355,
+            "WARNING": 349,
+            "CRITICAL": 87
+          }
+        }
+      }
+    },
+    "validation": {
+      "KOSPI": {
+        "PRICE_ONLY": {
+          "early": {
+            "eligible_events": 7,
+            "hit_events": 6,
+            "event_recall": 0.8571428571428571,
+            "eligible_episodes": 20,
+            "tp_episodes": 8,
+            "fp_episodes": 12,
+            "episode_precision": 0.4,
+            "false_episodes_per_1000_sessions": 12.170385395537526,
+            "median_first_warning_lead_sessions": 6.5,
+            "events_with_at_least_lead": {
+              "1": 6,
+              "3": 4,
+              "5": 3,
+              "10": 2,
+              "20": 0
+            }
+          },
+          "further": {
+            "5": {
+              "evaluated_days": 966,
+              "tp": 31,
+              "fp": 114,
+              "fn": 190,
+              "tn": 631,
+              "event_days": 221,
+              "alert_days": 145,
+              "event_rate": 0.2287784679089027,
+              "precision": 0.21379310344827587,
+              "recall": 0.14027149321266968,
+              "false_positive_rate": 0.15302013422818792,
+              "precision_lift": 0.9344983616788891,
+              "eligible_episodes": 20,
+              "tp_episodes": 3,
+              "fp_episodes": 17,
+              "episode_precision": 0.15
+            },
+            "7": {
+              "evaluated_days": 966,
+              "tp": 24,
+              "fp": 121,
+              "fn": 83,
+              "tn": 738,
+              "event_days": 107,
+              "alert_days": 145,
+              "event_rate": 0.11076604554865424,
+              "precision": 0.16551724137931034,
+              "recall": 0.22429906542056074,
+              "false_positive_rate": 0.1408614668218859,
+              "precision_lift": 1.4942958427328392,
+              "eligible_episodes": 20,
+              "tp_episodes": 2,
+              "fp_episodes": 18,
+              "episode_precision": 0.1
+            },
+            "10": {
+              "evaluated_days": 966,
+              "tp": 18,
+              "fp": 127,
+              "fn": 21,
+              "tn": 800,
+              "event_days": 39,
+              "alert_days": 145,
+              "event_rate": 0.040372670807453416,
+              "precision": 0.12413793103448276,
+              "recall": 0.46153846153846156,
+              "false_positive_rate": 0.13700107874865156,
+              "precision_lift": 3.0748010610079577,
+              "eligible_episodes": 20,
+              "tp_episodes": 2,
+              "fp_episodes": 18,
+              "episode_precision": 0.1
+            }
+          },
+          "stage_sessions": {
+            "NORMAL": 598,
+            "WATCH": 205,
+            "WARNING": 146,
+            "CRITICAL": 37
+          }
+        },
+        "PRICE_VOLATILITY": {
+          "early": {
+            "eligible_events": 7,
+            "hit_events": 6,
+            "event_recall": 0.8571428571428571,
+            "eligible_episodes": 16,
+            "tp_episodes": 8,
+            "fp_episodes": 8,
+            "episode_precision": 0.5,
+            "false_episodes_per_1000_sessions": 8.113590263691684,
+            "median_first_warning_lead_sessions": 6.5,
+            "events_with_at_least_lead": {
+              "1": 6,
+              "3": 4,
+              "5": 3,
+              "10": 2,
+              "20": 0
+            }
+          },
+          "further": {
+            "5": {
+              "evaluated_days": 966,
+              "tp": 31,
+              "fp": 109,
+              "fn": 190,
+              "tn": 636,
+              "event_days": 221,
+              "alert_days": 140,
+              "event_rate": 0.2287784679089027,
+              "precision": 0.22142857142857142,
+              "recall": 0.14027149321266968,
+              "false_positive_rate": 0.14630872483221477,
+              "precision_lift": 0.9678733031674208,
+              "eligible_episodes": 16,
+              "tp_episodes": 3,
+              "fp_episodes": 13,
+              "episode_precision": 0.1875
+            },
+            "7": {
+              "evaluated_days": 966,
+              "tp": 24,
+              "fp": 116,
+              "fn": 83,
+              "tn": 743,
+              "event_days": 107,
+              "alert_days": 140,
+              "event_rate": 0.11076604554865424,
+              "precision": 0.17142857142857143,
+              "recall": 0.22429906542056074,
+              "false_positive_rate": 0.1350407450523865,
+              "precision_lift": 1.5476635514018693,
+              "eligible_episodes": 16,
+              "tp_episodes": 2,
+              "fp_episodes": 14,
+              "episode_precision": 0.125
+            },
+            "10": {
+              "evaluated_days": 966,
+              "tp": 18,
+              "fp": 122,
+              "fn": 21,
+              "tn": 805,
+              "event_days": 39,
+              "alert_days": 140,
+              "event_rate": 0.040372670807453416,
+              "precision": 0.12857142857142856,
+              "recall": 0.46153846153846156,
+              "false_positive_rate": 0.13160733549083065,
+              "precision_lift": 3.1846153846153844,
+              "eligible_episodes": 16,
+              "tp_episodes": 2,
+              "fp_episodes": 14,
+              "episode_precision": 0.125
+            }
+          },
+          "stage_sessions": {
+            "NORMAL": 596,
+            "WATCH": 220,
+            "WARNING": 133,
+            "CRITICAL": 37
+          }
+        }
+      },
+      "KOSDAQ": {
+        "PRICE_ONLY": {
+          "early": {
+            "eligible_events": 9,
+            "hit_events": 8,
+            "event_recall": 0.8888888888888888,
+            "eligible_episodes": 36,
+            "tp_episodes": 11,
+            "fp_episodes": 25,
+            "episode_precision": 0.3055555555555556,
+            "false_episodes_per_1000_sessions": 25.35496957403651,
+            "median_first_warning_lead_sessions": 6.0,
+            "events_with_at_least_lead": {
+              "1": 8,
+              "3": 6,
+              "5": 4,
+              "10": 2,
+              "20": 1
+            }
+          },
+          "further": {
+            "5": {
+              "evaluated_days": 966,
+              "tp": 89,
+              "fp": 184,
+              "fn": 288,
+              "tn": 405,
+              "event_days": 377,
+              "alert_days": 273,
+              "event_rate": 0.39026915113871635,
+              "precision": 0.326007326007326,
+              "recall": 0.23607427055702918,
+              "false_positive_rate": 0.31239388794567063,
+              "precision_lift": 0.835339726586411,
+              "eligible_episodes": 36,
+              "tp_episodes": 14,
+              "fp_episodes": 22,
+              "episode_precision": 0.3888888888888889
+            },
+            "7": {
+              "evaluated_days": 966,
+              "tp": 67,
+              "fp": 206,
+              "fn": 185,
+              "tn": 508,
+              "event_days": 252,
+              "alert_days": 273,
+              "event_rate": 0.2608695652173913,
+              "precision": 0.2454212454212454,
+              "recall": 0.26587301587301587,
+              "false_positive_rate": 0.28851540616246496,
+              "precision_lift": 0.9407814407814408,
+              "eligible_episodes": 36,
+              "tp_episodes": 9,
+              "fp_episodes": 27,
+              "episode_precision": 0.25
+            },
+            "10": {
+              "evaluated_days": 966,
+              "tp": 51,
+              "fp": 222,
+              "fn": 55,
+              "tn": 638,
+              "event_days": 106,
+              "alert_days": 273,
+              "event_rate": 0.10973084886128365,
+              "precision": 0.18681318681318682,
+              "recall": 0.4811320754716981,
+              "false_positive_rate": 0.25813953488372093,
+              "precision_lift": 1.702467343976778,
+              "eligible_episodes": 36,
+              "tp_episodes": 5,
+              "fp_episodes": 31,
+              "episode_precision": 0.1388888888888889
+            }
+          },
+          "stage_sessions": {
+            "NORMAL": 534,
+            "WATCH": 118,
+            "WARNING": 247,
+            "CRITICAL": 87
+          }
+        },
+        "PRICE_VOLATILITY": {
+          "early": {
+            "eligible_events": 9,
+            "hit_events": 6,
+            "event_recall": 0.6666666666666666,
+            "eligible_episodes": 34,
+            "tp_episodes": 9,
+            "fp_episodes": 25,
+            "episode_precision": 0.2647058823529412,
+            "false_episodes_per_1000_sessions": 25.35496957403651,
+            "median_first_warning_lead_sessions": 8.5,
+            "events_with_at_least_lead": {
+              "1": 6,
+              "3": 6,
+              "5": 4,
+              "10": 2,
+              "20": 1
+            }
+          },
+          "further": {
+            "5": {
+              "evaluated_days": 966,
+              "tp": 81,
+              "fp": 154,
+              "fn": 296,
+              "tn": 435,
+              "event_days": 377,
+              "alert_days": 235,
+              "event_rate": 0.39026915113871635,
+              "precision": 0.3446808510638298,
+              "recall": 0.21485411140583555,
+              "false_positive_rate": 0.2614601018675722,
+              "precision_lift": 0.883187538800158,
+              "eligible_episodes": 34,
+              "tp_episodes": 12,
+              "fp_episodes": 22,
+              "episode_precision": 0.35294117647058826
+            },
+            "7": {
+              "evaluated_days": 966,
+              "tp": 63,
+              "fp": 172,
+              "fn": 189,
+              "tn": 542,
+              "event_days": 252,
+              "alert_days": 235,
+              "event_rate": 0.2608695652173913,
+              "precision": 0.2680851063829787,
+              "recall": 0.25,
+              "false_positive_rate": 0.24089635854341737,
+              "precision_lift": 1.0276595744680852,
+              "eligible_episodes": 34,
+              "tp_episodes": 7,
+              "fp_episodes": 27,
+              "episode_precision": 0.20588235294117646
+            },
+            "10": {
+              "evaluated_days": 966,
+              "tp": 51,
+              "fp": 184,
+              "fn": 55,
+              "tn": 676,
+              "event_days": 106,
+              "alert_days": 235,
+              "event_rate": 0.10973084886128365,
+              "precision": 0.2170212765957447,
+              "recall": 0.4811320754716981,
+              "false_positive_rate": 0.21395348837209302,
+              "precision_lift": 1.9777599357687676,
+              "eligible_episodes": 34,
+              "tp_episodes": 5,
+              "fp_episodes": 29,
+              "episode_precision": 0.14705882352941177
+            }
+          },
+          "stage_sessions": {
+            "NORMAL": 529,
+            "WATCH": 157,
+            "WARNING": 213,
+            "CRITICAL": 87
+          }
+        }
+      }
+    },
+    "final": {
+      "KOSPI": {
+        "PRICE_ONLY": {
+          "early": {
+            "eligible_events": 9,
+            "hit_events": 9,
+            "event_recall": 1.0,
+            "eligible_episodes": 44,
+            "tp_episodes": 21,
+            "fp_episodes": 23,
+            "episode_precision": 0.4772727272727273,
+            "false_episodes_per_1000_sessions": 19.64133219470538,
+            "median_first_warning_lead_sessions": 13,
+            "events_with_at_least_lead": {
+              "1": 9,
+              "3": 7,
+              "5": 7,
+              "10": 5,
+              "20": 0
+            }
+          },
+          "further": {
+            "5": {
+              "evaluated_days": 1151,
+              "tp": 92,
+              "fp": 170,
+              "fn": 242,
+              "tn": 647,
+              "event_days": 334,
+              "alert_days": 262,
+              "event_rate": 0.2901824500434405,
+              "precision": 0.3511450381679389,
+              "recall": 0.2754491017964072,
+              "false_positive_rate": 0.20807833537331702,
+              "precision_lift": 1.2100836494949032,
+              "eligible_episodes": 44,
+              "tp_episodes": 20,
+              "fp_episodes": 24,
+              "episode_precision": 0.45454545454545453
+            },
+            "7": {
+              "evaluated_days": 1151,
+              "tp": 70,
+              "fp": 192,
+              "fn": 130,
+              "tn": 759,
+              "event_days": 200,
+              "alert_days": 262,
+              "event_rate": 0.1737619461337967,
+              "precision": 0.26717557251908397,
+              "recall": 0.35,
+              "false_positive_rate": 0.20189274447949526,
+              "precision_lift": 1.5375954198473283,
+              "eligible_episodes": 44,
+              "tp_episodes": 19,
+              "fp_episodes": 25,
+              "episode_precision": 0.4318181818181818
+            },
+            "10": {
+              "evaluated_days": 1151,
+              "tp": 35,
+              "fp": 227,
+              "fn": 85,
+              "tn": 804,
+              "event_days": 120,
+              "alert_days": 262,
+              "event_rate": 0.10425716768027801,
+              "precision": 0.13358778625954199,
+              "recall": 0.2916666666666667,
+              "false_positive_rate": 0.22017458777885549,
+              "precision_lift": 1.2813295165394403,
+              "eligible_episodes": 44,
+              "tp_episodes": 8,
+              "fp_episodes": 36,
+              "episode_precision": 0.18181818181818182
+            }
+          },
+          "stage_sessions": {
+            "NORMAL": 610,
+            "WATCH": 217,
+            "WARNING": 236,
+            "CRITICAL": 108
+          }
+        },
+        "PRICE_VOLATILITY": {
+          "early": {
+            "eligible_events": 9,
+            "hit_events": 8,
+            "event_recall": 0.8888888888888888,
+            "eligible_episodes": 36,
+            "tp_episodes": 16,
+            "fp_episodes": 20,
+            "episode_precision": 0.4444444444444444,
+            "false_episodes_per_1000_sessions": 17.079419299743808,
+            "median_first_warning_lead_sessions": 6.0,
+            "events_with_at_least_lead": {
+              "1": 8,
+              "3": 5,
+              "5": 5,
+              "10": 2,
+              "20": 0
+            }
+          },
+          "further": {
+            "5": {
+              "evaluated_days": 1151,
+              "tp": 62,
+              "fp": 140,
+              "fn": 272,
+              "tn": 677,
+              "event_days": 334,
+              "alert_days": 202,
+              "event_rate": 0.2901824500434405,
+              "precision": 0.3069306930693069,
+              "recall": 0.18562874251497005,
+              "false_positive_rate": 0.17135862913096694,
+              "precision_lift": 1.0577162506669828,
+              "eligible_episodes": 36,
+              "tp_episodes": 16,
+              "fp_episodes": 20,
+              "episode_precision": 0.4444444444444444
+            },
+            "7": {
+              "evaluated_days": 1151,
+              "tp": 45,
+              "fp": 157,
+              "fn": 155,
+              "tn": 794,
+              "event_days": 200,
+              "alert_days": 202,
+              "event_rate": 0.1737619461337967,
+              "precision": 0.22277227722772278,
+              "recall": 0.225,
+              "false_positive_rate": 0.1650893796004206,
+              "precision_lift": 1.2820544554455446,
+              "eligible_episodes": 36,
+              "tp_episodes": 16,
+              "fp_episodes": 20,
+              "episode_precision": 0.4444444444444444
+            },
+            "10": {
+              "evaluated_days": 1151,
+              "tp": 19,
+              "fp": 183,
+              "fn": 101,
+              "tn": 848,
+              "event_days": 120,
+              "alert_days": 202,
+              "event_rate": 0.10425716768027801,
+              "precision": 0.09405940594059406,
+              "recall": 0.15833333333333333,
+              "false_positive_rate": 0.17749757516973813,
+              "precision_lift": 0.9021864686468648,
+              "eligible_episodes": 36,
+              "tp_episodes": 6,
+              "fp_episodes": 30,
+              "episode_precision": 0.16666666666666666
+            }
+          },
+          "stage_sessions": {
+            "NORMAL": 609,
+            "WATCH": 271,
+            "WARNING": 183,
+            "CRITICAL": 108
+          }
+        }
+      },
+      "KOSDAQ": {
+        "PRICE_ONLY": {
+          "early": {
+            "eligible_events": 7,
+            "hit_events": 7,
+            "event_recall": 1.0,
+            "eligible_episodes": 57,
+            "tp_episodes": 13,
+            "fp_episodes": 44,
+            "episode_precision": 0.22807017543859648,
+            "false_episodes_per_1000_sessions": 37.57472245943637,
+            "median_first_warning_lead_sessions": 10,
+            "events_with_at_least_lead": {
+              "1": 7,
+              "3": 5,
+              "5": 5,
+              "10": 4,
+              "20": 0
+            }
+          },
+          "further": {
+            "5": {
+              "evaluated_days": 1151,
+              "tp": 199,
+              "fp": 173,
+              "fn": 273,
+              "tn": 506,
+              "event_days": 472,
+              "alert_days": 372,
+              "event_rate": 0.4100781928757602,
+              "precision": 0.5349462365591398,
+              "recall": 0.4216101694915254,
+              "false_positive_rate": 0.2547864506627393,
+              "precision_lift": 1.3044981319482412,
+              "eligible_episodes": 57,
+              "tp_episodes": 31,
+              "fp_episodes": 26,
+              "episode_precision": 0.543859649122807
+            },
+            "7": {
+              "evaluated_days": 1151,
+              "tp": 169,
+              "fp": 203,
+              "fn": 194,
+              "tn": 585,
+              "event_days": 363,
+              "alert_days": 372,
+              "event_rate": 0.315377932232841,
+              "precision": 0.4543010752688172,
+              "recall": 0.465564738292011,
+              "false_positive_rate": 0.25761421319796957,
+              "precision_lift": 1.44049734885512,
+              "eligible_episodes": 57,
+              "tp_episodes": 30,
+              "fp_episodes": 27,
+              "episode_precision": 0.5263157894736842
+            },
+            "10": {
+              "evaluated_days": 1151,
+              "tp": 112,
+              "fp": 260,
+              "fn": 104,
+              "tn": 675,
+              "event_days": 216,
+              "alert_days": 372,
+              "event_rate": 0.18766290182450043,
+              "precision": 0.3010752688172043,
+              "recall": 0.5185185185185185,
+              "false_positive_rate": 0.27807486631016043,
+              "precision_lift": 1.6043409000398248,
+              "eligible_episodes": 57,
+              "tp_episodes": 18,
+              "fp_episodes": 39,
+              "episode_precision": 0.3157894736842105
+            }
+          },
+          "stage_sessions": {
+            "NORMAL": 510,
+            "WATCH": 196,
+            "WARNING": 286,
+            "CRITICAL": 179
+          }
+        },
+        "PRICE_VOLATILITY": {
+          "early": {
+            "eligible_events": 7,
+            "hit_events": 6,
+            "event_recall": 0.8571428571428571,
+            "eligible_episodes": 46,
+            "tp_episodes": 9,
+            "fp_episodes": 37,
+            "episode_precision": 0.1956521739130435,
+            "false_episodes_per_1000_sessions": 31.596925704526047,
+            "median_first_warning_lead_sessions": 5.5,
+            "events_with_at_least_lead": {
+              "1": 6,
+              "3": 3,
+              "5": 3,
+              "10": 2,
+              "20": 0
+            }
+          },
+          "further": {
+            "5": {
+              "evaluated_days": 1151,
+              "tp": 185,
+              "fp": 143,
+              "fn": 287,
+              "tn": 536,
+              "event_days": 472,
+              "alert_days": 328,
+              "event_rate": 0.4100781928757602,
+              "precision": 0.5640243902439024,
+              "recall": 0.3919491525423729,
+              "false_positive_rate": 0.2106038291605302,
+              "precision_lift": 1.3754069346837536,
+              "eligible_episodes": 46,
+              "tp_episodes": 26,
+              "fp_episodes": 20,
+              "episode_precision": 0.5652173913043478
+            },
+            "7": {
+              "evaluated_days": 1151,
+              "tp": 156,
+              "fp": 172,
+              "fn": 207,
+              "tn": 616,
+              "event_days": 363,
+              "alert_days": 328,
+              "event_rate": 0.315377932232841,
+              "precision": 0.47560975609756095,
+              "recall": 0.4297520661157025,
+              "false_positive_rate": 0.2182741116751269,
+              "precision_lift": 1.5080628905462607,
+              "eligible_episodes": 46,
+              "tp_episodes": 25,
+              "fp_episodes": 21,
+              "episode_precision": 0.5434782608695652
+            },
+            "10": {
+              "evaluated_days": 1151,
+              "tp": 105,
+              "fp": 223,
+              "fn": 111,
+              "tn": 712,
+              "event_days": 216,
+              "alert_days": 328,
+              "event_rate": 0.18766290182450043,
+              "precision": 0.3201219512195122,
+              "recall": 0.4861111111111111,
+              "false_positive_rate": 0.23850267379679144,
+              "precision_lift": 1.7058350271002711,
+              "eligible_episodes": 46,
+              "tp_episodes": 16,
+              "fp_episodes": 30,
+              "episode_precision": 0.34782608695652173
+            }
+          },
+          "stage_sessions": {
+            "NORMAL": 507,
+            "WATCH": 262,
+            "WARNING": 223,
+            "CRITICAL": 179
+          }
+        }
+      }
+    }
+  },
+  "model_status": {
+    "PRICE_ONLY": "EVALUATED",
+    "PRICE_VOLATILITY": "EVALUATED",
+    "MARKET_INTERNAL": "NOT_EVALUATED_PIT_AND_HISTORY",
+    "FLOW_MACRO": "NOT_EVALUATED_PIT_AND_HISTORY",
+    "REGIME_TRANSITION_SHADOW": "DESCRIPTIVE_ONLY_NOT_VALIDATED"
+  },
+  "operation_decision": "RESEARCH_ONLY"
+}

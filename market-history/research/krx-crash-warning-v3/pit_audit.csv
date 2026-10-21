@@ -1,0 +1,28 @@
+variable,pit,usable_time_kst,reason
+KOSPI/KOSDAQ close and trading day,PASS_NEXT_SESSION,next Korean trading session,Signals are formed after close; next session is earliest response
+returns_5_20_60_120,PASS_NEXT_SESSION,next Korean trading session,Uses observations no later than signal date
+realized_vol20,PASS_NEXT_SESSION,next Korean trading session,Uses observations no later than signal date
+max_drawdown20,PASS_NEXT_SESSION,next Korean trading session,Uses observations no later than signal date
+ma20_60_slope,PASS_NEXT_SESSION,next Korean trading session,Uses observations no later than signal date
+trend_and_vol_expansion,PASS_NEXT_SESSION,next Korean trading session,Uses observations no later than signal date
+advance_decline_ratio,FAIL,unverified,Collector stores snapshot_time but accessible 2010-2026 history and as-of integrity not verified
+market_breadth,FAIL,unverified,Collector stores snapshot_time but accessible 2010-2026 history and as-of integrity not verified
+equal_vs_cap_weight_return,FAIL,unverified,Collector stores snapshot_time but accessible 2010-2026 history and as-of integrity not verified
+sector_breadth,FAIL,unverified,Collector stores snapshot_time but accessible 2010-2026 history and as-of integrity not verified
+large_cap_concentration,FAIL,unverified,Collector stores snapshot_time but accessible 2010-2026 history and as-of integrity not verified
+foreign_kospi_cash,FAIL,unverified,"Instrument/scope, final release time and 2010-2026 observations unverified"
+foreign_kospi200_futures,FAIL,unverified,"Instrument/scope, final release time and 2010-2026 observations unverified"
+institutional_flow,FAIL,unverified,"Instrument/scope, final release time and 2010-2026 observations unverified"
+retail_flow,FAIL,unverified,"Instrument/scope, final release time and 2010-2026 observations unverified"
+flow_5_20,FAIL,unverified,"Instrument/scope, final release time and 2010-2026 observations unverified"
+program_trading,FAIL,unverified,"Instrument/scope, final release time and 2010-2026 observations unverified"
+USD/KRW,FAIL,unverified,KST availability and vintage/revision history unverified; no aligned local observations
+US2Y,FAIL,unverified,KST availability and vintage/revision history unverified; no aligned local observations
+US10Y,FAIL,unverified,KST availability and vintage/revision history unverified; no aligned local observations
+US10Y-US2Y,FAIL,unverified,KST availability and vintage/revision history unverified; no aligned local observations
+VIX,FAIL,unverified,KST availability and vintage/revision history unverified; no aligned local observations
+S&P500,FAIL,unverified,KST availability and vintage/revision history unverified; no aligned local observations
+NASDAQ,FAIL,unverified,KST availability and vintage/revision history unverified; no aligned local observations
+SOX,FAIL,unverified,KST availability and vintage/revision history unverified; no aligned local observations
+credit_spread,FAIL,unverified,KST availability and vintage/revision history unverified; no aligned local observations
+dollar_strength,FAIL,unverified,KST availability and vintage/revision history unverified; no aligned local observations
