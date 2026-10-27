@@ -1,3 +1,191 @@
-market,source,observation_date,published_at,ingested_at,available_at,vintage,revision_history,pit_status,backtest_eligible
-KOSPI,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
-KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+indicator_id,market,source,observation_date,published_at,ingested_at,available_at,vintage,revision_history,pit_status,backtest_eligible
+1,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+2,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+3,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+4,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+5,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+6,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+7,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+8,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+9,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+10,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+11,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+12,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+13,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+14,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+15,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+16,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+17,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+18,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+19,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+20,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+21,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+22,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+23,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+24,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+25,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+26,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+27,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+28,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+29,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+30,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+31,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+32,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+33,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+34,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+35,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+36,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+37,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+38,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+39,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+40,KOSPI;KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+41,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+42,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+43,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+44,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+45,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+46,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+47,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+48,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+49,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+50,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+51,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+52,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+53,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+54,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+55,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+56,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+57,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+58,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+59,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+60,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+61,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+62,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+63,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+64,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+65,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+66,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+67,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+68,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+69,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+70,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+71,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+72,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+73,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+74,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+75,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+76,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+77,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+78,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+79,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+80,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+81,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+82,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+83,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+84,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+85,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+86,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+87,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+88,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+89,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+90,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+91,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+92,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+93,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+94,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+95,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+96,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+97,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+98,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+99,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+100,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+101,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+102,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+103,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+104,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+105,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+106,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+107,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+108,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+109,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+110,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+111,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+112,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+113,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+114,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+115,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+116,KOSPI;KOSDAQ,existing monthly repository CSV,present,absent,not recorded,unverified,absent,absent,PIT_UNVERIFIED,no
+117,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+118,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+119,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+120,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+121,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+122,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+123,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+124,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+125,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+126,KOSPI;KOSDAQ,existing monthly repository CSV,present,absent,not recorded,unverified,absent,absent,PIT_UNVERIFIED,no
+127,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+128,KOSPI;KOSDAQ,existing monthly repository CSV,present,absent,not recorded,unverified,absent,absent,PIT_UNVERIFIED,no
+129,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+130,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+131,KOSPI;KOSDAQ,existing monthly repository CSV,present,absent,not recorded,unverified,absent,absent,PIT_UNVERIFIED,no
+132,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+133,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+134,KOSPI;KOSDAQ,existing monthly repository CSV,present,absent,not recorded,unverified,absent,absent,PIT_UNVERIFIED,no
+135,KOSPI;KOSDAQ,existing monthly repository CSV,present,absent,not recorded,unverified,absent,absent,PIT_UNVERIFIED,no
+136,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+137,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+138,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+139,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+140,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+141,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+142,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+143,KOSPI;KOSDAQ,existing monthly repository CSV,present,absent,not recorded,unverified,absent,absent,PIT_UNVERIFIED,no
+144,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+145,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+146,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+147,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+148,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+149,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+150,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+151,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+152,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+153,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+154,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+155,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+156,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+157,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+158,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+159,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+160,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+161,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+162,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+163,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+164,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+165,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+166,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+167,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+168,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+169,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+170,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+171,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+172,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+173,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+174,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+175,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+176,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+177,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+178,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+179,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+180,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+181,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+182,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+183,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+184,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+185,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+186,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+187,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+188,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+189,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+190,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no

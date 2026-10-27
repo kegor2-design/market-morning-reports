@@ -93,40 +93,85 @@ for market,df in series.items():
         computed_stats[indicator_id].append(dict(valid=int(mask.sum()),first=str(out.loc[mask,'date'].min().date()) if mask.any() else '',last=str(out.loc[mask,'date'].max().date()) if mask.any() else ''))
     manifest.append(dict(market=market,kind='derived_research_csv',public_path='',private_file=path.name,sha256=sha(path),bytes=path.stat().st_size,rows=len(out),first_date=str(out.date.min().date()),last_date=str(out.date.max().date()),license='derived_from_redistribution_unverified_source',checked_at_utc=NOW))
 
+monthly_specs={
+    116:('macro-cpi-rates-monthly.csv',['us10y'],'US 2Y missing'),
+    126:('korea-market-monthly.csv',['usdkrw'],'daily FX history and close time missing'),
+    128:('macro-cpi-rates-monthly.csv',['krwjpy100'],'yuan and direct yen series missing'),
+    131:('us-stock-market-monthly.csv',['price'],'NASDAQ and SOX missing; price identity unverified'),
+    134:('macro-commodities-monthly.csv',['wti','brent'],'natural gas missing'),
+    135:('macro-commodities-monthly.csv',['gold'],'silver, copper, iron ore missing'),
+    143:('macro-cpi-rates-monthly.csv',['kr_cpi'],'core CPI missing'),
+}
+monthly_stats={}
+for file_name in sorted({v[0] for v in monthly_specs.values()}):
+    path=REPO/'market-history/data'/file_name
+    frame=pd.read_csv(path)
+    date_col=frame.columns[0]
+    frame=frame[frame[date_col].between(TARGET_START,TARGET_END)].copy()
+    ids=[i for i,v in monthly_specs.items() if v[0]==file_name]
+    manifest.append(dict(market='GLOBAL_OR_KOREA',kind='existing_monthly_public_csv',public_path='market-history/data/'+file_name,private_file='',sha256=sha(path),bytes=path.stat().st_size,rows=len(frame),first_date=str(frame[date_col].min()),last_date=str(frame[date_col].max()),license='upstream_license_unverified',checked_at_utc=NOW))
+    attempts.append(dict(attempted_at_utc=NOW,indicator_ids=','.join(map(str,ids)),source='existing_repo_monthly_csv',endpoint='market-history/data/'+file_name,result='FILE_HASH_VERIFIED_COMPONENT_ONLY',http_status='',rows=len(frame),duration_ms='',retry=0,detail='No as-of publication time or vintage'))
+    quality.append(dict(market='GLOBAL_OR_KOREA:'+file_name,rows=len(frame),target_rows=len(frame),first_date=str(frame[date_col].min()),last_date=str(frame[date_col].max()),duplicate_dates=int(frame[date_col].duplicated().sum()),ohlc_invalid='',target_ohlc_invalid='',missing_cells='',nonpositive_price_rows='',zero_volume_rows='',absolute_close_jumps_gt_15pct='',calendar_check='monthly_dates_only',corporate_action_check='not_applicable',provider_crosscheck='not_run',validation_status='PARTIAL_COMPONENT_ONLY',checked_at_utc=NOW))
+    for i in ids:
+        fields=monthly_specs[i][1]
+        valid=frame.loc[frame[fields].notna().all(axis=1),date_col]
+        monthly_stats[i]=dict(rows=len(valid),first=str(valid.min()) if len(valid) else '',last=str(valid.max()) if len(valid) else '',path='market-history/data/'+file_name,sha=sha(path))
+
 inventory=[]
 for i in range(1,191):
     name,priority,family,candidate,pit=spec[i]
     acquired=i<=40
+    monthly=i in monthly_specs
     done=i in computed
-    status='일부 확보' if done else ('원천 확보·계산 미완료' if acquired else '미확보(미시도)')
-    reason=('PIT publication time and vintage unavailable; full target ends 2026-10-27 while files end 2026-10-20' if done else ('Required transform or definition not completed; PIT unverified' if acquired else 'Individual source access and collection not executed in this run'))
+    status='일부 확보' if done or monthly else ('원천 확보·계산 미완료' if acquired else '미확보(미시도)')
+    reason=('Monthly component only; '+monthly_specs[i][2]+'; publication time and vintage unavailable' if monthly else ('PIT publication time and vintage unavailable; full target ends 2026-10-27 while files end 2026-10-20' if done else ('Required transform or definition not completed; PIT unverified' if acquired else 'Individual source access and collection not executed in this run')))
     total=sum(len(x) for x in series.values()) if acquired else 0
     valid=sum(s['valid'] for s in computed_stats[i]) if done else 0
     days=len(pd.bdate_range(TARGET_START,TARGET_END))*2
-    inventory.append(dict(indicator_id=i,name=name,priority=priority,family=family,target_market='KOSPI;KOSDAQ',source_attempts=4 if acquired else 0,actual_source='Naver Finance historical index OHLCV' if acquired else '',source_url='https://fchart.stock.naver.com/sise.nhn' if acquired else '',license='redistribution_unverified' if acquired else 'unreviewed',auth_required='unknown' if not acquired else 'no',raw_path='private:naver_{market}_raw.xml' if acquired else '',raw_sha256='see raw_manifest.csv by market' if acquired else '',frequency='daily' if acquired else '',first_date=min(s['first'] for s in computed_stats[i]) if done else (min(str(x.date.min().date()) for x in series.values()) if acquired else ''),last_date=max(s['last'] for s in computed_stats[i]) if done else (max(str(x.date.max().date()) for x in series.values()) if acquired else ''),row_count=total,valid_count=valid,missing_pct=round(100*(total-valid)/total,2) if done else '',target_coverage_pct=round(100*valid/days,2) if done else '',availability_status=status,pit_status='PIT_UNVERIFIED' if acquired else 'NOT_ASSESSED',validation_status='PARTIAL' if acquired else 'NOT_RUN',failure_reason=reason,retry_next='Verify timestamps/vintages, reconcile KRX, complete exact definition' if acquired else 'Try official source, then licensed alternative, with bounded requests',notes='Computed data is private and excluded from backtest; coverage denominator includes exchange holidays' if done else candidate))
+    inventory.append(dict(indicator_id=i,name=name,priority=priority,family=family,target_market='KOSPI;KOSDAQ',source_attempts=4 if acquired else (1 if monthly else 0),actual_source='Naver Finance historical index OHLCV' if acquired else ('existing monthly repository CSV' if monthly else ''),source_url='https://fchart.stock.naver.com/sise.nhn' if acquired else (monthly_stats[i]['path'] if monthly else ''),license='redistribution_unverified' if acquired else ('upstream_license_unverified' if monthly else 'unreviewed'),auth_required='unknown' if not acquired else 'no',raw_path='private:naver_{market}_raw.xml' if acquired else (monthly_stats[i]['path'] if monthly else ''),raw_sha256='see raw_manifest.csv by market' if acquired else (monthly_stats[i]['sha'] if monthly else ''),frequency='daily' if acquired else ('monthly' if monthly else ''),first_date=min(s['first'] for s in computed_stats[i]) if done else (min(str(x.date.min().date()) for x in series.values()) if acquired else (monthly_stats[i]['first'] if monthly else '')),last_date=max(s['last'] for s in computed_stats[i]) if done else (max(str(x.date.max().date()) for x in series.values()) if acquired else (monthly_stats[i]['last'] if monthly else '')),row_count=total if acquired else (monthly_stats[i]['rows'] if monthly else 0),valid_count=valid,missing_pct=round(100*(total-valid)/total,2) if done else '',target_coverage_pct=round(100*valid/days,2) if done else '',availability_status=status,pit_status='PIT_UNVERIFIED' if acquired or monthly else 'NOT_ASSESSED',validation_status='PARTIAL' if acquired or monthly else 'NOT_RUN',failure_reason=reason,retry_next='Verify timestamps/vintages, reconcile KRX, complete exact definition' if acquired else ('Collect missing components and first-release vintages' if monthly else 'Try official source, then licensed alternative, with bounded requests'),notes='Computed data is private and excluded from backtest; coverage denominator includes exchange holidays' if done else ('Only listed monthly components observed; complete indicator valid_count=0' if monthly else candidate)))
 
 write_csv('inventory_190.csv',inventory,FIELDS)
 pd.DataFrame(inventory).to_excel(HERE/'inventory_190.xlsx',index=False)
 attempts.extend([
     dict(attempted_at_utc='2026-10-27T14:58:37Z',indicator_ids='all candidate KRX categories',source='KRX official landing page',endpoint='https://data.krx.co.kr/contents/MDC/MAIN/main/index.cmd',result='HEAD_ONLY_NO_DATA',http_status=200,rows=0,duration_ms=2743,retry=0,detail='No data endpoint queried; not an acquisition'),
-    dict(attempted_at_utc='2026-10-27T14:57:00Z',indicator_ids='DB candidates',source='trading PostgreSQL',endpoint='redacted',result='CONNECT_FAILED_OperationalError',http_status='',rows=0,duration_ms='',retry=1,detail='Read-only schema inspection could not begin')])
+    dict(attempted_at_utc='2026-10-27 (exact UTC second not logged)',indicator_ids='DB candidates',source='trading PostgreSQL',endpoint='redacted',result='CONNECT_FAILED_OperationalError',http_status='',rows=0,duration_ms='',retry=1,detail='Read-only schema inspection could not begin')])
 write_csv('raw_manifest.csv',manifest,list(manifest[0]))
 write_csv('quality_report.csv',quality,list(quality[0]))
 write_csv('sources_attempt_log.csv',attempts,list(attempts[0]))
 periods=[('development','2010-01-01','2017-12-31'),('validation','2018-01-01','2021-12-31'),('final','2022-01-01','2026-10-27')]
 coverage=[]
 for market,df in series.items():
-    for label,start,end in periods:
-        n=int(df.date.between(start,end).sum()); expected=int(pd.bdate_range(start,end).size)
-        coverage.append(dict(market=market,period=label,start_date=start,end_date=end,observed_rows=n,weekday_denominator=expected,raw_weekday_coverage_pct=round(100*n/expected,2),indicator_ids='1-40',pit_eligible_rows=0,pit_eligible_pct=0,denominator_caveat='weekdays include Korean exchange holidays; not official trading calendar'))
+    derived=pd.read_csv(private/(market.lower()+'_computed.csv'),parse_dates=['date'])
+    for i in range(1,191):
+        for label,start,end in periods:
+            if i in monthly_specs:
+                file_name,cols,_=monthly_specs[i]
+                month_df=pd.read_csv(REPO/'market-history/data'/file_name)
+                dc=month_df.columns[0]
+                raw=int((month_df[dc].between(start,end)&month_df[cols].notna().all(axis=1)).sum())
+                expected=len(pd.date_range(start,end,freq='MS'))
+                denominator_kind='calendar_months'
+                valid=0  # Missing components and release vintages block a complete indicator.
+            else:
+                expected=len(pd.bdate_range(start,end))
+                denominator_kind='weekday_proxy_includes_KRX_holidays'
+                raw=int(df.date.between(start,end).sum()) if i<=40 else 0
+                valid=int((derived.date.between(start,end)&derived[column_map[i]].notna().all(axis=1)).sum()) if i in computed else 0
+            coverage.append(dict(indicator_id=i,market=market,period=label,start_date=start,end_date=end,frequency='monthly' if i in monthly_specs else ('daily' if i<=40 else 'unknown'),raw_component_rows=raw,valid_indicator_rows=valid,denominator_rows=expected,denominator_kind=denominator_kind,valid_coverage_pct=round(100*valid/expected,2) if expected else 0,pit_eligible_rows=0,pit_eligible_pct=0))
 write_csv('coverage_matrix.csv',coverage,list(coverage[0]))
-pit=[dict(market=m,source='Naver Finance historical index',observation_date='present',published_at='absent',ingested_at='2026-10-21 in prior manifest; row-level absent',available_at='unverified',vintage='absent',revision_history='absent',pit_status='PIT_UNVERIFIED',backtest_eligible='no') for m in series]
+pit=[]
+for i in range(1,191):
+    acquired=i<=40 or i in monthly_specs
+    pit.append(dict(indicator_id=i,market='KOSPI;KOSDAQ',source='Naver Finance historical index' if i<=40 else ('existing monthly repository CSV' if i in monthly_specs else ''),observation_date='present' if acquired else 'no_data',published_at='absent' if acquired else 'no_data',ingested_at='2026-10-21 in prior manifest; row-level absent' if i<=40 else ('not recorded' if i in monthly_specs else 'no_data'),available_at='unverified' if acquired else 'no_data',vintage='absent' if acquired else 'no_data',revision_history='absent' if acquired else 'no_data',pit_status='PIT_UNVERIFIED' if acquired else 'NOT_ASSESSED',backtest_eligible='no'))
 write_csv('pit_audit.csv',pit,list(pit[0]))
-write_csv('source_comparison.csv',[dict(market=m,source_a='Naver Finance local raw',source_b='KRX official',result='NOT_RERUN',reason='KRX HTTP landing page available; daily series query/values not collected') for m in series],['market','source_a','source_b','result','reason'])
+comparisons=[dict(indicator_ids='1-40',market=m,source_a='Naver Finance local raw',source_b='KRX official',result='NOT_RERUN',reason='KRX HTTP landing page available; daily series query/values not collected') for m in series]
+for i in monthly_specs:
+    comparisons.append(dict(indicator_ids=i,market='KOSPI;KOSDAQ',source_a=monthly_stats[i]['path'],source_b='official source not queried',result='NOT_RUN',reason='Only partial monthly component, no PIT vintage or independent match'))
+write_csv('source_comparison.csv',comparisons,list(comparisons[0]))
 write_csv('backtest_results.csv',[dict(status='NOT_RUN',reason='All locally acquired index data PIT_UNVERIFIED; gate prohibits final validation',market='KOSPI;KOSDAQ',sample_size=0,metric='',value='')],['status','reason','market','sample_size','metric','value'])
 counts=Counter(r['availability_status'] for r in inventory)
-run=dict(generated_at_utc=NOW,target_as_of=TARGET_END,indicator_count=190,availability_counts=dict(counts),markets=list(series),raw_file_count=4,derived_private_file_count=2,backtest='NOT_RUN_PIT_GATE',db='CONNECT_FAILED',krx_landing_page='HEAD_200_ONLY',prompt_sha256=sha(PROMPT) if PROMPT.exists() else 'prompt_not_local',python='3',rebuild_command='python market-history/research/regime190/run.py')
+run=dict(generated_at_utc=NOW,target_as_of=TARGET_END,indicator_count=190,availability_counts=dict(counts),markets=list(series),raw_file_count=8,derived_private_file_count=2,backtest='NOT_RUN_PIT_GATE',db='CONNECT_FAILED',krx_landing_page='HEAD_200_ONLY',prompt_sha256=sha(PROMPT) if PROMPT.exists() else 'prompt_not_local',python='3',rebuild_command='python market-history/research/regime190/run.py')
 (HERE/'run_manifest.json').write_text(json.dumps(run,ensure_ascii=False,indent=2)+'\n')
 (HERE/'schema_audit.md').write_text('# DB schema audit\n\n2026-10-27: `trading` PostgreSQL connection failed with `OperationalError` under read-only intended session. No schema or table content was inspected; no DB mutations occurred. Existing table names in prior reports are unverified in this run.\n')
-(HERE/'README.md').write_text(f'''# Regime 190 historical data audit (2026-10-27)\n\nGenerated {NOW}. Target 2010-01-01 to 2026-10-27, KOSPI and KOSDAQ separately. Exactly 190 indicators are listed in `inventory_190.csv`. Status counts: {dict(counts)}.\n\nThe only verified raw files in this run are two Naver Finance index XML files and their normalized CSVs, locally retained from 2026-10-21. SHA-256 values match the prior manifest. Both end 2026-10-20. Sixteen price indicator definitions were calculated into private local CSVs, with hashes in `raw_manifest.csv`; these are partial acquisition because 2026-10-21 through 2026-10-27 and publication vintages are absent. Twenty-four other price indicators have raw inputs but unfinished calculations. The remaining 150 indicators were not individually collected. A KRX landing page HEAD request returned 200 but yielded no observations. DB connection failed.\n\nHistorical OHLC invalid rows: KOSPI 4 and KOSDAQ 1, all before 2010. Target-window OHLC invalid rows: 0 in each market. Calendar and provider comparisons were not repeated.\n\nAll index records remain `PIT_UNVERIFIED`: observation date exists, but row-level published/available timestamps and vintage do not. No predictive backtest was run because the prompt forbids unverified PIT data in final validation. `coverage_matrix.csv` reports raw weekday coverage as context, with 0% PIT eligibility; weekdays are not an official KRX calendar. Redistribution rights for Naver raw data were not confirmed, so no raw or derived series are committed. The private outputs remain in ignored `private/`.\n\nRebuild in the server snapshot: `python3 market-history/research/regime190/run.py`. Source files are required in the prior daily-index-validation directory. This command does not access the network or DB. Open risks: official provider reconciliation, exact publication times and revisions, exchange calendar, 150 source collections, 24 remaining calculations, and PIT-safe walk-forward backtesting.\n''')
+(HERE/'README.md').write_text(f'''# Regime 190 historical data audit (2026-10-27)\n\nGenerated {NOW}. Target 2010-01-01 to 2026-10-27, KOSPI and KOSDAQ separately. Exactly 190 indicators are listed in `inventory_190.csv`. Status counts: {dict(counts)}.\n\nVerified index files: two Naver Finance index XML files and their normalized CSVs, locally retained from 2026-10-21. SHA-256 values match the prior manifest. Both end 2026-10-20. Sixteen price indicator definitions were calculated into private local CSVs, with hashes in `raw_manifest.csv`; these are partial acquisition because 2026-10-21 through 2026-10-27 and publication vintages are absent. Twenty-four other price indicators have raw inputs but unfinished calculations. Four existing monthly public CSVs supply only partial components for seven further indicators; their upstream rights and release vintages are unverified. The remaining 143 indicators were not individually collected. A KRX landing page HEAD request returned 200 but yielded no observations. DB connection failed.\n\nHistorical OHLC invalid rows: KOSPI 4 and KOSDAQ 1, all before 2010. Target-window OHLC invalid rows: 0 in each market. Calendar and provider comparisons were not repeated.\n\nAll observed records remain `PIT_UNVERIFIED`: observation date exists, but row-level published/available timestamps and vintage do not. No predictive backtest was run because the prompt forbids unverified PIT data in final validation. `coverage_matrix.csv` reports index raw weekday coverage as context, with 0% PIT eligibility; weekdays are not an official KRX calendar. Redistribution rights for Naver raw data were not confirmed, so no private raw or derived series are committed. The private outputs remain in ignored `private/`.\n\nRebuild in the server snapshot: `python3 market-history/research/regime190/run.py`. Source files are required in the prior daily-index-validation directory. This command does not access the network or DB. Open risks: official provider reconciliation, exact publication times and revisions, exchange calendar, 143 source collections, missing monthly components, 24 remaining calculations, and PIT-safe walk-forward backtesting.\n''')
 print(json.dumps(run,ensure_ascii=False))

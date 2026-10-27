@@ -1,3 +1,10 @@
-market,source_a,source_b,result,reason
-KOSPI,Naver Finance local raw,KRX official,NOT_RERUN,KRX HTTP landing page available; daily series query/values not collected
-KOSDAQ,Naver Finance local raw,KRX official,NOT_RERUN,KRX HTTP landing page available; daily series query/values not collected
+indicator_ids,market,source_a,source_b,result,reason
+1-40,KOSPI,Naver Finance local raw,KRX official,NOT_RERUN,KRX HTTP landing page available; daily series query/values not collected
+1-40,KOSDAQ,Naver Finance local raw,KRX official,NOT_RERUN,KRX HTTP landing page available; daily series query/values not collected
+116,KOSPI;KOSDAQ,market-history/data/macro-cpi-rates-monthly.csv,official source not queried,NOT_RUN,"Only partial monthly component, no PIT vintage or independent match"
+126,KOSPI;KOSDAQ,market-history/data/korea-market-monthly.csv,official source not queried,NOT_RUN,"Only partial monthly component, no PIT vintage or independent match"
+128,KOSPI;KOSDAQ,market-history/data/macro-cpi-rates-monthly.csv,official source not queried,NOT_RUN,"Only partial monthly component, no PIT vintage or independent match"
+131,KOSPI;KOSDAQ,market-history/data/us-stock-market-monthly.csv,official source not queried,NOT_RUN,"Only partial monthly component, no PIT vintage or independent match"
+134,KOSPI;KOSDAQ,market-history/data/macro-commodities-monthly.csv,official source not queried,NOT_RUN,"Only partial monthly component, no PIT vintage or independent match"
+135,KOSPI;KOSDAQ,market-history/data/macro-commodities-monthly.csv,official source not queried,NOT_RUN,"Only partial monthly component, no PIT vintage or independent match"
+143,KOSPI;KOSDAQ,market-history/data/macro-cpi-rates-monthly.csv,official source not queried,NOT_RUN,"Only partial monthly component, no PIT vintage or independent match"

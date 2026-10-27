@@ -1,17 +1,17 @@
 {
-  "generated_at_utc": "2026-10-27T15:04:33.049087+00:00",
+  "generated_at_utc": "2026-10-27T15:09:58.337178+00:00",
   "target_as_of": "2026-10-27",
   "indicator_count": 190,
   "availability_counts": {
-    "일부 확보": 16,
+    "일부 확보": 23,
     "원천 확보·계산 미완료": 24,
-    "미확보(미시도)": 150
+    "미확보(미시도)": 143
   },
   "markets": [
     "KOSPI",
     "KOSDAQ"
   ],
-  "raw_file_count": 4,
+  "raw_file_count": 8,
   "derived_private_file_count": 2,
   "backtest": "NOT_RUN_PIT_GATE",
   "db": "CONNECT_FAILED",
