@@ -1,0 +1,19 @@
+[Unit]
+Description=Regime190 independent research collection worker
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=3600
+StartLimitBurst=3
+
+[Service]
+Type=simple
+WorkingDirectory=%h/market-morning-reports
+ExecStart=%h/stock_env/bin/python %h/market-morning-reports/market-history/research/regime190/worker.py --resume --output-dir %h/MyDream2000/research/regime190 --service-loop --max-runtime 0 --max-requests 30 --max-attempts-per-source 2 --concurrency 1 --poll-seconds 300
+Restart=on-failure
+RestartSec=60
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

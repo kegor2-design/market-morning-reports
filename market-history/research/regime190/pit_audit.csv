@@ -71,16 +71,16 @@ indicator_id,market,source,observation_date,published_at,ingested_at,available_a
 70,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 71,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 72,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-73,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-74,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-75,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-76,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+73,KOSPI;KOSDAQ,trading PostgreSQL component,present,unverified,DB timestamp existence not row-audited,unverified,unverified,unverified,PIT_UNVERIFIED,no
+74,KOSPI;KOSDAQ,trading PostgreSQL component,present,unverified,DB timestamp existence not row-audited,unverified,unverified,unverified,PIT_UNVERIFIED,no
+75,KOSPI;KOSDAQ,trading PostgreSQL component,present,unverified,DB timestamp existence not row-audited,unverified,unverified,unverified,PIT_UNVERIFIED,no
+76,KOSPI;KOSDAQ,trading PostgreSQL component,present,unverified,DB timestamp existence not row-audited,unverified,unverified,unverified,PIT_UNVERIFIED,no
 77,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-78,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+78,KOSPI;KOSDAQ,trading PostgreSQL component,present,unverified,DB timestamp existence not row-audited,unverified,unverified,unverified,PIT_UNVERIFIED,no
 79,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 80,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 81,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-82,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+82,KOSPI;KOSDAQ,trading PostgreSQL component,present,unverified,DB timestamp existence not row-audited,unverified,unverified,unverified,PIT_UNVERIFIED,no
 83,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 84,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 85,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
@@ -115,23 +115,23 @@ indicator_id,market,source,observation_date,published_at,ingested_at,available_a
 114,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 115,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 116,KOSPI;KOSDAQ,existing monthly repository CSV,present,absent,not recorded,unverified,absent,absent,PIT_UNVERIFIED,no
-117,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-118,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-119,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-120,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-121,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-122,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+117,KOSPI;KOSDAQ,FRED API current-vintage component,present,absent,worker collection timestamp,unverified,current snapshot only,unverified,PIT_UNVERIFIED,no
+118,KOSPI;KOSDAQ,FRED API current-vintage component,present,absent,worker collection timestamp,unverified,current snapshot only,unverified,PIT_UNVERIFIED,no
+119,KOSPI;KOSDAQ,FRED API current-vintage component,present,absent,worker collection timestamp,unverified,current snapshot only,unverified,PIT_UNVERIFIED,no
+120,KOSPI;KOSDAQ,FRED API current-vintage component,present,absent,worker collection timestamp,unverified,current snapshot only,unverified,PIT_UNVERIFIED,no
+121,KOSPI;KOSDAQ,FRED API current-vintage component,present,absent,worker collection timestamp,unverified,current snapshot only,unverified,PIT_UNVERIFIED,no
+122,KOSPI;KOSDAQ,FRED API current-vintage component,present,absent,worker collection timestamp,unverified,current snapshot only,unverified,PIT_UNVERIFIED,no
 123,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 124,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-125,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+125,KOSPI;KOSDAQ,FRED API current-vintage component,present,absent,worker collection timestamp,unverified,current snapshot only,unverified,PIT_UNVERIFIED,no
 126,KOSPI;KOSDAQ,existing monthly repository CSV,present,absent,not recorded,unverified,absent,absent,PIT_UNVERIFIED,no
-127,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+127,KOSPI;KOSDAQ,FRED API current-vintage component,present,absent,worker collection timestamp,unverified,current snapshot only,unverified,PIT_UNVERIFIED,no
 128,KOSPI;KOSDAQ,existing monthly repository CSV,present,absent,not recorded,unverified,absent,absent,PIT_UNVERIFIED,no
 129,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 130,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 131,KOSPI;KOSDAQ,existing monthly repository CSV,present,absent,not recorded,unverified,absent,absent,PIT_UNVERIFIED,no
 132,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-133,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+133,KOSPI;KOSDAQ,FRED API current-vintage component,present,absent,worker collection timestamp,unverified,current snapshot only,unverified,PIT_UNVERIFIED,no
 134,KOSPI;KOSDAQ,existing monthly repository CSV,present,absent,not recorded,unverified,absent,absent,PIT_UNVERIFIED,no
 135,KOSPI;KOSDAQ,existing monthly repository CSV,present,absent,not recorded,unverified,absent,absent,PIT_UNVERIFIED,no
 136,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
@@ -150,11 +150,11 @@ indicator_id,market,source,observation_date,published_at,ingested_at,available_a
 149,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 150,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 151,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-152,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-153,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-154,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-155,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-156,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+152,KOSPI;KOSDAQ,OpenDART 2025 annual one-company sample,2025 fiscal year,filing receipt time not joined,worker collection timestamp,unverified,current snapshot only,unverified,PIT_UNVERIFIED,no
+153,KOSPI;KOSDAQ,OpenDART 2025 annual one-company sample,2025 fiscal year,filing receipt time not joined,worker collection timestamp,unverified,current snapshot only,unverified,PIT_UNVERIFIED,no
+154,KOSPI;KOSDAQ,OpenDART 2025 annual one-company sample,2025 fiscal year,filing receipt time not joined,worker collection timestamp,unverified,current snapshot only,unverified,PIT_UNVERIFIED,no
+155,KOSPI;KOSDAQ,OpenDART 2025 annual one-company sample,2025 fiscal year,filing receipt time not joined,worker collection timestamp,unverified,current snapshot only,unverified,PIT_UNVERIFIED,no
+156,KOSPI;KOSDAQ,OpenDART 2025 annual one-company sample,2025 fiscal year,filing receipt time not joined,worker collection timestamp,unverified,current snapshot only,unverified,PIT_UNVERIFIED,no
 157,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 158,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 159,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
@@ -172,14 +172,14 @@ indicator_id,market,source,observation_date,published_at,ingested_at,available_a
 171,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 172,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 173,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-174,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-175,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+174,KOSPI;KOSDAQ,trading PostgreSQL component,present,unverified,DB timestamp existence not row-audited,unverified,unverified,unverified,PIT_UNVERIFIED,no
+175,KOSPI;KOSDAQ,trading PostgreSQL component,present,unverified,DB timestamp existence not row-audited,unverified,unverified,unverified,PIT_UNVERIFIED,no
 176,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 177,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-178,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+178,KOSPI;KOSDAQ,trading PostgreSQL component,present,unverified,DB timestamp existence not row-audited,unverified,unverified,unverified,PIT_UNVERIFIED,no
 179,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 180,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-181,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+181,KOSPI;KOSDAQ,trading PostgreSQL component,present,unverified,DB timestamp existence not row-audited,unverified,unverified,unverified,PIT_UNVERIFIED,no
 182,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 183,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 184,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no

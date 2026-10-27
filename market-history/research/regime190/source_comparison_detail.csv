@@ -1,0 +1,5 @@
+indicator_id,local_file,local_field,official_series,method,paired_months,median_absolute_difference,max_absolute_difference,validation_status
+116,macro-cpi-rates-monthly.csv,us10y,DGS10,local monthly value versus last available FRED daily observation of same month,202,0.0,0.04,DEFINITION_AND_PIT_UNVERIFIED
+126,korea-market-monthly.csv,usdkrw,DEXKOUS,local monthly value versus last available FRED daily observation of same month,181,10.939941,128.180024,DEFINITION_AND_PIT_UNVERIFIED
+134,macro-commodities-monthly.csv,wti,DCOILWTICO,local monthly value versus last available FRED daily observation of same month,173,0.079997,6.760002,DEFINITION_AND_PIT_UNVERIFIED
+134,macro-commodities-monthly.csv,brent,DCOILBRENTEU,local monthly value versus last available FRED daily observation of same month,173,0.910001,12.380001,DEFINITION_AND_PIT_UNVERIFIED
