@@ -19,7 +19,7 @@
   "prompt_sha256": "e143f4d1c15925a489a43dbd133892876b9a4046ad8c9416ac1a16bd59a9c056",
   "python": "3",
   "rebuild_command": "python market-history/research/regime190/run.py",
-  "resume_exported_at_utc": "2026-10-27T15:51:30.185411+00:00",
+  "resume_exported_at_utc": "2026-10-27T15:54:26.113625+00:00",
   "current_availability_counts": {
     "일부 확보": 58,
     "원천 확보·계산 미완료": 21,
