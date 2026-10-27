@@ -129,11 +129,15 @@ def progress(conn, state_dir):
     obj = {'updated_at_utc': utc_now(), 'state': 'IN_PROGRESS' if counts.get('PENDING', 0) or counts.get('RETRY_WAIT', 0) or counts.get('RUNNING', 0) or counts.get('NEEDS_REVIEW', 0) else 'ATTEMPTS_PROCESSED_NOT_FULLY_VERIFIED',
            'counts': counts, 'total': sum(counts.values()), 'pit_eligible': conn.execute('SELECT count(*) FROM tasks WHERE pit_eligible=1').fetchone()[0]}
     atomic_json(state_dir / 'progress.json', obj)
-    (state_dir / 'progress.md').write_text('# Regime190 collector progress\n\n' + json.dumps(obj, ensure_ascii=False, indent=2) + '\n')
-    with (state_dir / 'needs_review.csv').open('w', newline='', encoding='utf-8') as f:
+    md=state_dir/'progress.md';md_tmp=state_dir/'progress.md.tmp'
+    md_tmp.write_text('# Regime190 collector progress\n\n' + json.dumps(obj, ensure_ascii=False, indent=2) + '\n')
+    md_tmp.replace(md)
+    review=state_dir/'needs_review.csv';review_tmp=state_dir/'needs_review.csv.tmp'
+    with review_tmp.open('w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f, lineterminator='\n')
         writer.writerow(['indicator_id', 'name', 'state', 'blocking_evidence', 'next_action'])
         writer.writerows(conn.execute("SELECT indicator_id,name,state,blocking_evidence,next_action FROM tasks WHERE state IN ('NEEDS_REVIEW','BLOCKED_VERIFIED') ORDER BY indicator_id"))
+    review_tmp.replace(review)
     return obj
 
 def attempt_local(indicator_id: int):

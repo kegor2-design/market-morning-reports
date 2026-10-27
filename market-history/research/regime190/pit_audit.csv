@@ -162,14 +162,14 @@ indicator_id,market,source,observation_date,published_at,ingested_at,available_a
 161,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 162,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 163,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-164,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-165,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-166,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-167,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-168,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-169,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-170,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
-171,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
+164,KOSPI;KOSDAQ,official release archive page,archive dates unparsed,unparsed,worker retrieval timestamp,unverified,archive snapshot only,unverified,PIT_UNVERIFIED,no
+165,KOSPI;KOSDAQ,official release archive page,archive dates unparsed,unparsed,worker retrieval timestamp,unverified,archive snapshot only,unverified,PIT_UNVERIFIED,no
+166,KOSPI;KOSDAQ,official release archive page,archive dates unparsed,unparsed,worker retrieval timestamp,unverified,archive snapshot only,unverified,PIT_UNVERIFIED,no
+167,KOSPI;KOSDAQ,official release archive page,archive dates unparsed,unparsed,worker retrieval timestamp,unverified,archive snapshot only,unverified,PIT_UNVERIFIED,no
+168,KOSPI;KOSDAQ,official release archive page,archive dates unparsed,unparsed,worker retrieval timestamp,unverified,archive snapshot only,unverified,PIT_UNVERIFIED,no
+169,KOSPI;KOSDAQ,official release archive page,archive dates unparsed,unparsed,worker retrieval timestamp,unverified,archive snapshot only,unverified,PIT_UNVERIFIED,no
+170,KOSPI;KOSDAQ,official release archive page,archive dates unparsed,unparsed,worker retrieval timestamp,unverified,archive snapshot only,unverified,PIT_UNVERIFIED,no
+171,KOSPI;KOSDAQ,official release archive page,archive dates unparsed,unparsed,worker retrieval timestamp,unverified,archive snapshot only,unverified,PIT_UNVERIFIED,no
 172,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 173,KOSPI;KOSDAQ,,no_data,no_data,no_data,no_data,no_data,no_data,NOT_ASSESSED,no
 174,KOSPI;KOSDAQ,trading PostgreSQL component,present,unverified,DB timestamp existence not row-audited,unverified,unverified,unverified,PIT_UNVERIFIED,no

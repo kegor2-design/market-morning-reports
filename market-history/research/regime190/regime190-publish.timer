@@ -1,0 +1,12 @@
+[Unit]
+Description=Check Regime190 metadata progress every 30 minutes
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=30min
+RandomizedDelaySec=1min
+Persistent=true
+Unit=regime190-publish.service
+
+[Install]
+WantedBy=timers.target

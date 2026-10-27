@@ -1,0 +1,11 @@
+[Unit]
+Description=Publish sanitized Regime190 metadata checkpoint
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/market-morning-reports
+ExecStart=%h/stock_env/bin/python %h/market-morning-reports/market-history/research/regime190/publish_checkpoint.py
+UMask=0077
+NoNewPrivileges=true

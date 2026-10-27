@@ -18,13 +18,17 @@ DERIVED = {2,3,4,5,8,9,11,15,16,18,19,20,21,22,24,25,27,30,31,35}
 FRED_COMPONENT = {117,118,119,120,121,122,125,127,133}
 EXACT_DB = {73,74,75,76,78,82,174,175,178,181}
 DART_SAMPLE = {152,153,154,155,156}
+EVENT_ARCHIVE = set(range(164,172))
 
 def read_csv(path):
     with path.open(encoding='utf-8-sig') as f:return list(csv.DictReader(f))
 
 def write_csv(path, rows):
-    with path.open('w',newline='',encoding='utf-8') as f:
+    temp=path.with_suffix(path.suffix+'.tmp')
+    with temp.open('w',newline='',encoding='utf-8') as f:
         w=csv.DictWriter(f,fieldnames=list(rows[0]),lineterminator='\n');w.writeheader();w.writerows(rows)
+        f.flush()
+    temp.replace(path)
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--state-dir',type=Path,default=DEFAULT_STATE);args=ap.parse_args()
@@ -33,6 +37,8 @@ def main():
     conn.row_factory=sqlite3.Row
     tasks={x['indicator_id']:dict(x) for x in conn.execute('SELECT * FROM tasks')}
     assert sorted(tasks)==list(range(1,191))
+    probes=json.loads((state/'provider_probe_manifest.json').read_text()) if (state/'provider_probe_manifest.json').exists() else {}
+    probe_by_id={i:x for x in probes.values() for i in x['indicator_ids']}
     fred_dates={}
     for path in (state/'raw').glob('fred_*.json'):
         obj=json.loads(path.read_text())
@@ -86,6 +92,14 @@ def main():
                        frequency='annual_sample',first_date='2025',last_date='2025',row_count='229',valid_count='0',
                        pit_status='PIT_UNVERIFIED',validation_status='PARTIAL_SAMPLE_ONLY',
                        failure_reason='Only one company and one reporting year; market-wide as-of history and calculations missing')
+        elif i in EVENT_ARCHIVE and task['state']=='PARTIAL' and i in probe_by_id:
+            probe=probe_by_id[i]
+            row.update(availability_status='원천 확보·계산 미완료',actual_source='official release archive page',
+                       source_url=probe['source_url'],raw_path='private:'+probe['raw_file'],
+                       raw_sha256=probe['sha256'],frequency='event_archive_unparsed',
+                       first_date='',last_date='',row_count='0',valid_count='0',
+                       pit_status='PIT_UNVERIFIED',validation_status='UNPARSED_ARCHIVE',
+                       failure_reason='Official page downloaded and hashed, but indicator-specific historical events and publication times are unparsed')
         elif task['state']=='NEEDS_REVIEW' and task['fallback_attempt_count']+task['provider_attempt_count']>0:
             row.update(availability_status='미확보(시도 실패)',
                        failure_reason='Candidate source was queried but the indicator-specific required fields, scope, or rights were not verified')
@@ -124,6 +138,8 @@ def main():
             row.update(source='trading PostgreSQL component',observation_date='present',published_at='unverified',ingested_at='DB timestamp existence not row-audited',available_at='unverified',vintage='unverified',revision_history='unverified',pit_status='PIT_UNVERIFIED')
         elif i in DART_SAMPLE and tasks[i]['state']=='PARTIAL':
             row.update(source='OpenDART 2025 annual one-company sample',observation_date='2025 fiscal year',published_at='filing receipt time not joined',ingested_at='worker collection timestamp',available_at='unverified',vintage='current snapshot only',revision_history='unverified',pit_status='PIT_UNVERIFIED')
+        elif i in EVENT_ARCHIVE and tasks[i]['state']=='PARTIAL':
+            row.update(source='official release archive page',observation_date='archive dates unparsed',published_at='unparsed',ingested_at='worker retrieval timestamp',available_at='unverified',vintage='archive snapshot only',revision_history='unverified',pit_status='PIT_UNVERIFIED')
     write_csv(HERE/'pit_audit.csv',pit)
     manifest=[];quality=[]
     for path in sorted((state/'raw').glob('*.json')):
@@ -145,6 +161,20 @@ def main():
                              sha256=hashlib.sha256(dart_zip.read_bytes()).hexdigest(),bytes=dart_zip.stat().st_size,
                              rows=dart_info['listed_stock_codes_in_current_directory'],valid_rows=dart_info['listed_stock_codes_in_current_directory'],
                              first_date='',last_date='',pit_eligible='false',license='OpenDART source-specific redistribution unreviewed'))
+    provider_rows=[]
+    for item in probes.values():
+        for indicator_id in item['indicator_ids']:
+            provider_rows.append(dict(indicator_id=indicator_id,provider_group=item['provider_group'],source_url=item['source_url'],
+                attempted_at_utc=item['attempted_at_utc'],http_status=item['http_status'] or '',result=item['result'],
+                raw_sha256=item['sha256'],bytes=item['bytes'],date_tokens_not_event_rows=item['date_token_count'],
+                acquired_indicator_data='no',next_action='Parse and verify exact historical data; source access alone is insufficient'))
+        if item['raw_file']:
+            path=state/'raw'/item['raw_file']
+            assert path.exists() and hashlib.sha256(path.read_bytes()).hexdigest()==item['sha256']
+            manifest.append(dict(kind='SOURCE_ACCESS_PAGE_NOT_INDICATOR_DATA',identifier=item['provider_group'],
+                private_file=path.name,sha256=item['sha256'],bytes=item['bytes'],rows=0,valid_rows=0,
+                first_date='',last_date='',pit_eligible='false',license='source-specific redistribution unreviewed'))
+    if provider_rows:write_csv(HERE/'provider_probe_20.csv',provider_rows)
     write_csv(HERE/'worker_source_manifest.csv',manifest)
     write_csv(HERE/'worker_quality_report.csv',quality)
     comparisons=[]
@@ -187,9 +217,16 @@ def main():
                                  official_result='OpenDART shared group probe: '+d['sample_result'],official_series_results='2025 annual CFS one-company sample',
                                  state=tasks[i]['state'],blocking_evidence='Shared group probe; not a full indicator collection',
                                  next_action='Market-wide as-of company/year collection'))
+    for row in provider_rows:
+        attempts.append(dict(indicator_id=row['indicator_id'],attempted_at_utc=row['attempted_at_utc'],
+                             local_result='local report metadata only' if row['provider_group']=='local_youtube_report' else '',
+                             db_result='',official_result=row['result'],official_series_results='shared group: '+row['provider_group'],
+                             state=tasks[row['indicator_id']]['state'],blocking_evidence='Access probe only; indicator series not acquired',
+                             next_action=row['next_action']))
     write_csv(HERE/'worker_attempts.csv',attempts)
     legacy=[x for x in read_csv(HERE/'sources_attempt_log.csv') if not x['source'].startswith('worker:')]
     for a in attempts:
+        if a['official_series_results'].startswith('shared group:'):continue
         endpoint=('https://opendart.fss.or.kr/api/fnlttSinglAcntAll.json' if 'OpenDART' in a['official_result'] else
                   ('https://api.stlouisfed.org/fred/series/observations' if a['official_series_results'] else
                    ('trading DB read-only (host redacted)' if a['db_result'] else 'existing local source (path redacted)')))
@@ -197,12 +234,20 @@ def main():
                            source='worker:local_db_official',endpoint=endpoint,
                            result='local='+a['local_result']+';db='+a['db_result']+';official='+a['official_result'],
                            http_status='',rows='',duration_ms='',retry='',detail=a['official_series_results']+'; '+a['state']))
+    for row in provider_rows:
+        legacy.append(dict(attempted_at_utc=row['attempted_at_utc'],indicator_ids=row['indicator_id'],
+                           source='worker:provider_probe',endpoint=row['source_url'],result=row['result'],
+                           http_status=row['http_status'],rows=0,duration_ms='',retry=0,
+                           detail='shared group: '+row['provider_group']+'; no verified indicator series'))
     write_csv(HERE/'sources_attempt_log.csv',legacy)
     counts=dict(Counter(x['availability_status'] for x in rows))
     worker_counts=dict(Counter(x['state'] for x in tasks.values()))
     progress={'exported_at_utc':datetime.now(timezone.utc).isoformat(),'target_as_of':'2026-10-27',
               'indicator_count':190,'availability_counts':counts,'worker_counts':worker_counts,
               'unattempted_provider_or_fallback':sum(x['provider_attempt_count']+x['fallback_attempt_count']==0 for x in tasks.values()),
+              'latest_attempt_at':max((x['last_attempt_at'] or '' for x in tasks.values()),default=''),
+              'fred_request_records':conn.execute('SELECT count(*) FROM requests').fetchone()[0],
+              'source_probe_groups':len(probes),
               'pit_eligible':0,'backtest':'NOT_RUN_PIT_GATE',
               'warning':'Worker PARTIAL is not equivalent to complete indicator acquisition; source mappings need manual review'}
     (HERE/'worker_progress.json').write_text(json.dumps(progress,ensure_ascii=False,indent=2)+'\n')

@@ -1,18 +1,17 @@
 {
-  "exported_at_utc": "2026-10-27T15:46:41.089807+00:00",
+  "exported_at_utc": "2026-10-27T15:51:30.185411+00:00",
   "target_as_of": "2026-10-27",
   "indicator_count": 190,
   "availability_counts": {
     "일부 확보": 58,
-    "원천 확보·계산 미완료": 13,
-    "미확보(시도 실패)": 99,
-    "미확보(미시도)": 20
+    "원천 확보·계산 미완료": 21,
+    "미확보(시도 실패)": 111
   },
   "worker_counts": {
-    "PARTIAL": 71,
-    "NEEDS_REVIEW": 119
+    "PARTIAL": 79,
+    "NEEDS_REVIEW": 111
   },
-  "unattempted_provider_or_fallback": 20,
+  "unattempted_provider_or_fallback": 0,
   "pit_eligible": 0,
   "backtest": "NOT_RUN_PIT_GATE",
   "warning": "Worker PARTIAL is not equivalent to complete indicator acquisition; source mappings need manual review"
