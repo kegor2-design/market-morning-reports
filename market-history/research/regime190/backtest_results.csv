@@ -1,0 +1,2 @@
+status,reason,market,sample_size,metric,value
+NOT_RUN,All locally acquired index data PIT_UNVERIFIED; gate prohibits final validation,KOSPI;KOSDAQ,0,,

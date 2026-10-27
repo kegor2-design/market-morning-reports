@@ -1,0 +1,3 @@
+market,source_a,source_b,result,reason
+KOSPI,Naver Finance local raw,KRX official,NOT_RERUN,KRX HTTP landing page available; daily series query/values not collected
+KOSDAQ,Naver Finance local raw,KRX official,NOT_RERUN,KRX HTTP landing page available; daily series query/values not collected

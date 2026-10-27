@@ -1,0 +1,3 @@
+market,source,observation_date,published_at,ingested_at,available_at,vintage,revision_history,pit_status,backtest_eligible
+KOSPI,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no
+KOSDAQ,Naver Finance historical index,present,absent,2026-10-21 in prior manifest; row-level absent,unverified,absent,absent,PIT_UNVERIFIED,no

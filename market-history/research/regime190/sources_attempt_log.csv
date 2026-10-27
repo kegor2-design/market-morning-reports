@@ -1,0 +1,7 @@
+attempted_at_utc,indicator_ids,source,endpoint,result,http_status,rows,duration_ms,retry,detail
+2026-10-27T15:04:33.049087+00:00,1-40,existing_local_normalized_csv,local file (path redacted),FILE_HASH_VERIFIED,,7730,,0,KOSPI naver_kospi_daily.csv
+2026-10-27T15:04:33.049087+00:00,1-40,existing_local_raw_xml,local file (path redacted),FILE_HASH_VERIFIED,,7730,,0,KOSPI naver_kospi_raw.xml
+2026-10-27T15:04:33.049087+00:00,1-40,existing_local_normalized_csv,local file (path redacted),FILE_HASH_VERIFIED,,7574,,0,KOSDAQ naver_kosdaq_daily.csv
+2026-10-27T15:04:33.049087+00:00,1-40,existing_local_raw_xml,local file (path redacted),FILE_HASH_VERIFIED,,7574,,0,KOSDAQ naver_kosdaq_raw.xml
+2026-10-27T14:58:37Z,all candidate KRX categories,KRX official landing page,https://data.krx.co.kr/contents/MDC/MAIN/main/index.cmd,HEAD_ONLY_NO_DATA,200,0,2743,0,No data endpoint queried; not an acquisition
+2026-10-27T14:57:00Z,DB candidates,trading PostgreSQL,redacted,CONNECT_FAILED_OperationalError,,0,,1,Read-only schema inspection could not begin

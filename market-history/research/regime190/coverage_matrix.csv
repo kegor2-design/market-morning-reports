@@ -1,0 +1,7 @@
+market,period,start_date,end_date,observed_rows,weekday_denominator,raw_weekday_coverage_pct,indicator_ids,pit_eligible_rows,pit_eligible_pct,denominator_caveat
+KOSPI,development,2010-01-01,2017-12-31,1976,2086,94.73,1-40,0,0,weekdays include Korean exchange holidays; not official trading calendar
+KOSPI,validation,2018-01-01,2021-12-31,986,1045,94.35,1-40,0,0,weekdays include Korean exchange holidays; not official trading calendar
+KOSPI,final,2022-01-01,2026-10-27,1171,1257,93.16,1-40,0,0,weekdays include Korean exchange holidays; not official trading calendar
+KOSDAQ,development,2010-01-01,2017-12-31,1976,2086,94.73,1-40,0,0,weekdays include Korean exchange holidays; not official trading calendar
+KOSDAQ,validation,2018-01-01,2021-12-31,986,1045,94.35,1-40,0,0,weekdays include Korean exchange holidays; not official trading calendar
+KOSDAQ,final,2022-01-01,2026-10-27,1171,1257,93.16,1-40,0,0,weekdays include Korean exchange holidays; not official trading calendar

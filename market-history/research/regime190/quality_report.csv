@@ -1,0 +1,3 @@
+market,rows,target_rows,first_date,last_date,duplicate_dates,ohlc_invalid,target_ohlc_invalid,missing_cells,nonpositive_price_rows,zero_volume_rows,absolute_close_jumps_gt_15pct,calendar_check,corporate_action_check,provider_crosscheck,validation_status,checked_at_utc
+KOSPI,7730,4133,1996-01-03,2026-10-20,0,4,0,0,1,0,1,unverified_official_calendar,not_applicable_index_level,existing historical report only; not rerun,FAIL,2026-10-27T15:04:33.049087+00:00
+KOSDAQ,7574,4133,1996-07-02,2026-10-20,0,1,0,0,1,0,0,unverified_official_calendar,not_applicable_index_level,existing historical report only; not rerun,FAIL,2026-10-27T15:04:33.049087+00:00

@@ -1,0 +1,7 @@
+market,kind,public_path,private_file,sha256,bytes,rows,first_date,last_date,license,checked_at_utc
+KOSPI,normalized_csv,,naver_kospi_daily.csv,b243b958aae4ac360527f8d85e38c2696b8be4379bd77a0833ef977ec2595ae3,380814,7730,1996-01-03,2026-10-20,redistribution_unverified,2026-10-27T15:04:33.049087+00:00
+KOSPI,raw_xml,,naver_kospi_raw.xml,6c1413b675069bb117e41bc648c051ffd31f4b22b321060d42199a780b58b90d,543314,7730,1996-01-03,2026-10-20,redistribution_unverified,2026-10-27T15:04:33.049087+00:00
+KOSDAQ,normalized_csv,,naver_kosdaq_daily.csv,a3cccdd46ef9b6eb3cb6edf69f753f3b4e888f2b887b7b26f4c2e31126ade9fd,348455,7574,1996-07-02,2026-10-20,redistribution_unverified,2026-10-27T15:04:33.049087+00:00
+KOSDAQ,raw_xml,,naver_kosdaq_raw.xml,de2a914c6e4c4215c63935e4b80e8b8a610ed76860a1c967d0c630dec4a5588f,507680,7574,1996-07-02,2026-10-20,redistribution_unverified,2026-10-27T15:04:33.049087+00:00
+KOSPI,derived_research_csv,,kospi_computed.csv,a77544a080efa24cb27bfb8aab1dd068c69fa92f40d235c13f8bbd6484ae76ed,2482128,4133,2010-01-04,2026-10-20,derived_from_redistribution_unverified_source,2026-10-27T15:04:33.049087+00:00
+KOSDAQ,derived_research_csv,,kosdaq_computed.csv,bc3b0d3a8e7a2a942214fe2b26ea68f719493ca9a3108601a881665671345faa,2437609,4133,2010-01-04,2026-10-20,derived_from_redistribution_unverified_source,2026-10-27T15:04:33.049087+00:00
