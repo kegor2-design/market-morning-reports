@@ -36,15 +36,19 @@ def snapshot(state_dir: Path) -> dict:
     rates_path = state_dir / 'db_rates_derived_manifest.json'
     rates = json.loads(rates_path.read_text()) if rates_path.exists() else None
     fred_files = list((state_dir / 'fred_initial_vintages').glob('*.manifest.json'))
-    fred_latest = max((json.loads(path.read_text())['retrieved_at_utc'] for path in fred_files), default=None)
+    fred_items = [json.loads(path.read_text()) for path in fred_files]
+    fred_latest = max((item['retrieved_at_utc'] for item in fred_items), default=None)
+    fred_24h = [item for item in fred_items if item['retrieved_at_utc'] >= cutoff]
     if rates and (not last_derived or rates['completed_at_utc'] > last_derived):
         last_derived = rates['completed_at_utc']
     return {
         'state': 'IN_PROGRESS' if counts.get('PENDING', 0) or counts.get('RETRY_WAIT', 0)
                  or counts.get('NEEDS_REVIEW', 0) else 'ATTEMPTS_PROCESSED_NOT_FULLY_VERIFIED',
         'counts': counts, 'total': sum(counts.values()),
-        'heartbeat_at': heartbeat, 'last_real_request_at': latest_attempt,
-        'last_new_raw_at': datetime.fromtimestamp(newest_raw, timezone.utc).isoformat() if newest_raw else None,
+        'heartbeat_at': heartbeat,
+        'last_real_request_at': max(filter(None, (latest_attempt, fred_latest)), default=None),
+        'last_new_raw_at': max(filter(None, (datetime.fromtimestamp(newest_raw, timezone.utc).isoformat()
+                                              if newest_raw else None, fred_latest)), default=None),
         'last_new_derived_at': last_derived,
         'derived_symbols': len(unique_derived),
         'remaining_derived_symbols': max(0, total_symbols - len(unique_derived)),
@@ -54,9 +58,9 @@ def snapshot(state_dir: Path) -> dict:
         'fred_initial_vintage_series': len(fred_files),
         'last_fred_initial_request_at': fred_latest,
         'new_derived_rows_24h': derived_24h,
-        'verified_request_records_total': request_total,
-        'new_verified_rows_24h': rows_24h,
-        'successful_request_records_24h': requests_24h,
+        'verified_request_records_total': request_total + len(fred_items),
+        'new_verified_rows_24h': rows_24h + sum(item['rows'] for item in fred_24h),
+        'successful_request_records_24h': requests_24h + len(fred_24h),
         'remaining_queue': counts.get('PENDING', 0) + counts.get('RETRY_WAIT', 0)
                            + counts.get('NEEDS_REVIEW', 0),
         'pit_ready': 0,
