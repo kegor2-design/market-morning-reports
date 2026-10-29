@@ -40,6 +40,7 @@ def fingerprint():
     probes=STATE/'provider_probe_manifest.json'
     derived=STATE/'db_daily_price_derived_manifest.jsonl'
     rates=STATE/'db_rates_derived_manifest.json'
+    fred_dir=STATE/'fred_initial_vintages'
     rate_manifest=json.loads(rates.read_text()) if rates.exists() else {}
     derived_rows={}
     if derived.exists():
@@ -51,7 +52,8 @@ def fingerprint():
             'source_probe_groups':len(json.loads(probes.read_text())) if probes.exists() else 0,
             'db_derived_symbols':len(derived_rows),
             'db_derived_source_rows':sum(derived_rows.values()),
-            'rate_derived_dates':rate_manifest.get('dates',0)}
+            'rate_derived_dates':rate_manifest.get('dates',0),
+            'fred_initial_vintage_series':len(list(fred_dir.glob('*.manifest.json')))}
 
 def has_public_secret():
     for name in FILES:

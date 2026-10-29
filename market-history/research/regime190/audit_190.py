@@ -9,7 +9,7 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
-from worker import DB_MAP, DEFAULT_STATE, HERE
+from worker import DB_MAP, DEFAULT_STATE, FRED, HERE
 
 DB_PRICE = {41, 42, 43, 44, 45, 46, 49, 51}
 DB_RATES = {107, 108, 109, 110, 111}
@@ -90,12 +90,18 @@ def run(state_dir: Path = DEFAULT_STATE) -> dict:
     conn.close()
     if sorted(tasks) != list(range(1, 191)):
         raise RuntimeError('Checkpoint must contain exactly 190 unique IDs')
+    fred_manifests = {}
+    for path in (state_dir / 'fred_initial_vintages').glob('*.manifest.json'):
+        item = json.loads(path.read_text())
+        fred_manifests[item['series']] = item
     mapping, attempts, coverage, quality = [], [], [], []
     for i in range(1, 191):
         definition, source, task = spec[i], inventory[i], tasks[i]
         if definition['name'] != source['name'] or definition['priority'] != source['priority']:
             raise RuntimeError(f'Inventory and specification differ for ID {i}')
         table, required, caveat = candidate(i)
+        vintage_rows = sum(fred_manifests[series]['rows'] for series in FRED.get(i, [])
+                           if series in fred_manifests)
         series_rows = int(source['valid_count'] or 0) if source['derived_series_path'] else 0
         if i in DB_PRICE and task['state'] == 'PARTIAL':
             mapping_state = 'DERIVED_SYMBOL_SERIES_MARKET_UNVERIFIED'
@@ -120,6 +126,7 @@ def run(state_dir: Path = DEFAULT_STATE) -> dict:
                             mapping_status=mapping_state, actual_indicator_series_rows=series_rows,
                             source_caveat=caveat, market_scope_status=market_status,
                             pit_status=source['pit_status'], next_action=task['next_action'] or ''))
+        mapping[-1]['initial_vintage_component_rows'] = vintage_rows
         attempts.append(dict(indicator_id=i, name=definition['name'],
                              worker_state=task['state'], attempt_count=task['attempt_count'],
                              provider_request_count=task['provider_attempt_count'],
@@ -129,6 +136,7 @@ def run(state_dir: Path = DEFAULT_STATE) -> dict:
                              evidence=task['blocking_evidence'] or '',
                              next_retry_or_action=task['next_retry_at'] or task['next_action'] or '',
                              collection_attempt_complete='no'))
+        attempts[-1]['initial_vintage_component_rows'] = vintage_rows
         coverage.append(dict(indicator_id=i, name=definition['name'],
                              availability_status=source['availability_status'],
                              actual_indicator_series_rows=series_rows,
@@ -138,6 +146,7 @@ def run(state_dir: Path = DEFAULT_STATE) -> dict:
                              market_scope_status=market_status,
                              source_kind=source['actual_source'],
                              pit_eligible_rows=0, backtest_eligible='no'))
+        coverage[-1]['initial_vintage_component_rows'] = vintage_rows
         quality.append(dict(indicator_id=i, name=definition['name'],
                             actual_indicator_series_rows=series_rows,
                             source_history_status=('SHORT_HISTORY' if i in DB_RATES else
@@ -162,6 +171,7 @@ def run(state_dir: Path = DEFAULT_STATE) -> dict:
                'derived_rate_indicators': sorted(i for i in DB_RATES if tasks[i]['state'] == 'PARTIAL'),
                'actual_indicator_series_rows_total': sum(x['actual_indicator_series_rows'] for x in coverage),
                'provider_requests_unattempted': sum(task['provider_attempt_count'] == 0 for task in tasks.values()),
+               'fred_initial_vintage_series': len(fred_manifests),
                'pit_ready': 0, 'backtest': 'NOT_RUN_PIT_GATE',
                'collection_attempts_complete': False, 'all_data_acquired': False}
     (HERE / 'audit_190_summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=2) + '\n')

@@ -307,6 +307,7 @@ def main():
               'db_derived_symbols':len(derived_symbols),'db_derived_source_rows':db_derived_rows,
               'db_derived_valid_rows_by_indicator':db_valid,
               'rate_derived_dates':rate_manifest.get('dates',0),
+              'fred_initial_vintage_series':len(list((state/'fred_initial_vintages').glob('*.manifest.json'))),
               'rate_derived_valid_rows_by_indicator':rate_manifest.get('valid_rows_by_indicator',{}),
               'source_probe_groups':len(probes),
               'pit_eligible':0,'backtest':'NOT_RUN_PIT_GATE',

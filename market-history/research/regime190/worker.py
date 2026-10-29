@@ -328,6 +328,22 @@ def advance_rate_derivation(conn, state_dir):
                       'error_type': type(exc).__name__, 'message': str(exc)[:240]})
         return False
 
+def advance_fred_initial_vintages(state_dir):
+    """Collect at most one newly persisted initial-vintage component per idle cycle."""
+    from collect_fred_initial import fetch_one
+    result = fetch_one(state_dir)
+    if result['state'] == 'ACQUIRED_INITIAL_VINTAGE':
+        append_jsonl(state_dir / 'fred_initial_attempts.jsonl',
+                     {'at_utc': utc_now(), 'series': result['series'],
+                      'state': result['state'], 'rows': result['rows']})
+        return True
+    if result['state'] not in ('COMPLETE', 'KEY_MISSING'):
+        append_jsonl(state_dir / 'fred_initial_attempts.jsonl',
+                     {'at_utc': utc_now(), 'series': result.get('series'),
+                      'state': result['state'], 'error_type': result.get('error_type'),
+                      'http_status': result.get('http_status')})
+    return False
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--output-dir', type=Path, default=DEFAULT_STATE)
@@ -371,6 +387,10 @@ def main():
                     OR (state='RETRY_WAIT' AND next_retry_at<=?) ORDER BY priority,indicator_id LIMIT 1''', (utc_now(),)).fetchone()
             if not row:
                 if not args.service_loop: break
+                if advance_fred_initial_vintages(args.output_dir):
+                    progress(conn, args.output_dir)
+                    time.sleep(15)
+                    continue
                 if advance_rate_derivation(conn, args.output_dir):
                     progress(conn, args.output_dir)
                     continue

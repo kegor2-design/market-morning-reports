@@ -35,6 +35,8 @@ def snapshot(state_dir: Path) -> dict:
     last_derived = max((item['completed_at_utc'] for item in unique_derived.values()), default=None)
     rates_path = state_dir / 'db_rates_derived_manifest.json'
     rates = json.loads(rates_path.read_text()) if rates_path.exists() else None
+    fred_files = list((state_dir / 'fred_initial_vintages').glob('*.manifest.json'))
+    fred_latest = max((json.loads(path.read_text())['retrieved_at_utc'] for path in fred_files), default=None)
     if rates and (not last_derived or rates['completed_at_utc'] > last_derived):
         last_derived = rates['completed_at_utc']
     return {
@@ -49,6 +51,8 @@ def snapshot(state_dir: Path) -> dict:
         'derived_source_rows': sum(item['rows'] for item in unique_derived.values()),
         'rate_derived_dates': rates['dates'] if rates else 0,
         'rate_derived_indicator_ids': rates['indicator_ids'] if rates else [],
+        'fred_initial_vintage_series': len(fred_files),
+        'last_fred_initial_request_at': fred_latest,
         'new_derived_rows_24h': derived_24h,
         'verified_request_records_total': request_total,
         'new_verified_rows_24h': rows_24h,

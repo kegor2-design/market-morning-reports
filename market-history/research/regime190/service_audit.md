@@ -8,4 +8,6 @@ Checkpoint `PRAGMA quick_check` returned `ok`. An online SQLite backup was made 
 
 At inspection, root storage had about 47 GiB free and the HDD about 13 GiB free. The read-only DB connection was confirmed through the dedicated research credential file. Research publication remains separate from collection; a failed push cannot stop the collector.
 
-Validation: Python compilation, three focused unit tests, one real-symbol DB smoke run, resume to a second symbol, private output SHA verification, rate formula/hash check, and live service PID/checkpoint increase all passed. `--status` succeeded while the service held its execution lock.
+Validation: Python compilation, four focused unit tests, one real-symbol DB smoke run, resume to a second symbol, private output SHA verification, rate formula/hash check, and live service PID/checkpoint increase all passed. `--status` succeeded while the service held its execution lock.
+
+An additional bounded FRED initial-vintage adapter was added after the price and rate derivations. It stores one series per invocation with an atomic private JSON file and SHA-256 manifest, enforces a 16 MiB response cap and 5 GiB free-space floor, and spaces successful requests by 15 seconds in the service loop. The first real series, `BAMLC0A0CM`, returned 792 observations dated 2023-10-31 through 2026-10-27. These values remain `PIT_UNVERIFIED` because release hour and indicator-definition checks are outstanding. The adapter resumes from verified manifest files; a mock request/resume test passed.
