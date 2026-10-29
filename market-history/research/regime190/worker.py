@@ -300,6 +300,34 @@ def advance_daily_price_derivation(conn, state_dir):
                       'message': str(exc)[:240]})
         return False
 
+def advance_rate_derivation(conn, state_dir):
+    """Complete the short-history Korean rate adapter once per checkpoint."""
+    ids = (107, 108, 109, 110, 111)
+    remaining = conn.execute('SELECT count(*) FROM tasks WHERE indicator_id IN (107,108,109,110,111) '
+                             'AND derived_series_path IS NULL').fetchone()[0]
+    if not remaining:
+        return False
+    from derive_db_rates import run
+    try:
+        result = run(state_dir)
+        if result['state'] != 'PARTIAL_DERIVED':
+            return False
+        conn.execute('''UPDATE tasks SET state='PARTIAL',
+            attempt_count=attempt_count+1,
+            fallback_attempt_count=fallback_attempt_count+1,
+            last_attempt_at=?, derived_series_path='private:db_rates_derived.csv.gz',
+            blocking_evidence='2025-2026 rate series derived; missing subcomponents, full history and PIT vintages',
+            next_action='Acquire earlier official history and release vintages; verify missing MSB and BBB series'
+            WHERE indicator_id IN (107,108,109,110,111) AND derived_series_path IS NULL''',
+            (utc_now(),))
+        conn.commit()
+        return True
+    except Exception as exc:
+        append_jsonl(state_dir / 'derived_errors.jsonl',
+                     {'at_utc': utc_now(), 'adapter': 'rates',
+                      'error_type': type(exc).__name__, 'message': str(exc)[:240]})
+        return False
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--output-dir', type=Path, default=DEFAULT_STATE)
@@ -343,6 +371,9 @@ def main():
                     OR (state='RETRY_WAIT' AND next_retry_at<=?) ORDER BY priority,indicator_id LIMIT 1''', (utc_now(),)).fetchone()
             if not row:
                 if not args.service_loop: break
+                if advance_rate_derivation(conn, args.output_dir):
+                    progress(conn, args.output_dir)
+                    continue
                 if advance_daily_price_derivation(conn, args.output_dir):
                     progress(conn, args.output_dir)
                     continue

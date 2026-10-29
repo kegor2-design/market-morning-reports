@@ -33,6 +33,10 @@ def snapshot(state_dir: Path) -> dict:
     derived_24h = sum(item['rows'] for item in unique_derived.values()
                       if item['completed_at_utc'] >= cutoff)
     last_derived = max((item['completed_at_utc'] for item in unique_derived.values()), default=None)
+    rates_path = state_dir / 'db_rates_derived_manifest.json'
+    rates = json.loads(rates_path.read_text()) if rates_path.exists() else None
+    if rates and (not last_derived or rates['completed_at_utc'] > last_derived):
+        last_derived = rates['completed_at_utc']
     return {
         'state': 'IN_PROGRESS' if counts.get('PENDING', 0) or counts.get('RETRY_WAIT', 0)
                  or counts.get('NEEDS_REVIEW', 0) else 'ATTEMPTS_PROCESSED_NOT_FULLY_VERIFIED',
@@ -43,6 +47,8 @@ def snapshot(state_dir: Path) -> dict:
         'derived_symbols': len(unique_derived),
         'remaining_derived_symbols': max(0, total_symbols - len(unique_derived)),
         'derived_source_rows': sum(item['rows'] for item in unique_derived.values()),
+        'rate_derived_dates': rates['dates'] if rates else 0,
+        'rate_derived_indicator_ids': rates['indicator_ids'] if rates else [],
         'new_derived_rows_24h': derived_24h,
         'verified_request_records_total': request_total,
         'new_verified_rows_24h': rows_24h,

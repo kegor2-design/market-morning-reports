@@ -20,6 +20,7 @@ EXACT_DB = {73,74,75,76,78,82,174,175,178,181}
 DART_SAMPLE = {152,153,154,155,156}
 EVENT_ARCHIVE = set(range(164,172))
 DB_PRICE_DERIVED = {41,42,43,44,45,46,49,51}
+DB_RATE_DERIVED = {107,108,109,110,111}
 
 def read_csv(path):
     with path.open(encoding='utf-8-sig') as f:return list(csv.DictReader(f))
@@ -47,6 +48,8 @@ def main():
     db_derived_rows=sum(item['rows'] for item in derived_symbols.values())
     db_valid={i:sum(item['valid_counts'].get(str(i),0) for item in derived_symbols.values())
               for i in DB_PRICE_DERIVED}
+    rate_manifest_path=state/'db_rates_derived_manifest.json'
+    rate_manifest=json.loads(rate_manifest_path.read_text()) if rate_manifest_path.exists() else {}
     probes=json.loads((state/'provider_probe_manifest.json').read_text()) if (state/'provider_probe_manifest.json').exists() else {}
     probe_by_id={i:x for x in probes.values() for i in x['indicator_ids']}
     fred_dates={}
@@ -65,7 +68,19 @@ def main():
     rows=[]
     for row in original:
         i=int(row['indicator_id']);task=tasks[i]
-        if i in DB_PRICE_DERIVED and task['state']=='PARTIAL' and derived_symbols:
+        if i in DB_RATE_DERIVED and task['state']=='PARTIAL' and rate_manifest:
+            row.update(availability_status='일부 확보',
+                       actual_source='read-only Korean market rate DB series',
+                       source_url='private read-only PostgreSQL source',
+                       raw_path='private:db_rates_derived.csv.gz',
+                       raw_sha256=rate_manifest['sha256'],
+                       row_count=str(rate_manifest['dates']),
+                       valid_count=str(rate_manifest['valid_rows_by_indicator'][str(i)]),
+                       first_date=rate_manifest['first_date'],last_date=rate_manifest['last_date'],
+                       frequency='daily_rate',pit_status='PIT_UNVERIFIED',
+                       validation_status='PARTIAL_HISTORY_PIT_UNVERIFIED',
+                       failure_reason='Only 2025-2026; 109 lacks MSB, 110 lacks BBB, and release vintages are unverified')
+        elif i in DB_PRICE_DERIVED and task['state']=='PARTIAL' and derived_symbols:
             row.update(availability_status='일부 확보',
                        actual_source='read-only KIS daily OHLCV per-symbol derivation',
                        source_url='private read-only PostgreSQL source',
@@ -129,7 +144,8 @@ def main():
                    fallback_attempt_count=task['fallback_attempt_count'],last_attempt_at=task['last_attempt_at'] or '',
                    http_or_db_result=task['http_or_db_result'] or '',blocking_evidence=task['blocking_evidence'] or '',
                    next_action=task['next_action'] or '',worker_state=task['state'],pit_eligible='false',
-                   derived_series_path=('private:db_daily_price_derived/*.csv.gz' if i in DB_PRICE_DERIVED and task['state']=='PARTIAL' else
+                   derived_series_path=('private:db_rates_derived.csv.gz' if i in DB_RATE_DERIVED and task['state']=='PARTIAL' else
+                                        'private:db_daily_price_derived/*.csv.gz' if i in DB_PRICE_DERIVED and task['state']=='PARTIAL' else
                                         'private:kospi_derived_more.csv;private:kosdaq_derived_more.csv' if i in DERIVED else
                                         ('private:kospi_computed.csv;private:kosdaq_computed.csv' if i in {1,10,12,13,17,26,28,29,32,33,34,36,37,38,39,40} else '')))
         rows.append(row)
@@ -193,6 +209,15 @@ def main():
                              first_date=min(x['first_date'] for x in derived_symbols.values()),
                              last_date=max(x['last_date'] for x in derived_symbols.values()),
                              pit_eligible='false',license='private KIS DB; redistribution unreviewed'))
+    if rate_manifest:
+        manifest.append(dict(kind='DB_DERIVED_RATE_SERIES_PRIVATE',
+                             identifier='Korean rates 107,108,109,110,111',
+                             private_file='db_rates_derived.csv.gz',
+                             sha256=rate_manifest['sha256'],bytes=rate_manifest['bytes'],
+                             rows=rate_manifest['dates'],
+                             valid_rows=min(rate_manifest['valid_rows_by_indicator'].values()),
+                             first_date=rate_manifest['first_date'],last_date=rate_manifest['last_date'],
+                             pit_eligible='false',license='private rate DB; redistribution unreviewed'))
     provider_rows=[]
     for item in probes.values():
         for indicator_id in item['indicator_ids']:
@@ -281,6 +306,8 @@ def main():
               'fred_request_records':conn.execute('SELECT count(*) FROM requests').fetchone()[0],
               'db_derived_symbols':len(derived_symbols),'db_derived_source_rows':db_derived_rows,
               'db_derived_valid_rows_by_indicator':db_valid,
+              'rate_derived_dates':rate_manifest.get('dates',0),
+              'rate_derived_valid_rows_by_indicator':rate_manifest.get('valid_rows_by_indicator',{}),
               'source_probe_groups':len(probes),
               'pit_eligible':0,'backtest':'NOT_RUN_PIT_GATE',
               'warning':'Worker PARTIAL is not equivalent to complete indicator acquisition; source mappings need manual review'}
@@ -291,6 +318,8 @@ def main():
                collection_state='IN_PROGRESS',db='READ_ONLY_SCHEMA_QUERY_SUCCEEDED',
                service_worker='regime190-collection.service',worker_source_manifest_count=len(manifest),pit_eligible=0)
     (HERE/'run_manifest.json').write_text(json.dumps(run,ensure_ascii=False,indent=2)+'\n')
+    from audit_190 import run as audit_all
+    audit_all(state)
     print(json.dumps(progress,ensure_ascii=False))
     conn.close()
 

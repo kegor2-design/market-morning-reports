@@ -23,6 +23,9 @@ FILES=[
     'sources_attempt_log.csv','source_comparison_detail.csv','worker_source_manifest.csv',
     'worker_quality_report.csv','worker_attempts.csv','provider_probe_20.csv',
     'worker_progress.json','run_manifest.json',
+    'indicator_field_mapping.csv','provider_attempts.csv','data_coverage.csv',
+    'quality_report.csv','index_quality_report.csv','audit_190_summary.json',
+    'schema_audit.md','service_audit.md','github_branch_audit.md',
 ]
 
 def git(*args):
@@ -36,6 +39,8 @@ def fingerprint():
     conn.close()
     probes=STATE/'provider_probe_manifest.json'
     derived=STATE/'db_daily_price_derived_manifest.jsonl'
+    rates=STATE/'db_rates_derived_manifest.json'
+    rate_manifest=json.loads(rates.read_text()) if rates.exists() else {}
     derived_rows={}
     if derived.exists():
         for line in derived.read_text().splitlines():
@@ -45,7 +50,8 @@ def fingerprint():
             'fred_request_records':request_count,
             'source_probe_groups':len(json.loads(probes.read_text())) if probes.exists() else 0,
             'db_derived_symbols':len(derived_rows),
-            'db_derived_source_rows':sum(derived_rows.values())}
+            'db_derived_source_rows':sum(derived_rows.values()),
+            'rate_derived_dates':rate_manifest.get('dates',0)}
 
 def has_public_secret():
     for name in FILES:

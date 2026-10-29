@@ -1,0 +1,191 @@
+indicator_id,name,availability_status,actual_indicator_series_rows,recorded_component_or_summary_rows,first_date,last_date,frequency,target_market,market_scope_status,source_kind,pit_eligible_rows,backtest_eligible
+1,이동평균 SMA 5·10·20·60·120·200,일부 확보,7868,8266,2010-10-20,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+2,지수이동평균 EMA,일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+3,가중이동평균 WMA,일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+4,적응형 이동평균 KAMA,일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+5,Hull Moving Average HMA,일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+6,MESA Adaptive Moving Average MAMA,원천 확보·계산 미완료,0,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+7,이치모쿠/일목균형표,원천 확보·계산 미완료,0,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+8,슈퍼트렌드 Supertrend,일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+9,파라볼릭 SAR,일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+10,Donchian Channel,일부 확보,8228,8266,2010-01-29,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+11,MA 기울기·곡률,일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+12,가격의 52주 최고가 거리,일부 확보,7764,8266,2011-01-03,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+13,MACD·Signal·Histogram,일부 확보,8200,8266,2010-02-19,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+14,RSI·RSI 다이버전스,원천 확보·계산 미완료,0,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+15,Stochastic / StochRSI,일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+16,CCI,일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+17,ROC·Momentum,일부 확보,8246,8266,2010-01-18,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+18,ADX·+DI·-DI,일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+19,Aroon Up/Down,일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+20,TRIX,일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+21,TSI,일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+22,Schaff Trend Cycle,일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+23,Coppock Curve,원천 확보·계산 미완료,0,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+24,KST (Know Sure Thing),일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+25,Choppiness Index,일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+26,Kaufman Efficiency Ratio,일부 확보,8246,8266,2010-01-18,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+27,Fisher Transform,일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+28,볼린저밴드 %B·Bandwidth,일부 확보,8228,8266,2010-01-29,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+29,ATR·NATR,일부 확보,8240,8266,2010-01-21,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+30,Keltner Channel,일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+31,Bollinger-Keltner Squeeze,일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+32,Parkinson 변동성,일부 확보,8228,8266,2010-01-29,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+33,Garman-Klass 변동성,일부 확보,8228,8266,2010-01-29,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+34,Rogers-Satchell 변동성,일부 확보,8228,8266,2010-01-29,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+35,Yang-Zhang 변동성,일부 확보,8266,8266,2010-01-04,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+36,실현 변동성 5·20·60,일부 확보,8146,8266,2010-03-31,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+37,하방 준변동성,일부 확보,8226,8266,2010-02-01,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+38,실현 비대칭·초과첨도,일부 확보,8146,8266,2010-03-31,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+39,Bipower variation/jump,일부 확보,8224,8266,2010-02-02,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+40,Drawdown 속도·회복률,일부 확보,8256,8266,2010-01-11,2026-10-20,daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,Naver Finance historical index OHLCV,0,no
+41,OBV,일부 확보,4605978,4605978,2011-09-16,2026-10-27,daily_per_symbol,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,read-only KIS daily OHLCV per-symbol derivation,0,no
+42,MFI,일부 확보,4547508,4605978,2011-09-16,2026-10-27,daily_per_symbol,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,read-only KIS daily OHLCV per-symbol derivation,0,no
+43,CMF,일부 확보,4535546,4605978,2011-09-16,2026-10-27,daily_per_symbol,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,read-only KIS daily OHLCV per-symbol derivation,0,no
+44,A/D Line,일부 확보,4605978,4605978,2011-09-16,2026-10-27,daily_per_symbol,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,read-only KIS daily OHLCV per-symbol derivation,0,no
+45,Chaikin Oscillator,일부 확보,4605978,4605978,2011-09-16,2026-10-27,daily_per_symbol,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,read-only KIS daily OHLCV per-symbol derivation,0,no
+46,VWAP 이격,일부 확보,4549899,4605978,2011-09-16,2026-10-27,daily_per_symbol,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,read-only KIS daily OHLCV per-symbol derivation,0,no
+47,Anchored VWAP,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+48,Volume Profile/POC,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+49,거래량 급증 Z-score,일부 확보,4535512,4605978,2011-09-16,2026-10-27,daily_per_symbol,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,read-only KIS daily OHLCV per-symbol derivation,0,no
+50,회전율 Turnover,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+51,Amihud illiquidity,일부 확보,4547612,4605978,2011-09-16,2026-10-27,daily_per_symbol,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,read-only KIS daily OHLCV per-symbol derivation,0,no
+52,거래대금 대비 하락 종목 비율,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+53,상승/하락 종목수 비율 A/D,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+54,McClellan Oscillator,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+55,McClellan Summation Index,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+56,Zweig Breadth Thrust,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+57,신고가/신저가 차이,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+58,MA20/60/200 상회 종목 비율,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+59,시총가중 vs 동일가중 수익률 차이,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+60,상승/하락 거래대금 비율,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+61,업종별 상승 확산도,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+62,상위 2/5/10종목 기여도,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+63,중소형주 상대강도,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+64,사상최고가 비중·상장폐지 포함,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+65,Hindenburg Omen 계열,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+66,업종간 평균 상관계수,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+67,상관행렬 최대 고유값,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+68,PCA 첫 주성분 설명력,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+69,상승률 상위종목 분산도,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+70,시장·업종 베타 분산,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+71,세력/업종 군집 동기화,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+72,시장 내 상방/하방 상관 비대칭,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,MARKET_MAPPING_UNVERIFIED,,0,no
+73,매수/매도 잔량 불균형 OBI,일부 확보,0,1669153,2026-10-26 09:00:34,2026-10-27 15:21:32,intraday_or_daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,trading PostgreSQL read-only component,0,no
+74,호가 변화량 OFI,원천 확보·계산 미완료,0,1669153,2026-10-26 09:00:34,2026-10-27 15:21:32,intraday_or_daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,trading PostgreSQL read-only component,0,no
+75,Bid-Ask Spread,일부 확보,0,1669153,2026-10-26 09:00:34,2026-10-27 15:21:32,intraday_or_daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,trading PostgreSQL read-only component,0,no
+76,호가 10단계 깊이·기울기,일부 확보,0,1669153,2026-10-26 09:00:34,2026-10-27 15:21:32,intraday_or_daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,trading PostgreSQL read-only component,0,no
+77,Cancel-to-trade ratio,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+78,실효 스프레드·실현 스프레드,일부 확보,0,1669153,2026-10-26 09:00:34,2026-10-27 15:21:32,intraday_or_daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,trading PostgreSQL read-only component,0,no
+79,Kyle Lambda (추정),미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+80,VPIN (추정),미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+81,체결 간격·도착률,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+82,대량주문 슬리피지 추정,일부 확보,0,1669153,2026-10-26 09:00:34,2026-10-27 15:21:32,intraday_or_daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,trading PostgreSQL read-only component,0,no
+83,외국인 코스피 현물 순매수,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+84,외국인 KOSPI200 선물 순매수,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+85,현물-선물 외국인 수급 괴리,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+86,기관(연기금/금투/투신) 분해,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+87,개인 역추세 유입,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+88,프로그램 차익·비차익 매매,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+89,ETF 설정·환매 순유입,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+90,외국인 지분율·보유 변화,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+91,공매도 거래대금·잔고,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+92,대차 잔고 변화,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+93,신용융자 잔고/반대매매,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+94,고객예탁금·미수금,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+95,Put/Call Ratio (거래량),미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+96,Put/Call Ratio (미결제),미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+97,옵션 내재변동성 IV,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+98,IV Skew / Risk Reversal,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+99,VIX/VKOSPI류 변동성 지수,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+100,IV 기간구조 term structure,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+101,변동성 위험프리미엄 VRP,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+102,옵션 Gamma Exposure (GEX 추정),미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+103,선물 베이시스,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+104,선물 미결제약정 변화,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+105,선물 롤오버·기간스프레드,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+106,풋옵션 급등 거래량,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+107,국고채 3/10년 금리,일부 확보,325,325,2025-07-01,2026-10-28,daily_rate,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,read-only Korean market rate DB series,0,no
+108,한국 수익률 곡선 기울기,일부 확보,325,325,2025-07-01,2026-10-28,daily_rate,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,read-only Korean market rate DB series,0,no
+109,통안채·CD·CP 금리,일부 확보,325,325,2025-07-01,2026-10-28,daily_rate,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,read-only Korean market rate DB series,0,no
+110,회사채 AA-/BBB- 스프레드,일부 확보,325,325,2025-07-01,2026-10-28,daily_rate,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,read-only Korean market rate DB series,0,no
+111,CP-CD 스프레드,일부 확보,325,325,2025-07-01,2026-10-28,daily_rate,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,read-only Korean market rate DB series,0,no
+112,RP/레포 금리 및 거래,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+113,금융채/은행채 스프레드,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+114,원화 자금 시장 일시 경색,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+115,채권 발행·차환 부담,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+116,미국 2년·10년 국채금리,일부 확보,0,202,2010-01-01,2026-10-01,monthly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,existing monthly repository CSV,0,no
+117,미국 장단기 역전,일부 확보,0,4205,2010-01-04,2026-10-23,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no
+118,미국 하이일드 OAS,일부 확보,0,784,2023-10-30,2026-10-26,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no
+119,미국 IG 회사채 OAS,일부 확보,0,783,2023-10-30,2026-10-26,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no
+120,SOFR-OIS·자금시장 스프레드,일부 확보,0,2139,2018-04-03,2026-10-26,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no
+121,미국 금융스트레스 STLFSI/OFR FSI,일부 확보,0,877,2010-01-01,2026-10-16,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no
+122,미국 은행 준비금·RRP·TGA,일부 확보,0,678,2011-03-30,2026-10-21,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no
+123,MOVE 지수,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+124,미국 크레딧 디폴트 스왑,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+125,미 연준 정책금리·점도표,일부 확보,0,6144,2010-01-01,2026-10-27,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no
+126,USD/KRW·변화율·변동성,일부 확보,0,181,2010-01-01,2026-10-01,monthly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,existing monthly repository CSV,0,no
+127,DXY/광의 달러,일부 확보,0,4186,2010-01-04,2026-10-23,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no
+128,엔·위안 환율 및 JPY/KRW,일부 확보,0,201,2010-01-01,2026-09-01,monthly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,existing monthly repository CSV,0,no
+129,달러/원 선물환·FX Swap Point,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+130,원화 크로스커런시 베이시스,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+131,S&P500·NASDAQ·SOX 전일 수익률,일부 확보,0,200,2010-01-01,2026-08-01,monthly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,existing monthly repository CSV,0,no
+132,미국지수선물 NQ·ES 장전 움직임,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+133,VIX·VVIX,일부 확보,0,4262,2010-01-04,2026-10-26,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no
+134,WTI·브렌트·천연가스,일부 확보,0,173,2010-01-01,2026-10-01,monthly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,existing monthly repository CSV,0,no
+135,금·은·구리·철광석,일부 확보,0,173,2010-01-01,2026-10-01,monthly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,existing monthly repository CSV,0,no
+136,반도체 D램·낸드 가격,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+137,중국·일본 증시/위안·금리,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+138,한국 수출 총액·반도체/자동차 수출,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+139,20일까지 잠정 수출,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+140,한국 제조업 PMI,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+141,한국 산업생산·재고/출하,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+142,설비투자·건설기성,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+143,소비자물가 CPI·근원 CPI,일부 확보,0,201,2010-01-01,2026-09-01,monthly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,existing monthly repository CSV,0,no
+144,한국 고용·실업·임금,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+145,소비자·기업 심리지수,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+146,중국 PMI·수출·신용충격,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+147,미국 CPI·PCE·고용(NFP),미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+148,글로벌 제조업 신규주문,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+149,해상운임 BDI·컨테이너 운임,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+150,전력소비·발전량·석유수요,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+151,세계 반도체 판매/장비 출하,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+152,매출·영업이익·순이익 성장,원천 확보·계산 미완료,0,229,2025,2025,annual_sample,KOSPI;KOSDAQ,AS_OF_UNIVERSE_MISSING,OpenDART one-company 2025 annual financial statement sample,0,no
+153,영업현금흐름/순이익,원천 확보·계산 미완료,0,229,2025,2025,annual_sample,KOSPI;KOSDAQ,AS_OF_UNIVERSE_MISSING,OpenDART one-company 2025 annual financial statement sample,0,no
+154,재고회전율·재고 증가,원천 확보·계산 미완료,0,229,2025,2025,annual_sample,KOSPI;KOSDAQ,AS_OF_UNIVERSE_MISSING,OpenDART one-company 2025 annual financial statement sample,0,no
+155,영업이익률·ROIC 변화,원천 확보·계산 미완료,0,229,2025,2025,annual_sample,KOSPI;KOSDAQ,AS_OF_UNIVERSE_MISSING,OpenDART one-company 2025 annual financial statement sample,0,no
+156,부채비율·이자보상배율,원천 확보·계산 미완료,0,229,2025,2025,annual_sample,KOSPI;KOSDAQ,AS_OF_UNIVERSE_MISSING,OpenDART one-company 2025 annual financial statement sample,0,no
+157,애널리스트 EPS 컨센서스 변화,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,AS_OF_UNIVERSE_MISSING,,0,no
+158,실적 발표 서프라이즈,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,AS_OF_UNIVERSE_MISSING,,0,no
+159,PER/PBR/EV/EBITDA,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,AS_OF_UNIVERSE_MISSING,,0,no
+160,지수 이익수익률-국채금리,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,AS_OF_UNIVERSE_MISSING,,0,no
+161,대규모 계약·수주잔고 변화,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,AS_OF_UNIVERSE_MISSING,,0,no
+162,유상증자·CB/BW·자사주,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,AS_OF_UNIVERSE_MISSING,,0,no
+163,내부자·대주주 보유변화,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,AS_OF_UNIVERSE_MISSING,,0,no
+164,한국은행 금통위 결정·의사록,원천 확보·계산 미완료,0,0,,,event_archive_unparsed,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,official release archive page,0,no
+165,FOMC 결정·성명·점도표,원천 확보·계산 미완료,0,0,,,event_archive_unparsed,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,official release archive page,0,no
+166,미국·한국 국채 입찰,원천 확보·계산 미완료,0,0,,,event_archive_unparsed,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,official release archive page,0,no
+167,MSCI/FTSE 지수편입 발표,원천 확보·계산 미완료,0,0,,,event_archive_unparsed,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,official release archive page,0,no
+168,공매도/시장안정 정책 변경,원천 확보·계산 미완료,0,0,,,event_archive_unparsed,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,official release archive page,0,no
+169,미국 대중 관세·반도체 규제,원천 확보·계산 미완료,0,0,,,event_archive_unparsed,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,official release archive page,0,no
+170,일본 BOJ·엔 캐리 관련 결정,원천 확보·계산 미완료,0,0,,,event_archive_unparsed,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,official release archive page,0,no
+171,선거·지정학 제재·전쟁,원천 확보·계산 미완료,0,0,,,event_archive_unparsed,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,official release archive page,0,no
+172,옵션 만기·리밸런싱·배당락,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+173,한국 기업 실적발표 일정,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+174,경제 뉴스 원문 및 발행시각,일부 확보,0,13831,2026-08-03,2026-10-27,intraday_or_daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,trading PostgreSQL read-only component,0,no
+175,경제 전망/정책 의도 추출,원천 확보·계산 미완료,0,13831,2026-08-03,2026-10-27,intraday_or_daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,trading PostgreSQL read-only component,0,no
+176,유튜브 분석 발언·차트 시점,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+177,기관 리서치/컨센서스 변화,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+178,기업 공시 텍스트 센티먼트,원천 확보·계산 미완료,0,9237,2026-09-14,2026-10-27,intraday_or_daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,trading PostgreSQL read-only component,0,no
+179,구글 트렌드/검색 급증,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+180,SNS/커뮤니티 과열·공포,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+181,뉴스 정보량/불확실성 지수,원천 확보·계산 미완료,0,13831,2026-08-03,2026-10-27,intraday_or_daily,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,trading PostgreSQL read-only component,0,no
+182,ETF 프리미엄·괴리율,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+183,ETF 종목별 보유구성 변화,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+184,실시간 지수선물-ETF 괴리,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+185,시장 급락 전 연쇄 청산 규모,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+186,장외파생·ELS 헤지 부담 추정,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+187,IPO·상장폐지·증자 공급,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+188,시장간 전염 속도,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+189,자산군 동시 하락 확산,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no
+190,외국인 현물·선물·환율 동시 변화,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no

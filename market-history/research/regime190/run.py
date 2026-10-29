@@ -136,7 +136,7 @@ attempts.extend([
     dict(attempted_at_utc='2026-10-27T14:58:37Z',indicator_ids='all candidate KRX categories',source='KRX official landing page',endpoint='https://data.krx.co.kr/contents/MDC/MAIN/main/index.cmd',result='HEAD_ONLY_NO_DATA',http_status=200,rows=0,duration_ms=2743,retry=0,detail='No data endpoint queried; not an acquisition'),
     dict(attempted_at_utc='2026-10-27 (exact UTC second not logged)',indicator_ids='DB candidates',source='trading PostgreSQL',endpoint='redacted',result='CONNECT_FAILED_OperationalError',http_status='',rows=0,duration_ms='',retry=1,detail='Read-only schema inspection could not begin')])
 write_csv('raw_manifest.csv',manifest,list(manifest[0]))
-write_csv('quality_report.csv',quality,list(quality[0]))
+write_csv('index_quality_report.csv',quality,list(quality[0]))
 write_csv('sources_attempt_log.csv',attempts,list(attempts[0]))
 periods=[('development','2010-01-01','2017-12-31'),('validation','2018-01-01','2021-12-31'),('final','2022-01-01','2026-10-27')]
 coverage=[]
