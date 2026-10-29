@@ -35,9 +35,17 @@ def fingerprint():
     request_count=conn.execute('SELECT count(*) FROM requests').fetchone()[0]
     conn.close()
     probes=STATE/'provider_probe_manifest.json'
+    derived=STATE/'db_daily_price_derived_manifest.jsonl'
+    derived_rows={}
+    if derived.exists():
+        for line in derived.read_text().splitlines():
+            if line.strip():
+                item=json.loads(line);derived_rows[item['symbol']]=item['rows']
     return {'worker_counts':counts,'latest_attempt_at':latest,
             'fred_request_records':request_count,
-            'source_probe_groups':len(json.loads(probes.read_text())) if probes.exists() else 0}
+            'source_probe_groups':len(json.loads(probes.read_text())) if probes.exists() else 0,
+            'db_derived_symbols':len(derived_rows),
+            'db_derived_source_rows':sum(derived_rows.values())}
 
 def has_public_secret():
     for name in FILES:

@@ -1,5 +1,5 @@
 {
-  "exported_at_utc": "2026-10-27T15:54:26.113625+00:00",
+  "exported_at_utc": "2026-10-29T14:11:56.972543+00:00",
   "target_as_of": "2026-10-27",
   "indicator_count": 190,
   "availability_counts": {
@@ -14,6 +14,18 @@
   "unattempted_provider_or_fallback": 0,
   "latest_attempt_at": "2026-10-27T15:50:27.104971+00:00",
   "fred_request_records": 18,
+  "db_derived_symbols": 2,
+  "db_derived_source_rows": 7383,
+  "db_derived_valid_rows_by_indicator": {
+    "41": 7383,
+    "42": 7352,
+    "43": 7345,
+    "44": 7383,
+    "45": 7383,
+    "46": 7327,
+    "49": 7345,
+    "51": 7325
+  },
   "source_probe_groups": 17,
   "pit_eligible": 0,
   "backtest": "NOT_RUN_PIT_GATE",

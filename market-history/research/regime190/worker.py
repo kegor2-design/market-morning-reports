@@ -274,6 +274,32 @@ def process_one(conn, state_dir, row, max_requests):
     conn.commit()
     return result
 
+def advance_daily_price_derivation(conn, state_dir):
+    """Advance the new read-only DB adapter without revisiting exhausted sources."""
+    from derive_db_daily import METRICS, run_batch
+    try:
+        result = run_batch(state_dir, max_symbols=25)
+        atomic_json(state_dir / 'db_derive_progress.json',
+                    {'updated_at_utc': utc_now(), **result})
+        if result['state'] == 'COMPLETE':
+            ids = tuple(METRICS)
+            placeholders = ','.join('?' for _ in ids)
+            conn.execute(f'''UPDATE tasks SET state='PARTIAL',
+                attempt_count=attempt_count+1,
+                fallback_attempt_count=fallback_attempt_count+1,
+                last_attempt_at=?, derived_series_path='private:db_daily_price_derived/',
+                blocking_evidence='Actual per-symbol OHLCV derived; historical market identity and PIT remain unverified',
+                next_action='Verify as-of market membership, KIS adjustments, exact formula and release time'
+                WHERE indicator_id IN ({placeholders}) AND derived_series_path IS NULL''',
+                (utc_now(), *ids))
+            conn.commit()
+        return result['new_symbols'] > 0
+    except Exception as exc:
+        append_jsonl(state_dir / 'derived_errors.jsonl',
+                     {'at_utc': utc_now(), 'error_type': type(exc).__name__,
+                      'message': str(exc)[:240]})
+        return False
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--output-dir', type=Path, default=DEFAULT_STATE)
@@ -294,13 +320,15 @@ def main():
     if args.concurrency != 1: ap.error('Only concurrency=1 is supported for provider rate safety')
     if args.since != TARGET_START or args.until != TARGET_END: ap.error('Date override is not yet implemented; use audited target bounds')
     if args.max_runtime < 0 or args.max_attempts_per_source < 1 or args.max_requests < 0 or args.poll_seconds < 1: ap.error('Invalid limit')
+    if args.status:
+        from status_snapshot import snapshot
+        print(json.dumps(snapshot(args.output_dir), ensure_ascii=False))
+        return 0
     lock_path = args.output_dir / 'worker.lock'; args.output_dir.mkdir(parents=True, exist_ok=True)
     with lock_path.open('w') as lock:
         try: fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError: print('WORKER_ALREADY_RUNNING'); return 2
         conn = open_state(args.output_dir)
-        if args.status:
-            print(json.dumps(progress(conn, args.output_dir), ensure_ascii=False)); return 0
         if args.dry_run:
             print(json.dumps({'queued': conn.execute("SELECT count(*) FROM tasks WHERE state='PENDING'").fetchone()[0],
                               'fred_mapped': len(FRED), 'db_mapped': len(DB_MAP), 'output_dir': str(args.output_dir)}, ensure_ascii=False)); return 0
@@ -315,6 +343,9 @@ def main():
                     OR (state='RETRY_WAIT' AND next_retry_at<=?) ORDER BY priority,indicator_id LIMIT 1''', (utc_now(),)).fetchone()
             if not row:
                 if not args.service_loop: break
+                if advance_daily_price_derivation(conn, args.output_dir):
+                    progress(conn, args.output_dir)
+                    continue
                 progress(conn, args.output_dir)
                 if conn.execute("SELECT count(*) FROM tasks WHERE state IN ('PENDING','RETRY_WAIT','NEEDS_REVIEW')").fetchone()[0] == 0: break
                 for _ in range(args.poll_seconds):

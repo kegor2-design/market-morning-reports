@@ -19,6 +19,7 @@ FRED_COMPONENT = {117,118,119,120,121,122,125,127,133}
 EXACT_DB = {73,74,75,76,78,82,174,175,178,181}
 DART_SAMPLE = {152,153,154,155,156}
 EVENT_ARCHIVE = set(range(164,172))
+DB_PRICE_DERIVED = {41,42,43,44,45,46,49,51}
 
 def read_csv(path):
     with path.open(encoding='utf-8-sig') as f:return list(csv.DictReader(f))
@@ -37,6 +38,15 @@ def main():
     conn.row_factory=sqlite3.Row
     tasks={x['indicator_id']:dict(x) for x in conn.execute('SELECT * FROM tasks')}
     assert sorted(tasks)==list(range(1,191))
+    derived_log=state/'db_daily_price_derived_manifest.jsonl'
+    derived_symbols={}
+    if derived_log.exists():
+        for line in derived_log.read_text().splitlines():
+            if line.strip():
+                item=json.loads(line);derived_symbols[item['symbol']]=item
+    db_derived_rows=sum(item['rows'] for item in derived_symbols.values())
+    db_valid={i:sum(item['valid_counts'].get(str(i),0) for item in derived_symbols.values())
+              for i in DB_PRICE_DERIVED}
     probes=json.loads((state/'provider_probe_manifest.json').read_text()) if (state/'provider_probe_manifest.json').exists() else {}
     probe_by_id={i:x for x in probes.values() for i in x['indicator_ids']}
     fred_dates={}
@@ -55,7 +65,19 @@ def main():
     rows=[]
     for row in original:
         i=int(row['indicator_id']);task=tasks[i]
-        if i in DERIVED:
+        if i in DB_PRICE_DERIVED and task['state']=='PARTIAL' and derived_symbols:
+            row.update(availability_status='일부 확보',
+                       actual_source='read-only KIS daily OHLCV per-symbol derivation',
+                       source_url='private read-only PostgreSQL source',
+                       raw_path='private:db_daily_price_derived/*.csv.gz',
+                       raw_sha256='see private per-symbol manifest',
+                       row_count=str(db_derived_rows),valid_count=str(db_valid[i]),
+                       first_date=min(x['first_date'] for x in derived_symbols.values()),
+                       last_date=max(x['last_date'] for x in derived_symbols.values()),
+                       frequency='daily_per_symbol',pit_status='PIT_UNVERIFIED',
+                       validation_status='DERIVED_MARKET_MAPPING_UNVERIFIED',
+                       failure_reason='Actual per-symbol series exists; 2011-2026 historical market membership and PIT timestamps are unverified')
+        elif i in DERIVED:
             parts=derived[i];valid=sum(int(x['valid_count']) for x in parts)
             row.update(availability_status='일부 확보',valid_count=str(valid),
                        missing_pct=str(round(100*(8266-valid)/8266,2)),
@@ -107,7 +129,8 @@ def main():
                    fallback_attempt_count=task['fallback_attempt_count'],last_attempt_at=task['last_attempt_at'] or '',
                    http_or_db_result=task['http_or_db_result'] or '',blocking_evidence=task['blocking_evidence'] or '',
                    next_action=task['next_action'] or '',worker_state=task['state'],pit_eligible='false',
-                   derived_series_path=('private:kospi_derived_more.csv;private:kosdaq_derived_more.csv' if i in DERIVED else
+                   derived_series_path=('private:db_daily_price_derived/*.csv.gz' if i in DB_PRICE_DERIVED and task['state']=='PARTIAL' else
+                                        'private:kospi_derived_more.csv;private:kosdaq_derived_more.csv' if i in DERIVED else
                                         ('private:kospi_computed.csv;private:kosdaq_computed.csv' if i in {1,10,12,13,17,26,28,29,32,33,34,36,37,38,39,40} else '')))
         rows.append(row)
     write_csv(HERE/'inventory_190.csv',rows)
@@ -161,6 +184,15 @@ def main():
                              sha256=hashlib.sha256(dart_zip.read_bytes()).hexdigest(),bytes=dart_zip.stat().st_size,
                              rows=dart_info['listed_stock_codes_in_current_directory'],valid_rows=dart_info['listed_stock_codes_in_current_directory'],
                              first_date='',last_date='',pit_eligible='false',license='OpenDART source-specific redistribution unreviewed'))
+    if derived_symbols:
+        manifest.append(dict(kind='DB_DERIVED_SERIES_PRIVATE',identifier='daily per-symbol OHLCV indicators 41,42,43,44,45,46,49,51',
+                             private_file='db_daily_price_derived/*.csv.gz',
+                             sha256=hashlib.sha256(derived_log.read_bytes()).hexdigest(),
+                             bytes=sum(x['bytes'] for x in derived_symbols.values()),
+                             rows=db_derived_rows,valid_rows=min(db_valid.values()),
+                             first_date=min(x['first_date'] for x in derived_symbols.values()),
+                             last_date=max(x['last_date'] for x in derived_symbols.values()),
+                             pit_eligible='false',license='private KIS DB; redistribution unreviewed'))
     provider_rows=[]
     for item in probes.values():
         for indicator_id in item['indicator_ids']:
@@ -247,6 +279,8 @@ def main():
               'unattempted_provider_or_fallback':sum(x['provider_attempt_count']+x['fallback_attempt_count']==0 for x in tasks.values()),
               'latest_attempt_at':max((x['last_attempt_at'] or '' for x in tasks.values()),default=''),
               'fred_request_records':conn.execute('SELECT count(*) FROM requests').fetchone()[0],
+              'db_derived_symbols':len(derived_symbols),'db_derived_source_rows':db_derived_rows,
+              'db_derived_valid_rows_by_indicator':db_valid,
               'source_probe_groups':len(probes),
               'pit_eligible':0,'backtest':'NOT_RUN_PIT_GATE',
               'warning':'Worker PARTIAL is not equivalent to complete indicator acquisition; source mappings need manual review'}
