@@ -94,6 +94,8 @@ def run(state_dir: Path = DEFAULT_STATE) -> dict:
     for path in (state_dir / 'fred_initial_vintages').glob('*.manifest.json'):
         item = json.loads(path.read_text())
         fred_manifests[item['series']] = item
+    fred_bad_requests = {path.name.split('.')[0] for path in
+                         (state_dir / 'fred_initial_vintages').glob('*.bad_request.json')}
     mapping, attempts, coverage, quality = [], [], [], []
     for i in range(1, 191):
         definition, source, task = spec[i], inventory[i], tasks[i]
@@ -102,6 +104,7 @@ def run(state_dir: Path = DEFAULT_STATE) -> dict:
         table, required, caveat = candidate(i)
         vintage_rows = sum(fred_manifests[series]['rows'] for series in FRED.get(i, [])
                            if series in fred_manifests)
+        bad_series = ','.join(series for series in FRED.get(i, []) if series in fred_bad_requests)
         series_rows = int(source['valid_count'] or 0) if source['derived_series_path'] else 0
         if i in DB_PRICE and task['state'] == 'PARTIAL':
             mapping_state = 'DERIVED_SYMBOL_SERIES_MARKET_UNVERIFIED'
@@ -137,6 +140,7 @@ def run(state_dir: Path = DEFAULT_STATE) -> dict:
                              next_retry_or_action=task['next_retry_at'] or task['next_action'] or '',
                              collection_attempt_complete='no'))
         attempts[-1]['initial_vintage_component_rows'] = vintage_rows
+        attempts[-1]['initial_vintage_bad_request_series'] = bad_series
         coverage.append(dict(indicator_id=i, name=definition['name'],
                              availability_status=source['availability_status'],
                              actual_indicator_series_rows=series_rows,
@@ -172,6 +176,7 @@ def run(state_dir: Path = DEFAULT_STATE) -> dict:
                'actual_indicator_series_rows_total': sum(x['actual_indicator_series_rows'] for x in coverage),
                'provider_requests_unattempted': sum(task['provider_attempt_count'] == 0 for task in tasks.values()),
                'fred_initial_vintage_series': len(fred_manifests),
+               'fred_initial_bad_request_series': sorted(fred_bad_requests),
                'pit_ready': 0, 'backtest': 'NOT_RUN_PIT_GATE',
                'collection_attempts_complete': False, 'all_data_acquired': False}
     (HERE / 'audit_190_summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=2) + '\n')

@@ -1,5 +1,5 @@
 {
-  "exported_at_utc": "2026-10-29T14:35:57.785238+00:00",
+  "exported_at_utc": "2026-10-29T14:41:06.674351+00:00",
   "target_as_of": "2026-10-27",
   "indicator_count": 190,
   "availability_counts": {
@@ -27,7 +27,7 @@
     "51": 4547612
   },
   "rate_derived_dates": 325,
-  "fred_initial_vintage_series": 3,
+  "fred_initial_vintage_series": 5,
   "rate_derived_valid_rows_by_indicator": {
     "107": 325,
     "108": 325,

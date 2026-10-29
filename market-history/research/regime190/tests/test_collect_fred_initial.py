@@ -11,6 +11,25 @@ import collect_fred_initial as target
 
 
 class FredInitialTests(unittest.TestCase):
+    def test_bad_request_is_recorded_and_next_series_can_advance(self):
+        class BadResponse:
+            status_code = 400
+
+        class Session:
+            trust_env = True
+
+            def get(self, *_args, **_kwargs):
+                return BadResponse()
+
+        with tempfile.TemporaryDirectory() as directory:
+            state = Path(directory)
+            with patch.object(target, 'SERIES', ('BAD',)), \
+                 patch.object(target, 'env_keys', return_value={'FRED_API_KEY': 'test'}), \
+                 patch.object(target, 'MIN_FREE', 0), \
+                 patch.object(target.requests, 'Session', return_value=Session()):
+                self.assertEqual(target.fetch_one(state)['state'], 'BAD_REQUEST_SKIPPED')
+                self.assertEqual(target.fetch_one(state)['state'], 'COMPLETE')
+
     def test_one_series_then_resume_without_request(self):
         data = json.dumps({'observations': [{'date': '2026-10-01',
                                              'realtime_start': '2026-10-02',

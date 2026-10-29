@@ -28,6 +28,9 @@ def fetch_one(state_dir: Path = DEFAULT_STATE) -> dict:
     for series in SERIES:
         path = output / f'{series}.json'
         manifest = output / f'{series}.manifest.json'
+        bad_request = output / f'{series}.bad_request.json'
+        if bad_request.exists():
+            continue
         if path.exists() and manifest.exists():
             item = json.loads(manifest.read_text())
             if (path.stat().st_size == item.get('bytes') and
@@ -42,6 +45,14 @@ def fetch_one(state_dir: Path = DEFAULT_STATE) -> dict:
             session.trust_env = False
             response = session.get('https://api.stlouisfed.org/fred/series/observations',
                                    params=params, timeout=45, stream=True)
+            if response.status_code == 400:
+                item = {'series': series, 'state': 'BAD_REQUEST_SKIPPED',
+                        'http_status': 400, 'attempted_at_utc': utc_now(),
+                        'next_action': 'Review FRED series coverage and output_type=4 parameters'}
+                temp_bad = bad_request.with_suffix('.json.tmp')
+                temp_bad.write_text(json.dumps(item, indent=2) + '\n')
+                temp_bad.replace(bad_request)
+                return item
             if response.status_code != 200:
                 return {'state': 'HTTP_RETRY', 'series': series, 'http_status': response.status_code}
             data = bytearray()

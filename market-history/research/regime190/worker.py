@@ -332,10 +332,10 @@ def advance_fred_initial_vintages(state_dir):
     """Collect at most one newly persisted initial-vintage component per idle cycle."""
     from collect_fred_initial import fetch_one
     result = fetch_one(state_dir)
-    if result['state'] == 'ACQUIRED_INITIAL_VINTAGE':
+    if result['state'] in ('ACQUIRED_INITIAL_VINTAGE', 'BAD_REQUEST_SKIPPED'):
         append_jsonl(state_dir / 'fred_initial_attempts.jsonl',
                      {'at_utc': utc_now(), 'series': result['series'],
-                      'state': result['state'], 'rows': result['rows']})
+                      'state': result['state'], 'rows': result.get('rows', 0)})
         return True
     if result['state'] not in ('COMPLETE', 'KEY_MISSING'):
         append_jsonl(state_dir / 'fred_initial_attempts.jsonl',
