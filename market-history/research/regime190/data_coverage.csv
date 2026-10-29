@@ -118,14 +118,14 @@ indicator_id,name,availability_status,actual_indicator_series_rows,recorded_comp
 117,미국 장단기 역전,일부 확보,0,4205,2010-01-04,2026-10-23,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no,0
 118,미국 하이일드 OAS,일부 확보,0,784,2023-10-30,2026-10-26,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no,792
 119,미국 IG 회사채 OAS,일부 확보,0,783,2023-10-30,2026-10-26,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no,792
-120,SOFR-OIS·자금시장 스프레드,일부 확보,0,2139,2018-04-03,2026-10-26,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no,0
-121,미국 금융스트레스 STLFSI/OFR FSI,일부 확보,0,877,2010-01-01,2026-10-16,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no,0
-122,미국 은행 준비금·RRP·TGA,일부 확보,0,678,2011-03-30,2026-10-21,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no,0
+120,SOFR-OIS·자금시장 스프레드,일부 확보,0,2139,2018-04-03,2026-10-26,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no,1977
+121,미국 금융스트레스 STLFSI/OFR FSI,일부 확보,0,877,2010-01-01,2026-10-16,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no,206
+122,미국 은행 준비금·RRP·TGA,일부 확보,0,678,2011-03-30,2026-10-21,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no,1754
 123,MOVE 지수,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no,0
 124,미국 크레딧 디폴트 스왑,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no,0
 125,미 연준 정책금리·점도표,일부 확보,0,6144,2010-01-01,2026-10-27,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no,0
 126,USD/KRW·변화율·변동성,일부 확보,0,181,2010-01-01,2026-10-01,monthly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,existing monthly repository CSV,0,no,3290
-127,DXY/광의 달러,일부 확보,0,4186,2010-01-04,2026-10-23,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no,0
+127,DXY/광의 달러,일부 확보,0,4186,2010-01-04,2026-10-23,daily_or_weekly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,FRED API current-vintage component,0,no,2015
 128,엔·위안 환율 및 JPY/KRW,일부 확보,0,201,2010-01-01,2026-09-01,monthly,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,existing monthly repository CSV,0,no,0
 129,달러/원 선물환·FX Swap Point,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no,0
 130,원화 크로스커런시 베이시스,미확보(시도 실패),0,0,,,,KOSPI;KOSDAQ,SOURCE_SCOPE_UNVERIFIED,,0,no,0
