@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "project_id": "regime190",
+  "workspace_root": "~",
+  "tasks": [
+    {
+      "id": "checkpoint_integrity",
+      "priority": 0,
+      "checks": [
+        {"kind": "sqlite_integrity", "path": "MyDream2000/research/regime190/checkpoint.sqlite"},
+        {"kind": "sqlite_count", "path": "MyDream2000/research/regime190/checkpoint.sqlite", "table": "tasks", "equals": 190}
+      ]
+    },
+    {
+      "id": "inventory_integrity",
+      "priority": 1,
+      "checks": [
+        {"kind": "csv_unique_count", "path": "market-morning-reports/market-history/research/regime190/inventory_190.csv", "field": "indicator_id", "equals": 190}
+      ]
+    },
+    {
+      "id": "baseline_pit_gate",
+      "priority": 2,
+      "checks": [
+        {"kind": "json_equals", "path": "market-morning-reports/market-history/research/regime190/audit_190_summary.json", "pointer": "/pit_ready", "equals": 0},
+        {"kind": "json_equals", "path": "market-morning-reports/market-history/research/regime190/audit_190_summary.json", "pointer": "/backtest", "equals": "NOT_RUN_PIT_GATE"}
+      ]
+    },
+    {
+      "id": "collection_complete",
+      "priority": 10,
+      "depends_on": ["checkpoint_integrity", "inventory_integrity"],
+      "checks": [
+        {"kind": "json_equals", "path": "market-morning-reports/market-history/research/regime190/audit_190_summary.json", "pointer": "/all_data_acquired", "equals": true},
+        {"kind": "json_equals", "path": "market-morning-reports/market-history/research/regime190/audit_190_summary.json", "pointer": "/collection_attempts_complete", "equals": true},
+        {"kind": "review_required", "reason": "Full 190-indicator source, definition, coverage and duplicate review has no independent verifier yet"}
+      ]
+    },
+    {
+      "id": "pit_complete",
+      "priority": 20,
+      "depends_on": ["collection_complete"],
+      "checks": [
+        {"kind": "json_equals", "path": "market-morning-reports/market-history/research/regime190/audit_190_summary.json", "pointer": "/pit_ready", "equals": 190},
+        {"kind": "review_required", "reason": "Row-level release, vintage, lookahead and survivorship verification is not implemented"}
+      ]
+    }
+  ]
+}
