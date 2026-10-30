@@ -1,0 +1,295 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-10-30T16:33:40.560698+00:00",
+  "project_id": "regime190_phase45",
+  "project_goal": "Explain Regime190 price-history cutoff and establish PIT-safe evidence before backtesting",
+  "manifest_sha256": "7c7341c57377b4452b54dc7abb6a55f9fb4fedbde119d22a7d5126325c0f639b",
+  "checkpoint_schema_version": 3,
+  "checkpoint_runner_code_sha256": "23c7250d23675b3d5201642214dbd72abaf8fc95903fe42117d882f14b580201",
+  "checkpoint_path_private": "MyDream2000/research/universal_agent/regime190-phase45/state.json",
+  "initial_regime190": {
+    "indicator_total": 190,
+    "partial": 71,
+    "raw_only": 21,
+    "unacquired": 98,
+    "pit_validated": 0,
+    "backtest_eligible": 0
+  },
+  "price_profile": {
+    "observed_counts": {
+      "symbols": 2497,
+      "rows": 4605978,
+      "missing_market_rows": 4488363,
+      "shared_cutoff_2026_09_15": 1794,
+      "missing_files": 0,
+      "size_mismatch": 0
+    },
+    "source_db_sample": {
+      "source_identity": "public.domestic_daily_price (read-only role)",
+      "queried_at_utc": "2026-10-30T16:23:57.439382+00:00",
+      "samples": {
+        "000020": {
+          "first_date": "2011-09-16",
+          "last_date": "2026-10-13",
+          "rows": 3696,
+          "max_collected_at": "2026-10-13T16:40:57.762560",
+          "missing_market_rows": 3687
+        },
+        "000040": {
+          "first_date": "2011-09-16",
+          "last_date": "2026-09-15",
+          "rows": 3687,
+          "max_collected_at": "2026-09-16T23:37:48.874212",
+          "missing_market_rows": 3687
+        },
+        "000050": {
+          "first_date": "2011-09-16",
+          "last_date": "2026-09-15",
+          "rows": 3687,
+          "max_collected_at": "2026-09-16T23:38:03.878303",
+          "missing_market_rows": 3687
+        }
+      },
+      "scope": "Three symbols only; cohort cause remains unverified"
+    },
+    "hypotheses": [
+      {
+        "hypothesis": "Upstream provider or ingestion batch stopped for a cohort",
+        "status": "UNVERIFIED"
+      },
+      {
+        "hypothesis": "Export filter or symbol-universe boundary omitted later rows",
+        "status": "UNVERIFIED"
+      },
+      {
+        "hypothesis": "Trading suspensions or delistings explain some individual symbols",
+        "status": "UNVERIFIED"
+      }
+    ],
+    "limitations": [
+      "Three source DB symbols match the manifest; remaining cohort and ingestion cause need review",
+      "Historical exchange membership and source ingestion logs are not established",
+      "Uniform 16:30 availability is not a verified publication time"
+    ]
+  },
+  "budgets_used": {
+    "codex_calls": 1,
+    "tasks_started": 2
+  },
+  "run_ids": [
+    "3fc3ff58-a88e-4776-be46-b1e2d9b6c0e1",
+    "0998d1d6-e911-4dec-8ff8-e1ddda307220",
+    "d9b26aeb-6c98-4897-bc1a-f606685ab2e6"
+  ],
+  "tasks": [
+    {
+      "task_id": "profile_price_cutoff",
+      "status": "COMPLETED",
+      "attempts": 1,
+      "reason": "Independent evidence passed",
+      "dependencies": [],
+      "selection_reason": "Independent file and source DB counts are prerequisite to causal investigation",
+      "execution_id": "b8710e5d-3e38-4a1a-b13b-34bb5ef070ab",
+      "idempotency_key": "dd84542b43c7e4c1ac0df47569e380a8a77433f7ba79afbc6a0da30db5fc2c64",
+      "execution_ok": true,
+      "codex_version": null,
+      "codex_returncode": null,
+      "independent_evidence": [
+        {
+          "kind": "json_equals",
+          "path": "market-morning-reports/market-history/research/regime190/price_cutoff_evidence_20261031.json",
+          "ok": true,
+          "actual": 2497,
+          "expected": 2497
+        },
+        {
+          "kind": "json_equals",
+          "path": "market-morning-reports/market-history/research/regime190/price_cutoff_evidence_20261031.json",
+          "ok": true,
+          "actual": 1794,
+          "expected": 1794
+        },
+        {
+          "kind": "json_equals",
+          "path": "market-morning-reports/market-history/research/regime190/price_cutoff_evidence_20261031.json",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "kind": "json_equals",
+          "path": "market-morning-reports/market-history/research/regime190/price_cutoff_evidence_20261031.json",
+          "ok": true,
+          "actual": "2026-09-15",
+          "expected": "2026-09-15"
+        }
+      ],
+      "provenance": [
+        {
+          "source_identity": "market-morning-reports/market-history/research/regime190/price_cutoff_evidence_20261031.json",
+          "source_timestamp": 1793377437440584827,
+          "collection_time": "2026-10-30T16:25:02.071538+00:00",
+          "point_in_time_available_at": null,
+          "dataset_version": "4191:1793377437440584827",
+          "code_version": null,
+          "verification_method": "json_equals",
+          "verification_result": true,
+          "epistemic_status": "OBSERVED"
+        },
+        {
+          "source_identity": "market-morning-reports/market-history/research/regime190/price_cutoff_evidence_20261031.json",
+          "source_timestamp": 1793377437440584827,
+          "collection_time": "2026-10-30T16:25:02.071631+00:00",
+          "point_in_time_available_at": null,
+          "dataset_version": "4191:1793377437440584827",
+          "code_version": null,
+          "verification_method": "json_equals",
+          "verification_result": true,
+          "epistemic_status": "OBSERVED"
+        },
+        {
+          "source_identity": "market-morning-reports/market-history/research/regime190/price_cutoff_evidence_20261031.json",
+          "source_timestamp": 1793377437440584827,
+          "collection_time": "2026-10-30T16:25:02.071668+00:00",
+          "point_in_time_available_at": null,
+          "dataset_version": "4191:1793377437440584827",
+          "code_version": null,
+          "verification_method": "json_equals",
+          "verification_result": true,
+          "epistemic_status": "OBSERVED"
+        },
+        {
+          "source_identity": "market-morning-reports/market-history/research/regime190/price_cutoff_evidence_20261031.json",
+          "source_timestamp": 1793377437440584827,
+          "collection_time": "2026-10-30T16:25:02.071696+00:00",
+          "point_in_time_available_at": null,
+          "dataset_version": "4191:1793377437440584827",
+          "code_version": null,
+          "verification_method": "json_equals",
+          "verification_result": true,
+          "epistemic_status": "OBSERVED"
+        }
+      ],
+      "model_claim_status": null,
+      "model_outcome": null,
+      "model_evidence": [],
+      "model_next_action": null
+    },
+    {
+      "task_id": "investigate_price_cutoff_cause",
+      "status": "BLOCKED_DATA",
+      "attempts": 1,
+      "reason": "Independent evidence failed",
+      "dependencies": [
+        "profile_price_cutoff"
+      ],
+      "selection_reason": "The profile confirms a shared cohort but does not establish causation",
+      "execution_id": "e192832e-c6f7-494c-b7b5-d92923ba466a",
+      "idempotency_key": "944c389cda49d7e161d5ac9e754c058deb26c0a54f07ab17b0d8c1d00b30f729",
+      "execution_ok": true,
+      "codex_version": "codex-cli 0.166.0",
+      "codex_returncode": 0,
+      "independent_evidence": [
+        {
+          "kind": "sqlite_integrity",
+          "path": "MyDream2000/research/regime190/checkpoint.sqlite",
+          "ok": true,
+          "actual": "ok",
+          "expected": "ok"
+        },
+        {
+          "kind": "review_required",
+          "ok": false,
+          "reason": "Source ingestion and historical membership cause are not independently verified"
+        }
+      ],
+      "provenance": [
+        {
+          "source_identity": "MyDream2000/research/regime190/checkpoint.sqlite",
+          "source_timestamp": 1793284521503735596,
+          "collection_time": "2026-10-30T16:25:31.247229+00:00",
+          "point_in_time_available_at": null,
+          "dataset_version": "98304:1793284521503735596",
+          "code_version": null,
+          "verification_method": "sqlite_integrity",
+          "verification_result": true,
+          "epistemic_status": "OBSERVED"
+        },
+        {
+          "source_identity": null,
+          "source_timestamp": null,
+          "collection_time": "2026-10-30T16:25:31.247320+00:00",
+          "point_in_time_available_at": null,
+          "dataset_version": null,
+          "code_version": null,
+          "verification_method": "review_required",
+          "verification_result": false,
+          "epistemic_status": "BLOCKED"
+        }
+      ],
+      "model_claim_status": null,
+      "model_outcome": "Unresolved. The published evidence establishes a shared price-history cutoff, but it does not prove a common cause or establish point-in-time safety for backtesting.",
+      "model_evidence": [
+        "The published report records 2,497 symbols and 4,605,978 derived rows; 1,794 symbols have 2026-09-15 as their last date. It reports no missing files or size mismatches.",
+        "The report's source-database sample covers only three symbols. Two end on 2026-09-15 and one ends on 2026-10-13, matching their manifest entries. This does not establish what happened across the cohort.",
+        "The derivation code selects source rows by symbol through 2026-10-27 and contains no explicit 2026-09-15 cutoff. It can reuse a cached symbol list and completed per-symbol outputs, so the published manifest alone cannot rule out stale exports.",
+        "The report labels provider or ingestion interruption, export or universe filtering, and individual suspensions or delistings as unverified hypotheses. Historical exchange membership and source-ingestion logs are absent from the examined evidence.",
+        "The report has pit_available_at=null. The derivation marks rows PIT_UNVERIFIED, and its market field is missing for 4,488,363 rows. A uniform 16:30 availability assumption is not a verified publication time."
+      ],
+      "model_next_action": "Before backtesting, independently reconcile all 1,794 cutoff symbols and comparison symbols against source-database rows after 2026-09-15, provider responses, batch identifiers, ingestion logs, retries, errors, and collection timestamps; then compare those results with the cached symbol list and per-symbol export records. Obtain dated exchange listing, delisting, transfer, and suspension records; resolve symbol identity and effective-date KOSPI/KOSDAQ membership for each historical date. Establish row-level publication or availability times and revisions, and repeat the cohort comparison using only information available at each backtest decision time. Treat the cohort cause and backtest eligibility as unverified until those independent ingestion and historical-universe checks agree."
+    },
+    {
+      "task_id": "verify_market_membership",
+      "status": "BLOCKED_DEPENDENCY",
+      "attempts": 0,
+      "reason": "Waiting for verified dependency",
+      "dependencies": [
+        "investigate_price_cutoff_cause"
+      ],
+      "selection_reason": "Most source rows have no historical market code",
+      "execution_id": null,
+      "idempotency_key": null,
+      "execution_ok": null,
+      "codex_version": null,
+      "codex_returncode": null,
+      "independent_evidence": [],
+      "provenance": [],
+      "model_claim_status": null,
+      "model_outcome": null,
+      "model_evidence": [],
+      "model_next_action": null
+    },
+    {
+      "task_id": "pit_gate",
+      "status": "BLOCKED_DEPENDENCY",
+      "attempts": 0,
+      "reason": "Waiting for verified dependency",
+      "dependencies": [
+        "verify_market_membership"
+      ],
+      "selection_reason": "No Regime190 indicator has passed PIT validation",
+      "execution_id": null,
+      "idempotency_key": null,
+      "execution_ok": null,
+      "codex_version": null,
+      "codex_returncode": null,
+      "independent_evidence": [],
+      "provenance": [],
+      "model_claim_status": null,
+      "model_outcome": null,
+      "model_evidence": [],
+      "model_next_action": null
+    }
+  ],
+  "research_outcome": "RESEARCH_BLOCKED",
+  "next_action": "Reconcile full source cohort and ingestion logs; obtain historical membership and release-time evidence; keep PIT gate closed",
+  "readiness": {
+    "ENGINE_IMPLEMENTED": "PASS",
+    "RUNNER_VERIFIED": "PASS",
+    "SUPERVISOR_VERIFIED": "PASS",
+    "RECOVERY_VERIFIED": "PASS",
+    "RESEARCH_LOOP_VERIFIED": "PASS",
+    "AUTONOMOUS_OPERATION_READY": "BLOCKED",
+    "PERSISTENT_SERVICE_DEPLOYED": "NOT_TESTED"
+  }
+}

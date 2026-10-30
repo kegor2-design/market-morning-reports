@@ -28,6 +28,7 @@ APPROVAL_RISKS = {'research_write', 'operating_code', 'operating_db',
                   'delete_data', 'bulk_recollect', 'force_push'}
 DEFAULT_LIMITS = {'max_runtime_seconds': 120, 'max_iterations': 3,
                   'max_retries': 3, 'max_concurrency': 1,
+                  'max_processes': 1,
                   'min_free_bytes': 5 * 1024**3,
                   'max_state_bytes': 10 * 1024**2,
                   'max_log_bytes': 128 * 1024,
@@ -76,11 +77,27 @@ def load_runner_project(path: Path) -> tuple[dict, str]:
     if not isinstance(access, list) or not access:
         raise ValueError('Project requires explicit data_access paths')
     allowed = [_inside(root, relative) for relative in access]
+    for key in ('research_questions', 'data_sources', 'allowed_operations', 'constraints'):
+        value = item.get(key, [])
+        if not isinstance(value, list) or any(not isinstance(v, str) or not v.strip() for v in value):
+            raise ValueError(key + ' must be a list of nonempty strings')
+    if item.get('success_checks') is not None:
+        checks = item['success_checks']
+        if (not isinstance(checks, list) or len(checks) != len(item['success_criteria'])
+                or any(not isinstance(c, dict) or c.get('kind') not in SAFE_KINDS for c in checks)):
+            raise ValueError('Each success criterion needs one registered evidence check')
+        for check in checks:
+            if check['kind'] != 'review_required':
+                evidence = _inside(root, check['path'])
+                if not any(evidence == scope or evidence.is_relative_to(scope) for scope in allowed):
+                    raise ValueError('Success check is outside project data_access')
     limits = DEFAULT_LIMITS | item.get('limits', {})
     if set(limits) != set(DEFAULT_LIMITS) or any(type(v) is not int or v < 1 for v in limits.values()):
         raise ValueError('Limits must be positive integers with known names')
     if limits['max_concurrency'] != 1:
         raise ValueError('Only one task at a time is supported')
+    if limits['max_processes'] != 1:
+        raise ValueError('Only one child process at a time is supported')
     tasks = item.get('tasks')
     if not isinstance(tasks, list) or not tasks:
         raise ValueError('Project requires tasks')

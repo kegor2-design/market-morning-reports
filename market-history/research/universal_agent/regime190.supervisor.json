@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "project_id": "regime190_phase45",
+  "workspace_root": "~",
+  "goal": "Explain Regime190 price-history cutoff and establish PIT-safe evidence before backtesting",
+  "research_questions": [
+    "Why do 1794 derived symbols end on 2026-09-15?",
+    "Which historical market memberships and release times are independently known?"
+  ],
+  "success_criteria": [
+    "Price cutoff cause has independent source and ingestion evidence",
+    "Historical market membership is verified as of each observation",
+    "All backtest inputs pass PIT evidence checks"
+  ],
+  "success_checks": [
+    {"kind": "review_required", "reason": "Cohort cause is not established"},
+    {"kind": "review_required", "reason": "Historical membership is not established"},
+    {"kind": "review_required", "reason": "PIT gate has zero passing indicators"}
+  ],
+  "data_sources": [
+    "Private read-only source DB public.domestic_daily_price",
+    "Private hashed db_daily_price_derived_manifest.jsonl",
+    "Published Phase 1 checkpoint and new cutoff evidence profile"
+  ],
+  "allowed_operations": ["Read-only SQL", "Read-only file inspection", "Research checkpoint write"],
+  "constraints": ["No operating DB mutation", "No backfill", "No PIT-dependent backtest"],
+  "codex_execution_enabled": true,
+  "data_access": [
+    "market-morning-reports/market-history/research/regime190/price_cutoff_evidence_20261031.json",
+    "market-morning-reports/market-history/research/regime190/phase1_checkpoint_20261031.json",
+    "MyDream2000/research/regime190/checkpoint.sqlite"
+  ],
+  "limits": {
+    "max_runtime_seconds": 1800,
+    "max_iterations": 3,
+    "max_retries": 3,
+    "max_concurrency": 1,
+    "min_free_bytes": 5368709120,
+    "max_state_bytes": 10485760,
+    "max_log_bytes": 131072,
+    "max_external_calls": 1
+  },
+  "tasks": [
+    {
+      "id": "profile_price_cutoff",
+      "goal_relation": "Quantify the shared cutoff with checked source and export boundaries",
+      "selection_reason": "Independent file and source DB counts are prerequisite to causal investigation",
+      "priority": 0,
+      "information_value": 90,
+      "estimated_cost": 5,
+      "depends_on": [],
+      "method": "probe",
+      "risk": "read_only",
+      "success_condition": "Profile matches 2497 files and 1794 shared cutoffs with no missing exports",
+      "verification_method": "Independent JSON fields from read-only manifest and source DB probe",
+      "checks": [
+        {"kind": "json_equals", "path": "market-morning-reports/market-history/research/regime190/price_cutoff_evidence_20261031.json", "pointer": "/observed_counts/symbols", "equals": 2497},
+        {"kind": "json_equals", "path": "market-morning-reports/market-history/research/regime190/price_cutoff_evidence_20261031.json", "pointer": "/observed_counts/shared_cutoff_2026_09_15", "equals": 1794},
+        {"kind": "json_equals", "path": "market-morning-reports/market-history/research/regime190/price_cutoff_evidence_20261031.json", "pointer": "/observed_counts/missing_files", "equals": 0},
+        {"kind": "json_equals", "path": "market-morning-reports/market-history/research/regime190/price_cutoff_evidence_20261031.json", "pointer": "/source_db_sample/samples/000040/last_date", "equals": "2026-09-15"}
+      ]
+    },
+    {
+      "id": "investigate_price_cutoff_cause",
+      "goal_relation": "Distinguish upstream ingestion, export filtering and individual listing events",
+      "selection_reason": "The profile confirms a shared cohort but does not establish causation",
+      "priority": 1,
+      "information_value": 100,
+      "estimated_cost": 20,
+      "depends_on": ["profile_price_cutoff"],
+      "method": "codex",
+      "risk": "read_only",
+      "prompt": "Inspect only the published price_cutoff_evidence_20261031.json under /home/kegor2/market-morning-reports/market-history/research/regime190 and the relevant research source code. Use read-only commands. Distinguish observed facts from inferred causes; list precise next source-ingestion and historical-membership checks. Do not read credentials, edit files or claim the common cutoff cause is proven.",
+      "success_condition": "Independent ingestion and historical-universe evidence establishes the cohort cause",
+      "verification_method": "Read-only SQLite integrity plus separate source-lineage review",
+      "checks": [
+        {"kind": "sqlite_integrity", "path": "MyDream2000/research/regime190/checkpoint.sqlite"},
+        {"kind": "review_required", "reason": "Source ingestion and historical membership cause are not independently verified"}
+      ]
+    },
+    {
+      "id": "verify_market_membership",
+      "goal_relation": "Remove historical exchange-membership bias",
+      "selection_reason": "Most source rows have no historical market code",
+      "priority": 2,
+      "depends_on": ["investigate_price_cutoff_cause"],
+      "method": "probe",
+      "risk": "read_only",
+      "success_condition": "Historical market membership is verified by as-of date",
+      "verification_method": "Independent row-level membership source",
+      "checks": [{"kind": "review_required", "reason": "As-of market membership evidence is missing"}]
+    },
+    {
+      "id": "pit_gate",
+      "goal_relation": "Prevent future information entering the backtest",
+      "selection_reason": "No Regime190 indicator has passed PIT validation",
+      "priority": 3,
+      "depends_on": ["verify_market_membership"],
+      "method": "probe",
+      "risk": "read_only",
+      "success_condition": "All required inputs pass release, vintage, leakage and survivorship checks",
+      "verification_method": "Independent per-indicator PIT evidence",
+      "checks": [{"kind": "review_required", "reason": "PIT certification remains open for all 190 indicators"}]
+    }
+  ]
+}

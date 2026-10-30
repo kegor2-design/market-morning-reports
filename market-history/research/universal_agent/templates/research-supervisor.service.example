@@ -1,0 +1,12 @@
+[Unit]
+Description=Bounded Universal Research Agent example (inactive template)
+
+[Service]
+Type=oneshot
+User=kegor2
+WorkingDirectory=/home/kegor2/market-morning-reports/market-history/research
+UMask=0077
+ExecStart=/usr/bin/python3 -m universal_agent.supervisor_cli run-bounded --project universal_agent/regime190.supervisor.json --state-dir /home/kegor2/MyDream2000/research/universal_agent/regime190-phase45 --max-tasks 3 --max-seconds 1800
+TimeoutStartSec=1810
+
+# This is a research-only example. Do not install or enable without approval.

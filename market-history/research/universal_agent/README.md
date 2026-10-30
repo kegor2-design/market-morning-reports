@@ -1,5 +1,11 @@
 # Universal Research Agent: minimum common engine
 
+Phase 4/5 now adds a bounded supervisor and real read-only Codex integration;
+see [SUPERVISOR.md](SUPERVISOR.md) and the
+[Regime190 execution audit](../regime190/phase45_report_20261031.md). The
+Phase 2 notes below describe the original baseline and remain available for
+compatibility. The original Phase 2 and Phase 3 CLIs are unchanged.
+
 This package coordinates evidence-based research tasks for any project with a versioned JSON manifest. It selects the next ready task by priority and dependency, runs only registered read-only checks, records the evidence and status transitions, and resumes from an atomic private checkpoint. It does not modify source data, run SQL writes, spawn shell commands, restart services, or submit a backtest. A project's research work stays in its own collectors and analysis code; this engine verifies milestones and prevents unsupported completion claims.
 
 ## Current integration and boundaries

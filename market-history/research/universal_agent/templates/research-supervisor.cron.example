@@ -1,0 +1,2 @@
+# Inactive example. Requires separate approval before installation.
+# 0 3 * * * cd /home/kegor2/market-morning-reports/market-history/research && /usr/bin/python3 -m universal_agent.supervisor_cli run-bounded --project universal_agent/regime190.supervisor.json --state-dir /home/kegor2/MyDream2000/research/universal_agent/regime190-phase45 --max-tasks 3 --max-seconds 1800

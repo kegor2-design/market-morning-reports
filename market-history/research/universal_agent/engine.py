@@ -18,8 +18,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 STATUSES = {'PENDING', 'IN_PROGRESS', 'BLOCKED', 'FAILED', 'VERIFIED', 'COMPLETED'}
-SAFE_KINDS = {'file_exists', 'json_equals', 'csv_unique_count', 'sqlite_integrity',
-              'sqlite_count', 'review_required'}
+SAFE_KINDS = {'file_exists', 'json_equals', 'csv_unique_count', 'csv_financial_quality',
+              'sqlite_integrity', 'sqlite_count', 'review_required'}
 IDENTIFIER = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*$')
 
 
@@ -115,6 +115,49 @@ def check_evidence(root: Path, check: dict) -> dict:
             values = [row[field] for row in reader]
         result.update(actual=len(values), unique=len(set(values)), expected=expected,
                       ok=len(values) == len(set(values)) == expected)
+    elif kind == 'csv_financial_quality':
+        # Optional fields support project-specific corporate-action, parity,
+        # costs and walk-forward evidence without certifying absent fields.
+        required = check.get('required_fields', [])
+        if not isinstance(required, list) or any(not isinstance(v, str) for v in required):
+            raise ValueError('Invalid required financial fields')
+        key_fields = check.get('unique_key', ['symbol', 'date'])
+        if not isinstance(key_fields, list) or not key_fields:
+            raise ValueError('Financial unique_key required')
+        duplicates = missing = lookahead = 0
+        seen = set()
+        count = 0
+        with path.open(newline='', encoding='utf-8') as stream:
+            reader = csv.DictReader(stream)
+            fields = set(reader.fieldnames or [])
+            needed = set(key_fields) | set(required) | {'release_at', 'vintage_at',
+                                                       'available_at', 'asof_at', 'source_id'}
+            if not needed <= fields:
+                raise ValueError('Missing financial fields: ' + ','.join(sorted(needed - fields)))
+            for row in reader:
+                count += 1
+                key = tuple(row[field] for field in key_fields)
+                if key in seen:
+                    duplicates += 1
+                seen.add(key)
+                if any(not row.get(field) for field in needed):
+                    missing += 1
+                if row.get('available_at') and row.get('asof_at'):
+                    try:
+                        available = datetime.fromisoformat(row['available_at'].replace('Z', '+00:00'))
+                        asof = datetime.fromisoformat(row['asof_at'].replace('Z', '+00:00'))
+                        release = datetime.fromisoformat(row['release_at'].replace('Z', '+00:00'))
+                        vintage = datetime.fromisoformat(row['vintage_at'].replace('Z', '+00:00'))
+                        if any(value.tzinfo is None for value in (available, asof, release, vintage)):
+                            missing += 1
+                        elif max(available, release, vintage) > asof:
+                            lookahead += 1
+                    except ValueError:
+                        missing += 1
+        expected = check.get('min_rows', 1)
+        result.update(rows=count, duplicates=duplicates, missing=missing,
+                      future_available_rows=lookahead, min_rows=expected,
+                      ok=count >= expected and not (duplicates or missing or lookahead))
     elif kind in {'sqlite_integrity', 'sqlite_count'}:
         uri = 'file:' + str(path) + '?mode=ro'
         with sqlite3.connect(uri, uri=True, timeout=2) as db:
@@ -150,6 +193,11 @@ def write_state(path: Path, state: dict) -> None:
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(name, path)
+        directory_fd = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
     finally:
         if os.path.exists(name):
             os.unlink(name)
