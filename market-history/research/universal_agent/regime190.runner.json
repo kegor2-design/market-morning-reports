@@ -1,0 +1,71 @@
+{
+  "schema_version": 2,
+  "project_id": "regime190",
+  "workspace_root": "~",
+  "codex_execution_enabled": false,
+  "goal": "Establish complete, accurate and point-in-time safe data for 190 Regime190 indicators before backtesting",
+  "success_criteria": [
+    "190 unique indicators have verified source coverage and calculation evidence",
+    "Every backtest input has row-level release, vintage, as-of and survivorship validation",
+    "Backtest remains gated until the required PIT evidence passes"
+  ],
+  "data_access": [
+    "MyDream2000/research/regime190/checkpoint.sqlite",
+    "market-morning-reports/market-history/research/regime190/phase1_checkpoint_20261031.json"
+  ],
+  "limits": {
+    "max_runtime_seconds": 120,
+    "max_iterations": 2,
+    "max_retries": 3,
+    "max_concurrency": 1,
+    "min_free_bytes": 5368709120,
+    "max_log_bytes": 131072,
+    "max_external_calls": 1
+  },
+  "tasks": [
+    {
+      "id": "investigate_price_cutoff_20260915",
+      "goal_relation": "Restore source-history reliability for price-derived indicators",
+      "selection_reason": "1,794 of 2,497 symbol files end on the same date and the sampled source DB dates match",
+      "priority": 0,
+      "depends_on": [],
+      "method": "codex",
+      "risk": "read_only",
+      "prompt": "Using only these sanitized facts, propose read-only source-lineage checks: 1,794 of 2,497 symbol files end on 2026-09-15; source DB samples 000040 and 000050 also end then; 000020 ends 2026-10-13. Explain competing causes and precise read-only queries or metadata checks. Do not claim the cause is proven.",
+      "success_condition": "A source-backed explanation of the shared cutoff and historical market membership, with no production mutation",
+      "verification_method": "Independent source lineage and historical exchange-membership review; model prose is insufficient",
+      "checks": [
+        {"kind": "sqlite_integrity", "path": "MyDream2000/research/regime190/checkpoint.sqlite"},
+        {"kind": "review_required", "reason": "Source-lineage cause and historical market membership are not independently verified"}
+      ]
+    },
+    {
+      "id": "verify_market_membership",
+      "goal_relation": "Remove market-scope ambiguity from historical price indicators",
+      "selection_reason": "4,488,363 source rows have no historical market code",
+      "priority": 1,
+      "depends_on": ["investigate_price_cutoff_20260915"],
+      "method": "probe",
+      "risk": "read_only",
+      "success_condition": "Historical KOSPI/KOSDAQ membership is verified by as-of date",
+      "verification_method": "Independent row-level membership evidence",
+      "checks": [
+        {"kind": "review_required", "reason": "As-of historical market membership evidence is missing"}
+      ]
+    },
+    {
+      "id": "pit_gate",
+      "goal_relation": "Prevent future information from entering the Regime190 backtest",
+      "selection_reason": "Zero of 190 indicators have completed PIT validation",
+      "priority": 2,
+      "depends_on": ["verify_market_membership"],
+      "method": "probe",
+      "risk": "read_only",
+      "success_condition": "Required inputs pass publication, vintage, leakage and survivorship checks",
+      "verification_method": "Independent per-indicator PIT evidence, never a model declaration",
+      "checks": [
+        {"kind": "review_required", "reason": "PIT certification remains open for all 190 indicators"}
+      ]
+    }
+  ]
+}
