@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "collected_at_utc": "2026-10-30T16:46:00.173989+00:00",
+  "source_identity": "public.domestic_daily_price via existing read-only role",
+  "export_identity": "/home/kegor2/MyDream2000/research/regime190/db_daily_price_derived_manifest.jsonl",
+  "target_end": "2026-10-27",
+  "source_symbols": 2499,
+  "export_symbols": 2497,
+  "source_rows": 4606027,
+  "export_rows": 4605978,
+  "classification_counts": {
+    "SOURCE_EXPORT_MATCH": 2481,
+    "SOURCE_EXPORT_MISMATCH": 16,
+    "SOURCE_ONLY": 2
+  },
+  "cutoff_export_symbols": 1794,
+  "cutoff_source_later_symbols": 3,
+  "cutoff_source_same_symbols": 1791,
+  "cutoff_source_missing_symbols": 0,
+  "causal_scope": "Source/export boundary only; ingestion/provider/delisting causes need separate evidence",
+  "pit_status": "UNVERIFIED"
+}

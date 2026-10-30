@@ -1,0 +1,253 @@
+{
+  "schema_version": 2,
+  "project_id": "regime190_continuation",
+  "workspace_root": "~",
+  "goal": "Resolve historical source/export boundaries and quantify universe/PIT blockers without backtesting",
+  "research_questions": [
+    "Which price cutoffs exist in source versus export?",
+    "Can historical KOSPI/KOSDAQ membership be established as-of date?",
+    "Which of 190 indicators have traceable PIT evidence?"
+  ],
+  "success_criteria": [
+    "Full cutoff cause independently verified",
+    "Historical market membership verified as of date",
+    "Required indicators pass PIT eligibility"
+  ],
+  "success_checks": [
+    {
+      "kind": "review_required",
+      "reason": "Ingestion/provider root cause not yet independently proven"
+    },
+    {
+      "kind": "review_required",
+      "reason": "Historical as-of market membership not yet reconstructed"
+    },
+    {
+      "kind": "review_required",
+      "reason": "No indicator has row-level PIT certification"
+    }
+  ],
+  "data_sources": [
+    "Read-only public.domestic_daily_price and historical_backfill_run",
+    "Private export manifest and published audit tables",
+    "Current symbol_master and KRX official candidate sources"
+  ],
+  "allowed_operations": [
+    "Read-only SQL",
+    "Read-only file inspection",
+    "Research checkpoint and evidence output"
+  ],
+  "constraints": [
+    "No production DB writes",
+    "No broad backfill",
+    "No current-membership substitution",
+    "No PIT-dependent backtest"
+  ],
+  "codex_execution_enabled": false,
+  "data_access": [
+    "market-morning-reports/market-history/research/regime190/source_lineage_20261031.json",
+    "market-morning-reports/market-history/research/regime190/source_lineage_symbols_20261031.csv",
+    "market-morning-reports/market-history/research/regime190/universe_evidence_20261031.json",
+    "market-morning-reports/market-history/research/regime190/pit_readiness_summary_20261031.json",
+    "market-morning-reports/market-history/research/regime190/pit_readiness_matrix_20261031.csv",
+    "MyDream2000/research/regime190/checkpoint.sqlite"
+  ],
+  "limits": {
+    "max_runtime_seconds": 1800,
+    "max_iterations": 3,
+    "max_retries": 3,
+    "max_concurrency": 1,
+    "max_processes": 1,
+    "min_free_bytes": 5368709120,
+    "max_state_bytes": 10485760,
+    "max_log_bytes": 131072,
+    "max_external_calls": 1
+  },
+  "tasks": [
+    {
+      "id": "reconcile_source_export_boundary",
+      "goal_relation": "Locate price cutoff boundary",
+      "selection_reason": "Full read-only source cohort snapshot is now available",
+      "priority": 0,
+      "depends_on": [],
+      "method": "probe",
+      "risk": "read_only",
+      "success_condition": "2499 source symbols and 2497 exported symbols reconcile with classified differences",
+      "verification_method": "Independent read-only file/SQLite evidence checks",
+      "checks": [
+        {
+          "kind": "json_equals",
+          "path": "market-morning-reports/market-history/research/regime190/source_lineage_20261031.json",
+          "pointer": "/source_symbols",
+          "equals": 2499
+        },
+        {
+          "kind": "json_equals",
+          "path": "market-morning-reports/market-history/research/regime190/source_lineage_20261031.json",
+          "pointer": "/export_symbols",
+          "equals": 2497
+        },
+        {
+          "kind": "json_equals",
+          "path": "market-morning-reports/market-history/research/regime190/source_lineage_20261031.json",
+          "pointer": "/cutoff_source_same_symbols",
+          "equals": 1791
+        },
+        {
+          "kind": "json_equals",
+          "path": "market-morning-reports/market-history/research/regime190/source_lineage_20261031.json",
+          "pointer": "/cutoff_source_later_symbols",
+          "equals": 3
+        },
+        {
+          "kind": "csv_unique_count",
+          "path": "market-morning-reports/market-history/research/regime190/source_lineage_symbols_20261031.csv",
+          "field": "symbol",
+          "equals": 2499
+        }
+      ]
+    },
+    {
+      "id": "audit_universe_evidence",
+      "goal_relation": "Quantify historical universe evidence gap",
+      "selection_reason": "Current master is not an as-of membership archive",
+      "priority": 1,
+      "depends_on": [],
+      "method": "probe",
+      "risk": "read_only",
+      "success_condition": "Source/master overlap and missing historical membership are recorded without proxy substitution",
+      "verification_method": "Independent read-only file/SQLite evidence checks",
+      "checks": [
+        {
+          "kind": "json_equals",
+          "path": "market-morning-reports/market-history/research/regime190/universe_evidence_20261031.json",
+          "pointer": "/source_symbol_count",
+          "equals": 2499
+        },
+        {
+          "kind": "json_equals",
+          "path": "market-morning-reports/market-history/research/regime190/universe_evidence_20261031.json",
+          "pointer": "/source_symbols_in_current_master",
+          "equals": 2482
+        },
+        {
+          "kind": "json_equals",
+          "path": "market-morning-reports/market-history/research/regime190/universe_evidence_20261031.json",
+          "pointer": "/historical_membership_status",
+          "equals": "UNVERIFIED"
+        },
+        {
+          "kind": "json_equals",
+          "path": "market-morning-reports/market-history/research/regime190/universe_evidence_20261031.json",
+          "pointer": "/coverage_classification/local_delisting_archive",
+          "equals": "UNAVAILABLE"
+        }
+      ]
+    },
+    {
+      "id": "classify_pit_readiness",
+      "goal_relation": "Classify all 190 indicators conservatively",
+      "selection_reason": "Per-indicator PIT matrix is prerequisite to any backtest",
+      "priority": 2,
+      "depends_on": [],
+      "method": "probe",
+      "risk": "read_only",
+      "success_condition": "190 unique indicators reconcile, zero PIT verified and backtest gate closed",
+      "verification_method": "Independent read-only file/SQLite evidence checks",
+      "checks": [
+        {
+          "kind": "csv_unique_count",
+          "path": "market-morning-reports/market-history/research/regime190/pit_readiness_matrix_20261031.csv",
+          "field": "indicator_id",
+          "equals": 190
+        },
+        {
+          "kind": "json_equals",
+          "path": "market-morning-reports/market-history/research/regime190/pit_readiness_summary_20261031.json",
+          "pointer": "/classification_counts/PIT_VERIFIED",
+          "equals": 0
+        },
+        {
+          "kind": "json_equals",
+          "path": "market-morning-reports/market-history/research/regime190/pit_readiness_summary_20261031.json",
+          "pointer": "/classification_counts/SOURCE_MISSING",
+          "equals": 98
+        },
+        {
+          "kind": "json_equals",
+          "path": "market-morning-reports/market-history/research/regime190/pit_readiness_summary_20261031.json",
+          "pointer": "/classification_counts/CALCULATION_PENDING",
+          "equals": 21
+        },
+        {
+          "kind": "json_equals",
+          "path": "market-morning-reports/market-history/research/regime190/pit_readiness_summary_20261031.json",
+          "pointer": "/classification_counts/PIT_BLOCKED",
+          "equals": 71
+        },
+        {
+          "kind": "sqlite_integrity",
+          "path": "MyDream2000/research/regime190/checkpoint.sqlite"
+        }
+      ]
+    },
+    {
+      "id": "resolve_cutoff_origin",
+      "goal_relation": "Prove source collection and provider cause",
+      "selection_reason": "Boundary is known but request-level and lifecycle evidence is still missing",
+      "priority": 3,
+      "depends_on": [
+        "reconcile_source_export_boundary"
+      ],
+      "method": "probe",
+      "risk": "read_only",
+      "success_condition": "Prove why 1791 source symbols did not receive later rows",
+      "verification_method": "Independent read-only file/SQLite evidence checks",
+      "checks": [
+        {
+          "kind": "review_required",
+          "reason": "Per-symbol requested/returned rows, provider limits and listing lifecycle not independently reconciled"
+        }
+      ]
+    },
+    {
+      "id": "reconstruct_asof_membership",
+      "goal_relation": "Build bias-free market universe",
+      "selection_reason": "Current master cannot establish past market or delisted securities",
+      "priority": 4,
+      "depends_on": [
+        "audit_universe_evidence"
+      ],
+      "method": "probe",
+      "risk": "read_only",
+      "success_condition": "Dated official membership and transfer history covers the source universe",
+      "verification_method": "Independent read-only file/SQLite evidence checks",
+      "checks": [
+        {
+          "kind": "review_required",
+          "reason": "Official dated KRX listing, delisting and transfer coverage not acquired"
+        }
+      ]
+    },
+    {
+      "id": "validate_indicators_pit",
+      "goal_relation": "Certify historical availability of backtest inputs",
+      "selection_reason": "Zero indicators have release/vintage evidence",
+      "priority": 5,
+      "depends_on": [
+        "classify_pit_readiness",
+        "reconstruct_asof_membership"
+      ],
+      "method": "probe",
+      "risk": "read_only",
+      "success_condition": "Required indicator rows pass publication, vintage, as-of and survivorship gates",
+      "verification_method": "Independent read-only file/SQLite evidence checks",
+      "checks": [
+        {
+          "kind": "review_required",
+          "reason": "Row-level PIT and vintage evidence remains absent"
+        }
+      ]
+    }
+  ]
+}

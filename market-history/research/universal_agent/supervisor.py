@@ -118,8 +118,11 @@ def _rank(task: dict) -> tuple:
             task['risk'] != 'read_only', task['id'])
 
 
-def _select(project: dict, state: dict) -> dict | None:
+def _select(project: dict, state: dict, excluded: set[str] | None = None) -> dict | None:
+    excluded = excluded or set()
     for task in sorted(project['tasks'], key=_rank):
+        if task['id'] in excluded:
+            continue
         record = state['tasks'][task['id']]
         if record['status'] not in {'PENDING', 'READY', 'FAILED_RETRYABLE', 'BLOCKED_DEPENDENCY'}:
             continue
@@ -259,8 +262,8 @@ def operate(mode: str, config_path: Path, state_dir: Path, executor=None,
             if (state_dir / 'STOP').exists() or time.monotonic() - started >= max_seconds:
                 state['last_stop_reason'] = 'STOP' if (state_dir / 'STOP').exists() else 'BUDGET'
                 break
-            task = _select(project, state)
-            if task is None or task['id'] in attempted:
+            task = _select(project, state, attempted)
+            if task is None:
                 break
             attempted.add(task['id'])
             record = state['tasks'][task['id']]
@@ -325,8 +328,8 @@ def operate(mode: str, config_path: Path, state_dir: Path, executor=None,
             selected = _select(project, state)
             state['next_task'] = selected['id'] if selected else None
             _persist(locked_path, state, project['_limits']['max_state_bytes'])
-            if record['status'] != 'COMPLETED':
-                break
+            # An independently eligible safe task can still make progress
+            # after this task is blocked; the failed task is excluded here.
         selected = _select(project, state)
         state['next_task'] = selected['id'] if selected else None
         if selected and completed_or_started >= (1 if mode == 'run-once' else max_tasks):

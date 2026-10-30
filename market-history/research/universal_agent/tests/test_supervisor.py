@@ -85,6 +85,20 @@ class SupervisorTests(unittest.TestCase):
         self.assertEqual(result['statuses']['first'], 'BLOCKED_DATA')
         self.assertEqual(result['statuses']['second'], 'BLOCKED_DEPENDENCY')
 
+    def test_blocked_task_does_not_stop_independent_safe_task(self):
+        independent = self.task('third', 2)
+        independent['checks'] = [{'kind': 'json_equals', 'path': 'evidence.json',
+                                  'pointer': '/two', 'equals': True}]
+        self.config['tasks'].append(independent)
+        (self.root / 'evidence.json').write_text('{"one":false,"two":true}')
+        self.save()
+        executor = FakeExecutor()
+        result = operate('run-bounded', self.manifest, self.state_dir, executor)
+        self.assertEqual(result['statuses']['first'], 'BLOCKED_DATA')
+        self.assertEqual(result['statuses']['second'], 'BLOCKED_DEPENDENCY')
+        self.assertEqual(result['statuses']['third'], 'COMPLETED')
+        self.assertEqual(executor.calls, 2)
+
     def test_approval_block_never_calls_executor(self):
         self.config['tasks'][0]['risk'] = 'operating_db'
         self.save()

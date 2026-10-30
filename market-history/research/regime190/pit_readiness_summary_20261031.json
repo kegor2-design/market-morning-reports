@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-10-30T16:52:28.910392+00:00",
+  "indicator_total": 190,
+  "unique_ids": 190,
+  "sqlite_integrity": "ok",
+  "classification_counts": {
+    "PIT_BLOCKED": 71,
+    "CALCULATION_PENDING": 21,
+    "SOURCE_MISSING": 98,
+    "PIT_VERIFIED": 0,
+    "PIT_PARTIAL": 0
+  },
+  "pit_eligible_db_flags": 0,
+  "backtest_eligible": 0,
+  "classification_policy": "No PIT_VERIFIED without release, availability, vintage and independent checkpoint evidence",
+  "source_files": [
+    "indicator_audit_20261031.csv",
+    "pit_audit.csv",
+    "private checkpoint.sqlite"
+  ]
+}
