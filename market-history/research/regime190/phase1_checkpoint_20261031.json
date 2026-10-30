@@ -1,0 +1,88 @@
+{
+  "updated_at_utc": "2026-10-30T15:16:50Z",
+  "goal": "Acquire and validate 190 Regime190 indicators for PIT-safe backtesting",
+  "phase": "PHASE_1_READ_ONLY_AND_LOW_RISK",
+  "phase_status": "COMPLETED",
+  "overall_goal_status": "IN_PROGRESS",
+  "research_branch": "research/regime190-data-audit-20261027",
+  "baseline_commit": "83b0bedbbdf8b270695b4566c4c5b910ec4af61d",
+  "source_checkpoint": "/home/kegor2/MyDream2000/research/regime190/checkpoint.sqlite",
+  "indicator_total": 190,
+  "availability": {
+    "partial": 71,
+    "raw_acquired_calculation_incomplete": 21,
+    "unacquired": 98
+  },
+  "pit_validated": 0,
+  "backtest_eligible": 0,
+  "generated_candidate_rows": 36831658,
+  "completed_tasks": [
+    {
+      "task": "Reconcile research branch, server checkpoint, 190 indicators, and provider attempt counters",
+      "status": "VERIFIED",
+      "evidence": "Research remote matched baseline commit; SQLite integrity ok; 190 unique tasks; 147 direct-provider-zero tasks and 0 tasks with neither provider nor fallback attempt"
+    },
+    {
+      "task": "Confirm bounded FRED output_type=4 requests for six HTTP 400 series",
+      "status": "VERIFIED",
+      "evidence": "Six 2019 calendar-year requests returned HTTP 200 with count equal to observations and date/realtime_start/realtime_end/value fields; DGS10 spot check had 11 missing-value rows"
+    },
+    {
+      "task": "Read-only scope check of derived price files and source DB sample",
+      "status": "VERIFIED",
+      "evidence": "2,497 files, 4,605,978 rows, 4,488,363 missing market codes, all 16:30 available_at; three sampled source DB last dates matched derived files"
+    }
+  ],
+  "pending_tasks_by_priority": [
+    {
+      "priority": 1,
+      "task": "Investigate source price history ending together on 2026-09-15 and reconstruct historical market membership",
+      "status": "PENDING",
+      "reason": "1,794 of 2,497 symbols end on that date; 4,488,363 rows lack market codes; source DB sample matches derived gap",
+      "completion_condition": "Explain the source cohort cutoff and validate as-of market membership against historical primary records without modifying the operating database"
+    },
+    {
+      "priority": 2,
+      "task": "Design and test resumable bounded FRED vintage collection",
+      "status": "PENDING",
+      "reason": "Six full-span requests exceed the JSON 2,000-vintage limit; one-year windows succeeded",
+      "completion_condition": "Nonoverlapping windows with boundary and missing-value checks, hash manifests, resume behavior, and no replacement of ten existing verified files"
+    },
+    {
+      "priority": 3,
+      "task": "Complete exact indicator definitions, remaining source acquisition and calculations",
+      "status": "PENDING",
+      "reason": "71 partial, 21 raw-only and 98 unacquired indicators",
+      "completion_condition": "190 unique indicators reconcile to verified source, formula, coverage and quality evidence"
+    },
+    {
+      "priority": 4,
+      "task": "Validate release hour, revision vintage, as-of availability, leakage and survivorship for every indicator",
+      "status": "PENDING",
+      "reason": "0 PIT validated; 16:30 source timestamps are uniform assumptions",
+      "completion_condition": "Independent row-level PIT evidence and no unresolved lookahead or survivorship risk"
+    },
+    {
+      "priority": 5,
+      "task": "Run Regime190 backtest",
+      "status": "BLOCKED",
+      "reason": "PIT gate has zero passing indicators",
+      "completion_condition": "Required indicator inputs pass PIT and coverage gates before any backtest run"
+    }
+  ],
+  "blocked_checks": [
+    {
+      "task": "Confirm current user research service state and journal",
+      "status": "BLOCKED",
+      "reason": "systemctl --user cannot connect to bus: No medium found; process namespace visibility is limited"
+    }
+  ],
+  "next_task": "Read-only investigation of the 2026-09-15 source-data cohort cutoff and historical market-code provenance",
+  "resume_notes": "Preserve private raw data and the untracked phase2_baseline.py. MyDream2000 and MarketMorningPublisher contain unrelated dirty worktrees. Use read-only DB credentials and short statement timeouts. Do not restart services or deploy collector changes in Phase 1.",
+  "approval_required_for": [
+    "operating service restart",
+    "operating DB schema change",
+    "large-scale data recollection",
+    "operating code deployment"
+  ]
+}
