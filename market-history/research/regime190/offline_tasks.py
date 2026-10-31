@@ -13,6 +13,8 @@ from pathlib import Path
 from .build_pit_readiness import ROOT, build
 from .worker import RO_ENV, env_keys
 from . import blocker_resolution
+from . import credential_evidence
+from . import provider_mapping
 
 PRIVATE_DB = Path.home() / 'MyDream2000/research/regime190/checkpoint.sqlite'
 SOURCE_HOSTS = {'openapi.krx.co.kr', 'ecos.bok.or.kr', 'kosis.kr',
@@ -70,6 +72,46 @@ def connection():
 
 def execute(task: dict, queue: dict) -> dict:
     kind = task['task_type']
+    if kind == 'credential_audit':
+        return {'providers': credential_evidence.credential_presence(), 'secret_values_recorded': False}
+    if kind == 'provider_auth_probe':
+        return credential_evidence.probe_ecos_dart()
+    if kind == 'fred_pit_sample':
+        state_dir = Path(task['research_state_dir'])
+        allowed = Path.home() / 'MyDream2000/research/universal_agent'
+        if not state_dir.resolve().is_relative_to(allowed.resolve()):
+            raise ValueError('Research state path outside private root')
+        return credential_evidence.collect_fred_dgs10(state_dir, series_id=task.get('series_id', 'DGS10'))
+    if kind == 'evidence_reevaluate':
+        record = queue['tasks'][task['dependencies'][0]]
+        sample = json.loads(Path(record['output_artifacts'][0]).read_text())['result']
+        collected = [sample]
+        if task['task_id'] == 'pit_reevaluate_116_both':
+            first = queue['tasks']['fred_dgs10_sample']
+            collected.append(json.loads(Path(first['output_artifacts'][0]).read_text())['result'])
+        rows, summary = build(ROOT / 'indicator_audit_20261031.csv', ROOT / 'pit_audit.csv', PRIVATE_DB)
+        current = next(row for row in rows if int(row['indicator_id']) == 116)
+        missing = ([] if any(item.get('series_id') == 'DGS2' and item.get('data_acquired')
+                          for item in collected) else ['DGS2 component']) + [
+            'historical publication time', 'decision-time availability',
+            'independent calculation and release policy']
+        return {'indicator_id': 116, 'baseline_pit_classification': current['pit_classification'],
+                'evidence_collected': bool(sample.get('data_acquired')),
+                'collected_series': sorted(item['series_id'] for item in collected if item.get('data_acquired')),
+                'evidence_sha256': sample.get('raw_sha256'), 'sample_result': sample.get('data_result'),
+                'pit_status': 'PIT_BLOCKED', 'pit_approved': False,
+                'missing_evidence': missing, 'next_action': 'Verify release hour and as-of availability',
+                'prior_pit_verified_total': summary['classification_counts']['PIT_VERIFIED']}
+    if kind == 'provider_mapping':
+        def completed_result(key):
+            record = queue['tasks'][key]
+            if record['status'] != 'COMPLETED':
+                raise ValueError('Provider mapping dependency incomplete')
+            return json.loads(Path(record['output_artifacts'][0]).read_text())['result']
+        presence = completed_result('credential_presence')['providers']
+        probes = completed_result('provider_auth_check')['results']
+        fred = [completed_result(key) for key in ('fred_dgs10_sample', 'fred_dgs2_sample')]
+        return provider_mapping.build_mapping(presence, probes, fred)
     if kind == 'source_catalog_probe':
         return probe_source_catalog()
     if kind == 'blocker_classify':
@@ -145,7 +187,30 @@ def execute(task: dict, queue: dict) -> dict:
 
 def verify(task: dict, result: dict) -> None:
     kind = task['task_type']
-    if kind == 'source_catalog_probe':
+    if kind == 'credential_audit':
+        if result.get('secret_values_recorded') is not False or set(result.get('providers', {})) != {
+                'KIS', 'KRX', 'BOK_ECOS', 'KOSIS', 'FRED', 'DART'}:
+            raise ValueError('Credential audit invalid')
+    elif kind == 'provider_auth_probe':
+        if (result.get('request_limit') != 2 or set(result.get('results', {})) != {'BOK_ECOS', 'DART'}
+                or result.get('provider_payloads_stored') is not False):
+            raise ValueError('Provider auth probe invalid')
+    elif kind == 'fred_pit_sample':
+        if (result.get('provider') != 'FRED' or result.get('series_id') != task.get('series_id', 'DGS10')
+                or result.get('requests', 4) > 3 or result.get('pit_status') != 'PIT_BLOCKED'
+                or result.get('data_acquired') and (not result.get('raw_sha256')
+                   or result.get('numeric_rows', 0) <= 0)):
+            raise ValueError('FRED sample invalid')
+    elif kind == 'evidence_reevaluate':
+        if (result.get('indicator_id') != 116 or result.get('pit_approved') is not False
+                or result.get('pit_status') != 'PIT_BLOCKED'):
+            raise ValueError('Evidence reevaluation invalid')
+    elif kind == 'provider_mapping':
+        if (result.get('indicator_count') != 190 or len(result.get('records', [])) != 190
+                or {row['indicator_id'] for row in result['records']} != set(range(1, 191))
+                or result.get('pit_approvals_added') != 0):
+            raise ValueError('Provider mapping invalid')
+    elif kind == 'source_catalog_probe':
         if (result.get('request_count') != 6 or len(result.get('results', [])) != 6
                 or result.get('pit_approval') is not False
                 or any(row.get('method') != 'HEAD' or row.get('data_collected') is not False

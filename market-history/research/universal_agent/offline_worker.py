@@ -17,7 +17,8 @@ from .engine import locked_state, now, write_state
 
 ALLOWED_ADAPTERS = {'regime190': 'regime190.offline_tasks'}
 STATES = {'PENDING', 'RUNNING', 'VERIFYING', 'COMPLETED', 'BLOCKED_EVIDENCE',
-          'BLOCKED_LICENSE', 'BLOCKED_QUOTA', 'CODEX_REQUIRED', 'RETRYABLE', 'FAILED'}
+          'BLOCKED_LICENSE', 'BLOCKED_QUOTA', 'CODEX_REQUIRED', 'HUMAN_APPROVAL_REQUIRED',
+          'RETRYABLE', 'FAILED'}
 RETRY_LIMIT = 2
 
 
@@ -62,14 +63,23 @@ def load_plan(path: Path) -> tuple[dict, str]:
                                          not re.fullmatch(r'[a-z][a-z0-9_]*', key) for key in ids):
         raise ValueError('Duplicate or unsafe task ID')
     for task in plan['tasks']:
-        if task['execution_class'] not in {'SERVER_EXECUTABLE', 'CODEX_REQUIRED'}:
+        if task['execution_class'] not in {'SERVER_EXECUTABLE', 'CODEX_REQUIRED',
+                                           'HUMAN_APPROVAL_REQUIRED'}:
             raise ValueError('Invalid execution class')
         if task['execution_class'] == 'SERVER_EXECUTABLE' and task['task_type'] not in {
                 'source_snapshot', 'pit_recheck', 'backtest_gate',
-                'blocker_classify', 'local_evidence_check', 'source_catalog_probe'}:
+                'blocker_classify', 'local_evidence_check', 'source_catalog_probe',
+                'credential_audit', 'provider_auth_probe', 'fred_pit_sample',
+                'evidence_reevaluate', 'provider_mapping'}:
             raise ValueError('Unregistered server task')
         if task['task_type'] == 'local_evidence_check' and task.get('indicator_id') not in range(1, 191):
             raise ValueError('Invalid indicator for evidence check')
+        if task.get('research_contract_version') is not None:
+            if (task['research_contract_version'] != 1 or
+                    any(not task.get(field) for field in ('objective', 'hypothesis', 'required_evidence',
+                    'execution_permissions', 'pit_prerequisites', 'validation_method',
+                    'success_criteria', 'failure_classification', 'next_action'))):
+                raise ValueError('Invalid research task contract')
         if any(dep not in ids or dep == task['task_id'] for dep in task['dependencies']):
             raise ValueError('Invalid dependency')
         if not 0 <= task['delay_hours'] <= 72 or not 0 <= task['priority'] <= 100:
@@ -100,14 +110,21 @@ def _project(queue: dict, state_dir: Path) -> dict:
     blocked = [key for key, value in tasks.items() if value['status'].startswith('BLOCKED')]
     failed = [key for key, value in tasks.items() if value['status'] == 'FAILED']
     codex = [key for key, value in tasks.items() if value['status'] == 'CODEX_REQUIRED']
+    human = [key for key, value in tasks.items() if value['status'] == 'HUMAN_APPROVAL_REQUIRED']
     pit = next((json.loads(Path(tasks[key]['output_artifacts'][0]).read_text())['result']
-                for key in reversed(completed) if tasks[key]['task_type'] == 'pit_recheck'), None)
+                for key in reversed(completed) if tasks[key]['task_type'] in {'pit_recheck', 'evidence_reevaluate'}), None)
     gate = next((json.loads(Path(tasks[key]['output_artifacts'][0]).read_text())['result']
                  for key in reversed(completed) if tasks[key]['task_type'] == 'backtest_gate'), None)
+    collected = [dict(task_id=key, provider=result.get('provider'), series_id=result.get('series_id'),
+                      raw_sha256=result.get('raw_sha256'), row_count=result.get('row_count'))
+                 for key in completed if tasks[key]['task_type'] == 'fred_pit_sample'
+                 for result in [json.loads(Path(tasks[key]['output_artifacts'][0]).read_text())['result']]
+                 if result.get('data_acquired')]
     return {'checkpoint_id': queue['checkpoint_id'], 'completed_tasks': completed,
             'blocked_tasks': blocked, 'failed_tasks': failed, 'codex_required_tasks': codex,
+            'human_approval_tasks': human,
             'pit_validation_results': pit, 'backtest_results': gate,
-            'newly_collected_data': [],
+            'newly_collected_data': collected,
             'research_status': 'BACKTEST_BLOCKED' if not gate or gate['status'] == 'BACKTEST_BLOCKED'
                                else 'REVIEW_REQUIRED'}
 
@@ -140,6 +157,7 @@ def publish(queue: dict, state_dir: Path, repo: Path) -> None:
                'unresolved_problems': ['Original cutoff request/response absent',
                                        'Historical market membership and PIT release times unverified'],
                'codex_required_tasks': projection['codex_required_tasks'],
+               'human_approval_tasks': projection['human_approval_tasks'],
                'recommended_next_actions': ['Inspect newly completed offline evidence',
                                             'Resolve cutoff provenance and historical universe'],
                'git_commit_reference': commit, 'git_branch': branch,
@@ -176,7 +194,7 @@ def prepare(plan_path: Path, state_dir: Path, repo: Path, horizon_hours: int = 4
                 continue
             key = spec['task_id']
             tasks[key] = dict(spec, research_project=plan['research_project'],
-                              status='CODEX_REQUIRED' if spec['execution_class'] == 'CODEX_REQUIRED' else 'PENDING',
+                              status=spec['execution_class'] if spec['execution_class'] != 'SERVER_EXECUTABLE' else 'PENDING',
                               attempt_count=0, created_at=created.isoformat(), updated_at=created.isoformat(),
                               last_started_at=None, last_completed_at=None, checkpoint_id=None,
                               input_artifacts=spec.get('input_artifacts', []), output_artifacts=[],
@@ -254,6 +272,68 @@ def _expand_classification(queue: dict, task: dict, result: dict) -> None:
             'not_before': created}
 
 
+def _expand_research_evidence(queue: dict, task: dict, result: dict) -> None:
+    """Continue the verified two-tenor hypothesis once per evidence fingerprint."""
+    if task['task_id'] == 'pit_reevaluate_116' and result.get('evidence_collected'):
+        key, template_id = 'fred_dgs2_sample', 'fred_dgs10_sample'
+        fingerprint = result.get('evidence_sha256')
+        if not fingerprint:
+            raise ValueError('Missing parent evidence checksum')
+        if key in queue['tasks']:
+            if queue['tasks'][key].get('parent_evidence_sha256') != fingerprint:
+                raise ValueError('Generated task fingerprint changed')
+            return
+        template = queue['tasks'][template_id]
+        created = now()
+        queue['tasks'][key] = dict(template, task_id=key, series_id='DGS2', priority=5,
+                                   dependencies=[task['task_id']], status='PENDING',
+                                   attempt_count=0, created_at=created, updated_at=created,
+                                   last_started_at=None, last_completed_at=None, checkpoint_id=None,
+                                   not_before=created, retry_after=None, output_artifacts=[],
+                                   evidence_refs=[], error_reason=None,
+                                   parent_evidence_sha256=fingerprint,
+                                   objective='Acquire matching DGS2 initial-release sample',
+                                   hypothesis='Second public-domain Treasury tenor is available',
+                                   next_action='Reevaluate both yield components')
+    elif task['task_id'] == 'fred_dgs2_sample':
+        key, template_id = 'pit_reevaluate_116_both', 'pit_reevaluate_116'
+        fingerprint = result.get('raw_sha256') or result.get('data_result') or result.get('auth_result')
+        if key in queue['tasks']:
+            if queue['tasks'][key].get('parent_evidence_sha256') != fingerprint:
+                raise ValueError('Generated reevaluation fingerprint changed')
+            return
+        template = queue['tasks'][template_id]
+        created = now()
+        queue['tasks'][key] = dict(template, task_id=key, priority=6,
+                                   dependencies=[task['task_id']], status='PENDING',
+                                   attempt_count=0, created_at=created, updated_at=created,
+                                   last_started_at=None, last_completed_at=None, checkpoint_id=None,
+                                   not_before=created, retry_after=None, output_artifacts=[],
+                                   evidence_refs=[], error_reason=None,
+                                   parent_evidence_sha256=fingerprint,
+                                   objective='Reevaluate indicator 116 with both yield samples',
+                                   hypothesis='Two components narrow the blocker without establishing release hour')
+    elif task['task_id'] == 'pit_reevaluate_116_both':
+        key = 'map_provider_capabilities_190'
+        if key in queue['tasks']:
+            if queue['tasks'][key].get('parent_evidence_sha256') != result.get('evidence_sha256'):
+                raise ValueError('Provider mapping evidence fingerprint changed')
+            return
+        created = now()
+        queue['tasks'][key] = dict(task, task_id=key, task_type='provider_mapping', priority=7,
+                                   dependencies=['credential_presence', 'provider_auth_check',
+                                                 'fred_dgs10_sample', 'fred_dgs2_sample', task['task_id']],
+                                   resource_budget={'max_seconds': 30, 'max_attempts': 1},
+                                   status='PENDING', attempt_count=0, created_at=created,
+                                   updated_at=created, last_started_at=None, last_completed_at=None,
+                                   checkpoint_id=None, not_before=created, retry_after=None,
+                                   output_artifacts=[], evidence_refs=[], error_reason=None,
+                                   parent_evidence_sha256=result.get('evidence_sha256'),
+                                   objective='Map authenticated source capabilities to all 190 indicators',
+                                   hypothesis='Existing credentials narrow next research tasks',
+                                   next_action='Review prioritized executable and approval-gated tasks')
+
+
 def _verify_output(adapter, task: dict) -> dict:
     path = Path(task['output_artifacts'][0])
     payload = json.loads(path.read_text())
@@ -288,6 +368,13 @@ def run(state_dir: Path, repo: Path, max_tasks: int = 3, max_seconds: int = 120)
                 task['updated_at'] = now()
                 queue['events'].append({'at': now(), 'task_id': task['task_id'], 'status': task['status'],
                                         'reason': 'interruption recovery'})
+        for task in list(queue['tasks'].values()):
+            if task['status'] == 'COMPLETED' and task['task_id'] in {
+                    'pit_reevaluate_116', 'fred_dgs2_sample', 'pit_reevaluate_116_both'}:
+                payload = _verify_output(adapter, task)
+                if task['evidence_refs'] and task['evidence_refs'][-1] != _sha(Path(task['output_artifacts'][0])):
+                    raise ValueError('Completed research artifact checksum changed')
+                _expand_research_evidence(queue, task, payload['result'])
         _save(queue, state_dir, repo)
         started = time.monotonic()
         processed = 0
@@ -338,6 +425,7 @@ def run(state_dir: Path, repo: Path, max_tasks: int = 3, max_seconds: int = 120)
                 queue['checkpoint_id'] += 1
                 task['checkpoint_id'] = queue['checkpoint_id']
                 _expand_classification(queue, task, result)
+                _expand_research_evidence(queue, task, result)
             except Exception as exc:
                 task['error_reason'] = (type(exc).__name__ + ': ' + str(exc))[:240]
                 if isinstance(exc, QuotaBlocked):

@@ -17,6 +17,11 @@ UNKNOWN = {'', 'absent', 'unverified', 'no_data', 'current snapshot only', 'unpa
 CLASSES = {'MISSING_SOURCE', 'MISSING_TIMESTAMP', 'MISSING_HISTORICAL_UNIVERSE',
            'MISSING_REVISION_HISTORY', 'MISSING_CORPORATE_ACTION', 'CALCULATION_PENDING',
            'LICENSE_RESTRICTED', 'SCHEMA_MISMATCH', 'INSUFFICIENT_EVIDENCE'}
+SECURITY_UNIVERSE_FAMILIES = {'전종목 가격·기초정보 파생', '원거래량+파생',
+                             '공식 수급 시계열', '체결·L2 호가 별도 원천',
+                             '횡단면 가격 파생', '기업 공식공시+추정'}
+CORPORATE_ACTION_FAMILIES = {'전종목 가격·기초정보 파생', '원거래량+파생',
+                             '횡단면 가격 파생'}
 
 
 def _rows(name: str) -> dict[int, dict]:
@@ -42,21 +47,23 @@ def classify(audit: dict, mapping: dict, pit: dict, prior: dict,
         if _missing(pit[field]):
             gaps.append('MISSING_TIMESTAMP')
             evidence[field] = pit[field]
-    if mapping['market_scope_status'] != 'VERIFIED':
+    if (mapping['family'] in SECURITY_UNIVERSE_FAMILIES
+            and mapping['market_scope_status'] != 'VERIFIED'):
         gaps.append('MISSING_HISTORICAL_UNIVERSE')
     if _missing(pit['revision_history']) or _missing(pit['vintage']):
         gaps.append('MISSING_REVISION_HISTORY')
     if audit['calculation'] != '검증 완료':
         gaps.append('CALCULATION_PENDING')
     # Corporate actions apply to security-level price series, not all index or macro series.
-    if '가격' in mapping['family'] and '종목' in (mapping['target_market'] + audit['name']):
+    if mapping['family'] in CORPORATE_ACTION_FAMILIES:
         gaps.append('MISSING_CORPORATE_ACTION')
     if audit['mapping_status'] in {'SCHEMA_MISMATCH', 'FIELD_MISMATCH'}:
         gaps.append('SCHEMA_MISMATCH')
     if 'LICENSE_RESTRICTED' in audit['source_history_status']:
         gaps.append('LICENSE_RESTRICTED')
     gaps = list(dict.fromkeys(gaps)) or ['INSUFFICIENT_EVIDENCE']
-    existing = {'source': audit['provider'], 'raw_acquisition': audit['raw_acquisition'],
+    existing = {'source': audit['provider'], 'family': mapping['family'],
+                'raw_acquisition': audit['raw_acquisition'],
                 'generated_rows': audit['generated_rows'], 'local_checkpoint': local or {},
                 'published_at': pit['published_at'], 'available_at': pit['available_at'],
                 'vintage': pit['vintage'], 'revision_history': pit['revision_history']}

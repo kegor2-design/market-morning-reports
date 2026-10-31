@@ -7,7 +7,8 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from universal_agent.engine import write_state
-from universal_agent.offline_worker import QuotaBlocked, load_plan, prepare, run, _expand_classification
+from universal_agent.offline_worker import (QuotaBlocked, load_plan, prepare, run,
+                                            _expand_classification, _expand_research_evidence)
 
 
 class FakeAdapter:
@@ -137,6 +138,20 @@ class OfflineWorkerTests(unittest.TestCase):
         self.assertIn('local_evidence_041', self.queue()['tasks'])
         run(self.state, self.repo, max_tasks=1)
         self.assertEqual(len(self.queue()['tasks']), 3)
+
+    def test_evidence_followup_uses_same_queue_and_fingerprint(self):
+        template = {'task_id': 'fred_dgs10_sample', 'task_type': 'fred_pit_sample',
+                    'research_state_dir': '/tmp/research', 'status': 'COMPLETED',
+                    'resource_budget': {'max_seconds': 60, 'max_attempts': 1}}
+        review = {'task_id': 'pit_reevaluate_116', 'task_type': 'evidence_reevaluate',
+                  'status': 'COMPLETED', 'resource_budget': {'max_seconds': 20, 'max_attempts': 1}}
+        queue = {'tasks': {'fred_dgs10_sample': template, 'pit_reevaluate_116': review}}
+        _expand_research_evidence(queue, review, {'evidence_collected': True, 'evidence_sha256': 'abc'})
+        _expand_research_evidence(queue, review, {'evidence_collected': True, 'evidence_sha256': 'abc'})
+        self.assertEqual(queue['tasks']['fred_dgs2_sample']['series_id'], 'DGS2')
+        self.assertEqual(len(queue['tasks']), 3)
+        with self.assertRaisesRegex(ValueError, 'fingerprint changed'):
+            _expand_research_evidence(queue, review, {'evidence_collected': True, 'evidence_sha256': 'changed'})
 
 
 if __name__ == '__main__':
