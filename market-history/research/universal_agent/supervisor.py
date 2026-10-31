@@ -14,22 +14,23 @@ import uuid
 from pathlib import Path
 
 from .engine import locked_state, now, write_state
-from .runner import (APPROVAL_RISKS, CodexExecutor, _authorized_check,
+from .runner import (APPROVAL_RISKS, CodexExecutor, _authorized_check, classify,
                      load_runner_project)
 
 STATES = {'PENDING', 'READY', 'RUNNING', 'VERIFYING', 'COMPLETED',
           'FAILED_RETRYABLE', 'FAILED_TERMINAL', 'BLOCKED_APPROVAL',
-          'BLOCKED_DEPENDENCY', 'BLOCKED_DATA', 'PAUSED', 'CANCELLED'}
+          'BLOCKED_DEPENDENCY', 'BLOCKED_DATA', 'BLOCKED_QUOTA', 'PAUSED', 'CANCELLED'}
 TRANSITIONS = {
     'PENDING': {'READY', 'BLOCKED_DEPENDENCY', 'BLOCKED_APPROVAL', 'CANCELLED'},
     'READY': {'RUNNING', 'BLOCKED_APPROVAL', 'PAUSED', 'CANCELLED'},
-    'RUNNING': {'VERIFYING', 'FAILED_RETRYABLE', 'FAILED_TERMINAL', 'PAUSED'},
+    'RUNNING': {'VERIFYING', 'FAILED_RETRYABLE', 'FAILED_TERMINAL', 'BLOCKED_QUOTA', 'PAUSED'},
     'VERIFYING': {'COMPLETED', 'BLOCKED_DATA', 'FAILED_TERMINAL', 'PAUSED'},
     'FAILED_RETRYABLE': {'READY', 'FAILED_TERMINAL', 'PAUSED'},
     'BLOCKED_DEPENDENCY': {'READY', 'CANCELLED'},
     'PAUSED': {'READY', 'VERIFYING', 'CANCELLED'},
     'BLOCKED_DATA': {'CANCELLED'},
     'BLOCKED_APPROVAL': {'CANCELLED'},
+    'BLOCKED_QUOTA': {'READY', 'CANCELLED'},
     'FAILED_TERMINAL': {'CANCELLED'},
     'COMPLETED': set(), 'CANCELLED': set(),
 }
@@ -171,7 +172,7 @@ def _outcome(project: dict, state: dict) -> str:
     records = list(state['tasks'].values())
     if any(r['status'] == 'FAILED_TERMINAL' for r in records):
         return 'RESEARCH_FAILED'
-    if any(r['status'] in {'BLOCKED_APPROVAL', 'BLOCKED_DATA', 'PAUSED'} for r in records):
+    if any(r['status'] in {'BLOCKED_APPROVAL', 'BLOCKED_DATA', 'BLOCKED_QUOTA', 'PAUSED'} for r in records):
         return 'RESEARCH_BLOCKED'
     if all(r['status'] == 'COMPLETED' for r in records):
         checks = project.get('success_checks')
@@ -214,12 +215,15 @@ def operate(mode: str, config_path: Path, state_dir: Path, executor=None,
             if not task_id or task_id not in state['tasks'] or resolution not in {'retry', 'cancel'}:
                 raise ValueError('recover requires a known task and retry or cancel resolution')
             record = state['tasks'][task_id]
-            if record['status'] != 'PAUSED':
-                raise ValueError('Only an explicitly reviewed PAUSED task can be recovered')
+            if record['status'] not in {'PAUSED', 'BLOCKED_QUOTA'}:
+                raise ValueError('Only an explicitly reviewed PAUSED or BLOCKED_QUOTA task can be recovered')
             task = next(t for t in project['tasks'] if t['id'] == task_id)
             if resolution == 'retry' and (task['risk'] != 'read_only' or
                     record['attempts'] >= min(3, project['_limits']['max_retries'])):
                 raise ValueError('Read-only retry budget exceeded or task requires approval')
+            if record['status'] == 'BLOCKED_QUOTA':
+                # Operator recovery confirms provider access and review of partial output.
+                state['quota_blocked'] = False
             transition(state, task_id, 'READY' if resolution == 'retry' else 'CANCELLED',
                        'Explicit operator recovery: ' + resolution)
             _persist(locked_path, state, project['_limits']['max_state_bytes'])
@@ -236,6 +240,8 @@ def operate(mode: str, config_path: Path, state_dir: Path, executor=None,
             _persist(locked_path, state, project['_limits']['max_state_bytes'])
             return _report(mode, project, state, selected)
         if (state_dir / 'STOP').exists():
+            return _report(mode, project, state, None)
+        if state.get('quota_blocked') or any(r['status'] == 'BLOCKED_QUOTA' for r in state['tasks'].values()):
             return _report(mode, project, state, None)
         for task in project['tasks']:
             record = state['tasks'][task['id']]
@@ -301,7 +307,7 @@ def operate(mode: str, config_path: Path, state_dir: Path, executor=None,
                 try:
                     result = executor.execute(bounded, task, state_dir)
                 except Exception as exc:
-                    result = {'ok': False, 'classification': 'EXECUTION',
+                    result = {'ok': False, 'classification': classify(str(exc), 1),
                               'reason': (type(exc).__name__ + ': ' + str(exc))[:180]}
             else:
                 result = {'ok': True, 'classification': None, 'reason': '', 'response': None}
@@ -310,6 +316,14 @@ def operate(mode: str, config_path: Path, state_dir: Path, executor=None,
                 record['model_claim_status'] = 'UNVERIFIED'
             if not result.get('ok'):
                 category = result.get('classification', 'EXECUTION')
+                if category == 'QUOTA':
+                    record['reported_retry_time'] = result.get('reported_retry_time')
+                    state['quota_blocked'] = True
+                    state['last_stop_reason'] = 'QUOTA'
+                    transition(state, task['id'], 'BLOCKED_QUOTA',
+                               'Provider usage quota exhausted; review partial output before manual recovery')
+                    _persist(locked_path, state, project['_limits']['max_state_bytes'])
+                    break
                 retryable = category in {'NETWORK', 'PROVIDER'} and record['attempts'] < min(3, project['_limits']['max_retries'])
                 transition(state, task['id'], 'FAILED_RETRYABLE' if retryable else 'FAILED_TERMINAL',
                            result.get('reason', 'Execution failed'))

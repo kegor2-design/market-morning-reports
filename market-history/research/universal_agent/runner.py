@@ -20,7 +20,7 @@ from typing import Protocol
 
 from .engine import SAFE_KINDS, check_evidence, locked_state, now, write_state
 
-CLASSIFICATIONS = {'NETWORK', 'PROVIDER', 'AUTH', 'CODE', 'DATA_QUALITY',
+CLASSIFICATIONS = {'NETWORK', 'PROVIDER', 'QUOTA', 'AUTH', 'CODE', 'DATA_QUALITY',
                    'VERIFICATION', 'PERMISSION', 'RESOURCE', 'EXECUTION'}
 RETRYABLE = {'NETWORK', 'PROVIDER'}
 APPROVAL_RISKS = {'research_write', 'operating_code', 'operating_db',
@@ -230,6 +230,10 @@ def record_plan(project: dict, state: dict) -> None:
 
 def classify(message: str, returncode: int) -> str:
     lowered = message.lower()
+    if any(word in lowered for word in ('usage limit', 'usage quota', 'quota exceeded',
+                                         'insufficient quota', 'out of credits',
+                                         'you have reached your limit', "you've hit your usage limit")):
+        return 'QUOTA'
     if 'error loading rules' in lowered or 'starlark error' in lowered:
         return 'CODE'
     if any(word in lowered for word in ('not logged in', 'authentication', 'unauthorized')):
@@ -331,11 +335,16 @@ class CodexExecutor:
                     diagnostic += '\n' + str(event.get('message', event.get('error', '')))
             category = classify(diagnostic, process.returncode)
             location = re.search(r'([A-Za-z0-9_.-]+\.rules:\d+)', diagnostic)
-            reason = ('Codex execpolicy parse error at ' + location.group(1)
+            reason = ('Codex usage quota exhausted' if category == 'QUOTA' else
+                      'Codex execpolicy parse error at ' + location.group(1)
                       if category == 'CODE' and location else
                       'Codex exited with status ' + str(process.returncode))
+            retry_match = re.search(r'(?:retry|try again|resets?|reset)\s+(?:at|after|in)\s+([A-Za-z0-9:,+. /-]{1,64})',
+                                    diagnostic, re.IGNORECASE) if category == 'QUOTA' else None
             return {'ok': False, 'classification': category,
                     'reason': reason,
+                    'reported_retry_time': retry_match.group(1).strip() if retry_match else None,
+                    'partial_output_path': str(output_path) if output_path.exists() else None,
                     'returncode': process.returncode, 'version': meta['version']}
         try:
             payload = json.loads(output_path.read_text(encoding='utf-8'))
@@ -417,6 +426,14 @@ def _run_task(project: dict, state: dict, task: dict, state_dir: Path,
                 result['classification'] = 'RESOURCE'
         record['execution'] = result
         if not result['ok']:
+            if result['classification'] == 'QUOTA':
+                record.update(status='BLOCKED', classification='QUOTA',
+                              reason='Provider usage quota exhausted; review before new invocation',
+                              retryable=False)
+                state['quota_blocked'] = True
+                state['events'].append({'at_utc': now(), 'task': task['id'],
+                                        'status': 'BLOCKED', 'classification': 'QUOTA'})
+                return
             record.update(status='FAILED', classification=result['classification'], reason=result['reason'],
                           retryable=result['classification'] in RETRYABLE)
             state['events'].append({'at_utc': now(), 'task': task['id'], 'status': 'FAILED',
@@ -490,6 +507,11 @@ def operate(mode: str, config_path: Path, state_dir: Path, executor: Executor | 
     started = time.monotonic()
     with locked_state(state_dir) as state_path:
         state = state_for(project, digest, state_path)
+        if state.get('quota_blocked'):
+            return {'mode': mode, 'project_id': project['project_id'],
+                    'next_task': None,
+                    'statuses': {key: value['status'] for key, value in state['tasks'].items()},
+                    'state_path': str(state_path), 'summary': summary(state)}
         for task_id, record in state['tasks'].items():
             if record['status'] == 'IN_PROGRESS':
                 record.update(status='FAILED', classification='EXECUTION',

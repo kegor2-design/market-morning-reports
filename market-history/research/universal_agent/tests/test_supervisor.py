@@ -6,6 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from universal_agent.supervisor import operate, register, resolve_project, transition
+from universal_agent.runner import classify
 
 
 class FakeExecutor:
@@ -114,6 +115,26 @@ class SupervisorTests(unittest.TestCase):
         self.assertEqual(executor.calls, 3)
         self.assertEqual(result['statuses']['first'], 'FAILED_TERMINAL')
         self.assertEqual(self.state()['tasks']['first']['attempts'], 3)
+
+    def test_quota_blocks_all_codex_until_reviewed_recovery(self):
+        self.assertEqual(classify("You've hit your usage limit. Try again at 2026-11-01 09:00 UTC", 1), 'QUOTA')
+        executor = FakeExecutor([{'ok': False, 'classification': 'QUOTA',
+                                  'reason': 'Codex usage quota exhausted',
+                                  'reported_retry_time': '2026-11-01 09:00 UTC',
+                                  'partial_output_path': '/tmp/partial'}])
+        blocked = operate('run-bounded', self.manifest, self.state_dir, executor)
+        self.assertEqual(blocked['statuses']['first'], 'BLOCKED_QUOTA')
+        self.assertEqual(blocked['statuses']['second'], 'BLOCKED_DEPENDENCY')
+        self.assertEqual(self.state()['tasks']['first']['execution']['partial_output_path'], '/tmp/partial')
+        self.assertEqual(self.state()['tasks']['first']['reported_retry_time'], '2026-11-01 09:00 UTC')
+        operate('resume', self.manifest, self.state_dir, executor)
+        self.assertEqual(executor.calls, 1)
+        self.assertEqual(self.state()['tasks']['first']['attempts'], 1)
+        operate('recover', self.manifest, self.state_dir, executor,
+                task_id='first', resolution='retry')
+        resumed = operate('run-bounded', self.manifest, self.state_dir, executor)
+        self.assertEqual(resumed['statuses'], {'first': 'COMPLETED', 'second': 'COMPLETED'})
+        self.assertEqual(executor.calls, 3)
 
     def test_crash_running_pauses_uncertain_outcome(self):
         operate('plan', self.manifest, self.state_dir)

@@ -95,6 +95,15 @@ class RunnerTests(unittest.TestCase):
         operate('resume', self.config, self.state, executor)
         self.assertEqual(executor.calls, 1)
 
+    def test_quota_failure_blocks_future_invocations(self):
+        executor = FakeExecutor([{'ok': False, 'classification': 'QUOTA',
+                                  'reason': 'Codex usage quota exhausted'}])
+        first = operate('run-once', self.config, self.state, executor)
+        self.assertEqual(first['statuses']['first'], 'BLOCKED')
+        self.assertTrue(json.loads((self.state / 'state.json').read_text())['quota_blocked'])
+        operate('resume', self.config, self.state, executor)
+        self.assertEqual(executor.calls, 1)
+
     def test_approval_risk_blocks_without_executor(self):
         self.spec['tasks'][0]['risk'] = 'operating_db'
         self.save()
@@ -155,6 +164,25 @@ print(json.dumps({'type':'turn.completed'}))
         result = CodexExecutor(str(fake)).execute(project, project['tasks'][0], self.state)
         self.assertTrue(result['ok'])
         self.assertEqual(result['response']['task_id'], 'first')
+
+    def test_codex_cli_quota_event_is_classified(self):
+        fake = self.root / 'fake-quota-codex'
+        fake.write_text('''#!/usr/bin/env python3
+import json,sys
+a=sys.argv[1:]
+if a==['--version']: print('codex-cli 0.166.0');sys.exit(0)
+if a==['login','status']: print('Logged in using ChatGPT');sys.exit(0)
+if a==['exec','--help']:
+ print('--sandbox --json --ephemeral --output-schema --output-last-message --cd');sys.exit(0)
+print(json.dumps({'type':'turn.failed','error':{'message':"You've hit your usage limit. Try again at 2026-11-01 09:00 UTC"}}))
+sys.exit(1)
+''')
+        fake.chmod(fake.stat().st_mode | stat.S_IXUSR)
+        self.state.mkdir()
+        project, _ = load_runner_project(self.config)
+        result = CodexExecutor(str(fake)).execute(project, project['tasks'][0], self.state)
+        self.assertEqual(result['classification'], 'QUOTA')
+        self.assertEqual(result['reason'], 'Codex usage quota exhausted')
 
     def test_project_registration_rejects_unknown_capability(self):
         self.spec['tasks'][0]['method'] = 'shell'

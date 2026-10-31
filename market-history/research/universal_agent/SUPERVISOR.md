@@ -41,6 +41,15 @@ run `recover --task-id ID --resolution retry` for a read-only task, or use
 `--resolution cancel`. An interrupted VERIFYING task is rechecked independently
 without rerunning Codex. Corrupt or incompatible checkpoints fail closed.
 
+Codex usage quota errors enter `BLOCKED_QUOTA`. The checkpoint keeps the failed
+execution record, any partial output path and any reported retry time. `resume`
+does not invoke Codex while quota is blocked, even after that time passes. After
+provider access is confirmed, inspect the partial output and task side effects,
+then use `recover --task-id ID --resolution retry` for an eligible read-only
+task. If its attempt cap is reached, leave it blocked or cancel it; do not
+increase the cap. The older Phase 3 Runner also stops future calls on quota,
+but has no automatic quota recovery command; use the supervisor for new work.
+
 The hard invocation caps are 30 minutes, three tasks, one concurrent task,
 three attempts per task and the project manifest's stricter limits. Codex runs
 with `codex exec --sandbox read-only --json --ephemeral` and a structured output
