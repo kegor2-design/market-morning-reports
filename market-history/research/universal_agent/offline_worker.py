@@ -16,7 +16,13 @@ from pathlib import Path
 from .engine import locked_state, now, write_state
 
 ALLOWED_ADAPTERS = {'regime190': 'regime190.offline_tasks'}
+STATES = {'PENDING', 'RUNNING', 'VERIFYING', 'COMPLETED', 'BLOCKED_EVIDENCE',
+          'BLOCKED_LICENSE', 'BLOCKED_QUOTA', 'CODEX_REQUIRED', 'RETRYABLE', 'FAILED'}
 RETRY_LIMIT = 2
+
+
+class QuotaBlocked(Exception):
+    """An approved offline data provider denied requests because of quota."""
 
 
 def _adapter(name: str):
@@ -188,6 +194,8 @@ def _load_queue(state_dir: Path) -> dict:
     checkpoint_path = state_dir / 'checkpoint.json'
     if queue.get('schema_version') != 1 or not isinstance(queue.get('tasks'), dict):
         raise ValueError('Invalid offline queue')
+    if any(record.get('status') not in STATES for record in queue['tasks'].values()):
+        raise ValueError('Invalid offline task status')
     if checkpoint_path.exists():
         checkpoint = json.loads(checkpoint_path.read_text())
         if (checkpoint['checkpoint_id'] > queue['checkpoint_id']
@@ -300,7 +308,9 @@ def run(state_dir: Path, repo: Path, max_tasks: int = 3, max_seconds: int = 120)
                 task['checkpoint_id'] = queue['checkpoint_id']
             except Exception as exc:
                 task['error_reason'] = (type(exc).__name__ + ': ' + str(exc))[:240]
-                if isinstance(exc, PermissionError):
+                if isinstance(exc, QuotaBlocked):
+                    task['status'] = 'BLOCKED_QUOTA'
+                elif isinstance(exc, PermissionError):
                     task['status'] = 'BLOCKED_LICENSE'
                 elif isinstance(exc, (ValueError, KeyError, FileNotFoundError)):
                     task['status'] = 'BLOCKED_EVIDENCE'

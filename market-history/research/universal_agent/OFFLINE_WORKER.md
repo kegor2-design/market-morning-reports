@@ -32,6 +32,8 @@ hours and 48 hours. Future tasks are not eligible early. A separate
 the server executor. The worker checks disk and available memory before each
 task, runs one task at a time, caps a task at its declared duration, and
 retries transient errors at most twice with delayed exponential backoff.
+An approved data provider's quota error enters `BLOCKED_QUOTA` and is not
+retried automatically; this is separate from Codex's own usage quota.
 An interrupted task with a complete output is verified without rerunning;
 uncertain output becomes `BLOCKED_EVIDENCE`. Existing Phase 4/5 checkpoints
 are untouched.

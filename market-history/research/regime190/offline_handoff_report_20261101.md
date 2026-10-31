@@ -60,7 +60,7 @@ has not yet occurred in this session.** Remove the tagged entry and run
 
 ## Verification and next handoff
 
-Before changes, 39 common and 10 Regime190 tests passed. After changes, 44
+Before changes, 39 common and 10 Regime190 tests passed. After changes, 45
 common and 10 Regime190 tests passed; Python compile, Bash syntax and Git diff
 checks passed. The PIT gate remains closed. When Codex becomes available,
 fetch the research branch, inspect HEAD and the private handoff, validate

@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from universal_agent.engine import write_state
-from universal_agent.offline_worker import load_plan, prepare, run
+from universal_agent.offline_worker import QuotaBlocked, load_plan, prepare, run
 
 
 class FakeAdapter:
@@ -101,6 +101,14 @@ class OfflineWorkerTests(unittest.TestCase):
         write_state(self.state / 'task_queue.json', queue)
         with self.assertRaisesRegex(ValueError, 'Checkpoint integrity mismatch'):
             run(self.state, self.repo)
+
+    def test_offline_provider_quota_blocks_without_retry(self):
+        prepare(self.plan, self.state, self.repo)
+        with patch.object(self.adapter, 'execute', side_effect=QuotaBlocked('provider limit')):
+            result = run(self.state, self.repo)
+        self.assertEqual(result['statuses']['source'], 'BLOCKED_QUOTA')
+        self.assertEqual(run(self.state, self.repo)['processed'], 0)
+        self.assertEqual(self.queue()['tasks']['source']['attempt_count'], 1)
 
 
 if __name__ == '__main__':
