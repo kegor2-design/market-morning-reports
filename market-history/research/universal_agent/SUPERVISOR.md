@@ -6,6 +6,10 @@ separate directory. Registry entries pin a manifest SHA; changing a registered
 manifest requires explicit review and a new registration decision. A model
 answer is recorded as a hypothesis, while registered evidence checks decide
 whether a task is complete.
+New evidence failures use `BLOCKED_EVIDENCE`; a declared licensing review gate
+uses `BLOCKED_LICENSE`. Existing `BLOCKED_DATA` checkpoints remain readable.
+These states are terminal for unattended runs, so new evidence needs a reviewed
+project manifest and checkpoint rather than an automatic retry.
 
 ## Modes and example commands
 

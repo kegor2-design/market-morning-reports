@@ -1,0 +1,76 @@
+{
+  "schema_version": 2,
+  "project_id": "regime190_evidence_recovery",
+  "workspace_root": "~",
+  "goal": "Reconcile the Regime190 cutoff ingestion evidence and determine PIT/backtest readiness without unsupported approval",
+  "research_questions": [
+    "What is observed about the 2026-09-15 price cutoff and later collection scope?",
+    "Which indicator evidence fields remain absent?",
+    "Can a PIT-approved subset enter a historical backtest?"
+  ],
+  "success_criteria": ["Original bulk request and provider response prove the cutoff cause"],
+  "success_checks": [{"kind": "review_required", "reason": "Original bulk request and provider response are not available"}],
+  "codex_execution_enabled": false,
+  "data_access": [
+    "market-morning-reports/market-history/research/regime190/cutoff_origin_evidence_20261031.json",
+    "market-morning-reports/market-history/research/regime190/evidence_recovery_summary_20261031.json",
+    "market-morning-reports/market-history/research/regime190/indicator_pit_evidence_inventory_20261031.csv"
+  ],
+  "limits": {
+    "max_runtime_seconds": 1800,
+    "max_iterations": 3,
+    "max_retries": 2,
+    "max_concurrency": 1,
+    "max_processes": 1,
+    "min_free_bytes": 1,
+    "max_state_bytes": 10485760,
+    "max_log_bytes": 131072,
+    "max_external_calls": 1
+  },
+  "tasks": [
+    {
+      "id": "reconcile_cutoff_ingestion",
+      "goal_relation": "Separate observed bulk collection from the unresolved original request cause",
+      "selection_reason": "Read-only source and run aggregates now provide new cutoff evidence",
+      "priority": 0,
+      "depends_on": [],
+      "method": "probe",
+      "risk": "read_only",
+      "success_condition": "The 1791-symbol cohort and overnight bulk collection are independently recorded without declaring root cause proven",
+      "verification_method": "JSON equality on read-only DB evidence",
+      "checks": [
+        {"kind": "json_equals", "path": "market-morning-reports/market-history/research/regime190/cutoff_origin_evidence_20261031.json", "pointer": "/source_snapshot_cutoff_symbols", "equals": 1791},
+        {"kind": "json_equals", "path": "market-morning-reports/market-history/research/regime190/cutoff_origin_evidence_20261031.json", "pointer": "/cause_status", "equals": "PARTIALLY_CONFIRMED"}
+      ]
+    },
+    {
+      "id": "inventory_indicator_pit_fields",
+      "goal_relation": "Prioritize verifiable indicators and expose missing PIT fields",
+      "selection_reason": "The cutoff boundary is classified and a fresh 190-indicator audit is available",
+      "priority": 1,
+      "depends_on": ["reconcile_cutoff_ingestion"],
+      "method": "probe",
+      "risk": "read_only",
+      "success_condition": "All 190 indicators have distinct evidence records and no unsupported PIT promotion",
+      "verification_method": "CSV unique-count and JSON equality",
+      "checks": [
+        {"kind": "csv_unique_count", "path": "market-morning-reports/market-history/research/regime190/indicator_pit_evidence_inventory_20261031.csv", "field": "indicator_id", "equals": 190},
+        {"kind": "json_equals", "path": "market-morning-reports/market-history/research/regime190/evidence_recovery_summary_20261031.json", "pointer": "/pit_verified", "equals": 0}
+      ]
+    },
+    {
+      "id": "evaluate_backtest_gate",
+      "goal_relation": "Prevent leakage-prone backtesting until a PIT subset passes",
+      "selection_reason": "The current indicator inventory has no PIT-approved inputs",
+      "priority": 2,
+      "depends_on": ["inventory_indicator_pit_fields"],
+      "method": "probe",
+      "risk": "read_only",
+      "success_condition": "A missing PIT subset is explicitly reported as a blocked backtest",
+      "verification_method": "JSON equality",
+      "checks": [
+        {"kind": "json_equals", "path": "market-morning-reports/market-history/research/regime190/evidence_recovery_summary_20261031.json", "pointer": "/backtest_status", "equals": "BLOCKED"}
+      ]
+    }
+  ]
+}

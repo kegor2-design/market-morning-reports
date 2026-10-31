@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "queried_at_utc": "2026-10-31T14:45:38.832797+00:00",
+  "source_table": "public.domestic_daily_price",
+  "run_table": "public.historical_backfill_run",
+  "source_snapshot_cutoff_symbols": 1791,
+  "cutoff_last_collected_date_counts": {
+    "2026-09-15": 2,
+    "2026-09-16": 113,
+    "2026-09-17": 1676
+  },
+  "collection_day_counts": [
+    {
+      "collection_date": "2026-09-15",
+      "source_name": "kis",
+      "rows": 125,
+      "symbols": 90
+    },
+    {
+      "collection_date": "2026-09-16",
+      "source_name": "kis",
+      "rows": 254027,
+      "symbols": 222
+    },
+    {
+      "collection_date": "2026-09-17",
+      "source_name": "kis",
+      "rows": 4241230,
+      "symbols": 1935
+    },
+    {
+      "collection_date": "2026-09-18",
+      "source_name": "kis",
+      "rows": 228,
+      "symbols": 133
+    }
+  ],
+  "recorded_price_runs": [
+    {
+      "started_at": "2026-09-15 16:40:03.457352",
+      "requested_symbols": 140,
+      "success_symbols": 140,
+      "inserted_rows": 840,
+      "status": "OK",
+      "details_keys": [
+        "errors"
+      ]
+    },
+    {
+      "started_at": "2026-09-16 16:40:05.598960",
+      "requested_symbols": 140,
+      "success_symbols": 140,
+      "inserted_rows": 840,
+      "status": "OK",
+      "details_keys": [
+        "errors"
+      ]
+    },
+    {
+      "started_at": "2026-09-17 16:40:12.417447",
+      "requested_symbols": 145,
+      "success_symbols": 145,
+      "inserted_rows": 870,
+      "status": "OK",
+      "details_keys": [
+        "errors"
+      ]
+    },
+    {
+      "started_at": "2026-09-18 16:40:08.639764",
+      "requested_symbols": 133,
+      "success_symbols": 133,
+      "inserted_rows": 798,
+      "status": "OK",
+      "details_keys": [
+        "errors"
+      ]
+    }
+  ],
+  "overnight_bulk_load_observed": true,
+  "cause_status": "PARTIALLY_CONFIRMED",
+  "cause_finding": "A large KIS-labelled overnight load stopped at 2026-09-15; the recorded later daily price run had a much smaller candidate scope. The original bulk request, provider response and target ledger are unavailable.",
+  "pit_status": "UNVERIFIED",
+  "limitations": [
+    "collected_at is an ingestion/update timestamp, not publication time",
+    "UPSERT can replace earlier collected_at and raw_json",
+    "historical_backfill_run stores aggregate counts, not requested symbol IDs",
+    "source/export comparison is a snapshot; the operating source can advance"
+  ],
+  "source_lineage_sha256": "512dd2b9bf86881edfa94aa4b4dd0ba331087fddeb637e5d7244e336f0b44e6f"
+}

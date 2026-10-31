@@ -19,16 +19,20 @@ from .runner import (APPROVAL_RISKS, CodexExecutor, _authorized_check, classify,
 
 STATES = {'PENDING', 'READY', 'RUNNING', 'VERIFYING', 'COMPLETED',
           'FAILED_RETRYABLE', 'FAILED_TERMINAL', 'BLOCKED_APPROVAL',
-          'BLOCKED_DEPENDENCY', 'BLOCKED_DATA', 'BLOCKED_QUOTA', 'PAUSED', 'CANCELLED'}
+          'BLOCKED_DEPENDENCY', 'BLOCKED_DATA', 'BLOCKED_EVIDENCE',
+          'BLOCKED_LICENSE', 'BLOCKED_QUOTA', 'PAUSED', 'CANCELLED'}
 TRANSITIONS = {
     'PENDING': {'READY', 'BLOCKED_DEPENDENCY', 'BLOCKED_APPROVAL', 'CANCELLED'},
     'READY': {'RUNNING', 'BLOCKED_APPROVAL', 'PAUSED', 'CANCELLED'},
     'RUNNING': {'VERIFYING', 'FAILED_RETRYABLE', 'FAILED_TERMINAL', 'BLOCKED_QUOTA', 'PAUSED'},
-    'VERIFYING': {'COMPLETED', 'BLOCKED_DATA', 'FAILED_TERMINAL', 'PAUSED'},
+    'VERIFYING': {'COMPLETED', 'BLOCKED_DATA', 'BLOCKED_EVIDENCE',
+                  'BLOCKED_LICENSE', 'FAILED_TERMINAL', 'PAUSED'},
     'FAILED_RETRYABLE': {'READY', 'FAILED_TERMINAL', 'PAUSED'},
     'BLOCKED_DEPENDENCY': {'READY', 'CANCELLED'},
     'PAUSED': {'READY', 'VERIFYING', 'CANCELLED'},
     'BLOCKED_DATA': {'CANCELLED'},
+    'BLOCKED_EVIDENCE': {'CANCELLED'},
+    'BLOCKED_LICENSE': {'CANCELLED'},
     'BLOCKED_APPROVAL': {'CANCELLED'},
     'BLOCKED_QUOTA': {'READY', 'CANCELLED'},
     'FAILED_TERMINAL': {'CANCELLED'},
@@ -168,11 +172,18 @@ def _verify(project: dict, task: dict, record: dict) -> tuple[bool, list[dict]]:
     return all(item['ok'] for item in evidence), evidence
 
 
+def _evidence_block(task: dict) -> str:
+    reasons = ' '.join(str(check.get('reason', '')) for check in task['checks']
+                       if check.get('kind') == 'review_required').lower()
+    return 'BLOCKED_LICENSE' if any(word in reasons for word in ('license', 'licence', '라이선스')) else 'BLOCKED_EVIDENCE'
+
+
 def _outcome(project: dict, state: dict) -> str:
     records = list(state['tasks'].values())
     if any(r['status'] == 'FAILED_TERMINAL' for r in records):
         return 'RESEARCH_FAILED'
-    if any(r['status'] in {'BLOCKED_APPROVAL', 'BLOCKED_DATA', 'BLOCKED_QUOTA', 'PAUSED'} for r in records):
+    if any(r['status'] in {'BLOCKED_APPROVAL', 'BLOCKED_DATA', 'BLOCKED_EVIDENCE',
+                           'BLOCKED_LICENSE', 'BLOCKED_QUOTA', 'PAUSED'} for r in records):
         return 'RESEARCH_BLOCKED'
     if all(r['status'] == 'COMPLETED' for r in records):
         checks = project.get('success_checks')
@@ -251,7 +262,7 @@ def operate(mode: str, config_path: Path, state_dir: Path, executor=None,
                 try:
                     ok, evidence = _verify(project, task, record)
                     record['evidence'] = evidence
-                    transition(state, task['id'], 'COMPLETED' if ok else 'BLOCKED_DATA',
+                    transition(state, task['id'], 'COMPLETED' if ok else _evidence_block(task),
                                'Recovered independent verification')
                 except (OSError, ValueError, KeyError) as exc:
                     transition(state, task['id'], 'PAUSED', 'Recovery verification failed: ' + str(exc))
@@ -334,10 +345,10 @@ def operate(mode: str, config_path: Path, state_dir: Path, executor=None,
             try:
                 verified, evidence = _verify(project, task, record)
                 record['evidence'] = evidence
-                transition(state, task['id'], 'COMPLETED' if verified else 'BLOCKED_DATA',
+                transition(state, task['id'], 'COMPLETED' if verified else _evidence_block(task),
                            'Independent evidence passed' if verified else 'Independent evidence failed')
             except (OSError, ValueError, KeyError) as exc:
-                transition(state, task['id'], 'BLOCKED_DATA', 'Evidence error: ' + str(exc)[:180])
+                transition(state, task['id'], 'BLOCKED_EVIDENCE', 'Evidence error: ' + str(exc)[:180])
             _refresh(project, state)
             selected = _select(project, state)
             state['next_task'] = selected['id'] if selected else None

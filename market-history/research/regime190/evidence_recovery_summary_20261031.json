@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-10-31T14:45:38.840300+00:00",
+  "indicator_count": 190,
+  "classification_counts": {
+    "PIT_BLOCKED": 71,
+    "CALCULATION_PENDING": 21,
+    "SOURCE_MISSING": 98,
+    "PIT_VERIFIED": 0,
+    "PIT_PARTIAL": 0
+  },
+  "pit_verified": 0,
+  "backtest_status": "BLOCKED",
+  "sqlite_integrity": "ok",
+  "source_sha256": {
+    "indicator_audit_20261031.csv": "09ee4728567a1004e7d64d66458d3e30059f57522980771ef5651b82f9a77177",
+    "indicator_field_mapping.csv": "69d4d3a7bd67e12642cc974df5215ba4f06f8392f17d7495b7edafb226e9da8a",
+    "pit_audit.csv": "9b2dca1af17411cd39f2139fa32e732e5d305477424568ec8779ad61fad7c51d"
+  },
+  "candidate_source_urls": {
+    "KRX_listing": "https://data.krx.co.kr/contents/MDC/STAT/issue/MDCSTAT200.jsp",
+    "KRX_delisting": "https://data.krx.co.kr/contents/MDC/STAT/issue/MDCSTAT238.jsp",
+    "FRED_vintage_api": "https://fred.stlouisfed.org/docs/api/fred/series_observations.html"
+  },
+  "candidate_sources_status": "NOT_ACQUIRED_FOR_ROW_LEVEL_PIT",
+  "economic_vintage_db_finding": {
+    "rows": 54,
+    "ok_rows": 54,
+    "rows_with_released_at": 0,
+    "first_vintage_date": "2026-05-28",
+    "last_vintage_date": "2026-10-29"
+  },
+  "approval_policy": "No PIT promotion from observation dates, ingestion dates, or assumed availability"
+}

@@ -83,7 +83,7 @@ class SupervisorTests(unittest.TestCase):
     def test_verification_failure_blocks_dependency(self):
         (self.root / 'evidence.json').write_text('{"one":false,"two":true}')
         result = operate('run-bounded', self.manifest, self.state_dir, FakeExecutor())
-        self.assertEqual(result['statuses']['first'], 'BLOCKED_DATA')
+        self.assertEqual(result['statuses']['first'], 'BLOCKED_EVIDENCE')
         self.assertEqual(result['statuses']['second'], 'BLOCKED_DEPENDENCY')
 
     def test_blocked_task_does_not_stop_independent_safe_task(self):
@@ -95,7 +95,7 @@ class SupervisorTests(unittest.TestCase):
         self.save()
         executor = FakeExecutor()
         result = operate('run-bounded', self.manifest, self.state_dir, executor)
-        self.assertEqual(result['statuses']['first'], 'BLOCKED_DATA')
+        self.assertEqual(result['statuses']['first'], 'BLOCKED_EVIDENCE')
         self.assertEqual(result['statuses']['second'], 'BLOCKED_DEPENDENCY')
         self.assertEqual(result['statuses']['third'], 'COMPLETED')
         self.assertEqual(executor.calls, 2)
@@ -106,6 +106,17 @@ class SupervisorTests(unittest.TestCase):
         executor = FakeExecutor()
         result = operate('run-bounded', self.manifest, self.state_dir, executor)
         self.assertEqual(result['statuses']['first'], 'BLOCKED_APPROVAL')
+        self.assertEqual(executor.calls, 0)
+
+    def test_license_review_blocks_without_retry(self):
+        self.config['tasks'][0]['method'] = 'probe'
+        self.config['tasks'][0]['checks'] = [{'kind': 'review_required',
+                                              'reason': 'Provider license does not permit redistribution'}]
+        self.save()
+        executor = FakeExecutor()
+        result = operate('run-bounded', self.manifest, self.state_dir, executor)
+        self.assertEqual(result['statuses']['first'], 'BLOCKED_LICENSE')
+        operate('resume', self.manifest, self.state_dir, executor)
         self.assertEqual(executor.calls, 0)
 
     def test_retry_classification_and_bound(self):
