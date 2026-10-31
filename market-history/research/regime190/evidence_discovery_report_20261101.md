@@ -30,6 +30,9 @@ matching checksum sample, or validates the short-history rates artifact against
 its manifest. It never sets PIT approval. Existing FRED collection and Phase 4/5
 components were retained; no new provider data collector was enabled because
 source-specific rights, row coverage and release timing remain unverified.
+`historical_evaluation.py` provides fail-closed PIT evidence checks,
+chronological folds with an embargo, and the requested evaluation metrics.
+It has no live data adapter and was exercised only with synthetic fixtures.
 
 ## EXECUTED and VERIFIED
 
@@ -78,7 +81,7 @@ Official references: [KRX service list](https://openapi.krx.co.kr/contents/OPP/I
 ## TESTED and production safety
 
 Baseline: 45 common and 10 Regime190 tests passed in their supported Python
-environments. Final: 47 common and 13 Regime190 tests passed; Python compile
+environments. Final: 47 common and 16 Regime190 tests passed; Python compile
 and `git diff --check` passed. A recovery iteration defect surfaced in a new
 test and a probe verification routing defect surfaced in the first isolated
 run; both were fixed and the full flow was rerun. Host preflight: two vCPUs,

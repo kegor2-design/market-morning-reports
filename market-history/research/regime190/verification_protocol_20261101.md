@@ -35,6 +35,9 @@ approved indicators, so historical evaluation remains `BACKTEST_BLOCKED`.
 
 Once every feature and outcome used by a specific test passes its own gate,
 freeze the eligible feature list and chronological train/validation/test dates.
+`historical_evaluation.py` implements the gate, chronological fold indices and
+metric calculation, but it is not connected to live data while the PIT set is
+empty. Its tests use synthetic rows only.
 Fit thresholds only on past windows. Use expanding or rolling walk-forward
 splits with an embargo at least as long as the outcome horizon. Record crash
 warning and recovery precision/recall, false rebound frequency, regime
