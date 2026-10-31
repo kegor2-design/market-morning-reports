@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from universal_agent.engine import write_state
-from universal_agent.offline_worker import QuotaBlocked, load_plan, prepare, run
+from universal_agent.offline_worker import QuotaBlocked, load_plan, prepare, run, _expand_classification
 
 
 class FakeAdapter:
@@ -109,6 +109,34 @@ class OfflineWorkerTests(unittest.TestCase):
         self.assertEqual(result['statuses']['source'], 'BLOCKED_QUOTA')
         self.assertEqual(run(self.state, self.repo)['processed'], 0)
         self.assertEqual(self.queue()['tasks']['source']['attempt_count'], 1)
+
+    def test_generated_evidence_tasks_are_bounded_and_idempotent(self):
+        prepare(self.plan, self.state, self.repo)
+        queue = self.queue()
+        task = {'task_id': 'source', 'task_type': 'blocker_classify'}
+        _expand_classification(queue, task, {'followup_indicator_ids': [1, 5]})
+        _expand_classification(queue, task, {'followup_indicator_ids': [1, 5]})
+        self.assertEqual(len(queue['tasks']), 4)
+        self.assertEqual(queue['tasks']['local_evidence_001']['dependencies'], ['source'])
+        with self.assertRaisesRegex(ValueError, 'Invalid generated indicator'):
+            _expand_classification(queue, task, {'followup_indicator_ids': [191]})
+
+    def test_interrupted_classification_restores_followup_without_duplicate(self):
+        prepare(self.plan, self.state, self.repo)
+        artifact = self.state / 'classification.json'
+        write_state(artifact, {'task_id': 'source', 'plan_task_type': 'blocker_classify',
+                               'result': {'source_role': 'read_only', 'recent_rows': 1,
+                                          'followup_indicator_ids': [41]}})
+        queue = self.queue()
+        queue['tasks']['source']['task_type'] = 'blocker_classify'
+        queue['tasks']['source']['status'] = 'VERIFYING'
+        queue['tasks']['source']['output_artifacts'] = [str(artifact)]
+        queue['generation'] += 1
+        write_state(self.state / 'task_queue.json', queue)
+        run(self.state, self.repo, max_tasks=1)
+        self.assertIn('local_evidence_041', self.queue()['tasks'])
+        run(self.state, self.repo, max_tasks=1)
+        self.assertEqual(len(self.queue()['tasks']), 3)
 
 
 if __name__ == '__main__':

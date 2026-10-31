@@ -8,6 +8,7 @@ from pathlib import Path
 
 from .build_pit_readiness import ROOT, build
 from .worker import RO_ENV, env_keys
+from . import blocker_resolution
 
 PRIVATE_DB = Path.home() / 'MyDream2000/research/regime190/checkpoint.sqlite'
 
@@ -28,6 +29,22 @@ def connection():
 
 def execute(task: dict, queue: dict) -> dict:
     kind = task['task_type']
+    if kind == 'blocker_classify':
+        result = blocker_resolution.inventory()
+        # Check declared local checkpoint references; existence is verified by the follow-up.
+        candidates = [row for row in result['records'] if row['execution_class'] == 'SERVER_EXECUTABLE']
+        selected, refs = [], set()
+        for row in sorted(candidates, key=lambda row: (row['resolution_priority'], row['indicator_id'])):
+            ref = row['existing_data']['local_checkpoint']['derived_series_path']
+            if ref not in refs:
+                selected.append(row['indicator_id'])
+                refs.add(ref)
+            if len(selected) == 12:
+                break
+        result['followup_indicator_ids'] = selected
+        return result
+    if kind == 'local_evidence_check':
+        return blocker_resolution.check_local(int(task['indicator_id']))
     if kind == 'source_snapshot':
         db = connection()
         try:
@@ -77,7 +94,19 @@ def execute(task: dict, queue: dict) -> dict:
 
 def verify(task: dict, result: dict) -> None:
     kind = task['task_type']
-    if kind == 'source_snapshot':
+    if kind == 'blocker_classify':
+        if (result.get('indicator_count') != 190 or len(result.get('records', [])) != 190
+                or {row['indicator_id'] for row in result['records']} != set(range(1, 191))
+                or result.get('pit_approvals_added') != 0
+                or len(result.get('followup_indicator_ids', [])) > 12):
+            raise ValueError('Blocker inventory invalid')
+    elif kind == 'local_evidence_check':
+        if (result.get('indicator_id') != task.get('indicator_id') or result.get('pit_approval') is not False
+                or result.get('file_status') not in {'PRESENT', 'MANIFEST_SAMPLE_VALIDATED', 'NO_INDICATOR_ROWS',
+                                                     'ABSENT', 'TOO_LARGE_FOR_BOUNDED_CHECK',
+                                                     'MISSING_OR_OUTSIDE_RESEARCH_ROOT'}):
+            raise ValueError('Local evidence check invalid')
+    elif kind == 'source_snapshot':
         if result.get('source_role') != 'read_only' or result.get('recent_rows', -1) < 0:
             raise ValueError('Source snapshot invalid')
     elif kind == 'pit_recheck':

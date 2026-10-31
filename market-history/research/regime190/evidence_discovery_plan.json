@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "research_project": "regime190",
+  "adapter": "regime190",
+  "tasks": [
+    {"task_id": "blocker_classification", "task_type": "blocker_classify", "execution_class": "SERVER_EXECUTABLE", "priority": 0, "dependencies": [], "delay_hours": 0, "input_artifacts": ["indicator_audit_20261031.csv", "indicator_field_mapping.csv", "pit_audit.csv", "pit_readiness_matrix_20261031.csv", "checkpoint.sqlite"], "resource_budget": {"max_seconds": 45, "max_attempts": 1}},
+    {"task_id": "source_rights_review", "task_type": "research_design", "execution_class": "CODEX_REQUIRED", "priority": 1, "dependencies": [], "delay_hours": 0, "input_artifacts": ["source_discovery_20261101.json"], "resource_budget": {"max_seconds": 15, "max_attempts": 1}},
+    {"task_id": "resolve_cutoff_origin", "task_type": "research_design", "execution_class": "CODEX_REQUIRED", "priority": 2, "dependencies": [], "delay_hours": 0, "input_artifacts": ["cutoff_origin_evidence_20261031.json"], "resource_budget": {"max_seconds": 15, "max_attempts": 1}}
+  ]
+}

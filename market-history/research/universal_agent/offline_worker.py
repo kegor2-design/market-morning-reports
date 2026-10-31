@@ -65,8 +65,11 @@ def load_plan(path: Path) -> tuple[dict, str]:
         if task['execution_class'] not in {'SERVER_EXECUTABLE', 'CODEX_REQUIRED'}:
             raise ValueError('Invalid execution class')
         if task['execution_class'] == 'SERVER_EXECUTABLE' and task['task_type'] not in {
-                'source_snapshot', 'pit_recheck', 'backtest_gate'}:
+                'source_snapshot', 'pit_recheck', 'backtest_gate',
+                'blocker_classify', 'local_evidence_check'}:
             raise ValueError('Unregistered server task')
+        if task['task_type'] == 'local_evidence_check' and task.get('indicator_id') not in range(1, 191):
+            raise ValueError('Invalid indicator for evidence check')
         if any(dep not in ids or dep == task['task_id'] for dep in task['dependencies']):
             raise ValueError('Invalid dependency')
         if not 0 <= task['delay_hours'] <= 72 or not 0 <= task['priority'] <= 100:
@@ -224,6 +227,33 @@ def _save(queue: dict, state_dir: Path, repo: Path) -> None:
     publish(queue, state_dir, repo)
 
 
+def _expand_classification(queue: dict, task: dict, result: dict) -> None:
+    """Add bounded, idempotent local checks to the canonical queue only."""
+    if task['task_type'] != 'blocker_classify':
+        return
+    ids = result['followup_indicator_ids']
+    if len(ids) > 12 or len(set(ids)) != len(ids):
+        raise ValueError('Generated task limit or duplicate')
+    for indicator_id in ids:
+        if not isinstance(indicator_id, int) or indicator_id not in range(1, 191):
+            raise ValueError('Invalid generated indicator')
+        key = f'local_evidence_{indicator_id:03d}'
+        if key in queue['tasks']:
+            continue
+        created = now()
+        queue['tasks'][key] = {
+            'task_id': key, 'task_type': 'local_evidence_check', 'indicator_id': indicator_id,
+            'execution_class': 'SERVER_EXECUTABLE', 'priority': 10,
+            'dependencies': [task['task_id']], 'delay_hours': 0,
+            'resource_budget': {'max_seconds': 10, 'max_attempts': 1},
+            'research_project': 'regime190', 'status': 'PENDING', 'attempt_count': 0,
+            'created_at': created, 'updated_at': created, 'last_started_at': None,
+            'last_completed_at': None, 'checkpoint_id': None,
+            'input_artifacts': [task['task_id']], 'output_artifacts': [],
+            'evidence_refs': [], 'error_reason': None, 'retry_after': None,
+            'not_before': created}
+
+
 def _verify_output(adapter, task: dict) -> dict:
     path = Path(task['output_artifacts'][0])
     payload = json.loads(path.read_text())
@@ -243,14 +273,15 @@ def run(state_dir: Path, repo: Path, max_tasks: int = 3, max_seconds: int = 120)
             return {'processed': 0, 'checkpoint_id': queue['checkpoint_id'],
                     'next_task': None, 'stop_reason': 'STOP'}
         # Recovery only validates an existing output; uncertain work is not duplicated.
-        for task in queue['tasks'].values():
+        for task in list(queue['tasks'].values()):
             if task['status'] in {'RUNNING', 'VERIFYING'}:
                 try:
-                    _verify_output(adapter, task)
+                    recovered = _verify_output(adapter, task)
                     task['status'] = 'COMPLETED'
                     task['last_completed_at'] = now()
                     queue['checkpoint_id'] += 1
                     task['checkpoint_id'] = queue['checkpoint_id']
+                    _expand_classification(queue, task, recovered['result'])
                 except (IndexError, OSError, ValueError, KeyError):
                     task['status'] = 'BLOCKED_EVIDENCE'
                     task['error_reason'] = 'Interrupted with uncertain output; review before retry'
@@ -306,6 +337,7 @@ def run(state_dir: Path, repo: Path, max_tasks: int = 3, max_seconds: int = 120)
                 task['evidence_refs'] = [str(output), _sha(output)]
                 queue['checkpoint_id'] += 1
                 task['checkpoint_id'] = queue['checkpoint_id']
+                _expand_classification(queue, task, result)
             except Exception as exc:
                 task['error_reason'] = (type(exc).__name__ + ': ' + str(exc))[:240]
                 if isinstance(exc, QuotaBlocked):
