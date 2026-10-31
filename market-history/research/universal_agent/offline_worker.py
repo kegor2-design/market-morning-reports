@@ -66,7 +66,7 @@ def load_plan(path: Path) -> tuple[dict, str]:
             raise ValueError('Invalid execution class')
         if task['execution_class'] == 'SERVER_EXECUTABLE' and task['task_type'] not in {
                 'source_snapshot', 'pit_recheck', 'backtest_gate',
-                'blocker_classify', 'local_evidence_check'}:
+                'blocker_classify', 'local_evidence_check', 'source_catalog_probe'}:
             raise ValueError('Unregistered server task')
         if task['task_type'] == 'local_evidence_check' and task.get('indicator_id') not in range(1, 191):
             raise ValueError('Invalid indicator for evidence check')

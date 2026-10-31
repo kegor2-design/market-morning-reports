@@ -3,6 +3,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import urllib.error
+import urllib.parse
+import urllib.request
+from datetime import datetime, timezone
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -11,6 +15,43 @@ from .worker import RO_ENV, env_keys
 from . import blocker_resolution
 
 PRIVATE_DB = Path.home() / 'MyDream2000/research/regime190/checkpoint.sqlite'
+SOURCE_HOSTS = {'openapi.krx.co.kr', 'ecos.bok.or.kr', 'kosis.kr',
+                'fred.stlouisfed.org', 'opendart.fss.or.kr',
+                'apiportal.koreainvestment.com'}
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, request, fp, code, msg, headers, newurl):
+        return None
+
+
+def probe_source_catalog() -> dict:
+    """Bounded metadata-only HEAD checks against the fixed official catalogue."""
+    path = ROOT / 'source_discovery_20261101.json'
+    catalogue = json.loads(path.read_text())
+    opener = urllib.request.build_opener(_NoRedirect)
+    results = []
+    if len(catalogue['sources']) != 6:
+        raise ValueError('Unexpected source catalogue size')
+    for source in catalogue['sources']:
+        url = source['documentation']
+        parsed = urllib.parse.urlparse(url)
+        if (parsed.scheme != 'https' or parsed.hostname not in SOURCE_HOSTS
+                or parsed.username or parsed.password or parsed.port not in (None, 443)):
+            raise ValueError('Non-allowlisted source URL')
+        item = {'source': source['source'], 'url': url, 'method': 'HEAD',
+                'checked_at_utc': datetime.now(timezone.utc).isoformat(),
+                'status': None, 'error_type': None, 'data_collected': False}
+        try:
+            with opener.open(urllib.request.Request(url, method='HEAD'), timeout=3) as response:
+                item['status'] = response.status
+        except urllib.error.HTTPError as exc:
+            item['status'] = exc.code
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:
+            item['error_type'] = type(exc).__name__
+        results.append(item)
+    return {'catalogue_sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
+            'request_count': len(results), 'results': results, 'pit_approval': False}
 
 
 def connection():
@@ -29,8 +70,18 @@ def connection():
 
 def execute(task: dict, queue: dict) -> dict:
     kind = task['task_type']
+    if kind == 'source_catalog_probe':
+        return probe_source_catalog()
     if kind == 'blocker_classify':
         result = blocker_resolution.inventory()
+        probes = [queue['tasks'][dep] for dep in task['dependencies']
+                  if queue['tasks'][dep]['task_type'] == 'source_catalog_probe']
+        if probes:
+            output = Path(probes[0]['output_artifacts'][0])
+            result['source_probe_artifact_sha256'] = hashlib.sha256(output.read_bytes()).hexdigest()
+            result['source_probe_statuses'] = {
+                item['source']: item['status']
+                for item in json.loads(output.read_text())['result']['results']}
         # Check declared local checkpoint references; existence is verified by the follow-up.
         candidates = [row for row in result['records'] if row['execution_class'] == 'SERVER_EXECUTABLE']
         selected, refs = [], set()
@@ -94,7 +145,13 @@ def execute(task: dict, queue: dict) -> dict:
 
 def verify(task: dict, result: dict) -> None:
     kind = task['task_type']
-    if kind == 'blocker_classify':
+    if kind == 'source_catalog_probe':
+        if (result.get('request_count') != 6 or len(result.get('results', [])) != 6
+                or result.get('pit_approval') is not False
+                or any(row.get('method') != 'HEAD' or row.get('data_collected') is not False
+                       for row in result['results'])):
+            raise ValueError('Source probe invalid')
+    elif kind == 'blocker_classify':
         if (result.get('indicator_count') != 190 or len(result.get('records', [])) != 190
                 or {row['indicator_id'] for row in result['records']} != set(range(1, 191))
                 or result.get('pit_approvals_added') != 0

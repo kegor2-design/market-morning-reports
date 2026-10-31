@@ -16,8 +16,11 @@ The new `blocker_resolution.py` reads four 190-row audit files and the private
 SQLite checkpoint in read-only mode. It records required fields, current data,
 missing evidence, primary and secondary blocker classes, resolution action,
 alternative-source text, priority, execution class and PIT validation needs for
-every indicator. The existing offline worker now accepts an allowlisted
-`blocker_classify` task and creates at most 12 idempotent local checks from
+every indicator. The existing offline worker now accepts allowlisted
+`source_catalog_probe` and `blocker_classify` tasks. The probe sends at most
+six HEAD requests to official documentation addresses, records status metadata
+and does not follow redirects. Classification records its artifact hash and
+creates at most 12 idempotent local checks from
 distinct checkpoint artifact references. The current data yielded two distinct
 references. A crash during classification verification restores generated tasks
 from the persisted artifact. The production plan is unchanged.
@@ -31,9 +34,9 @@ source-specific rights, row coverage and release timing remain unverified.
 ## EXECUTED and VERIFIED
 
 The final isolated run at
-`~/MyDream2000/research/universal_agent/regime190-evidence-discovery-final`
-completed classification plus two generated checks in about one second,
-checkpoint 3. Queue/checkpoint SHA-256 matched. A second bounded run processed
+`~/MyDream2000/research/universal_agent/regime190-evidence-discovery-live-v1`
+completed source probing, classification and two generated checks in about two
+seconds, checkpoint 4. Queue/checkpoint SHA-256 matched. A second bounded run processed
 zero tasks. Every completed task had one attempt. The price manifest sample
 matched and ID 51 had 4,547,612 declared valid rows across 2,497 unique files.
 The rates manifest/file checksum matched and ID 107 had 325 rows from
@@ -58,8 +61,11 @@ endpoint (HTTP 400 without an API key), and OpenDART list endpoint (redirected
 to an error page without a key). This verifies reachability only; it does not
 verify authenticated row-level access or historical coverage. FRED documents
 real-time vintages; its observation date is not the release hour. KIS market
-data has account-use and redistribution limits. All six collection flags stay
-off pending indicator-specific checks.
+data has account-use and redistribution limits. The autonomous HEAD pass
+returned KRX 403, ECOS 200, KOSIS 200, FRED documentation 200, OpenDART 302
+and KIS 200. KRX differed from the earlier curl check, so client-specific
+access remains unresolved. All six collection flags stay off pending
+indicator-specific checks.
 
 Official references: [KRX service list](https://openapi.krx.co.kr/contents/OPP/INFO/service/OPPINFO004.cmd),
 [KOSIS OpenAPI](https://kosis.kr/serviceInfo/openAPIGuide.do),
@@ -72,11 +78,12 @@ Official references: [KRX service list](https://openapi.krx.co.kr/contents/OPP/I
 ## TESTED and production safety
 
 Baseline: 45 common and 10 Regime190 tests passed in their supported Python
-environments. Final: 47 common and 12 Regime190 tests passed; Python compile
-and `git diff --check` passed. One interrupted-verification defect surfaced in
-the new test and was fixed before this report. Host preflight: two vCPUs,
+environments. Final: 47 common and 13 Regime190 tests passed; Python compile
+and `git diff --check` passed. A recovery iteration defect surfaced in a new
+test and a probe verification routing defect surfaced in the first isolated
+run; both were fixed and the full flow was rerun. Host preflight: two vCPUs,
 about 2.8 GiB available memory and 47 GiB free disk. The bounded execution
-used one worker, three tasks total and no production PostgreSQL query; its only
+used one worker, four tasks total and no production PostgreSQL query; its only
 database access was the private SQLite checkpoint opened read only. No
 permanent service, cron, credentials, trading code or production DB write was
 introduced.
@@ -99,8 +106,8 @@ is allowed from an available API or calculation alone.
 
 ```bash
 cd /home/kegor2/market-morning-reports/market-history/research
-/home/kegor2/stock_env/bin/python -m universal_agent.offline_worker status --state-dir /home/kegor2/MyDream2000/research/universal_agent/regime190-evidence-discovery-final --repo /home/kegor2/market-morning-reports
-/home/kegor2/stock_env/bin/python -m universal_agent.offline_worker run --state-dir /home/kegor2/MyDream2000/research/universal_agent/regime190-evidence-discovery-final --repo /home/kegor2/market-morning-reports --max-tasks 5 --max-seconds 120
+/home/kegor2/stock_env/bin/python -m universal_agent.offline_worker status --state-dir /home/kegor2/MyDream2000/research/universal_agent/regime190-evidence-discovery-live-v1 --repo /home/kegor2/market-morning-reports
+/home/kegor2/stock_env/bin/python -m universal_agent.offline_worker run --state-dir /home/kegor2/MyDream2000/research/universal_agent/regime190-evidence-discovery-live-v1 --repo /home/kegor2/market-morning-reports --max-tasks 5 --max-seconds 120
 ```
 
 The second command currently processes zero tasks. Deploying another evidence

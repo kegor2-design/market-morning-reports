@@ -46,7 +46,7 @@ no-signal baseline. Do not infer performance from an empty or blocked run.
 
 The development queue is separate from the existing 02:15 worker. Run from
 `market-history/research` with `/home/kegor2/stock_env/bin/python -m universal_agent.offline_worker`
-and `--state-dir ~/MyDream2000/research/universal_agent/regime190-evidence-discovery-final`
+and `--state-dir ~/MyDream2000/research/universal_agent/regime190-evidence-discovery-live-v1`
 plus `--repo ~/market-morning-reports`. Use `status` to inspect, `run --max-tasks 5
 --max-seconds 120` to resume. A new plan needs a new state directory; the
 existing queue deliberately rejects plan replacement.
