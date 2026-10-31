@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "research_project": "regime190",
+  "adapter": "regime190",
+  "tasks": [
+    {"task_id": "source_snapshot_d0", "task_type": "source_snapshot", "execution_class": "SERVER_EXECUTABLE", "priority": 0, "dependencies": [], "delay_hours": 0, "input_artifacts": ["public.domestic_daily_price", "public.historical_backfill_run"], "resource_budget": {"max_seconds": 45, "max_attempts": 2}},
+    {"task_id": "pit_recheck_d0", "task_type": "pit_recheck", "execution_class": "SERVER_EXECUTABLE", "priority": 1, "dependencies": ["source_snapshot_d0"], "delay_hours": 0, "input_artifacts": ["indicator_audit_20261031.csv", "pit_audit.csv", "checkpoint.sqlite"], "resource_budget": {"max_seconds": 45, "max_attempts": 2}},
+    {"task_id": "backtest_gate_d0", "task_type": "backtest_gate", "execution_class": "SERVER_EXECUTABLE", "priority": 2, "dependencies": ["pit_recheck_d0"], "delay_hours": 0, "input_artifacts": ["pit_recheck_d0"], "resource_budget": {"max_seconds": 15, "max_attempts": 2}},
+    {"task_id": "source_snapshot_d1", "task_type": "source_snapshot", "execution_class": "SERVER_EXECUTABLE", "priority": 3, "dependencies": [], "delay_hours": 24, "input_artifacts": ["public.domestic_daily_price", "public.historical_backfill_run"], "resource_budget": {"max_seconds": 45, "max_attempts": 2}},
+    {"task_id": "pit_recheck_d1", "task_type": "pit_recheck", "execution_class": "SERVER_EXECUTABLE", "priority": 4, "dependencies": ["source_snapshot_d1"], "delay_hours": 24, "input_artifacts": ["indicator_audit_20261031.csv", "pit_audit.csv", "checkpoint.sqlite"], "resource_budget": {"max_seconds": 45, "max_attempts": 2}},
+    {"task_id": "backtest_gate_d1", "task_type": "backtest_gate", "execution_class": "SERVER_EXECUTABLE", "priority": 5, "dependencies": ["pit_recheck_d1"], "delay_hours": 24, "input_artifacts": ["pit_recheck_d1"], "resource_budget": {"max_seconds": 15, "max_attempts": 2}},
+    {"task_id": "source_snapshot_d2", "task_type": "source_snapshot", "execution_class": "SERVER_EXECUTABLE", "priority": 6, "dependencies": [], "delay_hours": 48, "input_artifacts": ["public.domestic_daily_price", "public.historical_backfill_run"], "resource_budget": {"max_seconds": 45, "max_attempts": 2}},
+    {"task_id": "pit_recheck_d2", "task_type": "pit_recheck", "execution_class": "SERVER_EXECUTABLE", "priority": 7, "dependencies": ["source_snapshot_d2"], "delay_hours": 48, "input_artifacts": ["indicator_audit_20261031.csv", "pit_audit.csv", "checkpoint.sqlite"], "resource_budget": {"max_seconds": 45, "max_attempts": 2}},
+    {"task_id": "backtest_gate_d2", "task_type": "backtest_gate", "execution_class": "SERVER_EXECUTABLE", "priority": 8, "dependencies": ["pit_recheck_d2"], "delay_hours": 48, "input_artifacts": ["pit_recheck_d2"], "resource_budget": {"max_seconds": 15, "max_attempts": 2}},
+    {"task_id": "resolve_cutoff_origin", "task_type": "research_design", "execution_class": "CODEX_REQUIRED", "priority": 9, "dependencies": [], "delay_hours": 0, "input_artifacts": ["cutoff_origin_evidence_20261031.json"], "resource_budget": {"max_seconds": 15, "max_attempts": 1}}
+  ]
+}
