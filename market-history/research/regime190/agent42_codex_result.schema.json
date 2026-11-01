@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Regime190 Agent 4.2 Codex research result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["task_id", "evidence_findings", "root_cause", "confidence", "hypothesis", "experiment_result", "validation_result", "decision", "failure_reason", "next_action", "source_references"],
+  "properties": {
+    "task_id": {"type": "string"},
+    "evidence_findings": {"type": "array", "items": {"type": "string"}},
+    "root_cause": {"type": ["string", "null"]},
+    "confidence": {"enum": ["LOW", "MEDIUM", "HIGH", "INSUFFICIENT"]},
+    "hypothesis": {"type": "string"},
+    "experiment_result": {"type": "string"},
+    "validation_result": {"type": "string"},
+    "decision": {"enum": ["EVIDENCE_BLOCKED", "EXPLORATORY_ONLY", "REJECTED", "REVIEW_REQUIRED"]},
+    "failure_reason": {"type": ["string", "null"]},
+    "next_action": {"type": "string"},
+    "source_references": {"type": "array", "items": {"type": "string"}}
+  }
+}
