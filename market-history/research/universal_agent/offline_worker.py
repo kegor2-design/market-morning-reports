@@ -16,7 +16,8 @@ from pathlib import Path
 from .engine import locked_state, now, write_state
 
 ALLOWED_ADAPTERS = {'regime190': 'regime190.offline_tasks',
-                    'agent2_synthetic': 'universal_agent.agent2_synthetic'}
+                    'agent2_synthetic': 'universal_agent.agent2_synthetic',
+                    'regime190_exploratory': 'regime190.exploratory_adapter'}
 STATES = {'PENDING', 'RUNNING', 'VERIFYING', 'COMPLETED', 'BLOCKED_EVIDENCE',
           'BLOCKED_LICENSE', 'BLOCKED_QUOTA', 'CODEX_REQUIRED', 'HUMAN_APPROVAL_REQUIRED',
           'RETRYABLE', 'FAILED'}
@@ -57,7 +58,8 @@ def load_plan(path: Path) -> tuple[dict, str]:
     plan = json.loads(raw)
     if (plan.get('schema_version') != 1 or plan.get('adapter') not in ALLOWED_ADAPTERS
             or (plan.get('adapter'), plan.get('research_project')) not in {
-                ('regime190', 'regime190'), ('agent2_synthetic', 'agent2_synthetic')}):
+                ('regime190', 'regime190'), ('agent2_synthetic', 'agent2_synthetic'),
+                ('regime190_exploratory', 'regime190_exploratory')}):
         raise ValueError('Unsupported offline plan')
     _adapter(plan['adapter'])
     ids = [task['task_id'] for task in plan['tasks']]
@@ -65,6 +67,12 @@ def load_plan(path: Path) -> tuple[dict, str]:
                                          not re.fullmatch(r'[a-z][a-z0-9_]*', key) for key in ids):
         raise ValueError('Duplicate or unsafe task ID')
     for task in plan['tasks']:
+        if plan['adapter'] == 'regime190_exploratory':
+            if (task.get('task_type') != 'exploratory_backtest'
+                    or task.get('research_objective_id') != 'regime190_first_cycle'
+                    or task.get('pit_requirements') != 'EXPLORATORY_PIT_UNVERIFIED'
+                    or task.get('required_tools') != ['regime190_exploratory_v1']):
+                raise ValueError('Invalid Regime190 exploratory task contract')
         if plan['adapter'] == 'agent2_synthetic':
             if (task.get('agent2_task_contract_version') != 2
                     or task.get('research_objective_id') is None
@@ -81,7 +89,8 @@ def load_plan(path: Path) -> tuple[dict, str]:
                 'blocker_classify', 'local_evidence_check', 'source_catalog_probe',
                 'credential_audit', 'provider_auth_probe', 'fred_pit_sample',
                 'evidence_reevaluate', 'provider_mapping'} if plan['adapter'] == 'regime190'
-                else {'synthetic_signal_check'}):
+                else {'synthetic_signal_check'} if plan['adapter'] == 'agent2_synthetic'
+                else {'exploratory_backtest'}):
             raise ValueError('Unregistered server task')
         if task['task_type'] == 'local_evidence_check' and task.get('indicator_id') not in range(1, 191):
             raise ValueError('Invalid indicator for evidence check')
@@ -136,7 +145,8 @@ def _project(queue: dict, state_dir: Path) -> dict:
             'human_approval_tasks': human,
             'pit_validation_results': pit, 'backtest_results': gate,
             'newly_collected_data': collected,
-            'research_status': ('FIXTURE_ONLY' if queue.get('adapter') == 'agent2_synthetic'
+            'research_status': ('EXPLORATORY_ONLY' if queue.get('adapter') == 'regime190_exploratory'
+                                else 'FIXTURE_ONLY' if queue.get('adapter') == 'agent2_synthetic'
                                 else 'BACKTEST_BLOCKED' if not gate or gate['status'] == 'BACKTEST_BLOCKED'
                                 else 'REVIEW_REQUIRED')}
 
@@ -166,13 +176,17 @@ def publish(queue: dict, state_dir: Path, repo: Path) -> None:
                'newly_collected_data': projection['newly_collected_data'],
                'pit_validation_results': projection['pit_validation_results'],
                'backtest_results': projection['backtest_results'],
-               'unresolved_problems': (['Synthetic fixture has no real historical evidence']
+               'unresolved_problems': (['No PIT-eligible Regime190 indicator; exploratory results cannot support performance claims']
+                                       if queue.get('adapter') == 'regime190_exploratory' else
+                                       ['Synthetic fixture has no real historical evidence']
                                        if queue.get('adapter') == 'agent2_synthetic' else
                                        ['Original cutoff request/response absent',
                                         'Historical market membership and PIT release times unverified']),
                'codex_required_tasks': projection['codex_required_tasks'],
                'human_approval_tasks': projection['human_approval_tasks'],
-               'recommended_next_actions': (['Design real PIT-gated experiment with review']
+               'recommended_next_actions': (['Verify publication timing, vintage and historical universe']
+                                            if queue.get('adapter') == 'regime190_exploratory' else
+                                            ['Design real PIT-gated experiment with review']
                                             if queue.get('adapter') == 'agent2_synthetic' else
                                             ['Inspect newly completed offline evidence',
                                              'Resolve cutoff provenance and historical universe']),
