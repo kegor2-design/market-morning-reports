@@ -68,10 +68,12 @@ def load_plan(path: Path) -> tuple[dict, str]:
         raise ValueError('Duplicate or unsafe task ID')
     for task in plan['tasks']:
         if plan['adapter'] == 'regime190_exploratory':
-            if (task.get('task_type') != 'exploratory_backtest'
+            if (task.get('task_type') not in {'exploratory_backtest', 'diagnosis_experiment'}
                     or task.get('research_objective_id') != 'regime190_first_cycle'
                     or task.get('pit_requirements') != 'EXPLORATORY_PIT_UNVERIFIED'
-                    or task.get('required_tools') != ['regime190_exploratory_v1']):
+                    or task.get('required_tools') != ([
+                        'regime190_exploratory_v1'] if task['task_type'] == 'exploratory_backtest'
+                        else ['regime190_diagnosis_v1'])):
                 raise ValueError('Invalid Regime190 exploratory task contract')
         if plan['adapter'] == 'agent2_synthetic':
             if (task.get('agent2_task_contract_version') != 2
@@ -90,7 +92,7 @@ def load_plan(path: Path) -> tuple[dict, str]:
                 'credential_audit', 'provider_auth_probe', 'fred_pit_sample',
                 'evidence_reevaluate', 'provider_mapping'} if plan['adapter'] == 'regime190'
                 else {'synthetic_signal_check'} if plan['adapter'] == 'agent2_synthetic'
-                else {'exploratory_backtest'}):
+                else {'exploratory_backtest', 'diagnosis_experiment'}):
             raise ValueError('Unregistered server task')
         if task['task_type'] == 'local_evidence_check' and task.get('indicator_id') not in range(1, 191):
             raise ValueError('Invalid indicator for evidence check')
