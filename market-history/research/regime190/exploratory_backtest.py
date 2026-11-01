@@ -49,7 +49,12 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def load_indices() -> tuple[list[dict], dict]:
+def load_indices(first_date: str = '2010-01-01',
+                 skip_invalid_pre2010: bool = False) -> tuple[list[dict], dict]:
+    if first_date not in {'1996-01-01', '2010-01-01'}:
+        raise ValueError('Unsupported historical start')
+    if skip_invalid_pre2010 and first_date != '1996-01-01':
+        raise ValueError('Invalid-row exclusion requires extended historical study')
     manifest = json.loads((SOURCE / 'naver_source_manifest.json').read_text())
     series = {}
     provenance = {}
@@ -65,13 +70,19 @@ def load_indices() -> tuple[list[dict], dict]:
         if dates != sorted(set(dates)):
             raise ValueError('Index dates are duplicated or unordered')
         parsed = {}
+        excluded = []
         for row in rows:
-            if row['date'] < '2010-01-01':
+            if row['date'] < first_date:
                 continue
             values = {key: float(row[key]) for key in ('open', 'high', 'low', 'close', 'volume')}
             o, h, l, c, v = (values[key] for key in ('open', 'high', 'low', 'close', 'volume'))
             if (not all(math.isfinite(x) for x in values.values()) or min(o, h, l, c) <= 0
                     or v < 0 or h < max(o, c) - .011 or l > min(o, c) + .011):
+                if skip_invalid_pre2010 and row['date'] < '2010-01-01':
+                    excluded.append(row['date'])
+                    if len(excluded) > 20:
+                        raise ValueError('Too many invalid pre-2010 rows')
+                    continue
                 raise ValueError('Invalid index OHLCV row')
             parsed[row['date']] = values
         series[entry['index']] = parsed
@@ -79,6 +90,8 @@ def load_indices() -> tuple[list[dict], dict]:
             'first_date': dates[0], 'last_date': dates[-1], 'row_count': len(rows),
             'sha256': entry['csv_sha256'], 'frequency': 'daily',
             'publication_timestamp_status': 'UNVERIFIED', 'pit_status': 'PIT_UNVERIFIED'}
+        if skip_invalid_pre2010:
+            provenance[entry['index']]['excluded_invalid_pre2010_dates'] = excluded
     dates = sorted(set(series['KOSPI']) & set(series['KOSDAQ']))
     if len(dates) < 500:
         raise ValueError('Insufficient common index sessions')
