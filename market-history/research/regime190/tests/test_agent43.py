@@ -4,12 +4,34 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from regime190 import agent43_engine as engine
 
 
 class Agent43Tests(unittest.TestCase):
+    def test_secure_runner_mounts_inputs_read_only_and_classifies_cpu_limit(self):
+        with tempfile.TemporaryDirectory() as temp:
+            work = Path(temp)
+            (work / 'experiment.py').write_text('print(1)\n')
+            (work / 'data.csv').write_text('date\n2020-01-01\n')
+            with patch.object(engine.subprocess, 'run', return_value=SimpleNamespace(
+                    returncode=0, stdout='', stderr='')) as invoke:
+                result = engine._isolated_python(work)
+            self.assertEqual(result['exit_code'], 0)
+            command = invoke.call_args.args[0]
+            self.assertIn(['--ro-bind', str(work / 'data.csv'), '/work/data.csv'],
+                          [command[i:i+3] for i in range(len(command)-2)])
+            self.assertIn(['--ro-bind', str(work / 'experiment.py'), '/work/experiment.py'],
+                          [command[i:i+3] for i in range(len(command)-2)])
+            self.assertTrue(any('RLIMIT_NPROC' in item for item in command))
+            with patch.object(engine.subprocess, 'run', return_value=SimpleNamespace(
+                    returncode=128 + engine.signal.SIGXCPU, stdout='', stderr='')):
+                timeout = engine._isolated_python(work)
+            self.assertEqual(timeout['error'], 'EXEC_TIMEOUT')
+
     def test_pit_ranking_covers_all_and_remains_blocked(self):
         ranking = engine._rank_pit()
         self.assertEqual(len(ranking), 190)

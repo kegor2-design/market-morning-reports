@@ -9,6 +9,7 @@ import json
 import math
 import os
 import resource
+import signal
 import shutil
 import statistics
 import subprocess
@@ -335,23 +336,51 @@ def _limits() -> None:
 
 
 def _isolated_python(work_dir: Path) -> dict:
+    work_dir = work_dir.resolve(strict=True)
+    if not work_dir.is_dir():
+        raise ValueError('Isolated work directory must exist')
+    script = work_dir / 'experiment.py'
+    data = work_dir / 'data.csv'
+    if script.is_symlink() or data.is_symlink() or not script.is_file():
+        raise ValueError('Unsafe isolated source or input path')
+    # Apply the process limit after Bubblewrap creates its namespaces. Applying
+    # RLIMIT_NPROC to bwrap itself can prevent namespace creation on this host.
+    launcher = ('import resource,runpy; '
+                'resource.setrlimit(resource.RLIMIT_NPROC,(32,32)); '
+                'runpy.run_path("experiment.py",run_name="__main__")')
     command = ['bwrap', '--die-with-parent', '--unshare-all',
                '--ro-bind', '/usr', '/usr', '--ro-bind', '/lib', '/lib',
                '--ro-bind', '/lib64', '/lib64', '--ro-bind', '/bin', '/bin',
                '--dev-bind', '/dev', '/dev', '--proc', '/proc', '--tmpfs', '/tmp',
-               '--bind', str(work_dir), '/work', '--chdir', '/work',
+               '--bind', str(work_dir), '/work',
+               '--ro-bind', str(script), '/work/experiment.py',
+               *(['--ro-bind', str(data), '/work/data.csv'] if data.is_file() else []),
+               '--chdir', '/work',
                '--setenv', 'HOME', '/work', '--setenv', 'PATH', '/usr/bin:/bin',
-               '--', '/usr/bin/python3', '-I', '-B', 'experiment.py']
+               '--', '/usr/bin/python3', '-I', '-B', '-c', launcher]
     try:
         result = subprocess.run(command, cwd=work_dir, capture_output=True, text=True,
                                 timeout=MAX_EXEC_SECONDS + 5, check=False,
                                 env={'PATH': '/usr/bin:/bin'}, preexec_fn=_limits)
     except subprocess.TimeoutExpired:
         return {'exit_code': None, 'error': 'EXEC_TIMEOUT'}
+    if result.returncode in {-signal.SIGXCPU, 128 + signal.SIGXCPU}:
+        return {'exit_code': None, 'error': 'EXEC_TIMEOUT',
+                'signal': signal.SIGXCPU,
+                'sandbox': 'BWRAP_UNSHARE_ALL_NO_HOME_NO_NETWORK',
+                'cpu_limit_seconds': MAX_EXEC_SECONDS, 'memory_limit_mb': 256,
+                'process_limit': 32}
+    if result.returncode in {-signal.SIGKILL, 128 + signal.SIGKILL}:
+        return {'exit_code': None, 'error': 'EXEC_TERMINATED',
+                'signal': signal.SIGKILL,
+                'sandbox': 'BWRAP_UNSHARE_ALL_NO_HOME_NO_NETWORK',
+                'cpu_limit_seconds': MAX_EXEC_SECONDS, 'memory_limit_mb': 256,
+                'process_limit': 32}
     return {'exit_code': result.returncode,
             'stdout': result.stdout[:10_000], 'stderr': result.stderr[:10_000],
             'sandbox': 'BWRAP_UNSHARE_ALL_NO_HOME_NO_NETWORK',
-            'cpu_limit_seconds': MAX_EXEC_SECONDS, 'memory_limit_mb': 256}
+            'cpu_limit_seconds': MAX_EXEC_SECONDS, 'memory_limit_mb': 256,
+            'process_limit': 32}
 
 
 def _verify_pit(task_dir: Path) -> dict:

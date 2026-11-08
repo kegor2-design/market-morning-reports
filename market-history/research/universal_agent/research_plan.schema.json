@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["research_objective", "hypothesis", "exploratory_data", "official_data_gaps", "target", "horizon_sessions", "method", "chronological_splits", "metrics", "success_criteria", "failure_criteria", "next_actions", "max_model_calls"],
+  "properties": {
+    "research_objective": {"type": "string", "minLength": 10},
+    "hypothesis": {"type": "string", "minLength": 20},
+    "exploratory_data": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "official_data_gaps": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "target": {"type": "string", "minLength": 5},
+    "horizon_sessions": {"type": "integer", "minimum": 1, "maximum": 60},
+    "method": {"type": "string", "minLength": 20},
+    "chronological_splits": {"type": "array", "minItems": 2, "items": {"type": "string"}},
+    "metrics": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "success_criteria": {"type": "string", "minLength": 10},
+    "failure_criteria": {"type": "string", "minLength": 10},
+    "next_actions": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "max_model_calls": {"type": "integer", "minimum": 1, "maximum": 3}
+  }
+}

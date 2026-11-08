@@ -11,6 +11,49 @@ from universal_agent import isolated_codex
 
 
 class IsolatedCodexTests(unittest.TestCase):
+    def test_call_reservation_is_exclusive_and_private(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / 'ai_request.json'
+            isolated_codex._reserve_request(path, {'status': 'RUNNING'})
+            self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+            with self.assertRaises(FileExistsError):
+                isolated_codex._reserve_request(path, {'status': 'RUNNING'})
+
+    def test_model_decision_cannot_override_data_or_research_policy(self):
+        decision = {'action': 'RESEARCH_COMPLETED', 'automatic': False}
+        with self.assertRaisesRegex(ValueError, 'rejects completion'):
+            isolated_codex.validate_decision_policy(decision, {})
+        decision = {'action': 'PIT_VALIDATION_REQUIRED', 'automatic': True}
+        with self.assertRaisesRegex(ValueError, 'cannot be authorized'):
+            isolated_codex.validate_decision_policy(decision, {})
+        decision = {'action': 'CODE_REPAIR_REQUIRED', 'automatic': False}
+        with self.assertRaisesRegex(ValueError, 'not a code fault'):
+            isolated_codex.validate_decision_policy(
+                decision, {'hypothesis_assessment': {'status': 'REJECTED_EXPLORATORY'}})
+
+    def test_global_model_budget_is_bounded_across_stages(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state = Path(temp)
+            for name in ('ai_request.json', 'plan_request.json', 'plan_repair_request.json',
+                         'code_initial_request.json', 'code_repair_request.json'):
+                (state / name).write_text('{}')
+            isolated_codex._check_total_call_budget(state)
+            (state / 'decision_request.json').write_text('{}')
+            with self.assertRaisesRegex(ValueError, 'budget exhausted'):
+                isolated_codex._check_total_call_budget(state)
+
+    def test_model_error_categories(self):
+        cases = [('HTTP 403 forbidden', 'AUTH_ERROR'),
+                 ('HTTP 429 rate limit', 'API_RATE_LIMIT'),
+                 ('could not resolve host', 'DNS_ERROR'),
+                 ('connection refused', 'NETWORK_ERROR')]
+        for message, expected in cases:
+            with self.subTest(message=message):
+                self.assertEqual(isolated_codex.classify_model_failure(message), expected)
+        self.assertEqual(isolated_codex.classify_model_failure('deadline', timed_out=True), 'TIMEOUT')
+        self.assertEqual(isolated_codex.classify_model_failure('bad JSON', invalid_response=True),
+                         'MODEL_OUTPUT_VALIDATION_FAILED')
+
     def test_agent43_code_call_reuses_verified_artifact(self):
         with tempfile.TemporaryDirectory() as temp:
             state = Path(temp) / 'private/run'
@@ -96,6 +139,24 @@ class IsolatedCodexTests(unittest.TestCase):
             with patch.object(isolated_codex, '_inputs', return_value=(state, fake, fake, fake, fake)):
                 result = isolated_codex.generate(goal, state)
             self.assertEqual(result['status'], 'ENVIRONMENT_BLOCKED')
+            self.assertEqual(result['codex_calls'], 1)
+
+    def test_invalid_saved_ai_response_fails_closed_without_new_call(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state = Path(temp) / 'private/run'
+            state.mkdir(parents=True)
+            goal = 'Study crash risk'
+            (state / 'ai_request.json').write_text(json.dumps({
+                'prompt_sha256': isolated_codex.hashlib.sha256(
+                    isolated_codex.prompt_for(goal).encode()).hexdigest(),
+                'schema_sha256': isolated_codex.hashlib.sha256(
+                    isolated_codex.SCHEMA.read_bytes()).hexdigest(),
+                'status': 'VERIFIED', 'called_at_utc': '2026-11-08T00:00:00+00:00'}))
+            (state / 'ai_response.json').write_text('{broken json')
+            fake = Path(temp) / 'codex'
+            with patch.object(isolated_codex, '_inputs', return_value=(state, fake, fake, fake, fake)):
+                result = isolated_codex.generate(goal, state)
+            self.assertEqual(result['error_type'], 'MODEL_OUTPUT_VALIDATION_FAILED')
             self.assertEqual(result['codex_calls'], 1)
 
     def test_failed_isolation_does_not_consume_ai_call(self):

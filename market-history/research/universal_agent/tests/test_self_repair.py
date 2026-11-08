@@ -26,6 +26,8 @@ class SelfRepairTests(unittest.TestCase):
             ('SECURE_RUNNER', '', 'bwrap: Operation not permitted', 'SANDBOX_ERROR'),
             ('BACKTEST', '', 'SyntaxError: invalid syntax', 'CODE_ERROR'),
             ('BACKTEST', '', 'ModuleNotFoundError: no module named missing', 'DEPENDENCY_ERROR'),
+            ('BACKTEST_CODE', 'OUTPUT_CONTRACT_ERROR', 'bad probability', 'OUTPUT_CONTRACT_ERROR'),
+            ('BACKTEST_CODE', 'TIMEOUT', 'time budget exceeded', 'TIMEOUT'),
         ]
         for stage, code, message, expected in cases:
             with self.subTest(stage=stage, code=code):
@@ -43,6 +45,9 @@ class SelfRepairTests(unittest.TestCase):
         first['action'] = 'RETRY_WITH_BACKOFF'
         second = diagnose(failure, [first])
         self.assertEqual(second['next_action'], 'SAFE_BLOCKED')
+        self.assertEqual(diagnose(Failure('r1', 'BACKTEST_CODE', 'TIMEOUT',
+                                          'time budget exceeded', 'fold1'))['next_action'],
+                         'SAFE_BLOCKED')
 
     def test_api_429_retries_once_then_recovers(self):
         attempts = []

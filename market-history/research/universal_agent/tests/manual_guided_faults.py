@@ -10,7 +10,7 @@ from pathlib import Path
 
 from regime190.agent43_engine import _check_code, _isolated_python
 from universal_agent.engine import write_state
-from universal_agent.guided_experiment import PRIVATE_ROOT
+from universal_agent.guided_experiment import PRIVATE_ROOT, validate_fold_output
 from universal_agent.self_repair import Failure, diagnose, probe_secure_runner
 
 
@@ -33,12 +33,15 @@ def run(state_dir: Path) -> dict:
     source = source_dir / 'experiment.py'
     if _sha(source) != state['code_sha256']:
         raise ValueError('AI generated source hash mismatch')
+    prior_input_sha256 = state['data']['input_sha256']['fold1']
     root = state_dir / 'faults'
     root.mkdir(mode=0o700, exist_ok=True)
     outcomes = {}
     for fault, code in (('COLUMN_MISMATCH', 'SCHEMA_MISMATCH'),
                         ('VALIDATION_TARGET_LEAK', 'DATA_CONTRACT_ERROR'),
-                        ('ALLOWED_LIBRARY_CALL_ERROR', 'CODE_ERROR')):
+                        ('OUTPUT_CONTRACT_ERROR', 'OUTPUT_CONTRACT_ERROR'),
+                        ('ALLOWED_LIBRARY_CALL_ERROR', 'CODE_ERROR'),
+                        ('MISSING_INPUT_DATA', 'DATA_GAP')):
         work = root / fault
         work.mkdir(mode=0o700, exist_ok=True)
         data = work / 'data.csv'
@@ -57,17 +60,34 @@ def run(state_dir: Path) -> dict:
                 writer = csv.DictWriter(stream, fieldnames=fields)
                 writer.writeheader()
                 writer.writerows(rows)
+        elif fault == 'OUTPUT_CONTRACT_ERROR':
+            old = "writer.writerow(('date', 'probability'))"
+            new = "writer.writerow(('date', 'score'))"
+            if old not in script.read_text():
+                raise ValueError('AI-generated output writer changed; review fault fixture')
+            script.write_text(script.read_text().replace(old, new, 1))
+            _check_code(script.read_text())
+        elif fault == 'MISSING_INPUT_DATA':
+            data.unlink()
         else:
             script.write_text(script.read_text().replace('math.log(', 'math.no_such_log(', 1))
             _check_code(script.read_text())
         execution = _isolated_python(work)
+        contract_error = None
+        if fault == 'OUTPUT_CONTRACT_ERROR' and execution['exit_code'] == 0:
+            try:
+                validate_fold_output(work, prior_input_sha256)
+            except ValueError as exc:
+                contract_error = str(exc)
         failure = diagnose(Failure(state['run_id'], 'BACKTEST_CODE', code,
-                                   execution.get('stderr', ''), fault))
+                                   contract_error or execution.get('stderr', ''), fault))
         outcomes[fault] = {'exit_code': execution['exit_code'],
                            'error_type': failure['error_type'],
                            'next_action': failure['next_action'],
-                           'script_sha256': _sha(script), 'input_sha256': _sha(data),
-                           'failed_as_expected': execution['exit_code'] != 0}
+                           'script_sha256': _sha(script),
+                           'input_sha256': _sha(data) if data.exists() else None,
+                           'contract_error': contract_error,
+                           'failed_as_expected': execution['exit_code'] != 0 or bool(contract_error)}
     repeated = Failure(state['run_id'], 'BACKTEST_CODE', 'CODE_ERROR',
                        'AttributeError: same method', 'repeat-context')
     first = diagnose(repeated)
