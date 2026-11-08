@@ -131,6 +131,33 @@ class SelfRepairTests(unittest.TestCase):
             self.assertTrue(resumed['recovered_interruption'])
             self.assertEqual(source.read_text(), 'value = 0\n')
 
+    def test_candidate_cannot_pass_with_previous_output(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / 'market-history/research/test_project'
+            root.mkdir(parents=True)
+            source = root / 'experiment.py'
+            source.write_text('value = 0\n')
+            output = root / 'result.json'
+            output.write_text('{"previous": true}')
+            calls = []
+            def execute(_):
+                calls.append(1)
+                if len(calls) == 1:
+                    output.write_text('{"candidate": 1}')
+                return {'exit_code': 0}
+            with (patch.object(self_repair, 'RESEARCH_ROOT', root),
+                  patch.object(self_repair, 'probe_secure_runner',
+                               return_value={'status': 'SECURE_RUNNER_VERIFIED'}),
+                  patch('regime190.agent43_engine._isolated_python', side_effect=execute)):
+                result = repair_research_source(source, ['value = 1\n', 'value = 2\n'],
+                    root, lambda path, _: len(calls) == 2 and output.exists(),
+                    static_check=lambda _: None)
+            self.assertEqual(result['status'], 'SAFE_BLOCKED')
+            self.assertEqual([item['status'] for item in result['attempts']],
+                             ['ROLLED_BACK', 'ROLLED_BACK'])
+            self.assertEqual(len(calls), 2)
+            self.assertEqual(json.loads(output.read_text()), {'previous': True})
+
     def test_plugin_failure_is_checkpointed_and_other_work_continues(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

@@ -20,7 +20,7 @@ ERROR_TYPES = frozenset({
     'SANDBOX_ERROR', 'NETWORK_ERROR', 'DNS_ERROR', 'AUTH_ERROR',
     'API_RATE_LIMIT', 'DATA_GAP', 'SCHEMA_MISMATCH', 'PIT_FAILURE',
     'BACKTEST_FAILURE', 'GIT_SYNC_ERROR', 'API_REQUEST_ERROR',
-    'API_NOT_FOUND', 'UNKNOWN_ERROR',
+    'API_NOT_FOUND', 'DATA_CONTRACT_ERROR', 'UNKNOWN_ERROR',
 })
 RESEARCH_ROOT = Path(__file__).resolve().parents[1]
 SECRET = re.compile(r'(?i)\b(authorization|api[_-]?key|token|password|secret)\s*[:=]\s*(?:Bearer\s+)?[^\s,;]+')
@@ -113,6 +113,7 @@ def plans(error_type: str) -> list[dict]:
         'DNS_ERROR': [('RETRY_WITH_BACKOFF', 2), ('PRESERVE_LOCAL_COMMIT', 3)],
         'NETWORK_ERROR': [('RETRY_WITH_BACKOFF', 2), ('SAFE_BLOCKED', 9)],
         'SCHEMA_MISMATCH': [('INSPECT_READ_ONLY_SCHEMA', 2), ('REPAIR_RESEARCH_ADAPTER', 4)],
+        'DATA_CONTRACT_ERROR': [('INSPECT_INPUT_CONTRACT', 2), ('REPAIR_RESEARCH_ADAPTER', 4)],
         'CODE_ERROR': [('REPAIR_RESEARCH_CODE', 3), ('SAFE_BLOCKED', 9)],
         'SANDBOX_ERROR': [('PROBE_APPROVED_ISOLATION', 2), ('SECURE_RUNNER_UNAVAILABLE', 3)],
         'PIT_FAILURE': [('PIT_VALIDATION_REQUIRED', 2)],
@@ -243,6 +244,10 @@ def repair_research_source(path: Path, candidates: list[str], root: Path,
         backup.unlink()
         recovered_interruption = True
     original = path.read_bytes()
+    output_paths = [path.parent / name for name in ('result.json', 'predictions.csv')]
+    if any(output.is_symlink() for output in output_paths):
+        return {'status': 'SAFE_BLOCKED', 'reason': 'Unsafe prior generated output'}
+    prior_outputs = {output: output.read_bytes() for output in output_paths if output.exists()}
     descriptor = os.open(backup, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, 'O_NOFOLLOW', 0), 0o600)
     try:
         with os.fdopen(descriptor, 'wb') as stream:
@@ -263,6 +268,8 @@ def repair_research_source(path: Path, candidates: list[str], root: Path,
                 attempts.append({'status': 'REJECTED_STATIC', 'reason': redact(str(exc))})
                 continue
             data = candidate.encode('utf-8')
+            for output in output_paths:
+                output.unlink(missing_ok=True)
             fd, temp_name = tempfile.mkstemp(prefix='.repair-', dir=path.parent)
             try:
                 with os.fdopen(fd, 'wb') as stream:
@@ -287,6 +294,10 @@ def repair_research_source(path: Path, candidates: list[str], root: Path,
                     os.unlink(temp_name)
                 if attempts and attempts[-1]['status'] == 'ROLLED_BACK':
                     path.write_bytes(original)
+                    for output in output_paths:
+                        output.unlink(missing_ok=True)
+                    for output, content in prior_outputs.items():
+                        output.write_bytes(content)
         finished = True
         return {'status': 'SAFE_BLOCKED', 'attempts': attempts,
                 'recovered_interruption': recovered_interruption,

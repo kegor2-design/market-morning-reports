@@ -256,6 +256,16 @@ def _prompt(brief: dict) -> str:
               'Do not use OS, network, subprocess, eval, exec, or dynamic imports. '
               'Include basic assertions in code. Keep code below 100 lines. '
               'Propose one specific hypothesis distinct from prior volatility x drawdown bins. ')
+    if brief.get('input_hypothesis'):
+        common = ('You are a research engineer. Implement the supplied AI hypothesis in '
+                  'a complete Python 3 standard-library script as the JSON field code. '
+                  'Keep the hypothesis and rejection condition faithful to the supplied input. '
+                  'Return JSON matching the schema. Do not read files or use tools. '
+                  'Do not claim PIT approval or independent validation. '
+                  'Code may import only csv, json, math, statistics, collections; '
+                  'may read only data.csv and write only result.json or predictions.csv. '
+                  'Do not use OS, network, subprocess, eval, exec, or dynamic imports. '
+                  'Include basic assertions in code. Keep code below 100 lines. ')
     if task == 'PIT-EMA20':
         details = ('The staged data.csv has exactly 60 ordered date,close rows. '
                    'Write code computing EMA20 twice: seed from first close and seed from '

@@ -11,6 +11,44 @@ from universal_agent import isolated_codex
 
 
 class IsolatedCodexTests(unittest.TestCase):
+    def test_agent43_code_call_reuses_verified_artifact(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state = Path(temp) / 'private/run'
+            state.mkdir(parents=True)
+            fake = Path(temp) / 'codex'
+            brief = {'task_id': 'FORECAST-CRASH20',
+                     'staged': {'target': 'crash', 'horizon': 20},
+                     'input_hypothesis': {'hypothesis': 'Lagged risk factors predict crash'}}
+            code = ('import csv\n'
+                    'with open("data.csv", newline="") as stream:\n'
+                    '    rows = list(csv.DictReader(stream))\n'
+                    'with open("predictions.csv", "w") as stream:\n'
+                    '    stream.write("date,probability\\n")\n')
+            artifact = {'hypothesis_id': 'H-TEST',
+                        'hypothesis': 'Lagged risk factors predict a 20-session market crash',
+                        'supporting_evidence': ['historical snapshots'],
+                        'expected_effect': 'lower Brier score',
+                        'required_data': ['data.csv'],
+                        'experiment_design': 'Two chronological validation folds',
+                        'validation_method': 'Compare sealed labels',
+                        'failure_criteria': 'No improvement over baseline',
+                        'estimated_cost': 'one bounded experiment', 'code': code}
+            calls = []
+            def invoke(prompt, schema, output_name, work_dir, **_):
+                calls.append(prompt)
+                (state / output_name).write_text(json.dumps(artifact))
+                return SimpleNamespace(returncode=0, stderr='model: fixture-model\n', stdout='')
+            with (patch.object(isolated_codex, '_inputs', return_value=(state, fake, fake, fake, fake)),
+                  patch.object(isolated_codex, 'probe_secure_runner',
+                               return_value={'status': 'SECURE_RUNNER_VERIFIED'}),
+                  patch.object(isolated_codex, 'call_structured', side_effect=invoke)):
+                first = isolated_codex.generate_agent43_code(brief, state)
+                second = isolated_codex.generate_agent43_code(brief, state)
+            self.assertEqual(first['status'], 'REAL_CODE_GENERATION_VERIFIED')
+            self.assertEqual(second['response_sha256'], first['response_sha256'])
+            self.assertEqual(len(calls), 1)
+            self.assertIn('Implement the supplied AI hypothesis', calls[0])
+
     def test_one_call_is_recovered_without_duplicate(self):
         with tempfile.TemporaryDirectory() as temp:
             state = Path(temp) / 'private/run'
