@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Protocol
 
 from .engine import locked_state, write_state
+from .self_repair import Failure, diagnose, run_stage
 
 STAGES = ('PENDING', 'PLANNING', 'DATA_CHECK', 'HYPOTHESIS_READY',
           'CODE_DEVELOPMENT', 'TESTING', 'BACKTESTING', 'VALIDATING')
@@ -188,7 +189,7 @@ def _transition(state: dict, domain: str, status: str, detail: str = '') -> None
 
 
 def run(goal: ResearchGoal, snapshot: Path, state_dir: Path, max_cycles: int = 3,
-        max_seconds: int = 120) -> dict:
+        max_seconds: int = 120, ai_hypothesis: bool = False) -> dict:
     if not 1 <= max_cycles <= 3 or not 1 <= max_seconds <= 3600:
         raise ValueError('Budget outside permitted range')
     if state_dir.resolve() == snapshot.resolve() or snapshot.resolve().is_relative_to(state_dir.resolve()):
@@ -220,6 +221,18 @@ def run(goal: ResearchGoal, snapshot: Path, state_dir: Path, max_cycles: int = 3
             write_state(path, state)
         if (state_dir / 'STOP').exists():
             return {'status': 'STOPPED', 'checkpoint_id': state['checkpoint_id']}
+        if ai_hypothesis and 'ai_hypothesis' not in state:
+            from .isolated_codex import generate
+            try:
+                state['ai_hypothesis'] = generate(goal.text, state_dir)
+            except Exception as exc:
+                failure = diagnose(Failure(goal.goal_id, 'AI_HYPOTHESIS',
+                                           type(exc).__name__, str(exc), 'isolated Codex'),
+                                   state.get('repair_history', []))
+                state.setdefault('repair_history', []).append(failure)
+                state['ai_hypothesis'] = {'status': 'ENVIRONMENT_BLOCKED',
+                                          'failure': failure}
+            write_state(path, state)
         rows, excluded = load_snapshot(snapshot)
         train_end = next((i for i, row in enumerate(rows) if row['date'] >= '2012-01-01'), None)
         valid_end = next((i for i, row in enumerate(rows) if row['date'] >= '2018-01-01'), None)
@@ -241,15 +254,19 @@ def run(goal: ResearchGoal, snapshot: Path, state_dir: Path, max_cycles: int = 3
                 old = record['status']
                 _transition(state, domain, STAGES[STAGES.index(old)+1])
                 write_state(path, state)
-            try:
-                result = PLUGINS[domain].evaluate(rows, train_end, valid_end)
-            except (ValueError, ArithmeticError, IndexError, KeyError) as exc:
-                record['failure_type'] = 'VALIDATION_FAILURE'
-                record['failure_reason'] = str(exc)[:300]
-                _transition(state, domain, 'FAILED', 'Research calculation failed')
+            outcome = run_stage(goal.goal_id, 'BACKTEST', domain,
+                                lambda: PLUGINS[domain].evaluate(rows, train_end, valid_end),
+                                state.setdefault('repair_history', []))
+            if outcome['status'] != 'COMPLETED':
+                failure = outcome['diagnosis']
+                record['failure_type'] = failure['error_type']
+                record['failure_reason'] = failure['message']
+                record['next_action'] = failure['next_action']
+                _transition(state, domain, 'FAILED', 'Research calculation failed; independent domains continue')
                 write_state(path, state)
                 processed += 1
                 continue
+            result = outcome['result']
             record['result'] = result
             record['result_sha256'] = hashlib.sha256(json.dumps(result, sort_keys=True).encode()).hexdigest()
             record['data_quality'] = {'status': 'OHLCV_CHECKED_PUBLICATION_TIME_UNVERIFIED',
@@ -269,6 +286,7 @@ def run(goal: ResearchGoal, snapshot: Path, state_dir: Path, max_cycles: int = 3
         return {'status': 'CHECKPOINTED', 'checkpoint_id': state['checkpoint_id'],
                 'processed_this_run': processed,
                 'cycles': {key: val['status'] for key, val in state['cycles'].items()},
+                'ai_hypothesis_status': state.get('ai_hypothesis', {}).get('status'),
                 'official_claim': False}
 
 
@@ -279,9 +297,11 @@ def main() -> int:
     parser.add_argument('--snapshot', type=Path, required=True)
     parser.add_argument('--state-dir', type=Path, required=True)
     parser.add_argument('--max-cycles', type=int, default=3)
+    parser.add_argument('--ai-hypothesis', action='store_true')
     args = parser.parse_args()
     print(json.dumps(run(ResearchGoal(args.goal, args.goal_id), args.snapshot,
-                         args.state_dir, args.max_cycles), ensure_ascii=False))
+                         args.state_dir, args.max_cycles,
+                         ai_hypothesis=args.ai_hypothesis), ensure_ascii=False))
     return 0
 
 

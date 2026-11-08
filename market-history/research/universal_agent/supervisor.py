@@ -16,6 +16,7 @@ from pathlib import Path
 from .engine import locked_state, now, write_state
 from .runner import (APPROVAL_RISKS, CodexExecutor, _authorized_check, classify,
                      load_runner_project)
+from .self_repair import Failure, diagnose, redact, redact_record
 
 STATES = {'PENDING', 'READY', 'RUNNING', 'VERIFYING', 'COMPLETED',
           'FAILED_RETRYABLE', 'FAILED_TERMINAL', 'BLOCKED_APPROVAL',
@@ -24,7 +25,8 @@ STATES = {'PENDING', 'READY', 'RUNNING', 'VERIFYING', 'COMPLETED',
 TRANSITIONS = {
     'PENDING': {'READY', 'BLOCKED_DEPENDENCY', 'BLOCKED_APPROVAL', 'CANCELLED'},
     'READY': {'RUNNING', 'BLOCKED_APPROVAL', 'PAUSED', 'CANCELLED'},
-    'RUNNING': {'VERIFYING', 'FAILED_RETRYABLE', 'FAILED_TERMINAL', 'BLOCKED_QUOTA', 'PAUSED'},
+    'RUNNING': {'VERIFYING', 'FAILED_RETRYABLE', 'FAILED_TERMINAL',
+                'BLOCKED_APPROVAL', 'BLOCKED_QUOTA', 'PAUSED'},
     'VERIFYING': {'COMPLETED', 'BLOCKED_DATA', 'BLOCKED_EVIDENCE',
                   'BLOCKED_LICENSE', 'FAILED_TERMINAL', 'PAUSED'},
     'FAILED_RETRYABLE': {'READY', 'FAILED_TERMINAL', 'PAUSED'},
@@ -322,11 +324,22 @@ def operate(mode: str, config_path: Path, state_dir: Path, executor=None,
                               'reason': (type(exc).__name__ + ': ' + str(exc))[:180]}
             else:
                 result = {'ok': True, 'classification': None, 'reason': '', 'response': None}
+            if not result.get('ok'):
+                result = redact_record(result)
             record['execution'] = result
             if task['method'] == 'codex':
                 record['model_claim_status'] = 'UNVERIFIED'
             if not result.get('ok'):
                 category = result.get('classification', 'EXECUTION')
+                reason = redact(str(result.get('reason', 'Execution failed')))
+                result['reason'] = reason
+                mapped = {'NETWORK': 'NETWORK_ERROR', 'PROVIDER': 'API_RATE_LIMIT',
+                          'AUTH': 'AUTH_ERROR', 'PERMISSION': 'PERMISSION_ERROR',
+                          'CODE': 'CODE_ERROR', 'QUOTA': 'API_RATE_LIMIT'}
+                failure = diagnose(Failure(run_id, 'CODEX_EXECUTION', mapped.get(category, ''),
+                                           reason, task['id']), state.get('repair_history', []))
+                record['repair'] = failure
+                state['repair_history'] = (state.get('repair_history', []) + [failure])[-100:]
                 if category == 'QUOTA':
                     record['reported_retry_time'] = result.get('reported_retry_time')
                     state['quota_blocked'] = True
@@ -335,11 +348,15 @@ def operate(mode: str, config_path: Path, state_dir: Path, executor=None,
                                'Provider usage quota exhausted; review partial output before manual recovery')
                     _persist(locked_path, state, project['_limits']['max_state_bytes'])
                     break
+                if category in {'AUTH', 'PERMISSION'}:
+                    transition(state, task['id'], 'BLOCKED_APPROVAL', reason)
+                    _persist(locked_path, state, project['_limits']['max_state_bytes'])
+                    continue
                 retryable = category in {'NETWORK', 'PROVIDER'} and record['attempts'] < min(3, project['_limits']['max_retries'])
                 transition(state, task['id'], 'FAILED_RETRYABLE' if retryable else 'FAILED_TERMINAL',
-                           result.get('reason', 'Execution failed'))
+                           reason)
                 _persist(locked_path, state, project['_limits']['max_state_bytes'])
-                break
+                continue
             transition(state, task['id'], 'VERIFYING', 'Execution returned; checking independent evidence')
             _persist(locked_path, state, project['_limits']['max_state_bytes'])
             try:

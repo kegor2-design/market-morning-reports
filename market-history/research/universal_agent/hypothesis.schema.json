@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "properties": {
+    "hypothesis": {"type": "string", "minLength": 20},
+    "economic_reason": {"type": "string", "minLength": 10},
+    "required_data": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "target": {"type": "string", "minLength": 5},
+    "horizon_sessions": {"type": "integer", "minimum": 1, "maximum": 60},
+    "validation_method": {"type": "string", "minLength": 20},
+    "rejection_condition": {"type": "string", "minLength": 10},
+    "metrics": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+  },
+  "required": ["hypothesis", "economic_reason", "required_data", "target", "horizon_sessions", "validation_method", "rejection_condition", "metrics"],
+  "additionalProperties": false
+}

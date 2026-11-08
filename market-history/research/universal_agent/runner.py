@@ -230,6 +230,8 @@ def record_plan(project: dict, state: dict) -> None:
 
 def classify(message: str, returncode: int) -> str:
     lowered = message.lower()
+    if any(word in lowered for word in ('http 403', 'status 403', 'forbidden')):
+        return 'AUTH'
     if any(word in lowered for word in ('usage limit', 'usage quota', 'quota exceeded',
                                          'insufficient quota', 'out of credits',
                                          'you have reached your limit', "you've hit your usage limit")):

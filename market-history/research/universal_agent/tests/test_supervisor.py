@@ -100,6 +100,30 @@ class SupervisorTests(unittest.TestCase):
         self.assertEqual(result['statuses']['third'], 'COMPLETED')
         self.assertEqual(executor.calls, 2)
 
+    def test_dns_failure_keeps_independent_research_running(self):
+        independent = self.task('third', 2)
+        independent['checks'] = [{'kind': 'json_equals', 'path': 'evidence.json',
+                                  'pointer': '/two', 'equals': True}]
+        self.config['tasks'].append(independent)
+        self.save()
+        executor = FakeExecutor([{'ok': False, 'classification': 'NETWORK',
+                                  'reason': 'Could not resolve github.com'}])
+        result = operate('run-bounded', self.manifest, self.state_dir, executor)
+        self.assertEqual(result['statuses']['first'], 'FAILED_RETRYABLE')
+        self.assertEqual(result['statuses']['third'], 'COMPLETED')
+        self.assertEqual(self.state()['tasks']['first']['repair']['error_type'], 'DNS_ERROR')
+
+    def test_http_403_waits_without_retry_or_secret_in_state(self):
+        self.assertEqual(classify('HTTP 403 forbidden', 1), 'AUTH')
+        executor = FakeExecutor([{'ok': False, 'classification': 'AUTH',
+                                  'reason': 'Authorization: secret123 HTTP 403',
+                                  'diagnostics': {'stderr': 'token=othersecret'}}])
+        result = operate('run-bounded', self.manifest, self.state_dir, executor)
+        self.assertEqual(result['statuses']['first'], 'BLOCKED_APPROVAL')
+        self.assertEqual(executor.calls, 1)
+        self.assertNotIn('secret123', (self.state_dir / 'state.json').read_text())
+        self.assertNotIn('othersecret', (self.state_dir / 'state.json').read_text())
+
     def test_approval_block_never_calls_executor(self):
         self.config['tasks'][0]['risk'] = 'operating_db'
         self.save()
