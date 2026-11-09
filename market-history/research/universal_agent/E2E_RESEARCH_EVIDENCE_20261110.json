@@ -1,0 +1,317 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-11-09T17:11:31.871253+00:00",
+  "repository_branch": "research/universal-agent-orchestration-20261110",
+  "base_remote_sha": "91ae4d57593569710765184adb660b84b91208e1",
+  "code_commit_sha": "4c149d3cb999d18e5711e224db5d6b65fdb61218",
+  "scope": "bounded synthetic fixture and read-only PIT problem; no official market prediction validation",
+  "jobs": [
+    {
+      "job_id": "synthetic_positive_20261110",
+      "private_log": ".universal_private/synthetic_positive_job/job.json",
+      "started_at_utc": "2026-11-09T17:01:11.984176+00:00",
+      "completed_at_utc": "2026-11-09T17:01:12.296774+00:00",
+      "manifest_sha256": "fbee9ec664f958cde5c721aedd46472c3f1ab0952f159a21b7ca6f73b73f7f45",
+      "plan_sha256": "9eabaf395f13b4de22f984c1b1a1e252bb918c647e5fbcab3dc83ac082bbf7f1",
+      "input_sha256": "b5690649dd3d7860f828b463f403a1b977a0e5e69ac05edab2c4e4f12bfab7d6",
+      "output_sha256": "2ca0c009f56f067632dffe55b6a32713956c73f4b5079e8a780f70663ec30f44",
+      "status": "VERIFIED_RESEARCH_CONCLUSION",
+      "attempts": 1,
+      "worker_restarts": 0,
+      "worker_crashes": 0,
+      "duplicate_completion_count": 0,
+      "model_calls": 0,
+      "supervisor_pid": 2,
+      "events": [
+        {
+          "at_utc": "2026-11-09T17:01:11.984285+00:00",
+          "event": "PLAN_VERIFIED",
+          "task_id": "synthetic_positive_20261110_execute",
+          "input_sha256": "b5690649dd3d7860f828b463f403a1b977a0e5e69ac05edab2c4e4f12bfab7d6",
+          "plan_sha256": "9eabaf395f13b4de22f984c1b1a1e252bb918c647e5fbcab3dc83ac082bbf7f1"
+        },
+        {
+          "at_utc": "2026-11-09T17:01:12.036524+00:00",
+          "event": "WORKER_STARTED",
+          "worker_pid": 6,
+          "task_key": "763684bab90b8ce34164e4d11c4f5a43796863089bf9b8c497d395325c4a6027"
+        },
+        {
+          "at_utc": "2026-11-09T17:01:12.292982+00:00",
+          "event": "WORKER_EXITED",
+          "worker_pid": 6,
+          "exit_code": 0,
+          "stderr_tail": ""
+        },
+        {
+          "at_utc": "2026-11-09T17:01:12.296743+00:00",
+          "event": "ACTION_VERIFIED",
+          "output_sha256": "2ca0c009f56f067632dffe55b6a32713956c73f4b5079e8a780f70663ec30f44"
+        }
+      ],
+      "conclusion": {
+        "status": "VERIFIED_RESEARCH_CONCLUSION",
+        "scope": "SYNTHETIC_FIXTURE_ONLY",
+        "hypothesis_supported": true,
+        "observed_mean": 2.0,
+        "threshold": 0,
+        "sample_size": 5,
+        "official_market_claim": false,
+        "input_sha256": "b5690649dd3d7860f828b463f403a1b977a0e5e69ac05edab2c4e4f12bfab7d6",
+        "output_sha256": "2ca0c009f56f067632dffe55b6a32713956c73f4b5079e8a780f70663ec30f44"
+      }
+    },
+    {
+      "job_id": "synthetic_kill_20261110",
+      "private_log": ".universal_private/synthetic_kill_job/job.json",
+      "started_at_utc": "2026-11-09T17:02:37.496499+00:00",
+      "completed_at_utc": "2026-11-09T17:02:37.750528+00:00",
+      "manifest_sha256": "593f8a288607c9327d0ac66a8001a1015b7672a3427eaafe7d979885b233c91b",
+      "plan_sha256": "df83ad0d7361291d971cf792075adfceb62b2d7614d9e079971d411e855542db",
+      "input_sha256": "6f13bd083d5e034916547fbb53804c34cf8aece80912123fe06c1aaa73c24496",
+      "output_sha256": "844d5f24e6e98dd74247722adb2f49bec9e7449a987254e0a962e7881deef3fa",
+      "status": "VERIFIED_RESEARCH_CONCLUSION",
+      "attempts": 1,
+      "worker_restarts": 0,
+      "worker_crashes": 1,
+      "duplicate_completion_count": 0,
+      "model_calls": 0,
+      "supervisor_pid": 2283834,
+      "events": [
+        {
+          "at_utc": "2026-11-09T17:02:37.496585+00:00",
+          "event": "PLAN_VERIFIED",
+          "task_id": "synthetic_kill_20261110_execute",
+          "input_sha256": "6f13bd083d5e034916547fbb53804c34cf8aece80912123fe06c1aaa73c24496",
+          "plan_sha256": "df83ad0d7361291d971cf792075adfceb62b2d7614d9e079971d411e855542db"
+        },
+        {
+          "at_utc": "2026-11-09T17:02:37.531936+00:00",
+          "event": "WORKER_STARTED",
+          "worker_pid": 2283835,
+          "task_key": "56f60cf112f958db8ab3d8010c5d322883013b8ea8262b2f31c705037eb56e78"
+        },
+        {
+          "at_utc": "2026-11-09T17:02:37.740108+00:00",
+          "event": "WORKER_EXITED",
+          "worker_pid": 2283835,
+          "exit_code": -9,
+          "stderr_tail": ""
+        },
+        {
+          "at_utc": "2026-11-09T17:02:37.740140+00:00",
+          "event": "CRASH_OR_FAILURE_DETECTED",
+          "recovery_artifact_present": true
+        },
+        {
+          "at_utc": "2026-11-09T17:02:37.750498+00:00",
+          "event": "ACTION_VERIFIED",
+          "output_sha256": "844d5f24e6e98dd74247722adb2f49bec9e7449a987254e0a962e7881deef3fa"
+        }
+      ],
+      "conclusion": {
+        "status": "VERIFIED_RESEARCH_CONCLUSION",
+        "scope": "SYNTHETIC_FIXTURE_ONLY",
+        "hypothesis_supported": true,
+        "observed_mean": 1.8,
+        "threshold": 0,
+        "sample_size": 5,
+        "official_market_claim": false,
+        "input_sha256": "6f13bd083d5e034916547fbb53804c34cf8aece80912123fe06c1aaa73c24496",
+        "output_sha256": "844d5f24e6e98dd74247722adb2f49bec9e7449a987254e0a962e7881deef3fa"
+      }
+    },
+    {
+      "job_id": "synthetic_restart_20261110",
+      "private_log": ".universal_private/synthetic_restart_job/job.json",
+      "started_at_utc": "2026-11-09T17:03:25.758918+00:00",
+      "completed_at_utc": "2026-11-09T17:03:29.287119+00:00",
+      "manifest_sha256": "afadbd6bf078c3dba267b7da392db9bc8ed6689faae4376711bf86029c983080",
+      "plan_sha256": "131b931b6dfdbe8ecbe6640a8438ba7cc1a0fd342110fb0e209e8ba707c94946",
+      "input_sha256": "7d62f393fe44c90f8b0b6026a309564bc620120a8975ed3c9d16b926d40b8beb",
+      "output_sha256": "79b57d4092e43fce53ea56aab9ff3172b502cd7241ae3af46cd73e6fc633d1c8",
+      "status": "VERIFIED_RESEARCH_CONCLUSION",
+      "attempts": 2,
+      "worker_restarts": 1,
+      "worker_crashes": 1,
+      "duplicate_completion_count": 0,
+      "model_calls": 0,
+      "supervisor_pid": 2283942,
+      "events": [
+        {
+          "at_utc": "2026-11-09T17:03:25.759001+00:00",
+          "event": "PLAN_VERIFIED",
+          "task_id": "synthetic_restart_20261110_execute",
+          "input_sha256": "7d62f393fe44c90f8b0b6026a309564bc620120a8975ed3c9d16b926d40b8beb",
+          "plan_sha256": "131b931b6dfdbe8ecbe6640a8438ba7cc1a0fd342110fb0e209e8ba707c94946"
+        },
+        {
+          "at_utc": "2026-11-09T17:03:25.764527+00:00",
+          "event": "WORKER_STARTED",
+          "worker_pid": 2283943,
+          "task_key": "b18fa0d16184d265b8e0ffa2092093915948e728523b40045bd76b3b34037cda"
+        },
+        {
+          "at_utc": "2026-11-09T17:03:25.920734+00:00",
+          "event": "WORKER_EXITED",
+          "worker_pid": 2283943,
+          "exit_code": -9,
+          "stderr_tail": ""
+        },
+        {
+          "at_utc": "2026-11-09T17:03:25.920777+00:00",
+          "event": "CRASH_OR_FAILURE_DETECTED",
+          "recovery_artifact_present": false
+        },
+        {
+          "at_utc": "2026-11-09T17:03:25.934362+00:00",
+          "event": "WORKER_STARTED",
+          "worker_pid": 2283944,
+          "task_key": "b18fa0d16184d265b8e0ffa2092093915948e728523b40045bd76b3b34037cda"
+        },
+        {
+          "at_utc": "2026-11-09T17:03:29.273511+00:00",
+          "event": "WORKER_EXITED",
+          "worker_pid": 2283944,
+          "exit_code": 0,
+          "stderr_tail": ""
+        },
+        {
+          "at_utc": "2026-11-09T17:03:29.287060+00:00",
+          "event": "ACTION_VERIFIED",
+          "output_sha256": "79b57d4092e43fce53ea56aab9ff3172b502cd7241ae3af46cd73e6fc633d1c8"
+        }
+      ],
+      "conclusion": {
+        "status": "VERIFIED_RESEARCH_CONCLUSION",
+        "scope": "SYNTHETIC_FIXTURE_ONLY",
+        "hypothesis_supported": false,
+        "observed_mean": -1.6,
+        "threshold": 0,
+        "sample_size": 5,
+        "official_market_claim": false,
+        "input_sha256": "7d62f393fe44c90f8b0b6026a309564bc620120a8975ed3c9d16b926d40b8beb",
+        "output_sha256": "79b57d4092e43fce53ea56aab9ff3172b502cd7241ae3af46cd73e6fc633d1c8"
+      }
+    },
+    {
+      "job_id": "pit_block_verified_source_20261110",
+      "private_log": ".universal_private/pit_block_verified_source_job/job.json",
+      "started_at_utc": "2026-11-09T17:07:16.757670+00:00",
+      "completed_at_utc": "2026-11-09T17:07:39.116249+00:00",
+      "manifest_sha256": "3ae63f7b30783db0f29030aaaec89551585b8d99672333593ef8a66bebb2da85",
+      "plan_sha256": "ddceba7dfcf520975a7c5f627d3262601f92a7e663fda891ce06e23c9cd71443",
+      "input_sha256": "c6990d54f3a8dc2fe97268d706b2d59b606b6da51adbeb497614bea2d46870bf",
+      "output_sha256": "e3136b04198c0931f165f0fc1e40ec66c18b5b53ba924c7418ad7b7e2c3ca481",
+      "status": "RESEARCH_BLOCKED_WITH_EVIDENCE",
+      "attempts": 1,
+      "worker_restarts": 0,
+      "worker_crashes": 0,
+      "duplicate_completion_count": 0,
+      "model_calls": 1,
+      "supervisor_pid": 2284453,
+      "events": [
+        {
+          "at_utc": "2026-11-09T17:07:16.757779+00:00",
+          "event": "PLAN_VERIFIED",
+          "task_id": "pit_block_verified_source_20261110_execute",
+          "input_sha256": "c6990d54f3a8dc2fe97268d706b2d59b606b6da51adbeb497614bea2d46870bf",
+          "plan_sha256": "ddceba7dfcf520975a7c5f627d3262601f92a7e663fda891ce06e23c9cd71443"
+        },
+        {
+          "at_utc": "2026-11-09T17:07:16.763894+00:00",
+          "event": "WORKER_STARTED",
+          "worker_pid": 2284457,
+          "task_key": "ae6ff12e7275fa14432255f953ddcb7e4f7a7361b55699247467f1c4a4bb67a0"
+        },
+        {
+          "at_utc": "2026-11-09T17:07:39.110511+00:00",
+          "event": "WORKER_EXITED",
+          "worker_pid": 2284457,
+          "exit_code": 0,
+          "stderr_tail": ""
+        },
+        {
+          "at_utc": "2026-11-09T17:07:39.116228+00:00",
+          "event": "ACTION_VERIFIED",
+          "output_sha256": "e3136b04198c0931f165f0fc1e40ec66c18b5b53ba924c7418ad7b7e2c3ca481"
+        }
+      ],
+      "conclusion": {
+        "status": "RESEARCH_BLOCKED_WITH_EVIDENCE",
+        "reason": "BLOCKED_WITH_ALTERNATIVE_RESEARCH",
+        "official_market_claim": false,
+        "input_sha256": "c6990d54f3a8dc2fe97268d706b2d59b606b6da51adbeb497614bea2d46870bf",
+        "output_sha256": "e3136b04198c0931f165f0fc1e40ec66c18b5b53ba924c7418ad7b7e2c3ca481",
+        "problem_state_sha256": "374866b1ba88dc23ce82339016d259fa6b85d98ce99ab6fd13725af5319859d6"
+      }
+    }
+  ],
+  "pit_problem": {
+    "status": "BLOCKED_WITH_ALTERNATIVE_RESEARCH",
+    "classification": "PIT_FAILURE",
+    "selected_solution": "VERIFY_PIT_LOCAL",
+    "attempted_actions": [
+      {
+        "action": "VERIFY_PIT_LOCAL",
+        "result_status": "PIT_BLOCKED"
+      },
+      {
+        "action": "RUN_EXISTING_EXPLORATORY",
+        "result_status": "EXPLORATORY_COMPLETED"
+      }
+    ],
+    "verification_result": "EXPLORATORY_ONLY",
+    "next_action": "COLLECT_MORE_DATA",
+    "model": "gpt-6-sol",
+    "model_request_at_utc": "2026-11-09T17:07:17.191147+00:00",
+    "model_response_sha256": "6f42e4cc7bee3d638339707ffaf785534a4f81b612f500b9e7c636a58618a00f",
+    "official_claim": false,
+    "pit_verified": false,
+    "independent_holdout": "NOT_AVAILABLE"
+  },
+  "guided_repair": {
+    "private_log": "market-history/research/.universal_private/guided_repair_20261110/integrated_fault_evidence.json",
+    "status": "INTEGRATED_FAULT_INJECTION_VERIFIED",
+    "fault": "library_call injected after genuine model generation",
+    "model_called": true,
+    "original_model_code_sha256": "45b3d14aa7b1cf1410106cefd182f36d1e6cfc6afae3997d774f2c6c31089be9",
+    "injected_code_sha256": "7b21c3aaded01a2a88d01284f8b6470204247cc103270eeca5dce0819decdcb7",
+    "repaired_code_sha256": "178fba00549766b236d70f9f6f403c1c6bf89cedb7c08d7aff20f16a8df0d48a",
+    "repair_model": "gpt-6-sol",
+    "repair_response_sha256": "3211f54b35f535c0e810f44df1259ac89b0a8c4783223efafad6b8814dafaf59",
+    "sandbox_folds": {
+      "fold1": "BWRAP_UNSHARE_ALL_NO_HOME_NO_NETWORK",
+      "fold2": "BWRAP_UNSHARE_ALL_NO_HOME_NO_NETWORK"
+    },
+    "result_status": "EXPLORATORY_BACKTEST_VERIFIED",
+    "hypothesis_status": "REJECTED_EXPLORATORY",
+    "official_claim": false
+  },
+  "regression": {
+    "universal_tests": {
+      "count": 88,
+      "result": "PASS_WITH_SKIP",
+      "private_log": ".universal_private/orchestration_universal_tests.log",
+      "passed": 87,
+      "skipped": 1
+    },
+    "regime190_tests": {
+      "count": 51,
+      "result": "PASS",
+      "private_log": ".universal_private/orchestration_regime190_tests.log",
+      "passed": 51,
+      "skipped": 0
+    },
+    "compileall": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "unverified": {
+    "live_provider_acquisition": true,
+    "pit_vintage": true,
+    "independent_holdout": true,
+    "integrated_code_repair_queue": true,
+    "generic_follow_on_hypothesis_cycle": true,
+    "codex_session_termination": true
+  }
+}
