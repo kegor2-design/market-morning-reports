@@ -130,12 +130,25 @@ def supervise(ai_dir: Path, data_dir: Path, job_dir: Path,
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument('--ai-state-dir', type=Path, required=True)
-    parser.add_argument('--state-dir', type=Path, required=True)
-    parser.add_argument('--job-dir', type=Path, required=True)
+    parser.add_argument('--research-manifest', type=Path)
+    parser.add_argument('--ai-state-dir', type=Path)
+    parser.add_argument('--state-dir', type=Path)
+    parser.add_argument('--job-dir', type=Path)
     parser.add_argument('--max-restarts', type=int, default=2)
     parser.add_argument('--max-seconds', type=int, default=300)
     args = parser.parse_args()
+    if args.research_manifest:
+        if args.ai_state_dir or args.state_dir or not args.job_dir:
+            parser.error('Research manifest mode requires only --job-dir')
+        from .research_job import supervise as supervise_research
+        result = supervise_research(args.research_manifest, args.job_dir)
+        print(json.dumps({'job_id': result['job_id'], 'status': result['status'],
+                          'attempts': result['attempts'],
+                          'worker_restarts': result['worker_restarts']}))
+        return 0 if result['status'] in {'VERIFIED_RESEARCH_CONCLUSION',
+                                         'RESEARCH_BLOCKED_WITH_EVIDENCE'} else 1
+    if not args.ai_state_dir or not args.state_dir or not args.job_dir:
+        parser.error('Guided mode requires --ai-state-dir, --state-dir and --job-dir')
     result = supervise(args.ai_state_dir, args.state_dir, args.job_dir,
                        max_restarts=args.max_restarts, max_seconds=args.max_seconds)
     print(json.dumps({'job_id': result['job_id'], 'status': result['status'],

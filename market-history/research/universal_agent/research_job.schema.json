@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "job_id", "goal", "mode", "max_seconds", "max_restarts", "max_model_calls"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "job_id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{2,63}$"},
+    "goal": {"type": "string", "minLength": 10, "maxLength": 1000},
+    "mode": {"enum": ["synthetic_research", "pit_problem"]},
+    "hypothesis": {"type": "object", "additionalProperties": false,
+      "required": ["direction", "threshold"], "properties": {
+        "direction": {"enum": ["mean_above", "mean_below"]},
+        "threshold": {"type": "number", "minimum": -100, "maximum": 100}}},
+    "synthetic_values": {"type": "array", "minItems": 3, "maxItems": 32,
+      "items": {"type": "number", "minimum": -100, "maximum": 100}},
+    "max_seconds": {"type": "integer", "minimum": 10, "maximum": 300},
+    "max_restarts": {"type": "integer", "minimum": 0, "maximum": 2},
+    "max_model_calls": {"type": "integer", "minimum": 0, "maximum": 1},
+    "fixture_delay_after_output_seconds": {"type": "number", "minimum": 0, "maximum": 3},
+    "fixture_delay_before_output_seconds": {"type": "number", "minimum": 0, "maximum": 3}
+  },
+  "allOf": [
+    {"if": {"properties": {"mode": {"const": "synthetic_research"}}},
+     "then": {"required": ["hypothesis", "synthetic_values"],
+              "properties": {"max_model_calls": {"const": 0}}}},
+    {"if": {"properties": {"mode": {"const": "pit_problem"}}},
+     "then": {"properties": {"max_model_calls": {"const": 1}},
+              "not": {"anyOf": [{"required": ["synthetic_values"]},
+                                 {"required": ["hypothesis"]}]}}}
+  ]
+}

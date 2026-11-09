@@ -52,6 +52,18 @@ def collect_pit_evidence() -> dict:
         prior = json.loads(source.read_text())
         provenance = prior.get('data', {}).get('provenance', {})
         independent_holdout = prior.get('data', {}).get('independent_holdout', 'NOT_AVAILABLE')
+    else:
+        source_dir = REPO / 'market-history/research/daily-index-validation-20261021'
+        source_manifest = source_dir / 'naver_source_manifest.json'
+        for row in json.loads(source_manifest.read_text()):
+            file = source_dir / row['csv_file']
+            if file.is_symlink() or _sha(file) != row['csv_sha256']:
+                raise ValueError('Tracked index source integrity mismatch')
+            provenance[row['index']] = {'source': 'Naver Finance chart snapshot',
+                'first_date': row['first'], 'last_date': row['last'],
+                'row_count': row['rows'], 'sha256': row['csv_sha256'],
+                'publication_timestamp_status': 'UNVERIFIED',
+                'pit_status': 'PIT_UNVERIFIED'}
     return {'db': db, 'pit_gate': pit,
             'matrix_sha256': _sha(matrix),
             'index_snapshot_provenance': provenance,
@@ -310,9 +322,16 @@ def solve(problem: str, state_dir: Path, *, problem_id: str, problem_code: str =
             except Exception as exc:
                 state['attempted_solutions'].append({'action': selected['action'],
                                                       'error': redact(str(exc))})
-                state.update(status='BLOCKED_EXECUTION',
-                             execution_result={'error': redact(str(exc))},
-                             next_action='STOP_AND_REPORT')
+                prior_pit_block = any(item.get('result', {}).get('status') == 'PIT_BLOCKED'
+                                      for item in state['attempted_solutions'])
+                state.update(status='BLOCKED_WITH_EVIDENCE' if prior_pit_block
+                             else 'BLOCKED_EXECUTION',
+                             execution_result={'error': redact(str(exc)),
+                                               'prior_pit_block': prior_pit_block},
+                             verification_result='BLOCKED_PIT' if prior_pit_block
+                             else 'EXECUTION_FAILED',
+                             next_action='COLLECT_MORE_DATA' if prior_pit_block
+                             else 'STOP_AND_REPORT')
             write_state(path, state)
         state['rollback_status'] = 'NOT_REQUIRED_READ_ONLY'
         state['regression_result'] = 'NOT_RUN_IN_PROBLEM_CYCLE'
