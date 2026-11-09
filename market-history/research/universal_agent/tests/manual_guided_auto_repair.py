@@ -17,7 +17,8 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def exercise(ai_dir: Path, state_dir: Path, *, live_repair: bool = False) -> dict:
+def exercise(ai_dir: Path, state_dir: Path, *, live_repair: bool = False,
+             fault_kind: str = 'library_call') -> dict:
     ai_dir = ai_dir.resolve(strict=True)
     state_dir = state_dir.resolve()
     if (not ai_dir.is_relative_to(AI_ROOT) or
@@ -31,7 +32,12 @@ def exercise(ai_dir: Path, state_dir: Path, *, live_repair: bool = False) -> dic
             raise ValueError('Model artifact is not verified')
         verified[kind] = json.loads(response_path.read_text())
     original = verified['initial']['code']
-    faulty = original.replace('math.log(', 'math.no_such_log(', 1)
+    if fault_kind == 'library_call':
+        faulty = original.replace('math.log(', 'math.no_such_log(', 1)
+    elif fault_kind == 'zero_division':
+        faulty = original.replace('prior / (1 - prior)', 'prior / (1 - prior) / 0', 1)
+    else:
+        raise ValueError('Unsupported isolated fault')
     if faulty == original:
         raise ValueError('Real model source changed; review fault injection')
     _check_code(faulty)
@@ -55,7 +61,7 @@ def exercise(ai_dir: Path, state_dir: Path, *, live_repair: bool = False) -> dic
     evidence = {'status': 'INTEGRATED_FAULT_INJECTION_VERIFIED' if
                 outcome['status'] == 'EXPLORATORY_BACKTEST_VERIFIED' and
                 state.get('repair', {}).get('status') == 'REPAIRED' else 'FAILED',
-                'fault': 'allowed-library call error injected after genuine model generation',
+                'fault': fault_kind + ' injected after genuine model generation',
                 'original_model_code_sha256': hashlib.sha256(original.encode()).hexdigest(),
                 'injected_code_sha256': hashlib.sha256(faulty.encode()).hexdigest(),
                 'real_repair_code_sha256': hashlib.sha256(repair_code.encode()).hexdigest()
@@ -75,9 +81,12 @@ def main() -> int:
     parser.add_argument('--ai-state-dir', type=Path, required=True)
     parser.add_argument('--state-dir', type=Path, required=True)
     parser.add_argument('--live-repair', action='store_true')
+    parser.add_argument('--fault-kind', choices=('library_call', 'zero_division'),
+                        default='library_call')
     args = parser.parse_args()
     print(json.dumps(exercise(args.ai_state_dir, args.state_dir,
-                              live_repair=args.live_repair), ensure_ascii=False))
+                              live_repair=args.live_repair,
+                              fault_kind=args.fault_kind), ensure_ascii=False))
     return 0
 
 

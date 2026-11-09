@@ -21,7 +21,8 @@ ERROR_TYPES = frozenset({
     'API_RATE_LIMIT', 'DATA_GAP', 'SCHEMA_MISMATCH', 'PIT_FAILURE',
     'BACKTEST_FAILURE', 'GIT_SYNC_ERROR', 'API_REQUEST_ERROR',
     'API_NOT_FOUND', 'DATA_CONTRACT_ERROR', 'OUTPUT_CONTRACT_ERROR',
-    'TIMEOUT', 'UNKNOWN_ERROR',
+    'TIMEOUT', 'PROCESS_CRASH', 'STATISTICAL_INSUFFICIENCY',
+    'HYPOTHESIS_FAILURE', 'UNKNOWN_ERROR',
 })
 RESEARCH_ROOT = Path(__file__).resolve().parents[1]
 SECRET = re.compile(r'(?i)\b(authorization|api[_-]?key|token|password|secret)\s*[:=]\s*(?:Bearer\s+)?[^\s,;]+')
@@ -50,6 +51,20 @@ def classify(stage: str, message: str, error_code: str = '') -> str:
         return 'DNS_ERROR'
     if code in ERROR_TYPES:
         return code
+    if code == 'KEYERROR':
+        return 'DATA_CONTRACT_ERROR' if 'INPUT' in stage or 'DATA' in stage else 'CODE_ERROR'
+    if code in {'JSONDECODEERROR', 'INVALID_RESPONSE'} and 'API' in stage:
+        return 'API_REQUEST_ERROR'
+    if code in {'TIMEOUTERROR', 'TIMEOUTEXPIRED'}:
+        return 'TIMEOUT'
+    if code in {'SIGKILL', 'WORKER_EXIT_-9'} or 'worker exited -9' in m:
+        return 'PROCESS_CRASH'
+    if 'version mismatch' in m or 'incompatible dependency' in m:
+        return 'DEPENDENCY_ERROR'
+    if any(x in m for x in ('insufficient independent events', 'statistically insufficient')):
+        return 'STATISTICAL_INSUFFICIENCY'
+    if 'hypothesis rejected' in m or 'hypothesis falsified' in m:
+        return 'HYPOTHESIS_FAILURE'
     if code in {'429', 'HTTP_429'} or 'http 429' in m or 'rate limit' in m:
         return 'API_RATE_LIMIT'
     if code in {'400', 'HTTP_400'} or 'http 400' in m:
@@ -95,11 +110,14 @@ class Failure:
 
     def record(self) -> dict:
         category = classify(self.stage, self.message, self.error_code)
+        last_error = next((line.strip() for line in reversed(self.message.splitlines())
+                           if line.strip()), self.message.strip())
         public = {'run_id': self.run_id, 'stage': self.stage, 'error_code': self.error_code,
                   'error_type': category, 'message': redact(self.message),
-                  'context': redact(self.context)}
+                  'context': redact(self.context), 'error_signature': redact(last_error)}
         public['fingerprint'] = hashlib.sha256(json.dumps(
-            (self.stage, category, self.error_code, self.context), sort_keys=True
+            (self.stage, category, self.error_code, self.context,
+             public['error_signature']), sort_keys=True
         ).encode()).hexdigest()
         public['at_utc'] = now()
         return public
@@ -121,6 +139,10 @@ def plans(error_type: str) -> list[dict]:
         'SANDBOX_ERROR': [('PROBE_APPROVED_ISOLATION', 2), ('SECURE_RUNNER_UNAVAILABLE', 3)],
         'PIT_FAILURE': [('PIT_VALIDATION_REQUIRED', 2)],
         'DATA_GAP': [('DATA_ACQUISITION_REQUIRED', 2)],
+        'PROCESS_CRASH': [('INSPECT_CHECKPOINT', 2), ('SAFE_BLOCKED', 9)],
+        'STATISTICAL_INSUFFICIENCY': [('COLLECT_MORE_DATA', 2), ('SAFE_BLOCKED', 9)],
+        'HYPOTHESIS_FAILURE': [('REVISE_HYPOTHESIS', 2), ('SAFE_BLOCKED', 9)],
+        'DEPENDENCY_ERROR': [('INSPECT_APPROVED_DEPENDENCIES', 2), ('SAFE_BLOCKED', 9)],
         'AUTH_ERROR': [('HUMAN_APPROVAL_REQUIRED', 2)],
         'PERMISSION_ERROR': [('HUMAN_APPROVAL_REQUIRED', 2)],
         'GIT_SYNC_ERROR': [('PRESERVE_LOCAL_COMMIT', 2), ('HUMAN_APPROVAL_REQUIRED', 4)],
