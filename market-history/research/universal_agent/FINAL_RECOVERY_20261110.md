@@ -19,7 +19,7 @@ were checked against code, private AI artifacts, checkpoints and new executions.
 | F. Autonomous decision | PASS for supported goal | AI decision response SHA-256 `7f70caa94133bc15f8d02382356e5a855a0ca39a704c7909743b0ce91f48061b`; policy accepted `PIT_VALIDATION_REQUIRED` after a rejected exploratory hypothesis. |
 | G. Autonomous resume | PASS for bounded worker crash | Independent supervisor PID `2278121` observed worker PID `2278122` exit `-9`, then started PID `2278123` without a Codex restart command. Final status `COMPLETED`, launches 2, restarts 1. Launcher had already exited; an actual Codex session termination was not reproduced. |
 | H. Regression | PASS for tested scope | Universal 81 tests and Regime190 51 tests passed after changes; compileall and `git diff --check` passed. No tests were deleted or thresholds relaxed. |
-| I. GitHub remote | Pending at report creation | Verify with `git ls-remote origin refs/heads/research/autonomous-core-recovery-20261107` after push. |
+| I. GitHub remote | PASS | Research-branch push succeeded. `git ls-remote origin refs/heads/research/autonomous-core-recovery-20261107` matched local HEAD after publication; the final SHA is recorded in the delivery response. No operating-branch merge. |
 
 `AGENT_CORE_COMPLETED = FALSE` because E is PARTIAL. Regime190 190-indicator
 PIT coverage and long-term PIT backtest remain separate and incomplete.
