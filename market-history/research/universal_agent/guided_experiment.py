@@ -409,7 +409,7 @@ def run(ai_dir: Path, data_dir: Path, *, ai_next_action: bool = False) -> dict:
                     write_state(state_path, state)
                     return {'status': state['status'], 'failure': failure}
                 repaired = generate_agent43_code(brief, ai_dir,
-                    repair_feedback=message[:1500])
+                    repair_feedback=message[:1500], failed_code=code)
                 state['code_calls'] = 2
                 state['repair_generation'] = {k: v for k, v in repaired.items() if k != 'artifact'}
                 write_state(state_path, state)
