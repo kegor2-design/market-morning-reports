@@ -156,6 +156,7 @@ problems with real isolated executions. Preserve PIT and holdout gates.
 cd /home/kegor2/market-morning-reports-core-recovery
 chmod 700 .universal_private/pit_problem_20261110 .universal_private/pit_problem_recheck_20261110 .universal_private/problem_experience
 /home/kegor2/stock_env/bin/python --version
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -c 'from regime190.agent3_experiments import _db_sample; import json; print(json.dumps(_db_sample()))'
 PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.problem_solver --problem '한국 주식시장 급락 위험 연구에서 PIT 검증에 필요한 데이터의 발표 시점, 수정 이력 및 독립 평가 구간이 부족하다.' --problem-id pit_gap_20261110 --state-dir .universal_private/pit_problem_20261110
 PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.problem_solver --problem '한국 주식시장 급락 위험 연구에서 PIT 검증에 필요한 데이터의 발표 시점, 수정 이력 및 독립 평가 구간이 부족하다.' --problem-id pit_gap_recheck_20261110 --state-dir .universal_private/pit_problem_recheck_20261110
 PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.problem_solver --problem '한국 주식시장 급락 위험 연구에서 PIT 검증에 필요한 데이터의 발표 시점, 수정 이력 및 독립 평가 구간이 부족하다.' --problem-id pit_gap_20261110 --state-dir .universal_private/pit_problem_20261110 --continue-alternative
