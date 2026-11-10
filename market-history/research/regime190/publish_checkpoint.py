@@ -26,6 +26,10 @@ FILES=[
     'indicator_field_mapping.csv','provider_attempts.csv','data_coverage.csv',
     'quality_report.csv','index_quality_report.csv','audit_190_summary.json',
     'schema_audit.md','service_audit.md','github_branch_audit.md',
+    'collection_blockers.csv','pit_validation_summary.csv',
+    'regime_backtest_summary.csv','crash_warning_backtest_summary.csv',
+    'walkforward_validation.csv','phase2_baseline_manifest.json',
+    'final_research_report.md',
 ]
 
 def git(*args):
@@ -41,6 +45,7 @@ def fingerprint():
     derived=STATE/'db_daily_price_derived_manifest.jsonl'
     rates=STATE/'db_rates_derived_manifest.json'
     fred_dir=STATE/'fred_initial_vintages'
+    yearly=list((STATE/'fred_initial_yearly').glob('*/*.manifest.json'))
     rate_manifest=json.loads(rates.read_text()) if rates.exists() else {}
     derived_rows={}
     if derived.exists():
@@ -53,7 +58,9 @@ def fingerprint():
             'db_derived_symbols':len(derived_rows),
             'db_derived_source_rows':sum(derived_rows.values()),
             'rate_derived_dates':rate_manifest.get('dates',0),
-            'fred_initial_vintage_series':len(list(fred_dir.glob('*.manifest.json')))}
+            'fred_initial_vintage_series':len(list(fred_dir.glob('*.manifest.json'))),
+            'fred_initial_yearly_windows':len(yearly),
+            'fred_initial_yearly_rows':sum(json.loads(path.read_text())['rows'] for path in yearly)}
 
 def has_public_secret():
     for name in FILES:

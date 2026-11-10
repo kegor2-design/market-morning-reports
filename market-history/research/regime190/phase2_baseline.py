@@ -3,6 +3,7 @@
 import csv
 import hashlib
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -14,7 +15,8 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 HERE = Path(__file__).resolve().parent
-SOURCE = HERE.parent / 'daily-index-validation-20261021'
+SOURCE = Path(os.environ.get('REGIME190_INDEX_SOURCE',
+                             str(HERE.parent / 'daily-index-validation-20261021')))
 FEATURES = ['ret1', 'ret5', 'ret20', 'ma20_gap', 'vol20', 'drawdown60', 'range1']
 HORIZONS = (1, 3, 5, 10, 20)
 
@@ -23,7 +25,7 @@ def output(name, rows):
     path = HERE / name
     temp = path.with_suffix(path.suffix + '.tmp')
     with temp.open('w', newline='', encoding='utf-8') as stream:
-        writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(stream, fieldnames=list(rows[0]), lineterminator='\n')
         writer.writeheader()
         writer.writerows(rows)
     temp.replace(path)

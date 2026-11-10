@@ -39,6 +39,10 @@ def snapshot(state_dir: Path) -> dict:
     fred_items = [json.loads(path.read_text()) for path in fred_files]
     fred_latest = max((item['retrieved_at_utc'] for item in fred_items), default=None)
     fred_24h = [item for item in fred_items if item['retrieved_at_utc'] >= cutoff]
+    yearly_items = [json.loads(path.read_text()) for path in
+                    (state_dir / 'fred_initial_yearly').glob('*/*.manifest.json')]
+    yearly_latest = max((item['retrieved_at_utc'] for item in yearly_items), default=None)
+    yearly_24h = [item for item in yearly_items if item['retrieved_at_utc'] >= cutoff]
     if rates and (not last_derived or rates['completed_at_utc'] > last_derived):
         last_derived = rates['completed_at_utc']
     return {
@@ -46,9 +50,9 @@ def snapshot(state_dir: Path) -> dict:
                  or counts.get('NEEDS_REVIEW', 0) else 'ATTEMPTS_PROCESSED_NOT_FULLY_VERIFIED',
         'counts': counts, 'total': sum(counts.values()),
         'heartbeat_at': heartbeat,
-        'last_real_request_at': max(filter(None, (latest_attempt, fred_latest)), default=None),
+        'last_real_request_at': max(filter(None, (latest_attempt, fred_latest, yearly_latest)), default=None),
         'last_new_raw_at': max(filter(None, (datetime.fromtimestamp(newest_raw, timezone.utc).isoformat()
-                                              if newest_raw else None, fred_latest)), default=None),
+                                              if newest_raw else None, fred_latest, yearly_latest)), default=None),
         'last_new_derived_at': last_derived,
         'derived_symbols': len(unique_derived),
         'remaining_derived_symbols': max(0, total_symbols - len(unique_derived)),
@@ -57,10 +61,13 @@ def snapshot(state_dir: Path) -> dict:
         'rate_derived_indicator_ids': rates['indicator_ids'] if rates else [],
         'fred_initial_vintage_series': len(fred_files),
         'last_fred_initial_request_at': fred_latest,
+        'fred_initial_yearly_windows': len(yearly_items),
+        'fred_initial_yearly_rows': sum(item['rows'] for item in yearly_items),
+        'last_fred_yearly_request_at': yearly_latest,
         'new_derived_rows_24h': derived_24h,
-        'verified_request_records_total': request_total + len(fred_items),
-        'new_verified_rows_24h': rows_24h + sum(item['rows'] for item in fred_24h),
-        'successful_request_records_24h': requests_24h + len(fred_24h),
+        'verified_request_records_total': request_total + len(fred_items) + len(yearly_items),
+        'new_verified_rows_24h': rows_24h + sum(item['rows'] for item in fred_24h + yearly_24h),
+        'successful_request_records_24h': requests_24h + len(fred_24h) + len(yearly_24h),
         'remaining_queue': counts.get('PENDING', 0) + counts.get('RETRY_WAIT', 0)
                            + counts.get('NEEDS_REVIEW', 0),
         'pit_ready': 0,

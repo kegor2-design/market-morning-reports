@@ -4,6 +4,7 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 import sqlite3
 from collections import Counter
 from datetime import datetime, timezone
@@ -13,6 +14,7 @@ import pandas as pd
 from derive_more import COLS
 
 HERE = Path(__file__).resolve().parent
+PRIVATE_DERIVED = Path(os.environ.get('REGIME190_PRIVATE_DERIVED_DIR', str(HERE/'private')))
 DEFAULT_STATE = Path.home()/'MyDream2000/research/regime190'
 DERIVED = {2,3,4,5,8,9,11,15,16,18,19,20,21,22,24,25,27,30,31,35}
 FRED_COMPONENT = {117,118,119,120,121,122,125,127,133}
@@ -152,7 +154,7 @@ def main():
     write_csv(HERE/'inventory_190.csv',rows)
     pd.DataFrame(rows).to_excel(HERE/'inventory_190.xlsx',index=False)
     coverage=read_csv(HERE/'coverage_matrix.csv')
-    derived_data={m:pd.read_csv(HERE/'private'/f'{m.lower()}_derived_more.csv',parse_dates=['date']) for m in ('KOSPI','KOSDAQ')}
+    derived_data={m:pd.read_csv(PRIVATE_DERIVED/f'{m.lower()}_derived_more.csv',parse_dates=['date']) for m in ('KOSPI','KOSDAQ')}
     acquired_fred_dates={}
     for i in FRED_COMPONENT:
         ids=[x[0] for x in conn.execute("SELECT series_id FROM requests WHERE indicator_id=? AND result='ACQUIRED'",(i,))]
@@ -299,6 +301,7 @@ def main():
     write_csv(HERE/'sources_attempt_log.csv',legacy)
     counts=dict(Counter(x['availability_status'] for x in rows))
     worker_counts=dict(Counter(x['state'] for x in tasks.values()))
+    yearly_files=list((state/'fred_initial_yearly').glob('*/*.manifest.json'))
     progress={'exported_at_utc':datetime.now(timezone.utc).isoformat(),'target_as_of':'2026-10-27',
               'indicator_count':190,'availability_counts':counts,'worker_counts':worker_counts,
               'unattempted_provider_or_fallback':sum(x['provider_attempt_count']+x['fallback_attempt_count']==0 for x in tasks.values()),
@@ -308,6 +311,8 @@ def main():
               'db_derived_valid_rows_by_indicator':db_valid,
               'rate_derived_dates':rate_manifest.get('dates',0),
               'fred_initial_vintage_series':len(list((state/'fred_initial_vintages').glob('*.manifest.json'))),
+              'fred_initial_yearly_windows':len(yearly_files),
+              'fred_initial_yearly_rows':sum(json.loads(path.read_text())['rows'] for path in yearly_files),
               'rate_derived_valid_rows_by_indicator':rate_manifest.get('valid_rows_by_indicator',{}),
               'source_probe_groups':len(probes),
               'pit_eligible':0,'backtest':'NOT_RUN_PIT_GATE',

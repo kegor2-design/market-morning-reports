@@ -1,0 +1,3 @@
+market,agreed_source_rows,official_pit_verified_rows,assumption_based_rows,assumption,limitation,status
+KOSPI,4126,0,4126,signal after session t close; first action next trading day,historical revision and publication timestamps unavailable,CONSERVATIVE_ASSUMPTION
+KOSDAQ,4129,0,4129,signal after session t close; first action next trading day,historical revision and publication timestamps unavailable,CONSERVATIVE_ASSUMPTION

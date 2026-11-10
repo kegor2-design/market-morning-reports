@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import sqlite3
 from collections import Counter
@@ -96,6 +97,14 @@ def run(state_dir: Path = DEFAULT_STATE) -> dict:
         fred_manifests[item['series']] = item
     fred_bad_requests = {path.name.split('.')[0] for path in
                          (state_dir / 'fred_initial_vintages').glob('*.bad_request.json')}
+    yearly_manifests = {}
+    for path in (state_dir / 'fred_initial_yearly').glob('*/*.manifest.json'):
+        item = json.loads(path.read_text())
+        data_path = path.with_name(f"{item['year']}.json")
+        if (not data_path.is_file() or data_path.stat().st_size != item['bytes'] or
+                hashlib.sha256(data_path.read_bytes()).hexdigest() != item['sha256']):
+            raise RuntimeError(f'Invalid private yearly FRED manifest: {path.name}')
+        yearly_manifests[(item['series'], item['year'])] = item
     mapping, attempts, coverage, quality = [], [], [], []
     for i in range(1, 191):
         definition, source, task = spec[i], inventory[i], tasks[i]
@@ -104,6 +113,9 @@ def run(state_dir: Path = DEFAULT_STATE) -> dict:
         table, required, caveat = candidate(i)
         vintage_rows = sum(fred_manifests[series]['rows'] for series in FRED.get(i, [])
                            if series in fred_manifests)
+        yearly_rows = sum(item['rows'] for (series, _), item in yearly_manifests.items()
+                          if series in FRED.get(i, []))
+        yearly_windows = sum(series in FRED.get(i, []) for series, _ in yearly_manifests)
         bad_series = ','.join(series for series in FRED.get(i, []) if series in fred_bad_requests)
         series_rows = int(source['valid_count'] or 0) if source['derived_series_path'] else 0
         if i in DB_PRICE and task['state'] == 'PARTIAL':
@@ -130,6 +142,7 @@ def run(state_dir: Path = DEFAULT_STATE) -> dict:
                             source_caveat=caveat, market_scope_status=market_status,
                             pit_status=source['pit_status'], next_action=task['next_action'] or ''))
         mapping[-1]['initial_vintage_component_rows'] = vintage_rows
+        mapping[-1]['initial_yearly_vintage_component_rows'] = yearly_rows
         attempts.append(dict(indicator_id=i, name=definition['name'],
                              worker_state=task['state'], attempt_count=task['attempt_count'],
                              provider_request_count=task['provider_attempt_count'],
@@ -141,6 +154,7 @@ def run(state_dir: Path = DEFAULT_STATE) -> dict:
                              collection_attempt_complete='no'))
         attempts[-1]['initial_vintage_component_rows'] = vintage_rows
         attempts[-1]['initial_vintage_bad_request_series'] = bad_series
+        attempts[-1]['initial_yearly_vintage_windows'] = yearly_windows
         coverage.append(dict(indicator_id=i, name=definition['name'],
                              availability_status=source['availability_status'],
                              actual_indicator_series_rows=series_rows,
@@ -151,6 +165,7 @@ def run(state_dir: Path = DEFAULT_STATE) -> dict:
                              source_kind=source['actual_source'],
                              pit_eligible_rows=0, backtest_eligible='no'))
         coverage[-1]['initial_vintage_component_rows'] = vintage_rows
+        coverage[-1]['initial_yearly_vintage_component_rows'] = yearly_rows
         quality.append(dict(indicator_id=i, name=definition['name'],
                             actual_indicator_series_rows=series_rows,
                             source_history_status=('SHORT_HISTORY' if i in DB_RATES else
@@ -177,6 +192,8 @@ def run(state_dir: Path = DEFAULT_STATE) -> dict:
                'provider_requests_unattempted': sum(task['provider_attempt_count'] == 0 for task in tasks.values()),
                'fred_initial_vintage_series': len(fred_manifests),
                'fred_initial_bad_request_series': sorted(fred_bad_requests),
+               'fred_initial_yearly_windows': len(yearly_manifests),
+               'fred_initial_yearly_rows': sum(item['rows'] for item in yearly_manifests.values()),
                'pit_ready': 0, 'backtest': 'NOT_RUN_PIT_GATE',
                'collection_attempts_complete': False, 'all_data_acquired': False}
     (HERE / 'audit_190_summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=2) + '\n')
