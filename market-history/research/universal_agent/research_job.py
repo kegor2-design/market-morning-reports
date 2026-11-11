@@ -1,8 +1,4 @@
-"""One bounded research job owned by an independent process supervisor.
-
-The manifest chooses only reviewed actions. Generated code keeps using the
-existing guided Agent 4.3 static gate and Bubblewrap path, not this registry.
-"""
+"""One bounded research job owned by an independent process supervisor."""
 from __future__ import annotations
 
 import argparse
@@ -21,6 +17,7 @@ from .agent2_synthetic import execute as synthetic_execute, verify as synthetic_
 from .engine import canonical, locked_state, now, write_state
 from .isolated_codex import PRIVATE_ROOT
 from .self_repair import redact
+from .guided_experiment import AI_ROOT, PRIVATE_ROOT as GUIDED_ROOT
 
 SCHEMA = Path(__file__).with_name('research_job.schema.json')
 ACTION_REGISTRY = {
@@ -28,6 +25,8 @@ ACTION_REGISTRY = {
                            'idempotent': True, 'rollback': 'discard_private_artifact'},
     'pit_problem': {'action': 'PIT_PROBLEM_SOLVE', 'risk': 'read_only_research',
                     'idempotent': False, 'rollback': 'preserve_uncertain_ai_call'},
+    'guided_experiment': {'action': 'GUIDED_EXPERIMENT', 'risk': 'sandboxed_research',
+                          'idempotent': True, 'rollback': 'preserve_guided_checkpoint'},
 }
 FINAL = {'VERIFIED_RESEARCH_CONCLUSION', 'RESEARCH_BLOCKED_WITH_EVIDENCE',
          'FAILED_TERMINAL'}
@@ -59,6 +58,11 @@ def manifest_load(path: Path) -> tuple[dict, str]:
         values = data['synthetic_values']
         if any(isinstance(value, bool) for value in values):
             raise ValueError('Boolean is not a research observation')
+    if data['mode'] == 'guided_experiment':
+        for key, root in (('ai_state_dir', AI_ROOT), ('guided_state_dir', GUIDED_ROOT)):
+            candidate = Path(data[key])
+            if candidate.is_symlink() or not candidate.resolve().is_relative_to(root.resolve()):
+                raise ValueError(f'{key} outside private research root')
     return data, sha(resolved)
 
 
@@ -66,7 +70,9 @@ def plan_for(manifest: dict, manifest_sha: str) -> dict:
     contract = ACTION_REGISTRY[manifest['mode']]
     input_sha = hashlib.sha256(canonical({
         'goal': manifest['goal'], 'hypothesis': manifest.get('hypothesis'),
-        'values': manifest.get('synthetic_values'), 'mode': manifest['mode']})).hexdigest()
+        'values': manifest.get('synthetic_values'), 'mode': manifest['mode'],
+        'ai_state_dir': manifest.get('ai_state_dir'),
+        'guided_state_dir': manifest.get('guided_state_dir')})).hexdigest()
     task_id = manifest['job_id'] + '_execute'
     task_key = hashlib.sha256(canonical((manifest_sha, task_id, input_sha))).hexdigest()
     return {'goal': manifest['goal'], 'hypothesis': manifest.get('hypothesis'),
@@ -97,6 +103,16 @@ def _worker(manifest_path: Path, state_dir: Path, task_key: str) -> int:
     if plan['action'] == 'SYNTHETIC_SIGNAL_CHECK':
         task = {'synthetic_values': manifest['synthetic_values']}
         result = synthetic_execute(task, {'adapter': 'agent2_synthetic'})
+        hypothesis = manifest['hypothesis']
+        mean = result['mean']
+        rejected = not (mean > hypothesis['threshold'] if hypothesis['direction'] == 'mean_above'
+                        else mean < hypothesis['threshold'])
+        if rejected:
+            alternative = {'direction': 'mean_below' if hypothesis['direction'] == 'mean_above'
+                           else 'mean_above', 'threshold': hypothesis['threshold']}
+            follow_on = synthetic_execute(task, {'adapter': 'agent2_synthetic'})
+            result['hypothesis_transition'] = {'reason': 'Observed mean rejected initial direction',
+                'hypothesis': alternative, 'result': follow_on, 'transition_count': 1}
     elif plan['action'] == 'PIT_PROBLEM_SOLVE':
         from .problem_solver import solve
         problem_state = private(state_dir / 'pit_solver')
@@ -106,6 +122,13 @@ def _worker(manifest_path: Path, state_dir: Path, task_key: str) -> int:
                   'problem_state_sha256': sha(problem_state / 'problem_state.json'),
                   'solution_request_sha256': sha(problem_state / 'solution_request.json')
                   if (problem_state / 'solution_request.json').exists() else None}
+    elif plan['action'] == 'GUIDED_EXPERIMENT':
+        from .guided_experiment import run
+        guided = run(Path(manifest['ai_state_dir']), Path(manifest['guided_state_dir']))
+        checkpoint = Path(manifest['guided_state_dir']) / 'guided_state.json'
+        result = {'status': guided['status'], 'guided_checkpoint': str(checkpoint),
+                  'guided_checkpoint_sha256': sha(checkpoint),
+                  'code_calls': json.loads(checkpoint.read_text()).get('code_calls', 0)}
     else:
         raise ValueError('Unregistered action')
     write_state(artifact, {'task_key': task_key, 'action': plan['action'],
@@ -128,6 +151,13 @@ def verify_artifact(manifest: dict, plan: dict, state_dir: Path) -> dict:
     result = item['result']
     if plan['action'] == 'SYNTHETIC_SIGNAL_CHECK':
         synthetic_verify({'synthetic_values': manifest['synthetic_values']}, result)
+        if 'hypothesis_transition' in result:
+            transition = result['hypothesis_transition']
+            if transition['transition_count'] != 1 or transition['hypothesis'] != {
+                'direction': 'mean_below' if manifest['hypothesis']['direction'] == 'mean_above'
+                else 'mean_above', 'threshold': manifest['hypothesis']['threshold']}:
+                raise ValueError('Invalid follow-on hypothesis')
+            synthetic_verify({'synthetic_values': manifest['synthetic_values']}, transition['result'])
     elif plan['action'] == 'PIT_PROBLEM_SOLVE':
         state_path = Path(result['problem_state'])
         if (state_path.is_symlink() or state_path.parent.is_symlink() or
@@ -184,6 +214,39 @@ def verify_artifact(manifest: dict, plan: dict, state_dir: Path) -> dict:
                 if cycle['status'] == 'COMPLETED' and hashlib.sha256(json.dumps(
                         cycle['result'], sort_keys=True).encode()).hexdigest() != cycle['result_sha256']:
                     raise ValueError('Alternative research result integrity mismatch')
+    elif plan['action'] == 'GUIDED_EXPERIMENT':
+        from .guided_experiment import _load_ai, _sha, assess_hypothesis, validate_fold_output
+        from regime190.agent43_engine import _verify_market
+        checkpoint = Path(result['guided_checkpoint'])
+        if (checkpoint.is_symlink() or checkpoint.resolve() !=
+                (Path(manifest['guided_state_dir']) / 'guided_state.json').resolve() or
+                sha(checkpoint) != result['guided_checkpoint_sha256']):
+            raise ValueError('Guided checkpoint integrity mismatch')
+        saved = json.loads(checkpoint.read_text())
+        if saved.get('status') != result['status'] or saved.get('code_calls', 0) > plan['max_model_calls']:
+            raise ValueError('Guided model budget or status mismatch')
+        if result['status'] == 'EXPLORATORY_BACKTEST_VERIFIED':
+            _, ai_hash = _load_ai(Path(manifest['ai_state_dir']))
+            if saved['ai_response_sha256'] != ai_hash:
+                raise ValueError('Guided AI hypothesis changed')
+            task_dir = Path(saved['data']['task_dir'])
+            sealed_dir = Path(saved['data']['sealed_dir'])
+            root = Path(manifest['guided_state_dir']).resolve()
+            if (not task_dir.resolve().is_relative_to(root) or
+                    not sealed_dir.resolve().is_relative_to(root)):
+                raise ValueError('Guided execution paths outside checkpoint')
+            code_hash = saved.get('active_code_sha256', saved['code_sha256'])
+            for fold, input_hash in saved['data']['input_sha256'].items():
+                fold_dir = task_dir / fold
+                checked = validate_fold_output(fold_dir, input_hash)
+                if (checked['output_sha256'] != saved['output_sha256'][fold] or
+                        _sha(fold_dir / 'experiment.py') != code_hash):
+                    raise ValueError('Guided source or output integrity mismatch')
+            if _verify_market(task_dir, sealed_dir, 'crash') != saved['result']:
+                raise ValueError('Guided sealed-fold verification failed')
+            if saved.get('hypothesis_assessment') and assess_hypothesis(
+                    task_dir, sealed_dir, saved['data']['input_sha256']) != saved['hypothesis_assessment']:
+                raise ValueError('Guided hypothesis assessment changed')
     else:
         raise ValueError('Unregistered action')
     return item
@@ -201,10 +264,17 @@ def _conclude(manifest: dict, plan: dict, artifact: dict, output_sha: str) -> di
         supports = observed > threshold if direction == 'mean_above' else observed < threshold
         return {'status': 'VERIFIED_RESEARCH_CONCLUSION',
                 'scope': 'SYNTHETIC_FIXTURE_ONLY', 'hypothesis_supported': supports,
+                'hypothesis_transition': artifact['result'].get('hypothesis_transition'),
                 'observed_mean': observed, 'threshold': threshold,
                 'sample_size': len(values), 'official_market_claim': False,
                 'input_sha256': plan['input_sha256'], 'output_sha256': output_sha}
     result = artifact['result']
+    if plan['action'] == 'GUIDED_EXPERIMENT':
+        return {'status': 'RESEARCH_BLOCKED_WITH_EVIDENCE',
+                'reason': 'PIT_UNVERIFIED' if result['status'] == 'EXPLORATORY_BACKTEST_VERIFIED'
+                else result['status'], 'official_market_claim': False,
+                'guided_checkpoint_sha256': result['guided_checkpoint_sha256'],
+                'input_sha256': plan['input_sha256'], 'output_sha256': output_sha}
     return {'status': 'RESEARCH_BLOCKED_WITH_EVIDENCE',
             'reason': result['status'], 'official_market_claim': False,
             'input_sha256': plan['input_sha256'], 'output_sha256': output_sha,
@@ -214,6 +284,11 @@ def _conclude(manifest: dict, plan: dict, artifact: dict, output_sha: str) -> di
 def supervise(manifest_path: Path, state_dir: Path) -> dict:
     manifest, digest = manifest_load(manifest_path)
     state_dir = private(state_dir)
+    if manifest['mode'] == 'guided_experiment':
+        guided_dir = Path(manifest['guided_state_dir']).resolve()
+        if (guided_dir == state_dir or guided_dir.is_relative_to(state_dir)
+                or state_dir.is_relative_to(guided_dir)):
+            raise ValueError('Guided state and supervisor checkpoint must be separate')
     plan = plan_for(manifest, digest)
     path = state_dir / 'job.json'
     with locked_state(state_dir):
@@ -254,7 +329,9 @@ def supervise(manifest_path: Path, state_dir: Path) -> dict:
                 if artifact.exists():
                     try:
                         item = verify_artifact(manifest, plan, state_dir)
-                        state['model_calls'] = int((state_dir / 'pit_solver/solution_request.json').exists())
+                        state['model_calls'] = (item['result'].get('code_calls', 0)
+                            if plan['action'] == 'GUIDED_EXPERIMENT' else
+                            int((state_dir / 'pit_solver/solution_request.json').exists()))
                         if state['model_calls'] > plan['max_model_calls']:
                             raise ValueError('Model-call budget exceeded')
                         state['output_sha256'] = sha(artifact)

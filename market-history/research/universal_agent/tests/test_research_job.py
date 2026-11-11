@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from universal_agent.agent2_synthetic import execute as synthetic_execute
 from universal_agent.engine import write_state
 from universal_agent.research_job import (PRIVATE_ROOT, manifest_load, plan_for,
-                                          verify_artifact)
+                                          verify_artifact, supervise)
 
 
 class ResearchJobBoundaryTests(unittest.TestCase):
@@ -84,6 +84,21 @@ class ResearchJobBoundaryTests(unittest.TestCase):
                          'solution_request_sha256': None}})
         with self.assertRaisesRegex(ValueError, 'Model-declared PIT completion'):
             verify_artifact(manifest, plan, self.state)
+
+    def test_rejected_hypothesis_runs_bounded_follow_on_and_reuses_checkpoint(self):
+        self.data['synthetic_values'] = [-4, -2, -1]
+        self.save()
+        first = supervise(self.manifest, self.state)
+        self.assertEqual(first['status'], 'VERIFIED_RESEARCH_CONCLUSION')
+        self.assertFalse(first['conclusion']['hypothesis_supported'])
+        transition = first['conclusion']['hypothesis_transition']
+        self.assertEqual(transition['transition_count'], 1)
+        self.assertEqual(transition['hypothesis']['direction'], 'mean_below')
+        self.assertEqual(transition['result']['mean'], -7 / 3)
+        resumed = supervise(self.manifest, self.state)
+        self.assertTrue(resumed['reused_checkpoint'])
+        self.assertEqual(resumed['attempts'], 1)
+        self.assertEqual(resumed['duplicate_completion_count'], 0)
 
 
 if __name__ == '__main__':

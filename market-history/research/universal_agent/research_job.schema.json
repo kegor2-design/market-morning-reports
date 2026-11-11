@@ -7,7 +7,9 @@
     "schema_version": {"const": 1},
     "job_id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{2,63}$"},
     "goal": {"type": "string", "minLength": 10, "maxLength": 1000},
-    "mode": {"enum": ["synthetic_research", "pit_problem"]},
+    "mode": {"enum": ["synthetic_research", "pit_problem", "guided_experiment"]},
+    "ai_state_dir": {"type": "string", "minLength": 1},
+    "guided_state_dir": {"type": "string", "minLength": 1},
     "hypothesis": {"type": "object", "additionalProperties": false,
       "required": ["direction", "threshold"], "properties": {
         "direction": {"enum": ["mean_above", "mean_below"]},
@@ -16,7 +18,7 @@
       "items": {"type": "number", "minimum": -100, "maximum": 100}},
     "max_seconds": {"type": "integer", "minimum": 10, "maximum": 300},
     "max_restarts": {"type": "integer", "minimum": 0, "maximum": 2},
-    "max_model_calls": {"type": "integer", "minimum": 0, "maximum": 1},
+    "max_model_calls": {"type": "integer", "minimum": 0, "maximum": 4},
     "fixture_delay_after_output_seconds": {"type": "number", "minimum": 0, "maximum": 3},
     "fixture_delay_before_output_seconds": {"type": "number", "minimum": 0, "maximum": 3}
   },
@@ -26,6 +28,12 @@
               "properties": {"max_model_calls": {"const": 0}}}},
     {"if": {"properties": {"mode": {"const": "pit_problem"}}},
      "then": {"properties": {"max_model_calls": {"const": 1}},
+              "not": {"anyOf": [{"required": ["synthetic_values"]},
+                                 {"required": ["hypothesis"]}, {"required": ["ai_state_dir"]},
+                                 {"required": ["guided_state_dir"]}]}}},
+    {"if": {"properties": {"mode": {"const": "guided_experiment"}}},
+     "then": {"required": ["ai_state_dir", "guided_state_dir"],
+              "properties": {"max_model_calls": {"minimum": 2, "maximum": 4}},
               "not": {"anyOf": [{"required": ["synthetic_values"]},
                                  {"required": ["hypothesis"]}]}}}
   ]
