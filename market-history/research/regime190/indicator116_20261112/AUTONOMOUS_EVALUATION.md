@@ -21,3 +21,26 @@ Additional human **research instructions: 0**. One sandbox permission for bounde
 The bounded FRED monthly probe succeeded after the previously recorded broad-query 400, but the exact 400 cause remains unproven. Consequently no new solution was promoted into `problem_experience/cases.json`; only a method with independently verified cause, procedure, result, applicable conditions, and code SHA may be registered. Private audit/probe files under `.universal_private` hold raw hashes and run details and are not committed.
 
 Independent gate values for this indicator: `AGENT_CORE_COMPLETED=TRUE` (inherited and regression-checked, not re-developed here); `LIVE_RESEARCH_E2E_VERIFIED=FALSE`; `PIT_VERIFIED=FALSE`. The first gate concerns the previously verified Agent execution core; it does not make indicator 116 PIT-ready.
+
+## Follow-up attempt and regression ledger — isolated as-of branch
+
+Base remote SHA: `4242f72347ed08bc0c3e54cc437c0be8e2e4c093`; branch `research/regime190-ind116-asof-20261112`. This pass used the existing read-only source files and engines. No new agent framework, agent allowlist entry, deployment bundle, service action, order, operating DB mutation, or experience success case was created.
+
+| Work item | Verdict | Evidence and boundary |
+| --- | --- | --- |
+| 34 annual FRED/ALFRED initial-vintage files | PASS | Every SHA, size, row count and ID rechecked; 4,204 paired numeric dates preserved |
+| Source revision comparison | PASS for two-snapshot detection | 2 DGS2 and 4 DGS10 differing dates; full revision timeline still BLOCKED |
+| Official Treasury cross-check | PASS for 2010–2023 numeric overlaps | Two new official archives, 3,500/3,500 DGS2 and 3,498/3,501 DGS10 matching; three DGS10 differences align with later FRED snapshot; 2024–2026 comparison SKIPPED |
+| Historical 2015 H.15 schedule | PASS for April 6 weekly document | Official PDF says 14:30 ET; actual April 1/2 daily FRED ingestion time BLOCKED |
+| 09:00 KST row-level audit | PASS for date/DST arithmetic; BLOCKED for strict PIT | 4,204 metadata rows; no actual historical posting/ingest timestamps; Naver calendar proxy only |
+| Problem Solver connection | BLOCKED for indicator-specific automated resolution | `collect_pit_evidence()` ran read-only and found zero eligible indicators, no holdout. Its executable actions still target KOSPI/KOSDAQ PIT or unrelated exploratory research; invoking `solve()` for indicator 116 would not validate H.15 clocks. Existing `self_repair.diagnose()` classified three indicator-specific blockers as `UNKNOWN_ERROR/SAFE_BLOCKED`; no AI answer was promoted to evidence |
+| Official backtest / independent holdout | BLOCKED | All rate dates fail strict PIT; existing 2010–2026-10-20 Korean history was already inspected; future target frozen in `HOLDOUT_PROTOCOL.md`, no mature labels |
+| Universal Agent regression | PASS | 90 tests, zero failures/skips |
+| Regime190 regression | PASS | 54 tests, zero failures/skips, including 3 new DST/date-cutoff/snapshot tests; first attempt failed because ignored KOSPI/KOSDAQ CSVs were absent in the new worktree, then both manifest-hashed snapshots were restored and the entire suite passed |
+| Worker SIGKILL and Supervisor SIGKILL | PASS for synthetic fixtures | Worker: 2 attempts, 1 restart, 1 crash, 0 duplicate completions; Supervisor: 1 Worker attempt, 0 duplicate completions; repeat supervisor call reused terminal checkpoint without new attempt |
+| Read-only operating DB schema | PASS | Existing `_db_sample()` used `BEGIN READ ONLY`, 5-second statement timeout, 20-row limits; required columns present; 20/20 recent rates lacked both `released_at` and `vintage_date` |
+| Direct live FRED API call this pass | SKIPPED | All 34 first-vintage files and two 2026 snapshots were locally available and hash checked; primary Fed/FRED public documents were consulted. Earlier two bounded live calls remain evidenced in the prior report, not recounted as new |
+
+Current pass: **0 new model calls**, **2 new Treasury archive downloads**, **0 new direct FRED data API calls**, **0 newly solved PIT blockers**, **3 classified unresolved blockers** (posting/ingest time, complete dated revisions, independent holdout). External primary-document reads were bounded to FRED/Fed/Treasury source research. Human research input after the task: **0**; one environment permission was required for the read-only Problem Solver DB probe after two network-blocked attempts. Provider model cost for this pass is exactly zero calls; monetary cost of inherited runs remains unknown. The process fixture elapsed about 8 seconds; regression suites about 33 seconds combined. No success was written to `problem_experience/cases.json` because no indicator 116 PIT method was independently verified.
+
+**Final independent gates:** `AGENT_CORE_COMPLETED=TRUE` for the inherited, previously verified core with current regressions and fixture recovery; `LIVE_RESEARCH_E2E_VERIFIED=FALSE` for indicator 116; `PIT_VERIFIED=FALSE`. Neither the synthetic recovery PASS nor a conservative lag is counted as live-market PIT verification.
