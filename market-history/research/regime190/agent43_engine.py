@@ -24,6 +24,8 @@ from .eligibility_manifest import build_manifest
 from .exploratory_backtest import HERE, load_indices
 
 SCHEMA = HERE / 'agent43_hypothesis.schema.json'
+WORKTREE_ROOT = HERE.parents[2]
+PRIVATE_ROOT = WORKTREE_ROOT / '.agent43_private'
 QUEUE = 'agent43_queue.json'
 MEMORY = 'agent43_memory.json'
 TASKS = ('PIT-EMA20', 'FORECAST-CRASH20', 'FORECAST-RECOVERY10')
@@ -45,6 +47,13 @@ def _now() -> str:
 
 def _load(path: Path) -> dict:
     return json.loads(path.read_text(encoding='utf-8'))
+
+
+def _checked_state_dir(path: Path) -> Path:
+    resolved = path.resolve()
+    if resolved != PRIVATE_ROOT and PRIVATE_ROOT not in resolved.parents:
+        raise ValueError('Research state and generated code must stay in the dedicated worktree')
+    return resolved
 
 
 def _version() -> dict:
@@ -163,9 +172,7 @@ def _problem(task_id: str, ranking: list[dict], staged: dict) -> dict:
 
 
 def prepare(state_dir: Path) -> dict:
-    state_dir = state_dir.resolve()
-    if HERE in state_dir.parents or state_dir == HERE:
-        raise ValueError('State must be outside tracked source')
+    state_dir = _checked_state_dir(state_dir)
     with locked_state(state_dir):
         path = state_dir / QUEUE
         if path.exists():
@@ -221,7 +228,7 @@ def _integrity(state_dir: Path, queue: dict) -> None:
 
 def adopt_code_revision(state_dir: Path) -> dict:
     """Record a reviewed engine-only revision before replaying generated artifacts."""
-    state_dir = state_dir.resolve()
+    state_dir = _checked_state_dir(state_dir)
     with locked_state(state_dir):
         queue = _load(state_dir / QUEUE)
         current = _version()
@@ -462,7 +469,7 @@ def _memory(queue: dict, state_dir: Path) -> dict:
 
 def reassess_completed(state_dir: Path) -> dict:
     """Recompute exploratory outcomes from sealed labels after an engine revision."""
-    state_dir = state_dir.resolve()
+    state_dir = _checked_state_dir(state_dir)
     with locked_state(state_dir):
         queue = _load(state_dir / QUEUE)
         _integrity(state_dir, queue)
@@ -496,7 +503,7 @@ def run(state_dir: Path, max_cycles: int = MAX_CYCLES) -> dict:
     if not 1 <= max_cycles <= MAX_CYCLES:
         raise ValueError('Cycle limit exceeded')
     prepare(state_dir)
-    state_dir = state_dir.resolve()
+    state_dir = _checked_state_dir(state_dir)
     processed = 0
     for task_id in _load(state_dir / QUEUE)['order']:
         with locked_state(state_dir):

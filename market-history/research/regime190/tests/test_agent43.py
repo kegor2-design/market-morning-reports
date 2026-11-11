@@ -4,6 +4,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from regime190 import agent43_engine as engine
@@ -27,25 +28,34 @@ class Agent43Tests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 engine._check_code(source)
 
+    def test_state_path_is_within_research_worktree(self):
+        with tempfile.TemporaryDirectory() as root:
+            private = Path(root) / 'private'
+            with patch.object(engine, 'PRIVATE_ROOT', private):
+                self.assertEqual(engine._checked_state_dir(private / 'run'), private / 'run')
+                with self.assertRaisesRegex(ValueError, 'dedicated worktree'):
+                    engine._checked_state_dir(Path(root) / 'elsewhere')
+
     def test_preparation_seals_validation_labels_and_stops(self):
         with tempfile.TemporaryDirectory() as root:
             state = Path(root)
-            self.assertEqual(engine.prepare(state)['status'], 'PREPARED')
-            queue = json.loads((state / engine.QUEUE).read_text())
-            self.assertEqual(queue['order'], list(engine.TASKS))
-            fold = state / 'tasks/FORECAST-CRASH20/fold1/data.csv'
-            with fold.open(newline='') as stream:
-                rows = list(csv.DictReader(stream))
-            self.assertTrue(all(row['target'] == '' for row in rows
-                                if row['split'] == 'validation'))
-            self.assertTrue(all(row['target'] in {'0', '1'} for row in rows
-                                if row['split'] == 'train'))
-            self.assertTrue((state / 'sealed/FORECAST-CRASH20_fold1.json').exists())
-            (state / 'STOP').write_text('stop')
-            self.assertEqual(engine.run(state)['status'], 'STOPPED')
-            fold.write_text('tampered')
-            with self.assertRaisesRegex(ValueError, 'integrity'):
-                engine.prepare(state)
+            with patch.object(engine, 'PRIVATE_ROOT', state):
+                self.assertEqual(engine.prepare(state)['status'], 'PREPARED')
+                queue = json.loads((state / engine.QUEUE).read_text())
+                self.assertEqual(queue['order'], list(engine.TASKS))
+                fold = state / 'tasks/FORECAST-CRASH20/fold1/data.csv'
+                with fold.open(newline='') as stream:
+                    rows = list(csv.DictReader(stream))
+                self.assertTrue(all(row['target'] == '' for row in rows
+                                    if row['split'] == 'validation'))
+                self.assertTrue(all(row['target'] in {'0', '1'} for row in rows
+                                    if row['split'] == 'train'))
+                self.assertTrue((state / 'sealed/FORECAST-CRASH20_fold1.json').exists())
+                (state / 'STOP').write_text('stop')
+                self.assertEqual(engine.run(state)['status'], 'STOPPED')
+                fold.write_text('tampered')
+                with self.assertRaisesRegex(ValueError, 'integrity'):
+                    engine.prepare(state)
 
 
 if __name__ == '__main__':
