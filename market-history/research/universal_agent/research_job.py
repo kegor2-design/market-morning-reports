@@ -27,6 +27,8 @@ ACTION_REGISTRY = {
                     'idempotent': False, 'rollback': 'preserve_uncertain_ai_call'},
     'guided_experiment': {'action': 'GUIDED_EXPERIMENT', 'risk': 'sandboxed_research',
                           'idempotent': True, 'rollback': 'preserve_guided_checkpoint'},
+    'guided_e2e': {'action': 'GUIDED_E2E', 'risk': 'sandboxed_research',
+                   'idempotent': False, 'rollback': 'preserve_uncertain_ai_call'},
 }
 FINAL = {'VERIFIED_RESEARCH_CONCLUSION', 'RESEARCH_BLOCKED_WITH_EVIDENCE',
          'FAILED_TERMINAL'}
@@ -58,7 +60,7 @@ def manifest_load(path: Path) -> tuple[dict, str]:
         values = data['synthetic_values']
         if any(isinstance(value, bool) for value in values):
             raise ValueError('Boolean is not a research observation')
-    if data['mode'] == 'guided_experiment':
+    if data['mode'] in {'guided_experiment', 'guided_e2e'}:
         for key, root in (('ai_state_dir', AI_ROOT), ('guided_state_dir', GUIDED_ROOT)):
             candidate = Path(data[key])
             if candidate.is_symlink() or not candidate.resolve().is_relative_to(root.resolve()):
@@ -72,7 +74,9 @@ def plan_for(manifest: dict, manifest_sha: str) -> dict:
         'goal': manifest['goal'], 'hypothesis': manifest.get('hypothesis'),
         'values': manifest.get('synthetic_values'), 'mode': manifest['mode'],
         'ai_state_dir': manifest.get('ai_state_dir'),
-        'guided_state_dir': manifest.get('guided_state_dir')})).hexdigest()
+        'guided_state_dir': manifest.get('guided_state_dir'),
+        'fault_kind': manifest.get('fault_kind'),
+        'max_follow_on_hypotheses': manifest.get('max_follow_on_hypotheses')})).hexdigest()
     task_id = manifest['job_id'] + '_execute'
     task_key = hashlib.sha256(canonical((manifest_sha, task_id, input_sha))).hexdigest()
     return {'goal': manifest['goal'], 'hypothesis': manifest.get('hypothesis'),
@@ -129,6 +133,9 @@ def _worker(manifest_path: Path, state_dir: Path, task_key: str) -> int:
         result = {'status': guided['status'], 'guided_checkpoint': str(checkpoint),
                   'guided_checkpoint_sha256': sha(checkpoint),
                   'code_calls': json.loads(checkpoint.read_text()).get('code_calls', 0)}
+    elif plan['action'] == 'GUIDED_E2E':
+        from .guided_e2e import run_job
+        result = run_job(manifest, state_dir)
     else:
         raise ValueError('Unregistered action')
     write_state(artifact, {'task_key': task_key, 'action': plan['action'],
@@ -247,6 +254,66 @@ def verify_artifact(manifest: dict, plan: dict, state_dir: Path) -> dict:
             if saved.get('hypothesis_assessment') and assess_hypothesis(
                     task_dir, sealed_dir, saved['data']['input_sha256']) != saved['hypothesis_assessment']:
                 raise ValueError('Guided hypothesis assessment changed')
+    elif plan['action'] == 'GUIDED_E2E':
+        from .guided_e2e import _used_calls, verify_cycle
+        if result.get('official_market_claim') is not False or result.get('status') not in {
+                'EXPLORATORY_ONLY', 'BLOCKED_FAULT_REPAIR', 'BLOCKED_ALTERNATE_MODEL',
+                'BLOCKED_DUPLICATE_HYPOTHESIS', 'BLOCKED_ALTERNATE_EXECUTION'}:
+            raise ValueError('Invalid exploratory E2E status')
+        cycles = result['cycles']
+        if len(cycles) > manifest['max_follow_on_hypotheses'] + 1 or result.get(
+                'transition_count', 0) != max(0, len(cycles) - 1):
+            raise ValueError('Hypothesis transition bound exceeded')
+        seen = set()
+        for index, cycle in enumerate(cycles):
+            ai_dir = Path(cycle['ai_dir'])
+            data_dir = Path(cycle['data_dir'])
+            alternate_index = cycle.get('alternative_index', 0)
+            if (alternate_index == 0) != (index == 0) or not 0 <= alternate_index <= manifest[
+                    'max_follow_on_hypotheses']:
+                raise ValueError('Cycle index mismatch')
+            expected_ai = (Path(manifest['ai_state_dir']) if index == 0 else
+                           AI_ROOT / f"{manifest['job_id']}_alt{alternate_index}")
+            expected_data = (Path(manifest['guided_state_dir']) if index == 0 else
+                             GUIDED_ROOT / f"{manifest['job_id']}_alt{alternate_index}")
+            if ai_dir.resolve() != expected_ai.resolve() or data_dir.resolve() != expected_data.resolve():
+                raise ValueError('Cycle identity mismatch')
+            hypothesis = verify_cycle(ai_dir, data_dir, cycle)
+            identity = hashlib.sha256(canonical((hypothesis['hypothesis'].lower().strip(),
+                hypothesis['economic_reason'].lower().strip()))).hexdigest()
+            if identity in seen:
+                raise ValueError('Duplicate market hypothesis')
+            seen.add(identity)
+            if index == 0:
+                evidence = data_dir / 'integrated_fault_evidence.json'
+                if (not evidence.is_file() or sha(evidence) != cycle['fault_evidence_sha256'] or
+                        cycle['fault_status'] != 'INTEGRATED_FAULT_INJECTION_VERIFIED'):
+                    raise ValueError('Fault repair evidence missing')
+                proof = json.loads(evidence.read_text())
+                if (proof['status'] != cycle['fault_status'] or
+                        proof['repair']['status'] != 'REPAIRED' or
+                        not proof['model_called_during_trial']):
+                    raise ValueError('Actual model repair not proven')
+        if result['status'] == 'EXPLORATORY_ONLY' and not cycles:
+            raise ValueError('No verified market cycle')
+        for attempt in result.get('rejected_attempts', []):
+            attempt_index = attempt['index']
+            if not 1 <= attempt_index <= manifest['max_follow_on_hypotheses']:
+                raise ValueError('Rejected attempt index outside bound')
+            ai_response = AI_ROOT / f"{manifest['job_id']}_alt{attempt_index}" / 'ai_response.json'
+            checkpoint = state_dir / f'alternate_attempt_{attempt_index}.json'
+            if (not ai_response.is_file() or sha(ai_response) != attempt['hypothesis_sha256'] or
+                    json.loads(checkpoint.read_text()) != attempt):
+                raise ValueError('Rejected alternative evidence changed')
+        if result['status'] == 'BLOCKED_FAULT_REPAIR':
+            evidence = Path(manifest['guided_state_dir']) / 'integrated_fault_evidence.json'
+            if (cycles or not evidence.is_file() or
+                    sha(evidence) != result['fault_evidence_sha256'] or
+                    json.loads(evidence.read_text())['status'] != result['fault_status']):
+                raise ValueError('Blocked fault evidence mismatch')
+        if (result.get('model_calls', 0) != _used_calls(manifest) or
+                result['model_calls'] > plan['max_model_calls']):
+            raise ValueError('E2E model budget exceeded')
     else:
         raise ValueError('Unregistered action')
     return item
@@ -269,6 +336,12 @@ def _conclude(manifest: dict, plan: dict, artifact: dict, output_sha: str) -> di
                 'sample_size': len(values), 'official_market_claim': False,
                 'input_sha256': plan['input_sha256'], 'output_sha256': output_sha}
     result = artifact['result']
+    if plan['action'] == 'GUIDED_E2E':
+        return {'status': 'RESEARCH_BLOCKED_WITH_EVIDENCE',
+                'reason': 'PIT_UNVERIFIED' if result['status'] == 'EXPLORATORY_ONLY'
+                else result['status'], 'official_market_claim': False,
+                'transition_count': result.get('transition_count', 0),
+                'input_sha256': plan['input_sha256'], 'output_sha256': output_sha}
     if plan['action'] == 'GUIDED_EXPERIMENT':
         return {'status': 'RESEARCH_BLOCKED_WITH_EVIDENCE',
                 'reason': 'PIT_UNVERIFIED' if result['status'] == 'EXPLORATORY_BACKTEST_VERIFIED'
@@ -284,7 +357,7 @@ def _conclude(manifest: dict, plan: dict, artifact: dict, output_sha: str) -> di
 def supervise(manifest_path: Path, state_dir: Path) -> dict:
     manifest, digest = manifest_load(manifest_path)
     state_dir = private(state_dir)
-    if manifest['mode'] == 'guided_experiment':
+    if manifest['mode'] in {'guided_experiment', 'guided_e2e'}:
         guided_dir = Path(manifest['guided_state_dir']).resolve()
         if (guided_dir == state_dir or guided_dir.is_relative_to(state_dir)
                 or state_dir.is_relative_to(guided_dir)):
@@ -329,7 +402,9 @@ def supervise(manifest_path: Path, state_dir: Path) -> dict:
                 if artifact.exists():
                     try:
                         item = verify_artifact(manifest, plan, state_dir)
-                        state['model_calls'] = (item['result'].get('code_calls', 0)
+                        state['model_calls'] = (item['result'].get('model_calls', 0)
+                            if plan['action'] == 'GUIDED_E2E' else
+                            item['result'].get('code_calls', 0)
                             if plan['action'] == 'GUIDED_EXPERIMENT' else
                             int((state_dir / 'pit_solver/solution_request.json').exists()))
                         if state['model_calls'] > plan['max_model_calls']:

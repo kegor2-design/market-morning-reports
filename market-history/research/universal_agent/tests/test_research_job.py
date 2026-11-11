@@ -100,6 +100,27 @@ class ResearchJobBoundaryTests(unittest.TestCase):
         self.assertEqual(resumed['attempts'], 1)
         self.assertEqual(resumed['duplicate_completion_count'], 0)
 
+    def test_market_e2e_manifest_limits_fault_and_hypothesis_budget(self):
+        from universal_agent.guided_experiment import PRIVATE_ROOT as data_root
+        self.data = {'schema_version': 1, 'job_id': 'bounded_market_test',
+                     'goal': 'Evaluate crash-risk hypotheses on sealed historical folds',
+                     'mode': 'guided_e2e', 'ai_state_dir': str(self.root / 'ai'),
+                     'guided_state_dir': str(data_root / 'bounded_market_test'),
+                     'fault_kind': 'library_call', 'max_follow_on_hypotheses': 2,
+                     'max_seconds': 600, 'max_restarts': 1, 'max_model_calls': 10}
+        self.save()
+        manifest_load(self.manifest)
+        for key, bad in (('fault_kind', 'disable_sandbox'),
+                         ('max_follow_on_hypotheses', 3),
+                         ('max_model_calls', 11), ('max_seconds', 601)):
+            with self.subTest(key=key):
+                original = self.data[key]
+                self.data[key] = bad
+                self.save()
+                with self.assertRaises(ValidationError):
+                    manifest_load(self.manifest)
+                self.data[key] = original
+
 
 if __name__ == '__main__':
     unittest.main()
