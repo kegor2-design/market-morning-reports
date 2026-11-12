@@ -7,3 +7,5 @@ No official strategy return, transaction-cost result, slippage estimate, walk-fo
 ## Follow-up gate result
 
 **BLOCKED; official backtest skipped.** The new row-level matrix has 4,204/4,204 strict PIT rows blocked. The existing `pit_eligibility()` returns zero eligible indicators, including 116. The seven-day-lag/Naver-session column is an exploratory as-of sensitivity only and was not passed to the official backtest. [The predeclared future target and holdout protocol](HOLDOUT_PROTOCOL.md) has no mature, sealed outcomes. No profitability, costs, slippage, walk-forward, or independent holdout performance is claimed.
+
+2026-11-13 recheck: the full 2010–2026 source *value* comparison is now covered by the 2010–2023 CSV archives and 2024–2026 XML feeds, but historical posting times and a genuinely independent mature holdout remain unavailable. **Official backtest: SKIPPED by PIT and holdout gates.** No exploratory performance statistic was promoted.

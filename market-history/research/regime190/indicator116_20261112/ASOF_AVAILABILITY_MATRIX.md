@@ -16,3 +16,5 @@ The [4,204-row CSV](ASOF_AVAILABILITY_MATRIX.csv) contains date metadata only; s
 All 4,204 rows are `BLOCKED` for strict PIT. DST offsets: 1,404 EST and 2,800 EDT. The exploratory proxy maps 4,194 rows and leaves the final 10 outside its range. Two same-observation-day vintages, 2015-04-01 and 2015-04-02, remain blocked. The [2015-04-06 H.15 PDF](https://www.federalreserve.gov/releases/h15/20150406/h15.pdf) gives a 14:30 ET **weekly** release clock, but neither proves the earlier daily posting time nor FRED ingestion time. The [FRED vintage-date definition](https://fred.stlouisfed.org/docs/api/fred/series_vintagedates.html) provides dates when values changed, not intraday timestamps. Scheduled times, holiday changes, and Korean session dates cannot close that gap.
 
 No official research engine consumes this matrix as PIT approval. It is an audit artifact and a candidate exploratory calendar map only.
+
+Rebuilt on 2026-11-13 from the unchanged 34 manifest-checked inputs: SHA-256 remained `0f871aa585f2aa73223c0b809621808e9e0b47fc3430375628eee11ee3fc3ceb`. The new Treasury XML comparison checks values only, so no strict PIT row changed status.

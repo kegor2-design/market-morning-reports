@@ -14,6 +14,7 @@ from collections import Counter
 from datetime import date, datetime, time, timedelta
 from decimal import Decimal
 from pathlib import Path
+from xml.etree import ElementTree
 from zoneinfo import ZoneInfo
 
 
@@ -89,8 +90,43 @@ def compare_treasury(data: dict, paths: list[Path]) -> dict:
             "status": "CURRENT_ARCHIVE_COMPARISON_NOT_HISTORICAL_VINTAGE_OR_POSTING_TIME"}
 
 
+def compare_treasury_xml(data: dict, paths: list[Path]) -> dict:
+    """Check current official annual XML values; its updated tag is not row PIT time."""
+    ns = {"a": "http://www.w3.org/2005/Atom",
+          "d": "http://schemas.microsoft.com/ado/2007/08/dataservices"}
+    counts = Counter()
+    differences = []
+    hashes = {}
+    for path in paths:
+        raw = path.read_bytes()
+        hashes[path.name] = sha256(raw)
+        root = ElementTree.fromstring(raw)
+        seen = set()
+        for entry in root.findall("a:entry", ns):
+            day_node = entry.find(".//d:NEW_DATE", ns)
+            if day_node is None or not day_node.text:
+                raise ValueError("Treasury entry lacks observation date")
+            day = day_node.text[:10]
+            if day in seen:
+                raise ValueError(f"Duplicate Treasury observation: {day}")
+            seen.add(day)
+            counts["treasury_rows"] += 1
+            for series, field in (("DGS2", "BC_2YEAR"), ("DGS10", "BC_10YEAR")):
+                node = entry.find(f".//d:{field}", ns)
+                if day not in data[series] or data[series][day]["value"] == "." or node is None or not node.text:
+                    continue
+                counts["overlap_" + series] += 1
+                if Decimal(data[series][day]["value"]) != Decimal(node.text):
+                    counts["different_" + series] += 1
+                    differences.append((series, day))
+    return {"counts": dict(counts), "difference_dates": differences,
+            "xml_sha256": hashes,
+            "status": "CURRENT_XML_COMPARISON_NOT_HISTORICAL_VINTAGE_OR_POSTING_TIME"}
+
+
 def build(raw_root: Path, latest_root: Path, kospi_csv: Path, kospi_hash: str,
-          output: Path, treasury_archives: list[Path] | None = None) -> dict:
+          output: Path, treasury_archives: list[Path] | None = None,
+          treasury_xml: list[Path] | None = None) -> dict:
     data = {}
     hashes = {}
     for series in SERIES:
@@ -161,6 +197,7 @@ def build(raw_root: Path, latest_root: Path, kospi_csv: Path, kospi_hash: str,
     return {"counts": dict(counts), "matrix_sha256": sha256(output.read_bytes()),
             "revision_comparison": revision_comparison,
             "treasury_comparison": compare_treasury(data, treasury_archives or []),
+            "treasury_xml_comparison": compare_treasury_xml(data, treasury_xml or []),
             "input_manifest_sha256": hashes, "kospi_csv_sha256": kospi_hash}
 
 
@@ -172,9 +209,11 @@ def main() -> None:
     parser.add_argument("--kospi-sha256", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--treasury-archive", type=Path, action="append", default=[])
+    parser.add_argument("--treasury-xml", type=Path, action="append", default=[])
     args = parser.parse_args()
     print(json.dumps(build(args.raw_root, args.latest_root, args.kospi_csv,
-                           args.kospi_sha256, args.output, args.treasury_archive), indent=2))
+                           args.kospi_sha256, args.output, args.treasury_archive,
+                           args.treasury_xml), indent=2))
 
 
 if __name__ == "__main__":
