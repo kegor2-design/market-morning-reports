@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "base_branch": "research/regime190-ind116-pit-resolution-20261113",
+  "base_remote_sha256": "2c5609260401eda25fd2965e06a4cc55735a63ca",
+  "research_branch": "research/universal-agent-collector-autonext-20261113",
+  "code_commits": ["c253528", "d066039"],
+  "run": {
+    "manifest": ".universal_private/ind116_bounded_manifest.json",
+    "job": ".universal_private/ind116_bounded_job/job.json",
+    "job_sha256": "6a54b71ceb87a30b99f760d70d3e93c599fb24fd8c492674f0fc00d7fedeaa66",
+    "workflow_sha256": "52a4e7c09aa25261cefa9d22fee763c42cbbd26e54731f138deb0e30f92aaa41",
+    "evidence_sha256": "8c8a288bedb783dcbefb07435af2ecc0a4ceb42d5252ce79b624f58b39b98d08",
+    "next_result_sha256": "c395a1bb828c659e047f7e9709c7be78286d2c8cac5e411a6e42a7b840d04173",
+    "status": "RESEARCH_BLOCKED_WITH_EVIDENCE",
+    "steps": [
+      {"task_id": "collect_116", "status": "PIT_BLOCKED", "autonomous": true},
+      {"task_id": "safe_fixture", "status": "VERIFIED_FIXTURE", "autonomous": true}
+    ],
+    "source_files": 34,
+    "paired_numeric_dates": 4204,
+    "strict_pit_blocked_rows": 4204,
+    "worker_attempts": 1,
+    "duplicate_completions": 0,
+    "model_calls": 0,
+    "market_data_network_requests": 0,
+    "incremental_model_cost": 0,
+    "inherited_provider_cost": "UNKNOWN",
+    "budget": {"wall_seconds": 30, "cpu_seconds": 30, "memory_mb": 512, "file_mb": 20, "open_files": 64, "max_restarts": 1, "max_alternative_tasks": 1}
+  },
+  "recovery": {
+    "worker_kill": {"status": "PASS", "attempts": 2, "restarts": 1, "crashes": 1, "duplicate_completions": 0},
+    "supervisor_kill": {"status": "PASS", "worker_attempts": 1, "duplicate_completions": 0},
+    "terminal_reinvoke": "PASS",
+    "deliberate_stop": "PASS"
+  },
+  "tests": {
+    "baseline_universal": {"status": "PASS", "run": 90, "skipped": 1},
+    "baseline_regime190": {"status": "PASS", "run": 55, "skipped": 0},
+    "new_collector_tests": {"status": "PASS", "run": 9},
+    "final_universal": {"status": "PASS", "run": 99, "skipped": 1, "skip_reason": "OS sandbox unavailable in this test process"},
+    "final_regime190": {"status": "PASS", "run": 55, "skipped": 0},
+    "compileall": "PASS",
+    "git_diff_check": "PASS",
+    "read_only_db_schema": "PASS",
+    "new_bubblewrap_repair_rollback": "BLOCKED"
+  },
+  "gates": {
+    "CORE_REGRESSION_VERIFIED": "PASS",
+    "GENERAL_EVIDENCE_COLLECTOR_CONNECTED": "PASS",
+    "AUTONOMOUS_NEXT_TASK_VERIFIED": "PASS",
+    "AUTO_REPAIR_AND_RECOVERY_VERIFIED": "BLOCKED",
+    "SANDBOX_AND_POLICY_VERIFIED": "BLOCKED",
+    "EXPLORATORY_E2E_VERIFIED": "NOT_RUN",
+    "LIVE_RESEARCH_E2E_VERIFIED": "BLOCKED",
+    "PIT_VERIFIED_IND116": "BLOCKED",
+    "PRODUCTION_READY": "NOT_RUN"
+  },
+  "next_command": "PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.process_supervisor --research-manifest .universal_private/ind116_bounded_manifest.json --job-dir .universal_private/ind116_bounded_job"
+}
