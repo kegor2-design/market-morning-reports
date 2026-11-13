@@ -1,6 +1,6 @@
 # Session A implementation and feature audit — 2026-11-14
 
-Branch: `research/universal-agent-autonomous-data-recovery-20261114`. Basis: remote `research/universal-agent-collector-autonext-20261113` at `e15f596e3fa2a5564ed4d35cadfaf43195b9a31a`; the indicator 116 resolution commit `2c56092` is its ancestor. The basis worktree was clean. Changes were made in a separate worktree. The phase A1/A2 code commit is `3a2cd32889b597d56ac4e8ce0346a2ea21114b22`.
+Branch: `research/universal-agent-autonomous-data-recovery-20261114`. Basis: remote `research/universal-agent-collector-autonext-20261113` at `e15f596e3fa2a5564ed4d35cadfaf43195b9a31a`; the indicator 116 resolution commit `2c56092` is its ancestor. The basis worktree was clean. Changes were made in a separate worktree. The A1/A2 code commit is `3a2cd32889b597d56ac4e8ce0346a2ea21114b22`; the recovery follow-up commit is `039b5f7bdc6add515e289f1646ece7cf1eed804b`.
 
 The existing Research Job action registry, manifest validation, Worker, Supervisor, atomic checkpoint writer, Problem Solver, and independent artifact verifier were extended with `data_recovery`. The reviewed Treasury adapter handles two US yield series, one year and up to 366 declared dates per task. It checks existing values first, downloads only when a declared date is absent or cross validation is requested, classifies HTTP/network errors, limits attempts and response bytes, hashes the raw response, records row metadata, compares exact decimal values, and leaves historical publication/access times null. The recovery state records task identity, budget, gaps, source records, evidence hash, mismatch, next action and an uncertain-call boundary. Supervisor verifies the saved source and independently recomputes recovered values before accepting an action artifact. It still returns `RESEARCH_BLOCKED_WITH_EVIDENCE` because source PIT is not established.
 
@@ -9,7 +9,7 @@ Feature map based on code and this run:
 | Existing capability | Status | Evidence or limit |
 | --- | --- | --- |
 | Research Job manifest, task key, duplicate prevention | IMPLEMENTED_VERIFIED | `research_job.py`; live Treasury job completed once, terminal rerun remained one attempt |
-| Supervisor / Worker and checkpoint resume | IMPLEMENTED_VERIFIED | `research_job.py`, `process_supervisor.py`; inherited interruption tests and 105 Universal Agent tests |
+| Supervisor / Worker and checkpoint resume | IMPLEMENTED_VERIFIED for sealed source output | Actual Worker and Supervisor SIGKILL probes; one Worker attempt and one official request in each case; 105 Universal Agent tests |
 | Existing collectors and source adapters | PARTIAL | Indicator 116 offline FRED adapter and new Treasury 2Y/10Y adapter; no generic registry for all listed official sources |
 | `evidence_collector.py`, `evidence_workflow.py` | IMPLEMENTED_VERIFIED | Live indicator 116 workflow remained `PIT_BLOCKED`, then ran independent fixture |
 | `problem_solver.py` integration | PARTIAL | `recover_data_gap` routes to bounded acquisition; broader automatic solution selection remains unimplemented |
@@ -23,4 +23,4 @@ Feature map based on code and this run:
 
 The previous modes and schemas remain available. Universal Agent 105 tests (one existing environment skip) and Regime190 55 tests passed after restoring two ignored, hash-checked Naver CSV fixtures into the new worktree from the unchanged basis worktree. No operating DB, service, scheduler, strategy, order, key or production file was changed. This is research-only code.
 
-Next work: add reviewed adapters only where source terms, auth and historical metadata are understood; add a source registry and multi-source conflict analysis; validate monetary budgets; execute isolated repair and rollback in an approved environment; test a true kill/restart for the new networked mode. Avoid replay of a checkpoint marked `BLOCKED_UNCERTAIN_API_CALL` without human review of the prior request.
+Next work: add reviewed adapters only where source terms, auth and historical metadata are understood; add a source registry and multi-source conflict analysis; validate monetary budgets; execute isolated repair and rollback in an approved environment. Avoid replay of a checkpoint marked `BLOCKED_UNCERTAIN_API_CALL` without review of the prior request.

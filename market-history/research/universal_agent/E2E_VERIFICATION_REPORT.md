@@ -12,7 +12,7 @@
 | Actual mismatch detection | PASS | `187` versus `1.87` preserved and classified `DATA_MISMATCH` |
 | PIT evidence insufficiency / next task | PASS for blocked gate and fixture transition | Indicator 116 evidence SHA-256 `2d88127004f5fda9128cd95658d433ebbd161b336d7c070c15566fd91b4a3d52`; `PIT_BLOCKED`; independent fixture only |
 | Live automatic code fix and rollback | BLOCKED | Bubblewrap namespace creation denied; no new experiment performed |
-| New networked Worker forced-kill/resume | SKIP | Uncertain-call refusal unit test passed; full process-kill trial not run |
+| New networked Worker and Supervisor forced-kill/resume | PASS for sealed output | Live SIGKILL probes; both resumed with one Worker attempt and one official request; no duplicate completion |
 | `git diff --check` | PASS | No whitespace errors |
 | Production readiness, PIT verified, investment result | BLOCKED | Historical source access clocks and independent market holdout absent |
 

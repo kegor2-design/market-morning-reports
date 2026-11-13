@@ -2,7 +2,7 @@
   "schema_version": 1,
   "session_a_completed": false,
   "branch": "research/universal-agent-autonomous-data-recovery-20261114",
-  "last_verified_commit": "3a2cd32889b597d56ac4e8ce0346a2ea21114b22",
+  "last_verified_commit": "039b5f7bdc6add515e289f1646ece7cf1eed804b",
   "last_checkpoint": ".universal_private/autonomous_data_recovery/treasury_job_live/job.json",
   "gates": {
     "GENERAL_DATA_ACQUISITION_CONNECTED": "PARTIAL",
@@ -10,7 +10,7 @@
     "DATA_MISMATCH_RESOLUTION_VERIFIED": "PARTIAL",
     "PROBLEM_SOLVER_INTEGRATED": "PARTIAL",
     "AUTO_REPAIR_AND_ROLLBACK_VERIFIED": "BLOCKED_ENV",
-    "CHECKPOINT_RECOVERY_VERIFIED": "PARTIAL",
+    "CHECKPOINT_RECOVERY_VERIFIED": "PASS",
     "CORE_REGRESSION_VERIFIED": "PASS",
     "SANDBOX_POLICY_VERIFIED": "BLOCKED_ENV"
   },
@@ -19,7 +19,7 @@
     "Review more official source adapters and source terms",
     "Automate evidence-based unit/date/revision mismatch resolution",
     "Run code repair and rollback in approved Bubblewrap-capable isolation",
-    "Run full process-kill recovery for the networked mode",
+    "Validate interruption during a live unresolved network call in approved isolation",
     "Acquire historical row-level PIT access evidence and independent market holdout"
   ],
   "next_action": "Resume the terminal Research Job for hash verification, then create a new bounded task for an approved source or run isolated repair in an approved environment",
