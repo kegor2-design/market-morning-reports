@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import json
 import os
+import resource
 import signal
 import subprocess
 import sys
@@ -92,13 +93,29 @@ def plan_for(manifest: dict, manifest_sha: str) -> dict:
         'max_follow_on_hypotheses': manifest.get('max_follow_on_hypotheses')})).hexdigest()
     task_id = manifest['job_id'] + '_execute'
     task_key = hashlib.sha256(canonical((manifest_sha, task_id, input_sha))).hexdigest()
-    return {'goal': manifest['goal'], 'hypothesis': manifest.get('hypothesis'),
+    plan = {'goal': manifest['goal'], 'hypothesis': manifest.get('hypothesis'),
             'action': contract['action'], 'risk': contract['risk'],
             'idempotent': contract['idempotent'], 'rollback_rule': contract['rollback'],
             'task_id': task_id, 'task_key': task_key, 'input_sha256': input_sha,
             'max_attempts': manifest['max_restarts'] + 1,
             'max_seconds': manifest['max_seconds'],
             'max_model_calls': manifest['max_model_calls']}
+    if manifest['mode'] == 'evidence_workflow':
+        plan['resource_limits'] = {'cpu_seconds': min(manifest['max_seconds'], 60),
+                                   'memory_mb': 512, 'file_mb': 20, 'open_files': 64,
+                                   'network_requests': 0}
+    return plan
+
+
+def _limit_evidence_worker(limits: dict) -> None:
+    """Apply OS limits before the offline evidence worker imports source data."""
+    cpu = limits['cpu_seconds']
+    resource.setrlimit(resource.RLIMIT_CPU, (cpu, cpu + 1))
+    memory = limits['memory_mb'] * 1024 * 1024
+    resource.setrlimit(resource.RLIMIT_AS, (memory, memory))
+    file_size = limits['file_mb'] * 1024 * 1024
+    resource.setrlimit(resource.RLIMIT_FSIZE, (file_size, file_size))
+    resource.setrlimit(resource.RLIMIT_NOFILE, (limits['open_files'], limits['open_files']))
 
 
 def _artifact(state_dir: Path) -> Path:
@@ -481,7 +498,10 @@ def supervise(manifest_path: Path, state_dir: Path) -> dict:
                 worker = subprocess.Popen(command, cwd=Path(__file__).resolve().parents[3],
                                           env=env, stdin=subprocess.DEVNULL,
                                           stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
-                                          text=True, start_new_session=True)
+                                          text=True, start_new_session=True,
+                                          preexec_fn=(lambda: _limit_evidence_worker(
+                                              plan['resource_limits'])) if plan['action'] ==
+                                              'EVIDENCE_WORKFLOW' else None)
                 if state['attempts']:
                     state['worker_restarts'] += 1
                 state['attempts'] += 1
