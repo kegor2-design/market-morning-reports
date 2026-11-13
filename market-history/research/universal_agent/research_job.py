@@ -29,6 +29,8 @@ ACTION_REGISTRY = {
                           'idempotent': True, 'rollback': 'preserve_guided_checkpoint'},
     'guided_e2e': {'action': 'GUIDED_E2E', 'risk': 'sandboxed_research',
                    'idempotent': False, 'rollback': 'preserve_uncertain_ai_call'},
+    'evidence_workflow': {'action': 'EVIDENCE_WORKFLOW', 'risk': 'read_only_research',
+                          'idempotent': True, 'rollback': 'preserve_hashed_task_checkpoints'},
 }
 FINAL = {'VERIFIED_RESEARCH_CONCLUSION', 'RESEARCH_BLOCKED_WITH_EVIDENCE',
          'FAILED_TERMINAL'}
@@ -65,6 +67,15 @@ def manifest_load(path: Path) -> tuple[dict, str]:
             candidate = Path(data[key])
             if candidate.is_symlink() or not candidate.resolve().is_relative_to(root.resolve()):
                 raise ValueError(f'{key} outside private research root')
+    if data['mode'] == 'evidence_workflow':
+        request, next_task = data['evidence_request'], data['next_task']
+        if (request['goal_id'] != data['job_id'] or
+                request['task_id'] == next_task['task_id'] or
+                next_task['independent_of'] != request['indicator'] or
+                request['budget']['max_seconds'] > data['max_seconds'] or
+                request['budget']['max_model_calls'] != 0 or
+                request['budget']['max_network_requests'] != 0):
+            raise ValueError('Evidence task identity, dependency or budget invalid')
     return data, sha(resolved)
 
 
@@ -76,6 +87,8 @@ def plan_for(manifest: dict, manifest_sha: str) -> dict:
         'ai_state_dir': manifest.get('ai_state_dir'),
         'guided_state_dir': manifest.get('guided_state_dir'),
         'fault_kind': manifest.get('fault_kind'),
+        'evidence_request': manifest.get('evidence_request'),
+        'next_task': manifest.get('next_task'),
         'max_follow_on_hypotheses': manifest.get('max_follow_on_hypotheses')})).hexdigest()
     task_id = manifest['job_id'] + '_execute'
     task_key = hashlib.sha256(canonical((manifest_sha, task_id, input_sha))).hexdigest()
@@ -136,6 +149,9 @@ def _worker(manifest_path: Path, state_dir: Path, task_key: str) -> int:
     elif plan['action'] == 'GUIDED_E2E':
         from .guided_e2e import run_job
         result = run_job(manifest, state_dir)
+    elif plan['action'] == 'EVIDENCE_WORKFLOW':
+        from .evidence_workflow import run
+        result = run(manifest, state_dir)
     else:
         raise ValueError('Unregistered action')
     write_state(artifact, {'task_key': task_key, 'action': plan['action'],
@@ -314,6 +330,20 @@ def verify_artifact(manifest: dict, plan: dict, state_dir: Path) -> dict:
         if (result.get('model_calls', 0) != _used_calls(manifest) or
                 result['model_calls'] > plan['max_model_calls']):
             raise ValueError('E2E model budget exceeded')
+    elif plan['action'] == 'EVIDENCE_WORKFLOW':
+        from .evidence_workflow import verify
+        workflow = Path(result['workflow_path'])
+        if (workflow.is_symlink() or workflow.resolve() !=
+                (state_dir / 'workflow.json').resolve() or
+                sha(workflow) != result['workflow_sha256']):
+            raise ValueError('Evidence workflow checkpoint integrity mismatch')
+        saved = verify(manifest, state_dir)
+        if (len(saved['steps']) != 2 or result['evidence_sha256'] != saved['steps'][0][
+                'output_sha256'] or result['next_sha256'] != saved['steps'][1]['output_sha256'] or
+                result['transition_count'] != 1 or result['evidence_status'] != saved['steps'][0][
+                    'status'] or result['model_calls'] != 0 or
+                result['network_requests'] != 0 or result['official_market_claim'] is not False):
+            raise ValueError('Evidence workflow transition unverified')
     else:
         raise ValueError('Unregistered action')
     return item
@@ -336,6 +366,12 @@ def _conclude(manifest: dict, plan: dict, artifact: dict, output_sha: str) -> di
                 'sample_size': len(values), 'official_market_claim': False,
                 'input_sha256': plan['input_sha256'], 'output_sha256': output_sha}
     result = artifact['result']
+    if plan['action'] == 'EVIDENCE_WORKFLOW':
+        return {'status': 'RESEARCH_BLOCKED_WITH_EVIDENCE',
+                'reason': result['evidence_status'],
+                'next_task_status': 'VERIFIED_FIXTURE', 'scope': 'EXPLORATORY_ONLY',
+                'official_market_claim': False, 'input_sha256': plan['input_sha256'],
+                'output_sha256': output_sha}
     if plan['action'] == 'GUIDED_E2E':
         return {'status': 'RESEARCH_BLOCKED_WITH_EVIDENCE',
                 'reason': 'PIT_UNVERIFIED' if result['status'] == 'EXPLORATORY_ONLY'

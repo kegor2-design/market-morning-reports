@@ -24,6 +24,16 @@ SAFE_ACTIONS = {'VERIFY_PIT_LOCAL', 'RUN_EXISTING_EXPLORATORY', 'STOP_AND_REPORT
 STORE = PRIVATE_ROOT / 'problem_experience'
 
 
+def collect_indicator_evidence(request: dict) -> dict:
+    """Route an indicator-specific read-only request through the reviewed adapter.
+
+    This deliberately bypasses the KOSPI/KOSDAQ-only executable alternatives
+    in ``solve`` and makes no model call or PIT approval decision.
+    """
+    from .evidence_collector import collect
+    return collect(request)
+
+
 def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
