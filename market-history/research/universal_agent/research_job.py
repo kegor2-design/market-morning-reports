@@ -391,10 +391,12 @@ def verify_artifact(manifest: dict, plan: dict, state_dir: Path) -> dict:
                 manifest['data_request'])).hexdigest() or
                 saved['status'] != result['status'] or
                 saved.get('content_sha256') != result['content_sha256'] or
+                saved['network_requests'] != result['network_requests'] or
                 saved['network_requests'] > plan['resource_limits']['network_requests'] or
                 result['official_market_claim'] is not False):
             raise ValueError('Recovery identity, budget or status mismatch')
-        if result['status'] in {'DATA_RECOVERED_PIT_UNVERIFIED', 'DATA_MISMATCH'}:
+        if result['status'] in {'DATA_RECOVERED_PIT_UNVERIFIED', 'DATA_MISMATCH',
+                                'DATA_MISMATCH_RESOLVED_PIT_UNVERIFIED'}:
             from .data_recovery import verify_recovery
             verify_recovery(manifest['data_request'], path.parent)
         elif result['status'] not in {'BLOCKED_ENV', 'BLOCKED_EVIDENCE',

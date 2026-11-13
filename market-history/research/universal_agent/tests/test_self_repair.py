@@ -113,6 +113,29 @@ class SelfRepairTests(unittest.TestCase):
                              ['ROLLED_BACK', 'VERIFIED'])
             self.assertIn('"answer": 42', source.read_text())
 
+    def test_failed_isolated_candidate_restores_original_source(self):
+        probe = probe_secure_runner()
+        if probe['status'] != 'SECURE_RUNNER_VERIFIED':
+            self.skipTest('OS sandbox unavailable in this test process')
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / 'market-history/research/test_project'
+            root.mkdir(parents=True)
+            source = root / 'experiment.py'
+            original = ('import json\nresult = {"answer": 42}\n'
+                        'with open("result.json", "w", encoding="utf-8") as stream:\n'
+                        '    json.dump(result, stream)\n')
+            source.write_text(original)
+            bad = original.replace('"answer": 42', '"answer": 0')
+            def verify(path, output):
+                return output['exit_code'] == 0 and json.loads(
+                    (path.parent / 'result.json').read_text())['answer'] == 42
+            with patch.object(self_repair, 'RESEARCH_ROOT', root):
+                result = repair_research_source(source, [bad], root, verify)
+            self.assertEqual(result['status'], 'SAFE_BLOCKED')
+            self.assertEqual(result['attempts'][0]['status'], 'ROLLED_BACK')
+            self.assertEqual(source.read_text(), original)
+            self.assertFalse((root / 'result.json').exists())
+
     def test_interrupted_repair_restores_original_on_resume(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp) / 'market-history/research/test_project'
