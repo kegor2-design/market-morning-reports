@@ -32,6 +32,8 @@ ACTION_REGISTRY = {
                    'idempotent': False, 'rollback': 'preserve_uncertain_ai_call'},
     'evidence_workflow': {'action': 'EVIDENCE_WORKFLOW', 'risk': 'read_only_research',
                           'idempotent': True, 'rollback': 'preserve_hashed_task_checkpoints'},
+    'data_recovery': {'action': 'DATA_RECOVERY', 'risk': 'read_only_research',
+                      'idempotent': False, 'rollback': 'preserve_uncertain_api_call'},
 }
 FINAL = {'VERIFIED_RESEARCH_CONCLUSION', 'RESEARCH_BLOCKED_WITH_EVIDENCE',
          'FAILED_TERMINAL'}
@@ -77,6 +79,12 @@ def manifest_load(path: Path) -> tuple[dict, str]:
                 request['budget']['max_model_calls'] != 0 or
                 request['budget']['max_network_requests'] != 0):
             raise ValueError('Evidence task identity, dependency or budget invalid')
+    if data['mode'] == 'data_recovery':
+        request = data['data_request']
+        if (request['job_id'] != data['job_id'] or request['goal_id'] != data['job_id'] or
+                request['budget']['max_seconds'] > data['max_seconds'] or
+                request['budget']['max_model_calls'] != 0 or data['max_restarts'] != 0):
+            raise ValueError('Recovery task identity or budget invalid')
     return data, sha(resolved)
 
 
@@ -89,6 +97,7 @@ def plan_for(manifest: dict, manifest_sha: str) -> dict:
         'guided_state_dir': manifest.get('guided_state_dir'),
         'fault_kind': manifest.get('fault_kind'),
         'evidence_request': manifest.get('evidence_request'),
+        'data_request': manifest.get('data_request'),
         'next_task': manifest.get('next_task'),
         'max_follow_on_hypotheses': manifest.get('max_follow_on_hypotheses')})).hexdigest()
     task_id = manifest['job_id'] + '_execute'
@@ -100,10 +109,11 @@ def plan_for(manifest: dict, manifest_sha: str) -> dict:
             'max_attempts': manifest['max_restarts'] + 1,
             'max_seconds': manifest['max_seconds'],
             'max_model_calls': manifest['max_model_calls']}
-    if manifest['mode'] == 'evidence_workflow':
+    if manifest['mode'] in {'evidence_workflow', 'data_recovery'}:
         plan['resource_limits'] = {'cpu_seconds': min(manifest['max_seconds'], 60),
                                    'memory_mb': 512, 'file_mb': 20, 'open_files': 64,
-                                   'network_requests': 0}
+                                   'network_requests': manifest.get('data_request', {}).get(
+                                       'budget', {}).get('max_network_requests', 0)}
     return plan
 
 
@@ -169,6 +179,15 @@ def _worker(manifest_path: Path, state_dir: Path, task_key: str) -> int:
     elif plan['action'] == 'EVIDENCE_WORKFLOW':
         from .evidence_workflow import run
         result = run(manifest, state_dir)
+    elif plan['action'] == 'DATA_RECOVERY':
+        from .problem_solver import recover_data_gap
+        recovery_dir = private(state_dir / 'data_recovery')
+        recovery = recover_data_gap(manifest['data_request'], recovery_dir)
+        result = {'status': recovery['status'], 'recovery_checkpoint': str(
+            recovery_dir / 'data_recovery.json'),
+            'recovery_checkpoint_sha256': sha(recovery_dir / 'data_recovery.json'),
+            'content_sha256': recovery.get('content_sha256'),
+            'network_requests': recovery['network_requests'], 'official_market_claim': False}
     else:
         raise ValueError('Unregistered action')
     write_state(artifact, {'task_key': task_key, 'action': plan['action'],
@@ -361,6 +380,27 @@ def verify_artifact(manifest: dict, plan: dict, state_dir: Path) -> dict:
                     'status'] or result['model_calls'] != 0 or
                 result['network_requests'] != 0 or result['official_market_claim'] is not False):
             raise ValueError('Evidence workflow transition unverified')
+    elif plan['action'] == 'DATA_RECOVERY':
+        path = Path(result['recovery_checkpoint'])
+        if (path.is_symlink() or path.resolve() !=
+                (state_dir / 'data_recovery/data_recovery.json').resolve() or
+                sha(path) != result['recovery_checkpoint_sha256']):
+            raise ValueError('Recovery checkpoint integrity mismatch')
+        saved = json.loads(path.read_text())
+        if (saved['request_sha256'] != hashlib.sha256(canonical(
+                manifest['data_request'])).hexdigest() or
+                saved['status'] != result['status'] or
+                saved.get('content_sha256') != result['content_sha256'] or
+                saved['network_requests'] > plan['resource_limits']['network_requests'] or
+                result['official_market_claim'] is not False):
+            raise ValueError('Recovery identity, budget or status mismatch')
+        if result['status'] in {'DATA_RECOVERED_PIT_UNVERIFIED', 'DATA_MISMATCH'}:
+            from .data_recovery import verify_recovery
+            verify_recovery(manifest['data_request'], path.parent)
+        elif result['status'] not in {'BLOCKED_ENV', 'BLOCKED_EVIDENCE',
+                                      'BLOCKED_UNCERTAIN_API_CALL',
+                                      'EXISTING_DATA_UNVERIFIED'}:
+            raise ValueError('Unsupported recovery status')
     else:
         raise ValueError('Unregistered action')
     return item
@@ -389,6 +429,11 @@ def _conclude(manifest: dict, plan: dict, artifact: dict, output_sha: str) -> di
                 'next_task_status': 'VERIFIED_FIXTURE', 'scope': 'EXPLORATORY_ONLY',
                 'official_market_claim': False, 'input_sha256': plan['input_sha256'],
                 'output_sha256': output_sha}
+    if plan['action'] == 'DATA_RECOVERY':
+        return {'status': 'RESEARCH_BLOCKED_WITH_EVIDENCE',
+                'reason': result['status'], 'official_market_claim': False,
+                'recovery_checkpoint_sha256': result['recovery_checkpoint_sha256'],
+                'input_sha256': plan['input_sha256'], 'output_sha256': output_sha}
     if plan['action'] == 'GUIDED_E2E':
         return {'status': 'RESEARCH_BLOCKED_WITH_EVIDENCE',
                 'reason': 'PIT_UNVERIFIED' if result['status'] == 'EXPLORATORY_ONLY'
@@ -500,8 +545,8 @@ def supervise(manifest_path: Path, state_dir: Path) -> dict:
                                           stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
                                           text=True, start_new_session=True,
                                           preexec_fn=(lambda: _limit_evidence_worker(
-                                              plan['resource_limits'])) if plan['action'] ==
-                                              'EVIDENCE_WORKFLOW' else None)
+                                              plan['resource_limits'])) if plan['action'] in
+                                              {'EVIDENCE_WORKFLOW', 'DATA_RECOVERY'} else None)
                 if state['attempts']:
                     state['worker_restarts'] += 1
                 state['attempts'] += 1

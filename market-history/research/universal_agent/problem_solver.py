@@ -34,6 +34,12 @@ def collect_indicator_evidence(request: dict) -> dict:
     return collect(request)
 
 
+def recover_data_gap(request: dict, state_dir: Path) -> dict:
+    """Use the approved source recovery loop for a Research Job problem task."""
+    from .data_recovery import recover
+    return recover(request, state_dir)
+
+
 def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
