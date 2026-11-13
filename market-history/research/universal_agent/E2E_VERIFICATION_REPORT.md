@@ -29,3 +29,35 @@ PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest
 ```
 
 The first command reuses the terminal checkpoint; it does not download again. A new collection requires a new reviewed manifest and task ID. No new executable script was added, so `chmod +x` is not needed.
+
+## Follow-up verification — 2026-11-14
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Universal Agent full regression in approved Bubblewrap-capable execution | PASS | 109 tests, zero skips |
+| Regime190 full regression | PASS | 55 tests |
+| New adapter and revision tests | PASS | NY Fed JSON, source allowlist, correction notice, 503 handling, tampered notice |
+| Real NY Fed SOFR gap recovery | PASS | Two values recovered; raw SHA `7e302132b1cff25ae4b0a1cf69ae0aa8c893c8eb2a1573b1b662bd3a00ce015c` |
+| Real Treasury/FRED/H.15 discrepancy diagnosis | PASS | `2.77 → 2.88` correction; notice SHA `8f367e879bfa15ba5618db2a0b8c37a740a797369e45f04d909efbcd4c6d6ae9` |
+| Real AI code repair and independent output check | PASS for code repair | New model call, Bubblewrap run, integrated evidence SHA `d5be97febf0972834743afefc4eb4eb1b281aaa91d4590b2f311d751ff6bcf3d` |
+| Invalid candidate rollback | PASS | Real Bubblewrap test restored original source and removed output |
+| Worker/Supervisor kill recovery | PASS for sealed output | Prior live probes retained; one attempt and one official request each |
+| Read-only DB schema and bounded sample | PASS | Existing `_db_sample()` confirmed columns, `BEGIN READ ONLY`, 5-second timeout, 20-row limits |
+| PIT, independent market holdout, investment conclusion | BLOCKED | Historical first-access clocks and holdout absent |
+| Live external outage | SKIP | 503 path tested by injection; no outage induced |
+| Compile and `git diff --check` | PASS | Changed modules compile; no whitespace errors |
+
+Private Research Job checkpoint SHA-256 values: revision `396367493ae0bec479355de064039a3291e1a90c8bc8da406b0653d3cc3ad0e9`; SOFR `41b72f33e8a3dd6df23c50b2ea824d49cd87b868b7b9755d23ff0048e0d3144a`. Raw source bytes, model output, credentials and large temporary files were not committed.
+
+Resume commands from the worktree (both reuse terminal checkpoints; no new source or model call):
+
+```bash
+cd /home/kegor2/market-morning-reports-autonomous-data-recovery
+chmod 600 .universal_private/autonomous_data_recovery_followup/revision_loop_manifest.json .universal_private/autonomous_data_recovery_followup/sofr_loop_manifest.json
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.process_supervisor --research-manifest .universal_private/autonomous_data_recovery_followup/revision_loop_manifest.json --job-dir .universal_private/autonomous_data_recovery_followup/revision_loop_job
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.process_supervisor --research-manifest .universal_private/autonomous_data_recovery_followup/sofr_loop_manifest.json --job-dir .universal_private/autonomous_data_recovery_followup/sofr_loop_job
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/universal_agent/tests -q
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/regime190/tests -q
+```
+
+The full Universal Agent suite requires the approved Bubblewrap-capable execution environment to avoid the tool-sandbox skip. The code repair trial's one model call is complete; re-running its private AI state must not trigger another call.
