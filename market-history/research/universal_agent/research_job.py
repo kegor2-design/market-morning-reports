@@ -83,7 +83,7 @@ def manifest_load(path: Path) -> tuple[dict, str]:
         request = data['data_request']
         if (request['job_id'] != data['job_id'] or request['goal_id'] != data['job_id'] or
                 request['budget']['max_seconds'] > data['max_seconds'] or
-                request['budget']['max_model_calls'] != 0 or data['max_restarts'] != 0):
+                request['budget']['max_model_calls'] != 0 or data['max_restarts'] > 1):
             raise ValueError('Recovery task identity or budget invalid')
     return data, sha(resolved)
 
@@ -193,7 +193,7 @@ def _worker(manifest_path: Path, state_dir: Path, task_key: str) -> int:
     write_state(artifact, {'task_key': task_key, 'action': plan['action'],
                            'input_sha256': plan['input_sha256'], 'result': result})
     delay = manifest.get('fixture_delay_after_output_seconds', 0)
-    if delay and manifest['mode'] == 'synthetic_research':
+    if delay and manifest['mode'] in {'synthetic_research', 'data_recovery'}:
         time.sleep(delay)
     return 0
 
