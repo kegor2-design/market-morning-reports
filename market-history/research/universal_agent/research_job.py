@@ -34,6 +34,8 @@ ACTION_REGISTRY = {
                           'idempotent': True, 'rollback': 'preserve_hashed_task_checkpoints'},
     'data_recovery': {'action': 'DATA_RECOVERY', 'risk': 'read_only_research',
                       'idempotent': False, 'rollback': 'preserve_uncertain_api_call'},
+    'rate_analysis': {'action': 'RATE_ANALYSIS', 'risk': 'read_only_research',
+                      'idempotent': True, 'rollback': 'discard_private_artifact'},
 }
 FINAL = {'VERIFIED_RESEARCH_CONCLUSION', 'RESEARCH_BLOCKED_WITH_EVIDENCE',
          'FAILED_TERMINAL'}
@@ -85,6 +87,16 @@ def manifest_load(path: Path) -> tuple[dict, str]:
                 request['budget']['max_seconds'] > data['max_seconds'] or
                 request['budget']['max_model_calls'] != 0 or data['max_restarts'] > 1):
             raise ValueError('Recovery task identity or budget invalid')
+    if data['mode'] == 'rate_analysis':
+        from .research_planner import SERIES
+        if set(data['analysis_sources']) != set(SERIES) or \
+                not 5 <= data['train_rows'] < len(data['analysis_dates']) - 2:
+            raise ValueError('Analysis contract invalid')
+        for entry in data['analysis_sources'].values():
+            for key in ('manifest', 'job_dir'):
+                candidate = Path(entry[key])
+                if candidate.is_symlink() or not candidate.resolve().is_relative_to(PRIVATE_ROOT):
+                    raise ValueError('Analysis source outside private root')
     return data, sha(resolved)
 
 
@@ -98,6 +110,9 @@ def plan_for(manifest: dict, manifest_sha: str) -> dict:
         'fault_kind': manifest.get('fault_kind'),
         'evidence_request': manifest.get('evidence_request'),
         'data_request': manifest.get('data_request'),
+        'analysis_sources': manifest.get('analysis_sources'),
+        'analysis_dates': manifest.get('analysis_dates'),
+        'train_rows': manifest.get('train_rows'),
         'next_task': manifest.get('next_task'),
         'max_follow_on_hypotheses': manifest.get('max_follow_on_hypotheses')})).hexdigest()
     task_id = manifest['job_id'] + '_execute'
@@ -109,7 +124,7 @@ def plan_for(manifest: dict, manifest_sha: str) -> dict:
             'max_attempts': manifest['max_restarts'] + 1,
             'max_seconds': manifest['max_seconds'],
             'max_model_calls': manifest['max_model_calls']}
-    if manifest['mode'] in {'evidence_workflow', 'data_recovery'}:
+    if manifest['mode'] in {'evidence_workflow', 'data_recovery', 'rate_analysis'}:
         plan['resource_limits'] = {'cpu_seconds': min(manifest['max_seconds'], 60),
                                    'memory_mb': 512, 'file_mb': 20, 'open_files': 64,
                                    'network_requests': manifest.get('data_request', {}).get(
@@ -188,6 +203,10 @@ def _worker(manifest_path: Path, state_dir: Path, task_key: str) -> int:
             'recovery_checkpoint_sha256': sha(recovery_dir / 'data_recovery.json'),
             'content_sha256': recovery.get('content_sha256'),
             'network_requests': recovery['network_requests'], 'official_market_claim': False}
+    elif plan['action'] == 'RATE_ANALYSIS':
+        from .rate_analysis import analyze
+        result = analyze(manifest['analysis_sources'], manifest['analysis_dates'],
+                         manifest['train_rows'])
     else:
         raise ValueError('Unregistered action')
     write_state(artifact, {'task_key': task_key, 'action': plan['action'],
@@ -403,6 +422,13 @@ def verify_artifact(manifest: dict, plan: dict, state_dir: Path) -> dict:
                                       'BLOCKED_UNCERTAIN_API_CALL',
                                       'EXISTING_DATA_UNVERIFIED'}:
             raise ValueError('Unsupported recovery status')
+    elif plan['action'] == 'RATE_ANALYSIS':
+        from .rate_analysis import analyze
+        expected = analyze(manifest['analysis_sources'], manifest['analysis_dates'],
+                           manifest['train_rows'])
+        if result != expected or result['official_market_claim'] is not False or \
+                result['pit_status'] != 'PIT_UNVERIFIED':
+            raise ValueError('Independent rate analysis mismatch')
     else:
         raise ValueError('Unregistered action')
     return item
@@ -435,6 +461,11 @@ def _conclude(manifest: dict, plan: dict, artifact: dict, output_sha: str) -> di
         return {'status': 'RESEARCH_BLOCKED_WITH_EVIDENCE',
                 'reason': result['status'], 'official_market_claim': False,
                 'recovery_checkpoint_sha256': result['recovery_checkpoint_sha256'],
+                'input_sha256': plan['input_sha256'], 'output_sha256': output_sha}
+    if plan['action'] == 'RATE_ANALYSIS':
+        return {'status': 'RESEARCH_BLOCKED_WITH_EVIDENCE',
+                'reason': 'EXPLORATORY_ONLY', 'official_market_claim': False,
+                'hypothesis_result': result['hypothesis_result'],
                 'input_sha256': plan['input_sha256'], 'output_sha256': output_sha}
     if plan['action'] == 'GUIDED_E2E':
         return {'status': 'RESEARCH_BLOCKED_WITH_EVIDENCE',
@@ -548,7 +579,7 @@ def supervise(manifest_path: Path, state_dir: Path) -> dict:
                                           text=True, start_new_session=True,
                                           preexec_fn=(lambda: _limit_evidence_worker(
                                               plan['resource_limits'])) if plan['action'] in
-                                              {'EVIDENCE_WORKFLOW', 'DATA_RECOVERY'} else None)
+                                              {'EVIDENCE_WORKFLOW', 'DATA_RECOVERY', 'RATE_ANALYSIS'} else None)
                 if state['attempts']:
                     state['worker_restarts'] += 1
                 state['attempts'] += 1

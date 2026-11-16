@@ -24,5 +24,31 @@
     "Acquire historical row-level PIT access evidence and independent market holdout"
   ],
   "next_action": "Resume the terminal revision Research Job for hash verification; investigate source coverage and PIT evidence in new bounded tasks",
-  "resume_command": "PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.process_supervisor --research-manifest .universal_private/autonomous_data_recovery_followup/revision_loop_manifest.json --job-dir .universal_private/autonomous_data_recovery_followup/revision_loop_job"
+  "resume_command": "PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.process_supervisor --research-manifest .universal_private/autonomous_data_recovery_followup/revision_loop_manifest.json --job-dir .universal_private/autonomous_data_recovery_followup/revision_loop_job",
+  "session_b_completed": false,
+  "session_b_branch": "research/universal-agent-session-b-autonomous-research-20261114",
+  "session_b_base_commit": "497782dff9fe911ff9e1c4ff727aec3423d259bf",
+  "session_b_gates": {
+    "RESEARCH_PLANNER_VERIFIED": "PASS",
+    "TASK_DAG_VERIFIED": "PASS",
+    "AUTONOMOUS_MULTI_TASK_EXECUTION_VERIFIED": "PASS",
+    "AUTOMATIC_REPLANNING_VERIFIED": "PASS",
+    "REAL_RESEARCH_FALLBACK_VERIFIED": "PASS",
+    "PROBLEM_SOLVER_INTEGRATED": "PASS",
+    "CHECKPOINT_RESUME_VERIFIED": "BLOCKED",
+    "INDEPENDENT_RESEARCH_VERIFICATION_PASS": "BLOCKED",
+    "CORE_REGRESSION_VERIFIED": "PASS",
+    "SANDBOX_AND_POLICY_VERIFIED": "PASS"
+  },
+  "session_b_scope": "Official US rates exploratory analysis completed; indicator 116 remains PIT blocked. No official market claim.",
+  "session_b_checkpoints": [
+    ".universal_private/programs/research_4414e0f7df4f/state.json",
+    ".universal_private/programs/research_454c6a494cc6/state.json"
+  ],
+  "session_b_remaining_work": [
+    "Real Worker and Supervisor SIGKILL recovery with unresolved network call safety",
+    "Sealed independent market holdout and historical row-level PIT evidence",
+    "Broader reviewed goal, source, and analysis contracts"
+  ],
+  "session_b_resume_command": "PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.process_supervisor --research-goal '지표 116의 한국 증시 선행 신호 PIT를 검증하고, 차단되면 독립적인 실제 미국 금리차와 SOFR 연구를 수행하라.' --max-seconds 180"
 }
