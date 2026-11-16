@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -19,7 +20,16 @@ SERIES = ('UST_2Y', 'UST_10Y', 'NYFED_SOFR')
 ACTIONS = {'DATA_DISCOVERY': 'CHECK_EXISTING_DATA',
            'DATA_ACQUISITION': 'DATA_RECOVERY',
            'PIT_VALIDATION': 'EVIDENCE_WORKFLOW',
-           'EXPERIMENT_EXECUTION': 'RATE_ANALYSIS'}
+           'EXPERIMENT_EXECUTION': 'RATE_ANALYSIS',
+           'KR_INDEX_VALIDATION': 'VERIFY_HASHED_INDEX',
+           'KR_CRASH_ANALYSIS': 'ANALYZE_KR_CRASH_WINDOWS'}
+APPROVED_INDEPENDENT_RATES_GOAL = (
+    'Study Treasury yield spread and SOFR from 2018-04-03 to 2018-04-30 '
+    'as an explicitly approved independent exploratory research goal.')
+
+
+class UnsupportedGoal(ValueError):
+    """The reviewed source and action registry cannot fulfill this goal."""
 
 
 def dates_for(plan: dict) -> list[str]:
@@ -74,11 +84,58 @@ def validate_plan(plan: dict) -> None:
             plan['safety_policy']['read_only'] is not True or \
             plan['safety_policy']['production_changes'] is not False:
         raise ValueError('Planner attempted to alter safety policy')
-    if set(plan['data_requirements']) != set(SERIES) or \
-            set(plan['allowed_sources']) != {'US_TREASURY', 'NYFED_REFERENCE_RATES', 'FRED_ALFRED'}:
-        raise ValueError('Unreviewed data or source set')
-    if not dates_for(plan):
-        raise ValueError('No reviewed observation dates')
+    if plan['goal_contract']['original_research_goal'] != plan['research_goal'] or \
+            plan['goal_contract']['goal_id'] != plan['goal_id'] or \
+            plan['goal_contract']['market'] != plan['market'] or \
+            plan['goal_contract']['research_period'] != plan['research_period'] or \
+            plan['goal_contract']['hypotheses'] != plan['research_hypotheses'] or \
+            plan['goal_contract']['data_requirements'] != plan['data_requirements'] or \
+            plan['goal_contract']['allowed_sources'] != plan['allowed_sources'] or \
+            plan['goal_contract']['evaluation_methods'] != plan['evaluation_methods'] or \
+            plan['goal_contract']['resource_budget'] != plan['resource_budget'] or \
+            not ({a for t in tasks for a in t['allowed_actions']} <=
+                 set(plan['goal_contract']['allowed_actions'])):
+        raise ValueError('Goal contract diverges from research plan')
+    allowed_child_id = 'research_' + hashlib.sha256(
+        APPROVED_INDEPENDENT_RATES_GOAL.encode()).hexdigest()[:12]
+    if plan['goal_contract']['approved_independent_goal_ids'] not in ([], [allowed_child_id]):
+        raise ValueError('Unreviewed independent research goal')
+    if plan['goal_contract']['approved_independent_goal_ids'] and \
+            not ('차단' in plan['research_goal'] and '독립' in plan['research_goal'] and
+                 'SOFR' in plan['research_goal'].upper()):
+        raise ValueError('Independent research was not explicitly requested')
+    if plan['market'] == 'US_RATES':
+        period = plan['research_period']
+        start, end = date.fromisoformat(period['start']), date.fromisoformat(period['end'])
+        if (set(plan['data_requirements']) != set(SERIES) or
+                set(plan['allowed_sources']) != {'US_TREASURY', 'NYFED_REFERENCE_RATES'} or
+                {t['task_type'] for t in tasks} - {'DATA_DISCOVERY', 'DATA_ACQUISITION', 'EXPERIMENT_EXECUTION'} or
+                {t['inputs']['series'] for t in tasks if t['task_type'] == 'DATA_DISCOVERY'} != set(SERIES) or
+                sum(t['task_type'] == 'EXPERIMENT_EXECUTION' for t in tasks) != 1 or
+                plan['goal_contract']['allowed_actions'] !=
+                ['CHECK_EXISTING_DATA', 'DATA_RECOVERY', 'RATE_ANALYSIS'] or
+                start < date(2018, 4, 3) or end > date(2026, 11, 17) or
+                start.year != end.year or
+                not dates_for(plan)):
+            raise ValueError('Unreviewed US rates research contract')
+    elif plan['market'] == 'KR_EQUITY_EXPLORATORY':
+        if (plan['data_requirements'] != ['KOSPI_KOSDAQ_HASHED_SNAPSHOT'] or
+                plan['allowed_sources'] != ['NAVER_HASHED_LOCAL'] or
+                [t['task_type'] for t in tasks] !=
+                ['KR_INDEX_VALIDATION', 'KR_CRASH_ANALYSIS'] or
+                tasks[1]['dependencies'] != [tasks[0]['task_id']] or
+                plan['goal_contract']['allowed_actions'] !=
+                ['ANALYZE_KR_CRASH_WINDOWS', 'VERIFY_HASHED_INDEX']):
+            raise ValueError('Unreviewed Korean crash research contract')
+    elif plan['market'] == 'KR_EQUITY_CONTEXT':
+        if (plan['data_requirements'] != ['INDICATOR_116_PIT_EVIDENCE'] or
+                plan['allowed_sources'] != ['FRED_ALFRED'] or
+                len(tasks) != 1 or tasks[0]['task_type'] != 'PIT_VALIDATION' or
+                tasks[0]['inputs'] != {'indicator': '116'} or
+                plan['goal_contract']['allowed_actions'] != ['EVIDENCE_WORKFLOW']):
+            raise ValueError('Unreviewed Korean indicator contract')
+    else:
+        raise ValueError('Unsupported research market')
 
 
 def _task(task_id: str, kind: str, priority: int, *, dependencies=(), inputs=None) -> dict:
@@ -98,44 +155,103 @@ def plan_goal(goal: str) -> dict:
     if not isinstance(goal, str) or not 10 <= len(goal) <= 1000:
         raise ValueError('Research goal length invalid')
     lowered = goal.lower()
-    korean = ('한국' in goal and ('하락' in goal or '폭락' in goal or '증시' in goal)) or \
-        'indicator 116' in lowered or '지표 116' in goal
-    rates = any(word in lowered for word in ('sofr', 'treasury', 'yield', 'rate spread')) or \
-        any(word in goal for word in ('금리차', '미국 금리'))
-    if not korean and not rates:
-        raise ValueError('Unsupported goal: no reviewed data and analysis contract')
+    korean = 'indicator 116' in lowered or '지표 116' in goal
+    kr_crash = '한국' in goal and '급락' in goal and '변동성' in goal
+    rates = 'sofr' in lowered and ('treasury' in lowered or 'yield' in lowered or
+                                  '금리차' in goal or '국채' in goal)
+    if not korean and not rates and not kr_crash:
+        raise UnsupportedGoal('No reviewed data source and analysis action for this goal')
+    fallback_approved = (korean and rates and not kr_crash and
+                         '차단' in goal and '독립' in goal)
+    if sum((korean, rates, kr_crash)) > 1 and not fallback_approved:
+        raise UnsupportedGoal('Multiple research goals require separate goal contracts')
+    if fallback_approved:
+        rates = False
+    if re.search(r'\d{4}년\s*\d{1,2}월', goal):
+        raise UnsupportedGoal('Specify a supported research window as two YYYY-MM-DD dates')
     goal_id = 'research_' + hashlib.sha256(goal.encode()).hexdigest()[:12]
-    tasks = []
     if korean:
-        tasks.append(_task('pit_ind116', 'PIT_VALIDATION', 0,
-                           inputs={'indicator': '116'}))
-    for priority, series in enumerate(SERIES, start=10):
-        tasks.append(_task('discover_' + series.lower(), 'DATA_DISCOVERY', priority,
-                           inputs={'series': series}))
-    tasks.append(_task('analyze_rates', 'EXPERIMENT_EXECUTION', 40,
-                       dependencies=[task['task_id'] for task in tasks
-                                     if task['task_type'] == 'DATA_DISCOVERY'],
-                       inputs={'hypothesis': 'Positive 10Y-2Y spread predicts next-day SOFR rise',
-                               'train_rows': 12}))
+        if re.search(r'(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)', goal):
+            raise UnsupportedGoal('Indicator 116 date-specific PIT research is not reviewed')
+        tasks = [_task('pit_ind116', 'PIT_VALIDATION', 0, inputs={'indicator': '116'})]
+        period = {'start': '2010-01-04', 'end': '2026-10-26', 'resolution': 'daily'}
+        requirements = ['INDICATOR_116_PIT_EVIDENCE']
+        sources = ['FRED_ALFRED']
+        hypothesis = 'Indicator 116 has verified first-access evidence before market decisions'
+        evaluation = ['hashed source and as-of matrix validation']
+        defaults = ['Existing reviewed indicator 116 evidence window retained']
+    elif kr_crash:
+        if re.search(r'(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)', goal):
+            raise UnsupportedGoal('Date-specific Korean crash research is not reviewed')
+        period = {'start': '2010-01-01', 'end': '2025-12-31', 'resolution': 'daily'}
+        requirements = ['KOSPI_KOSDAQ_HASHED_SNAPSHOT']
+        sources = ['NAVER_HASHED_LOCAL']
+        hypothesis = 'Realized KOSPI volatility rises before daily declines of at least 5%'
+        evaluation = ['descriptive crash-window volatility versus non-crash windows']
+        defaults = ['Reviewed local snapshot window used; official KRX and PIT remain unverified']
+        tasks = [_task('validate_kr_index', 'KR_INDEX_VALIDATION', 0),
+                 _task('analyze_kr_crashes', 'KR_CRASH_ANALYSIS', 10,
+                       dependencies=['validate_kr_index'])]
+    else:
+        found = re.findall(r'(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)', goal)
+        if len(found) not in (0, 2):
+            raise UnsupportedGoal('Specify both start and end dates in YYYY-MM-DD format')
+        start, end = found if found else ('2018-04-03', '2018-04-30')
+        if date.fromisoformat(start) < date(2018, 4, 3) or \
+                date.fromisoformat(end) > date(2026, 11, 17) or \
+                start[:4] != end[:4]:
+            raise UnsupportedGoal('Unsupported Treasury/SOFR research period')
+        period = {'start': start, 'end': end, 'resolution': 'daily'}
+        requirements = list(SERIES)
+        sources = ['US_TREASURY', 'NYFED_REFERENCE_RATES']
+        hypothesis = 'Positive 10Y-2Y spread predicts next-day SOFR rise'
+        evaluation = ['predeclared chronological train/validation sign test',
+                      'independent recomputation from hashed official sources']
+        defaults = ([] if found else ['No ISO dates supplied: reviewed April 2018 window'])
+        tasks = [_task('discover_' + series.lower(), 'DATA_DISCOVERY', priority,
+                       inputs={'series': series})
+                 for priority, series in enumerate(SERIES, start=10)]
+        tasks.append(_task('analyze_rates', 'EXPERIMENT_EXECUTION', 40,
+                          dependencies=[task['task_id'] for task in tasks],
+                          inputs={'hypothesis': hypothesis, 'train_rows': 12}))
+        if len(dates_for({'research_period': period})) < 16:
+            raise UnsupportedGoal('Research period too short for sealed chronological split')
+    market = ('KR_EQUITY_CONTEXT' if korean else
+              'KR_EQUITY_EXPLORATORY' if kr_crash else 'US_RATES')
+    contract = {'version': 1, 'goal_id': goal_id, 'original_research_goal': goal,
+                'market': market, 'research_period': period,
+                'target': ('indicator 116 first-access PIT' if korean else
+                           'KOSPI daily decline <= -5%' if kr_crash else 'next-day SOFR direction'),
+                'hypotheses': [hypothesis], 'data_requirements': requirements,
+                'allowed_sources': sources,
+                'allowed_actions': sorted({a for t in tasks for a in t['allowed_actions']} |
+                                          ({'DATA_RECOVERY'} if rates else set())),
+                'evaluation_methods': evaluation,
+                'pit_policy': 'No official claim without row-level historical first-access proof',
+                'holdout_policy': 'No predictive claim without sealed independent market holdout',
+                'resource_budget': {'max_seconds': 300,
+                                    'max_network_requests': 0 if korean or kr_crash else 3,
+                                    'max_model_calls': 0,
+                                    'max_tasks': 1 if korean else 2 if kr_crash else 12},
+                'terminal_conditions': ['RESEARCH_COMPLETED_EXPLORATORY', 'RESEARCH_BLOCKED',
+                                        'RESEARCH_FAILED', 'RESEARCH_CANCELLED'],
+                'approved_independent_goal_ids': [
+                    'research_' + hashlib.sha256(APPROVED_INDEPENDENT_RATES_GOAL.encode()).hexdigest()[:12]
+                ] if fallback_approved else []}
     result = {'schema_version': 1, 'goal_id': goal_id, 'research_goal': goal,
-              'market': 'KR_EQUITY_CONTEXT' if korean else 'US_RATES',
-              'research_period': {'start': '2018-04-03', 'end': '2018-04-30',
-                                  'resolution': 'daily'},
-              'data_requirements': list(SERIES),
-              'research_hypotheses': ['Positive 10Y-2Y spread predicts next-day SOFR rise'],
-              'evaluation_methods': ['predeclared chronological train/validation sign test',
-                                     'independent recomputation from hashed official sources'],
+              'market': market, 'research_period': period,
+              'data_requirements': requirements, 'research_hypotheses': [hypothesis],
+              'evaluation_methods': evaluation,
               'pit_requirements': 'Historical first-access timestamps required for official use',
               'holdout_requirements': 'Sealed independent market holdout required for predictive claim',
-              'allowed_sources': ['US_TREASURY', 'NYFED_REFERENCE_RATES', 'FRED_ALFRED'],
-              'resource_budget': {'max_seconds': 300, 'max_network_requests': 3,
-                                  'max_model_calls': 0, 'max_tasks': 12},
-              'completion_criteria': 'Exploratory rates analysis and independent source recomputation; no investment claim',
+              'allowed_sources': sources, 'resource_budget': contract['resource_budget'],
+              'completion_criteria': ('Verified indicator PIT evidence' if korean else
+                'Exploratory crash-window description with hashed snapshot' if kr_crash else
+                'Exploratory rates analysis and independent source recomputation; no investment claim'),
               'safety_policy': {'read_only': True, 'official_claim_allowed': False,
                                 'production_changes': False},
-              'default_reasons': ['No dates supplied: fixed reviewed April 2018 window with published SOFR coverage',
-                                  'No predictive target specified: predeclared exploratory next-day SOFR direction',
-                                  'No sealed holdout available: official prediction claim blocked'],
+              'default_reasons': defaults + ['No sealed holdout available: official prediction claim blocked'],
+              'goal_contract': contract,
               'tasks': tasks}
     validate_plan(result)
     return result

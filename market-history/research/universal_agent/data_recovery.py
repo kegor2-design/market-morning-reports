@@ -115,7 +115,8 @@ def recover(request: dict, state_dir: Path, *, fetch=_fetch) -> dict:
     identity = _sha(canonical(request))
     checkpoint = state_dir / 'data_recovery.json'
     raw_file = state_dir / ('source' + adapter.extension)
-    if checkpoint.is_symlink() or raw_file.is_symlink():
+    receipt_file = state_dir / 'source_receipt.json'
+    if checkpoint.is_symlink() or raw_file.is_symlink() or receipt_file.is_symlink():
         raise ValueError('Symlinked acquisition artifact')
     state = json.loads(checkpoint.read_text()) if checkpoint.exists() else {
         'schema_version': 1, 'request_sha256': identity, 'goal_id': request['goal_id'],
@@ -169,9 +170,25 @@ def recover(request: dict, state_dir: Path, *, fetch=_fetch) -> dict:
         write_state(checkpoint, state)
         return state
     if raw_file.exists():
-        if not state.get('content_sha256') or _sha(raw_file.read_bytes()) != state['content_sha256']:
+        if not state.get('content_sha256'):
+            if not receipt_file.exists():
+                state.update(status='BLOCKED_UNCERTAIN_API_CALL',
+                             next_action='REVIEW_UNSEALED_RESPONSE_BEFORE_RETRY')
+                write_state(checkpoint, state)
+                return state
+            receipt = json.loads(receipt_file.read_text())
+            if (receipt.get('request_sha256') != identity or
+                    receipt.get('source_uri') != uri or
+                    receipt.get('content_sha256') != _sha(raw_file.read_bytes())):
+                raise ValueError('Sealed source receipt mismatch')
+            state['content_sha256'] = receipt['content_sha256']
+            state['network_requests'] = receipt['network_requests']
+            write_state(checkpoint, state)
+        if _sha(raw_file.read_bytes()) != state['content_sha256']:
             raise ValueError('Unverified source artifact')
         payload = raw_file.read_bytes()
+    elif receipt_file.exists():
+        raise ValueError('Sealed source response missing')
     elif state['network_requests']:
         state.update(status='BLOCKED_UNCERTAIN_API_CALL', next_action='REVIEW_REQUEST_BEFORE_RETRY')
         write_state(checkpoint, state)
@@ -209,6 +226,8 @@ def recover(request: dict, state_dir: Path, *, fetch=_fetch) -> dict:
                      network_attempts=attempts,
                      retrieved_at=datetime.now(timezone.utc).isoformat())
         raw_file.write_bytes(payload)
+        write_state(receipt_file, {'request_sha256': identity, 'source_uri': uri,
+            'content_sha256': state['content_sha256'], 'network_requests': attempts})
         write_state(checkpoint, state)
     try:
         values = adapter.parse(request['series'], payload, set(dates))

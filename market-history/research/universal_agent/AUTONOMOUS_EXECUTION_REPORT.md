@@ -7,3 +7,7 @@ Real goal `research_454c6a494cc6` first recorded indicator 116 as `BLOCKED_EVIDE
 An earlier sandboxed attempt (`research_98a8e918e10f`) found the gaps but recorded `BLOCKED_ENV` for all three source calls. The approved network execution succeeded. The original blocked checkpoint was preserved rather than replaying an uncertain external call.
 
 The research program is sequential and bounded at 12 tasks, 300 seconds, three reserved network calls, and zero model calls. STOP is checked between tasks. Unsupported task actions and graph changes are rejected.
+
+## 2026-11-17 goal-preserving transition
+
+The earlier combined indicator 116 plus US rates report used one Goal ID and could obscure which research was blocked. The follow-up corrects that behavior: the indicator-only goal has one PIT task and stays blocked. An explicit independent-rates instruction creates a separately checkpointed child Goal ID; its exploratory result does not promote the parent. The Korean crash study has a different, two-task graph over a hash-checked local index snapshot. The unsupported Bitcoin options goal creates no executable task. All generated child actions remain in the host allowlist.

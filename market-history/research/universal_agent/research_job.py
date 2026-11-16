@@ -10,6 +10,7 @@ import signal
 import subprocess
 import sys
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 from jsonschema import validate
@@ -39,6 +40,27 @@ ACTION_REGISTRY = {
 }
 FINAL = {'VERIFIED_RESEARCH_CONCLUSION', 'RESEARCH_BLOCKED_WITH_EVIDENCE',
          'FAILED_TERMINAL'}
+
+
+def _worker_identity(pid: int, state_dir: Path) -> int | None:
+    """Return the kernel start tick only for this research job's live worker."""
+    if not isinstance(pid, int) or pid <= 0:
+        return None
+    proc = Path('/proc') / str(pid)
+    try:
+        if proc.stat().st_uid != os.getuid():
+            return None
+        fields = (proc / 'stat').read_text().rsplit(') ', 1)[1].split()
+        if fields[0] == 'Z':
+            return None
+        argv = (proc / 'cmdline').read_bytes().split(b'\0')
+        if (b'universal_agent.research_job' not in argv or b'worker' not in argv or
+                b'--state-dir' not in argv or
+                os.fsencode(str(state_dir)) not in argv):
+            return None
+        return int(fields[19])
+    except (OSError, IndexError, ValueError):
+        return None
 
 
 def sha(path: Path) -> str:
@@ -157,7 +179,7 @@ def _worker(manifest_path: Path, state_dir: Path, task_key: str) -> int:
     if artifact.exists():
         raise ValueError('Worker cannot overwrite an existing action artifact')
     before_delay = manifest.get('fixture_delay_before_output_seconds', 0)
-    if before_delay and manifest['mode'] == 'synthetic_research':
+    if before_delay and manifest['mode'] in {'synthetic_research', 'rate_analysis'}:
         time.sleep(before_delay)
     if plan['action'] == 'SYNTHETIC_SIGNAL_CHECK':
         task = {'synthetic_values': manifest['synthetic_values']}
@@ -212,7 +234,7 @@ def _worker(manifest_path: Path, state_dir: Path, task_key: str) -> int:
     write_state(artifact, {'task_key': task_key, 'action': plan['action'],
                            'input_sha256': plan['input_sha256'], 'result': result})
     delay = manifest.get('fixture_delay_after_output_seconds', 0)
-    if delay and manifest['mode'] in {'synthetic_research', 'data_recovery'}:
+    if delay and manifest['mode'] in {'synthetic_research', 'data_recovery', 'rate_analysis'}:
         time.sleep(delay)
     return 0
 
@@ -513,7 +535,9 @@ def supervise(manifest_path: Path, state_dir: Path) -> dict:
                     raise ValueError('Final output integrity mismatch')
             return {**state, 'reused_checkpoint': True}
         state['supervisor_pid'] = os.getpid()
-        deadline = time.monotonic() + manifest['max_seconds']
+        elapsed = max(0.0, (datetime.now(timezone.utc) -
+            datetime.fromisoformat(state['started_at_utc'])).total_seconds())
+        deadline = time.monotonic() + max(0.0, manifest['max_seconds'] - elapsed)
         stopping = False
         def stop(_signal, _frame):
             nonlocal stopping
@@ -525,7 +549,8 @@ def supervise(manifest_path: Path, state_dir: Path) -> dict:
                                     'task_id': plan['task_id'], 'input_sha256': plan['input_sha256'],
                                     'plan_sha256': state['plan_sha256']})
             write_state(path, state)
-            while not stopping and time.monotonic() < deadline:
+            while not stopping and (time.monotonic() < deadline or
+                                    _artifact(state_dir).exists()):
                 if (state_dir / 'STOP').exists():
                     stopping = True
                     break
@@ -569,6 +594,33 @@ def supervise(manifest_path: Path, state_dir: Path) -> dict:
                         state['reason'] = 'Uncertain prior AI call; no duplicate model request'
                         write_state(path, state)
                         break
+                if state['task_status'] == 'RUNNING' and state.get('worker_pid'):
+                    orphan_pid = state['worker_pid']
+                    start_ticks = state.get('worker_start_ticks')
+                    live_ticks = _worker_identity(orphan_pid, state_dir)
+                    if live_ticks is not None and start_ticks is None:
+                        state['status'] = 'RESEARCH_BLOCKED_WITH_EVIDENCE'
+                        state['reason'] = 'Unidentified surviving worker; manual review required'
+                        write_state(path, state)
+                        break
+                    if live_ticks is not None and live_ticks == start_ticks:
+                        state['events'].append({'at_utc': now(),
+                            'event': 'SURVIVING_WORKER_ATTACHED', 'worker_pid': orphan_pid,
+                            'worker_start_ticks': start_ticks})
+                        write_state(path, state)
+                        while (_worker_identity(orphan_pid, state_dir) == start_ticks and
+                               time.monotonic() < deadline and not stopping):
+                            time.sleep(.05)
+                        if _worker_identity(orphan_pid, state_dir) == start_ticks:
+                            os.killpg(orphan_pid, signal.SIGTERM)
+                        state['events'].append({'at_utc': now(),
+                            'event': 'SURVIVING_WORKER_EXITED', 'worker_pid': orphan_pid,
+                            'artifact_present': artifact.exists()})
+                        state['task_status'] = 'PENDING'
+                        write_state(path, state)
+                        continue
+                    state['task_status'] = 'PENDING'
+                    write_state(path, state)
                 command = [sys.executable, '-m', 'universal_agent.research_job', 'worker',
                            '--manifest', str(manifest_path.resolve()),
                            '--state-dir', str(state_dir), '--task-key', plan['task_key']]
@@ -584,6 +636,7 @@ def supervise(manifest_path: Path, state_dir: Path) -> dict:
                     state['worker_restarts'] += 1
                 state['attempts'] += 1
                 state['worker_pid'] = worker.pid
+                state['worker_start_ticks'] = _worker_identity(worker.pid, state_dir)
                 state['task_status'] = 'RUNNING'
                 state['events'].append({'at_utc': now(), 'event': 'WORKER_STARTED',
                                         'worker_pid': worker.pid, 'task_key': plan['task_key']})

@@ -25,8 +25,8 @@
   ],
   "next_action": "Resume the terminal revision Research Job for hash verification; investigate source coverage and PIT evidence in new bounded tasks",
   "resume_command": "PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.process_supervisor --research-manifest .universal_private/autonomous_data_recovery_followup/revision_loop_manifest.json --job-dir .universal_private/autonomous_data_recovery_followup/revision_loop_job",
-  "session_b_completed": false,
-  "session_b_branch": "research/universal-agent-session-b-autonomous-research-20261114",
+  "session_b_completed": true,
+  "session_b_branch": "research/universal-agent-session-b-completion-20261117",
   "session_b_base_commit": "497782dff9fe911ff9e1c4ff727aec3423d259bf",
   "session_b_gates": {
     "RESEARCH_PLANNER_VERIFIED": "PASS",
@@ -35,20 +35,65 @@
     "AUTOMATIC_REPLANNING_VERIFIED": "PASS",
     "REAL_RESEARCH_FALLBACK_VERIFIED": "PASS",
     "PROBLEM_SOLVER_INTEGRATED": "PASS",
-    "CHECKPOINT_RESUME_VERIFIED": "BLOCKED",
-    "INDEPENDENT_RESEARCH_VERIFICATION_PASS": "BLOCKED",
+    "WORKER_SIGKILL_RECOVERY_VERIFIED": "PASS",
+    "SUPERVISOR_SIGKILL_RECOVERY_VERIFIED": "PASS",
+    "CHECKPOINT_RESUME_VERIFIED": "PASS",
+    "CHECKPOINT_INTEGRITY_VERIFIED": "PASS",
+    "NO_DUPLICATE_EXECUTION_VERIFIED": "PASS",
+    "UNCERTAIN_NETWORK_CALL_SAFETY_VERIFIED": "PASS",
+    "SEALED_HOLDOUT_VERIFIED": "PASS",
+    "INDEPENDENT_RESEARCH_VERIFICATION_PASS": "PASS",
     "CORE_REGRESSION_VERIFIED": "PASS",
     "SANDBOX_AND_POLICY_VERIFIED": "PASS"
   },
   "session_b_scope": "Official US rates exploratory analysis completed; indicator 116 remains PIT blocked. No official market claim.",
   "session_b_checkpoints": [
-    ".universal_private/programs/research_4414e0f7df4f/state.json",
-    ".universal_private/programs/research_454c6a494cc6/state.json"
+    ".universal_private/programs/research_248bf5aefcbf/state.json",
+    ".universal_private/programs/research_f7aefaaf731e/state.json",
+    ".universal_private/programs/research_3185eccfc4c8/state.json",
+    ".universal_private/programs/research_1cd527aaf330/state.json",
+    ".universal_private/programs/research_83885459d618/state.json",
+    ".universal_private/programs/research_d951b6f00d2d/state.json",
+    ".universal_private/session_b_holdout/sealed_contract.json",
+    ".universal_private/session_b_real_kills/evidence.json",
+    ".universal_private/session_b_program_kill/evidence.json"
   ],
   "session_b_remaining_work": [
-    "Real Worker and Supervisor SIGKILL recovery with unresolved network call safety",
-    "Sealed independent market holdout and historical row-level PIT evidence",
-    "Broader reviewed goal, source, and analysis contracts"
+    "AI-generated research plans through an approved model path",
+    "Open-ended reviewed source discovery and additional domain adapters",
+    "Historical row-level PIT and official KRX price/calendar validation",
+    "Actual live external-provider interruption; local HTTP safety is verified",
+    "AI Self Repair integration into the program DAG and long-running production hardening"
   ],
-  "session_b_resume_command": "PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.process_supervisor --research-goal '지표 116의 한국 증시 선행 신호 PIT를 검증하고, 차단되면 독립적인 실제 미국 금리차와 SOFR 연구를 수행하라.' --max-seconds 180"
+  "session_b_resume_command": "cd /home/kegor2/market-morning-reports-session-b-completion && PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.process_supervisor --research-goal '지표 116의 한국 증시 PIT를 검증하고 차단되면 독립적인 미국 국채 금리차와 SOFR 연구를 수행하라.' --max-seconds 180",
+  "session_b_start_commit": "ef87bb9028cee2d33f181132fd8a615f01c2c16d",
+  "session_b_gate_scope": "Bounded approved research execution only. Local HTTP interruption, real Treasury/NY Fed DAG and rate-analysis process kills, sealed independent temporal holdout. PIT and official investment claims remain blocked.",
+  "general_purpose_research_ready": false,
+  "general_purpose_gates": {
+    "GOAL_CONTRACT_PRESERVATION_VERIFIED": "PASS",
+    "DYNAMIC_RESEARCH_PLANNING_VERIFIED": "BLOCKED",
+    "MULTI_DOMAIN_RESEARCH_SUPPORT_VERIFIED": "PASS",
+    "DATA_SOURCE_DISCOVERY_VERIFIED": "BLOCKED",
+    "AUTONOMOUS_PROBLEM_SOLVING_VERIFIED": "BLOCKED",
+    "REAL_RESEARCH_GOAL_COMPLETION_VERIFIED": "PASS",
+    "UNSUPPORTED_GOAL_FAIL_CLOSED_VERIFIED": "PASS"
+  },
+  "production_ready": false,
+  "research_goal_states": {
+    "research_248bf5aefcbf": "RESEARCH_BLOCKED",
+    "research_f7aefaaf731e": "RESEARCH_COMPLETED_EXPLORATORY",
+    "research_3185eccfc4c8": "RESEARCH_COMPLETED_EXPLORATORY",
+    "research_7b94691cb148": "RESEARCH_UNSUPPORTED",
+    "research_1cd527aaf330": "RESEARCH_BLOCKED",
+    "research_83885459d618": "RESEARCH_COMPLETED_EXPLORATORY",
+    "research_d951b6f00d2d": "RESEARCH_COMPLETED_EXPLORATORY"
+  },
+  "session_b_test_results": {
+    "universal_agent": "PASS 125",
+    "regime190": "PASS 55",
+    "compileall": "PASS",
+    "git_diff_check": "PASS",
+    "local_http": "PASS 4",
+    "real_process_sigkill": "PASS 4 scenarios"
+  }
 }
