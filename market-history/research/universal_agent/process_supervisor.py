@@ -126,7 +126,8 @@ def _program_result(state: dict, program_dir: Path) -> dict:
 
 def run_research_program(goal: str, program_dir: Path | None = None,
                          *, max_tasks: int = 12, max_seconds: int = 300,
-                         test_analysis_delay: int = 0) -> dict:
+                         test_analysis_delay: int = 0,
+                         ai_candidate: dict | None = None) -> dict:
     """Sequentially run reviewed DAG tasks through existing Research Job Supervisor."""
     from .isolated_codex import PRIVATE_ROOT as JOB_ROOT
     from .research_planner import plan_goal, validate_plan, dates_for, UnsupportedGoal
@@ -169,10 +170,26 @@ def run_research_program(goal: str, program_dir: Path | None = None,
             write_state(checkpoint, state)
             write_state(unsupported_dir / 'research_report.json', state)
             return state
+    if ai_candidate is not None:
+        from .ai_research_planner import validate_candidate
+        reviewed = validate_candidate(goal, ai_candidate)
+        if canonical(reviewed) != canonical(plan):
+            raise ValueError('AI candidate plan changed before execution')
     program_dir = program_dir or JOB_ROOT / 'programs' / plan['goal_id']
     if program_dir.is_symlink() or not program_dir.resolve().is_relative_to(JOB_ROOT):
         raise ValueError('Program path outside private research root')
     with locked_state(program_dir) as checkpoint:
+        if ai_candidate is not None:
+            candidate_path = program_dir / 'ai_program_candidate.json'
+            if candidate_path.is_symlink():
+                raise ValueError('Symlinked AI candidate')
+            if candidate_path.exists():
+                prior = json.loads(candidate_path.read_text())
+                prior.pop('updated_at_utc', None)
+                if canonical(prior) != canonical(ai_candidate):
+                    raise ValueError('AI candidate changed after registration')
+            else:
+                write_state(candidate_path, ai_candidate)
         plan_path = program_dir / 'plan.json'
         contract_path = program_dir / 'goal_contract.json'
         plan_hash = hashlib.sha256(canonical(plan)).hexdigest()

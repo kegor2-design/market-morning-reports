@@ -77,7 +77,7 @@ def _save(path: Path, queue: dict) -> None:
 
 
 def submit(goal: str, directory: Path, *, approval_required: bool = False,
-           priority: int = 50) -> dict:
+           priority: int = 50, ai_candidate: dict | None = None) -> dict:
     if not 0 <= priority <= 100:
         raise ValueError('Invalid runtime priority')
     directory = _root(directory)
@@ -92,9 +92,18 @@ def submit(goal: str, directory: Path, *, approval_required: bool = False,
         else:
             goal_id = plan['goal_id']
             reason = None
+        if ai_candidate is not None:
+            from .ai_research_planner import validate_candidate
+            reviewed = validate_candidate(goal, ai_candidate)
+            if plan is None or canonical(reviewed) != canonical(plan):
+                raise ValueError('AI candidate has no reviewed executable plan')
         if goal_id in queue['jobs']:
             if queue['jobs'][goal_id]['research_goal'] != goal:
                 raise ValueError('Goal ID collision')
+            if (queue['jobs'][goal_id].get('ai_candidate') is None) != (ai_candidate is None) or (
+                    ai_candidate is not None and canonical(queue['jobs'][goal_id]['ai_candidate']) !=
+                    canonical(ai_candidate)):
+                raise ValueError('Registered AI candidate changed')
             return queue['jobs'][goal_id]
         unsupported_dir = directory / 'programs' / goal_id
         if plan is None:
@@ -119,6 +128,9 @@ def submit(goal: str, directory: Path, *, approval_required: bool = False,
             'next_action': 'ADD_REVIEWED_SOURCE_AND_ACTION' if plan is None else
                 'REQUEST_APPROVAL' if approval_required else 'RUN_APPROVED_GOAL',
             'approval_status': 'REQUIRED' if approval_required else 'APPROVED',
+            'ai_candidate': ai_candidate,
+            'ai_candidate_sha256': hashlib.sha256(canonical(ai_candidate)).hexdigest()
+                if ai_candidate is not None else None,
             'model_calls': 0, 'network_requests_reserved': 0}
         queue['jobs'][goal_id] = job
         queue['events'].append({'at_utc': now(), 'goal_id': goal_id, 'event': status})
@@ -224,10 +236,18 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
                 current_plan = plan_goal(job['research_goal'])
                 if hashlib.sha256(canonical(current_plan)).hexdigest() != job['plan_sha256']:
                     raise ValueError('Reviewed research plan changed after queue submission')
+                if job.get('ai_candidate') is not None:
+                    from .ai_research_planner import validate_candidate
+                    if (hashlib.sha256(canonical(job['ai_candidate'])).hexdigest() !=
+                            job.get('ai_candidate_sha256') or
+                            canonical(validate_candidate(job['research_goal'], job['ai_candidate'])) !=
+                            canonical(current_plan)):
+                        raise ValueError('AI candidate changed after queue submission')
                 program_dir = directory / 'programs' / job['goal_id']
                 result = run_research_program(job['research_goal'], program_dir=program_dir,
                     max_seconds=min(job['resource_budget']['max_seconds'],
-                                    max(10, int(max_seconds - (time.monotonic() - started)))))
+                                    max(10, int(max_seconds - (time.monotonic() - started)))),
+                    ai_candidate=job.get('ai_candidate'))
                 program = json.loads((program_dir / 'state.json').read_text())
                 _sync_tasks(job, program)
                 job['network_requests_reserved'] = program['network_requests_reserved']
