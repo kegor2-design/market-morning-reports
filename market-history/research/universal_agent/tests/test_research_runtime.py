@@ -3,7 +3,11 @@ from __future__ import annotations
 
 import json
 import io
+import multiprocessing
+import os
+import signal
 import tempfile
+import time
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -15,6 +19,13 @@ from universal_agent.research_runtime import main, run, submit
 
 
 GOAL = '지표 116의 한국 증시 선행 신호 PIT를 검증하라.'
+
+
+def _stall_after_reservation(queue_dir: Path) -> None:
+    from universal_agent import process_supervisor
+    with patch.object(process_supervisor, 'run_research_program',
+                      side_effect=lambda *args, **kwargs: time.sleep(30)):
+        run(queue_dir, max_seconds=40)
 
 
 class ResearchRuntimeTests(unittest.TestCase):
@@ -87,6 +98,53 @@ class ResearchRuntimeTests(unittest.TestCase):
         self.assertEqual(contract['original_research_goal'], goal)
         report = json.loads(Path(item['output']).read_text())
         self.assertEqual(report['status'], 'RESEARCH_UNSUPPORTED')
+
+    def test_sigkill_after_reservation_recovers_from_checkpoint(self):
+        item = submit(GOAL, self.queue_dir)
+        process = multiprocessing.get_context('fork').Process(
+            target=_stall_after_reservation, args=(self.queue_dir,))
+        process.start()
+        self.addCleanup(lambda: process.kill() if process.is_alive() else None)
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline:
+            state = json.loads((self.queue_dir / 'state.json').read_text())
+            if state['jobs'][item['goal_id']]['status'] == 'RUNNING':
+                break
+            time.sleep(0.02)
+        else:
+            self.fail('Runtime did not reserve the Goal before timeout')
+        os.kill(process.pid, signal.SIGKILL)
+        process.join(timeout=5)
+        self.assertEqual(process.exitcode, -signal.SIGKILL)
+        result = run(self.queue_dir, max_seconds=30)
+        self.assertEqual(result['statuses'][item['goal_id']], 'BLOCKED_EVIDENCE')
+        final = json.loads((self.queue_dir / 'state.json').read_text())
+        self.assertEqual(final['jobs'][item['goal_id']]['attempt_count'], 2)
+        self.assertEqual(final['jobs'][item['goal_id']]['tasks']['pit_ind116']['attempt_count'], 1)
+        self.assertEqual(run(self.queue_dir, max_seconds=30)['processed'], 0)
+
+    def test_checkpoint_write_failure_prevents_task_execution(self):
+        item = submit(GOAL, self.queue_dir)
+        with patch('universal_agent.research_runtime.write_state',
+                   side_effect=OSError('injected storage failure')):
+            with self.assertRaises(OSError):
+                run(self.queue_dir, max_seconds=30)
+        saved = json.loads((self.queue_dir / 'state.json').read_text())
+        self.assertEqual(saved['jobs'][item['goal_id']]['status'], 'PENDING')
+        self.assertEqual(saved['jobs'][item['goal_id']]['attempt_count'], 0)
+        self.assertEqual(run(self.queue_dir, max_seconds=30)['statuses'][item['goal_id']],
+                         'BLOCKED_EVIDENCE')
+
+    def test_provider_outage_blocks_without_unbounded_retry(self):
+        item = submit(GOAL, self.queue_dir)
+        with patch('universal_agent.process_supervisor.run_research_program',
+                   side_effect=OSError('injected provider outage')):
+            result = run(self.queue_dir, max_seconds=30)
+        self.assertEqual(result['statuses'][item['goal_id']], 'BLOCKED_ENV')
+        self.assertEqual(run(self.queue_dir, max_seconds=30)['processed'], 0)
+        saved = json.loads((self.queue_dir / 'state.json').read_text())
+        self.assertEqual(saved['jobs'][item['goal_id']]['attempt_count'], 1)
+        self.assertEqual(saved['jobs'][item['goal_id']]['network_requests_reserved'], 0)
 
 
 if __name__ == '__main__':
