@@ -1,5 +1,23 @@
 # Next research actions
 
+## Post-restart handoff — 2026-11-18
+
+- Branch `research/universal-agent-session-c-dynamic-planner-20261118`; starting SHA `3d3af77418ce4715b380829344e46764412d3781`. Existing private Goal checkpoints and source hashes were preserved. No research Worker is running.
+- Completed in this iteration: HTTP response versus uncertain transport outcome is saved in the data recovery checkpoint and carried into the Research Job and program Task record. Local HTTP 503 and timeout fault injection confirms no automatic replay. Universal Agent 153 PASS, Regime190 55 PASS, compileall PASS, `git diff --check` PASS. No model or live network call was added.
+- Still blocked: autonomous API recovery with a separately authorized new request budget, AI plan generation with enforceable cost cap, general Source Discovery, AI Self Repair DAG integration, official Korean market PIT, a new independent holdout, strict outer runtime time budget, and actual SSH disconnect/reconnect. Session C, general-purpose and production readiness remain false.
+- Next coding task: add a reviewed API retry Task with a new request identity and bounded budget. Preserve the blocked original attempt and never replay a request whose outcome is uncertain. Then validate the new Task under a local HTTP fault server before considering an official provider call.
+
+Verified resume commands (module invocation requires no chmod):
+
+```bash
+cd /home/kegor2/market-morning-reports-session-c
+git fetch --all --prune
+git status --short --branch
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.research_runtime status --queue-dir .universal_private/session_c_dynamic_aug2020_fixed
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/universal_agent/tests -q
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/regime190/tests -q
+```
+
 ## Dynamic planner and source-schema recovery handoff — 2026-11-18
 
 - Branch `research/universal-agent-session-c-dynamic-planner-20261118`; start SHA `de9af2fe6c2de3669dc1a00243752d1ac5a6670a`; last verified code commit `48482c8` plus this report checkpoint commit.

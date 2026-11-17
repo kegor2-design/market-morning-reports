@@ -389,6 +389,12 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                     (job_dir / 'job.json').read_bytes()).hexdigest()
                 reason = child.get('conclusion', {}).get('reason')
                 record['reason'] = reason
+                if task['task_type'] == 'DATA_ACQUISITION':
+                    conclusion = child.get('conclusion', {})
+                    if conclusion.get('problem_type'):
+                        record['problem_type'] = conclusion['problem_type']
+                    if conclusion.get('network_call_outcome'):
+                        record['network_call_outcome'] = conclusion['network_call_outcome']
                 if child['status'] == 'RESEARCH_BLOCKED_WITH_EVIDENCE' and \
                         reason in {'DATA_RECOVERED_PIT_UNVERIFIED',
                                    'DATA_MISMATCH_RESOLVED_PIT_UNVERIFIED'}:

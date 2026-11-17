@@ -244,5 +244,22 @@
     "tests": {"universal_agent": "PASS 152", "regime190": "PASS 55",
               "compileall": "PASS", "git_diff_check": "PASS"},
     "running_worker": null
+  },
+  "session_c_post_restart_iteration": {
+    "base_commit": "3d3af77418ce4715b380829344e46764412d3781",
+    "phase": "C4_API_FAILURE_CLASSIFICATION",
+    "api_failure_outcome_classification": "PASS_LOCAL_FAULT_INJECTION",
+    "autonomous_api_recovery": "BLOCKED",
+    "reason": "No reviewed new network budget or safe retry path for an existing uncertain call",
+    "network_requests_added": 0,
+    "model_calls_added": 0,
+    "tests": {
+      "universal_agent": "PASS 153",
+      "regime190": "PASS 55",
+      "compileall": "PASS",
+      "git_diff_check": "PASS"
+    },
+    "running_worker": null,
+    "next_action": "Implement a separately authorized API retry task with a new request identity and bounded budget; preserve blocked original attempt and source hashes"
   }
 }

@@ -206,15 +206,27 @@ def recover(request: dict, state_dir: Path, *, fetch=_fetch) -> dict:
             payload, attempts = fetch(uri, budget['max_retries'] + 1, budget['max_seconds'])
         except Exception as exc:
             problem = classify_error(exc)
+            # An HTTP status is a definite response from the provider. A timeout
+            # or transport failure may have reached the provider; neither case
+            # grants an automatic retry or a fresh network budget.
+            outcome = ('DEFINITE_HTTP_ERROR' if isinstance(exc, urllib.error.HTTPError)
+                       else 'UNCERTAIN_REQUEST_OUTCOME')
+            http_status = exc.code if isinstance(exc, urllib.error.HTTPError) else None
             next_action = ('REVIEW_AUTHORIZATION_OR_LICENSE' if problem == 'AUTHORIZATION_REQUIRED'
                            else 'RUN_INDEPENDENT_ALLOWED_TASK' if problem in
                            {'SOURCE_UNAVAILABLE', 'SOURCE_NOT_FOUND', 'RATE_LIMIT'}
                            else 'REVIEW_SOURCE_REQUEST')
             state.update(status='BLOCKED_ENV', problem_type=problem,
-                         failure_history=[{'type': type(exc).__name__, 'attempt_budget': budget['max_retries'] + 1}],
+                         network_call_outcome=outcome,
+                         failure_history=[{'type': type(exc).__name__,
+                                           'http_status': http_status,
+                                           'attempt_budget': budget['max_retries'] + 1,
+                                           'network_call_outcome': outcome}],
                          next_action=next_action, blocked_tasks=[request['task_id']])
             state['problem_history'].append({'problem_type': state['problem_type'],
-                'task_id': request['task_id'], 'selected_action': 'BLOCK_SOURCE_CALL',
+                'task_id': request['task_id'], 'network_call_outcome': outcome,
+                'considered': ['REUSE_SEALED_RESPONSE', 'REVIEW_NEW_REQUEST_BUDGET'],
+                'selected_action': 'BLOCK_SOURCE_CALL',
                 'verification': 'BLOCKED', 'next_action': state['next_action']})
             write_state(checkpoint, state)
             return state

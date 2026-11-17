@@ -230,6 +230,8 @@ def _worker(manifest_path: Path, state_dir: Path, task_key: str) -> int:
             recovery_dir / 'data_recovery.json'),
             'recovery_checkpoint_sha256': sha(recovery_dir / 'data_recovery.json'),
             'content_sha256': recovery.get('content_sha256'),
+            'problem_type': recovery.get('problem_type'),
+            'network_call_outcome': recovery.get('network_call_outcome'),
             'network_requests': recovery['network_requests'], 'official_market_claim': False}
     elif plan['action'] == 'RATE_ANALYSIS':
         from .rate_analysis import analyze
@@ -439,6 +441,8 @@ def verify_artifact(manifest: dict, plan: dict, state_dir: Path) -> dict:
                 manifest['data_request'])).hexdigest() or
                 saved['status'] != result['status'] or
                 saved.get('content_sha256') != result['content_sha256'] or
+                saved.get('problem_type') != result.get('problem_type') or
+                saved.get('network_call_outcome') != result.get('network_call_outcome') or
                 saved['network_requests'] != result['network_requests'] or
                 saved['network_requests'] > plan['resource_limits']['network_requests'] or
                 result['official_market_claim'] is not False):
@@ -490,6 +494,8 @@ def _conclude(manifest: dict, plan: dict, artifact: dict, output_sha: str) -> di
     if plan['action'] == 'DATA_RECOVERY':
         return {'status': 'RESEARCH_BLOCKED_WITH_EVIDENCE',
                 'reason': result['status'], 'official_market_claim': False,
+                'problem_type': result.get('problem_type'),
+                'network_call_outcome': result.get('network_call_outcome'),
                 'recovery_checkpoint_sha256': result['recovery_checkpoint_sha256'],
                 'input_sha256': plan['input_sha256'], 'output_sha256': output_sha}
     if plan['action'] == 'RATE_ANALYSIS':

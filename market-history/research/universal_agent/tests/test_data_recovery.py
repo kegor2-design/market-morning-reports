@@ -101,10 +101,24 @@ class DataRecoveryTests(unittest.TestCase):
             raise urllib.error.HTTPError('official', 503, 'unavailable', {}, None)
         state = recover(request(), self.root, fetch=unavailable)
         self.assertEqual(state['problem_type'], 'SOURCE_UNAVAILABLE')
+        self.assertEqual(state['network_call_outcome'], 'DEFINITE_HTTP_ERROR')
+        self.assertEqual(state['failure_history'][0]['http_status'], 503)
         self.assertEqual(state['next_action'], 'RUN_INDEPENDENT_ALLOWED_TASK')
         self.assertEqual(state['problem_history'][-1]['verification'], 'BLOCKED')
         self.assertEqual(recover(request(), self.root, fetch=lambda *_:
                          self.fail('failed request must not replay'))['status'], 'BLOCKED_ENV')
+
+    def test_timeout_records_uncertain_outcome_without_replay(self):
+        def timed_out(*_):
+            raise TimeoutError('injected response timeout')
+        state = recover(request(), self.root, fetch=timed_out)
+        self.assertEqual(state['network_call_outcome'], 'UNCERTAIN_REQUEST_OUTCOME')
+        self.assertEqual(state['network_requests'], 1)
+        self.assertIsNone(state['failure_history'][0]['http_status'])
+        self.assertEqual(state['problem_history'][-1]['selected_action'], 'BLOCK_SOURCE_CALL')
+        saved = recover(request(), self.root, fetch=lambda *_: self.fail('unsafe API replay'))
+        self.assertEqual(saved['status'], 'BLOCKED_ENV')
+        self.assertEqual(saved['network_requests'], 1)
 
     def test_corrupt_checkpoint_and_invalid_csv_block(self):
         saved = recover(request(), self.root, fetch=lambda *_: (b'wrong', 1))
