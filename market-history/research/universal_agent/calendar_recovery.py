@@ -31,6 +31,8 @@ def diagnose(plan: dict, state: dict, program_dir: Path) -> dict | None:
             state['goal_id'] != plan['goal_id']):
         return None
     start, end = plan['research_period']['start'], plan['research_period']['end']
+    if start[:4] not in {'2018', '2019'} or end[:4] != start[:4]:
+        return None
     details = {}
     for series in SERIES:
         task_id = 'collect_' + series.lower()

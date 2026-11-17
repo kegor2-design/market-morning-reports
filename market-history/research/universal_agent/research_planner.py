@@ -20,6 +20,7 @@ SERIES = ('UST_2Y', 'UST_10Y', 'NYFED_SOFR')
 ACTIONS = {'DATA_DISCOVERY': 'CHECK_EXISTING_DATA',
            'DATA_ACQUISITION': 'DATA_RECOVERY',
            'DATA_CALENDAR_REVALIDATION': 'DATA_RECOVERY',
+           'DATA_SCHEMA_REVALIDATION': 'DATA_RECOVERY',
            'PIT_VALIDATION': 'EVIDENCE_WORKFLOW',
            'EXPERIMENT_EXECUTION': 'RATE_ANALYSIS',
            'KR_INDEX_VALIDATION': 'VERIFY_HASHED_INDEX',
@@ -59,13 +60,18 @@ def validate_plan(plan: dict) -> None:
         if any(dep not in graph or dep == task['task_id'] for dep in task['dependencies']):
             raise ValueError('Unknown or self dependency')
         if task['task_type'] in {'DATA_DISCOVERY', 'DATA_ACQUISITION',
-                                'DATA_CALENDAR_REVALIDATION'} and \
+                                'DATA_CALENDAR_REVALIDATION',
+                                'DATA_SCHEMA_REVALIDATION'} and \
                 task['inputs'].get('series') not in SERIES:
             raise ValueError('Unreviewed data requirement')
         if task['task_type'] == 'DATA_CALENDAR_REVALIDATION' and \
                 (not isinstance(task['inputs'].get('calendar_revision_sha256'), str) or
                  len(task['inputs']['calendar_revision_sha256']) != 64):
             raise ValueError('Unreviewed calendar revision')
+        if task['task_type'] == 'DATA_SCHEMA_REVALIDATION' and \
+                (not isinstance(task['inputs'].get('schema_revision_sha256'), str) or
+                 len(task['inputs']['schema_revision_sha256']) != 64):
+            raise ValueError('Unreviewed schema revision')
         if task['resource_budget']['max_model_calls'] != 0 or \
                 task['resource_budget']['max_network_requests'] != \
                 (1 if task['task_type'] == 'DATA_ACQUISITION' else 0) or \
@@ -75,7 +81,7 @@ def validate_plan(plan: dict) -> None:
     visiting, visited = set(), set()
     def visit(task_id: str) -> None:
         if task_id in visiting:
-            raise ValueError('Cyclic research task graph')
+            raise ValueError('Cyclic research DAG task graph')
         if task_id in visited:
             return
         visiting.add(task_id)
@@ -110,6 +116,61 @@ def validate_plan(plan: dict) -> None:
             not ('차단' in plan['research_goal'] and '독립' in plan['research_goal'] and
                  'SOFR' in plan['research_goal'].upper()):
         raise ValueError('Independent research was not explicitly requested')
+    if plan['goal_contract']['version'] == 2:
+        from .rate_analysis import SIGNALS
+        original = plan['goal_contract']['original_research_goal']
+        baseline = plan_goal(original)
+        if (plan['goal_id'] != baseline['goal_id'] or
+                plan['research_goal'] != original or
+                plan['market'] != 'US_RATES' or
+                plan['research_period'] != baseline['research_period'] or
+                plan['allowed_sources'] != baseline['allowed_sources'] or
+                plan['data_requirements'] != baseline['data_requirements'] or
+                plan['resource_budget'] != baseline['resource_budget'] or
+                plan['safety_policy'] != baseline['safety_policy'] or
+                plan['goal_contract']['target'] != baseline['goal_contract']['target'] or
+                plan['goal_contract']['pit_policy'] != baseline['goal_contract']['pit_policy'] or
+                plan['goal_contract']['holdout_policy'] != baseline['goal_contract']['holdout_policy'] or
+                plan['goal_contract']['allowed_actions'] != baseline['goal_contract']['allowed_actions'] or
+                plan['goal_contract']['terminal_conditions'] != baseline['goal_contract']['terminal_conditions'] or
+                plan['goal_contract']['approved_independent_goal_ids'] != [] or
+                plan['research_hypotheses'] != [SIGNALS.get(next((t['inputs'].get('signal')
+                    for t in tasks if t['task_type'] == 'EXPERIMENT_EXECUTION'), None))] or
+                plan['evaluation_methods'] != baseline['evaluation_methods']):
+            raise ValueError('Dynamic plan changes immutable Goal or policy contract')
+        base_tasks = {t['task_id']: t for t in baseline['tasks']}
+        current = {t['task_id']: t for t in tasks}
+        if not set(base_tasks) <= set(current) or len(current) > 12:
+            raise ValueError('Dynamic DAG omits required reviewed tasks')
+        for task_id, base_task in base_tasks.items():
+            task = current[task_id]
+            if task['task_type'] != base_task['task_type'] or \
+                    task['allowed_actions'] != base_task['allowed_actions'] or \
+                    task['resource_budget'] != base_task['resource_budget']:
+                raise ValueError('Dynamic DAG changes reviewed capability')
+            if task['task_type'] == 'DATA_DISCOVERY':
+                if (task['inputs'] != base_task['inputs'] or
+                        any(dep not in base_tasks or dep == 'analyze_rates'
+                            for dep in task['dependencies'])):
+                    raise ValueError('Dynamic discovery dependency is unsupported')
+            elif (task['inputs'].get('signal') not in SIGNALS or
+                  task['inputs'].get('hypothesis') != SIGNALS[task['inputs']['signal']] or
+                  task['inputs'].get('train_rows') != 12 or
+                  not set(base_tasks) <= set(task['dependencies']) | {'analyze_rates'}):
+                raise ValueError('Dynamic analysis signal or dependencies invalid')
+        for task_id in set(current) - set(base_tasks):
+            task = current[task_id]
+            series = task['inputs'].get('series')
+            valid_collection = (task['task_type'] == 'DATA_ACQUISITION' and
+                task_id == 'collect_' + series.lower())
+            valid_schema = (task['task_type'] == 'DATA_SCHEMA_REVALIDATION' and
+                series in ('UST_2Y', 'UST_10Y') and
+                task_id == 'schema_revalidate_' + series.lower() and
+                len(task['inputs'].get('schema_revision_sha256', '')) == 64)
+            if (series not in SERIES or not (valid_collection or valid_schema) or
+                    task['dependencies'] != ['discover_' + series.lower()]):
+                raise ValueError('Dynamic DAG adds unreviewed acquisition')
+        # The standard checks below still verify source coverage and DAG cycles.
     if plan['market'] == 'US_RATES':
         period = plan['research_period']
         start, end = date.fromisoformat(period['start']), date.fromisoformat(period['end'])
@@ -117,12 +178,13 @@ def validate_plan(plan: dict) -> None:
                 set(plan['allowed_sources']) != {'US_TREASURY', 'NYFED_REFERENCE_RATES'} or
                 {t['task_type'] for t in tasks} - {'DATA_DISCOVERY', 'DATA_ACQUISITION',
                                                    'DATA_CALENDAR_REVALIDATION',
+                                                   'DATA_SCHEMA_REVALIDATION',
                                                    'EXPERIMENT_EXECUTION'} or
                 {t['inputs']['series'] for t in tasks if t['task_type'] == 'DATA_DISCOVERY'} != set(SERIES) or
                 sum(t['task_type'] == 'EXPERIMENT_EXECUTION' for t in tasks) != 1 or
                 plan['goal_contract']['allowed_actions'] !=
                 ['CHECK_EXISTING_DATA', 'DATA_RECOVERY', 'RATE_ANALYSIS'] or
-                start < date(2018, 4, 3) or end > date(2026, 11, 17) or
+                start < date(2018, 4, 3) or end > date(2023, 12, 31) or
                 start.year != end.year or
                 not dates_for(plan)):
             raise ValueError('Unreviewed US rates research contract')
@@ -206,7 +268,7 @@ def plan_goal(goal: str) -> dict:
             raise UnsupportedGoal('Specify both start and end dates in YYYY-MM-DD format')
         start, end = found if found else ('2018-04-03', '2018-04-30')
         if date.fromisoformat(start) < date(2018, 4, 3) or \
-                date.fromisoformat(end) > date(2026, 11, 17) or \
+                date.fromisoformat(end) > date(2023, 12, 31) or \
                 start[:4] != end[:4]:
             raise UnsupportedGoal('Unsupported Treasury/SOFR research period')
         period = {'start': start, 'end': end, 'resolution': 'daily'}

@@ -10,9 +10,18 @@ from .isolated_codex import PRIVATE_ROOT
 from .research_planner import SERIES
 
 
-def analyze(source_jobs: dict, dates: list[str], train_rows: int) -> dict:
+SIGNALS = {
+    'positive_spread': 'Positive 10Y-2Y spread predicts next-day SOFR rise',
+    'widening_spread': 'Widening 10Y-2Y spread predicts next-day SOFR rise',
+}
+
+
+def analyze(source_jobs: dict, dates: list[str], train_rows: int,
+            signal: str = 'positive_spread') -> dict:
     if set(source_jobs) != set(SERIES) or not 5 <= train_rows < len(dates) - 2:
         raise ValueError('Invalid analysis source or chronological split')
+    if signal not in SIGNALS:
+        raise ValueError('Unreviewed rate prediction signal')
     values = {}
     hashes = {}
     for series in SERIES:
@@ -42,7 +51,9 @@ def analyze(source_jobs: dict, dates: list[str], train_rows: int) -> dict:
         hashes[series] = source['content_sha256']
     spread = [a - b for a, b in zip(values['UST_10Y'], values['UST_2Y'])]
     sofr = values['NYFED_SOFR']
-    predicted = [value > 0 for value in spread[:-1]]
+    predicted = ([value > 0 for value in spread[:-1]] if signal == 'positive_spread'
+                 else [i > 0 and spread[i] > spread[i - 1]
+                       for i in range(len(spread) - 1)])
     actual = [sofr[i + 1] > sofr[i] for i in range(len(sofr) - 1)]
     def metrics(start: int, end: int) -> dict:
         n = end - start
@@ -53,13 +64,16 @@ def analyze(source_jobs: dict, dates: list[str], train_rows: int) -> dict:
                 'actual_increase_count': sum(actual[start:end])}
     train = metrics(0, train_rows)
     validation = metrics(train_rows, len(actual))
-    return {'status': 'EXPLORATORY_ONLY', 'official_market_claim': False,
+    result = {'status': 'EXPLORATORY_ONLY', 'official_market_claim': False,
             'pit_status': 'PIT_UNVERIFIED', 'independent_holdout': 'NOT_AVAILABLE',
             'dates': dates, 'rows': len(dates), 'source_sha256': hashes,
             'spread_first': str(spread[0]), 'spread_last': str(spread[-1]),
             'sofr_first': str(sofr[0]), 'sofr_last': str(sofr[-1]),
-            'hypothesis': 'Positive 10Y-2Y spread predicts next-day SOFR rise',
+            'hypothesis': SIGNALS[signal],
             'train': train, 'validation': validation,
             'hypothesis_result': 'SUPPORTED_EXPLORATORY' if validation['accuracy'] >
                 validation['no_increase_baseline_accuracy'] else 'REJECTED_EXPLORATORY',
             'next_action': 'ACQUIRE_PIT_AND_SEALED_HOLDOUT_BEFORE_OFFICIAL_USE'}
+    if signal != 'positive_spread':
+        result['signal'] = signal
+    return result

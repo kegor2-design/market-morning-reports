@@ -67,6 +67,29 @@ def solve_calendar_gap(plan: dict, state: dict, program_dir: Path,
     return proposal
 
 
+def solve_schema_gap(plan: dict, state: dict, program_dir: Path,
+                     *, execute: bool = False) -> dict | None:
+    """Reparse two sealed official Treasury responses after a reviewed schema change."""
+    from .source_schema_recovery import diagnose, replan
+    proposal = diagnose(plan, state, program_dir)
+    if proposal is None:
+        return None
+    if execute:
+        if not replan(plan, state, program_dir):
+            raise ValueError('Schema solution was not applied')
+        state.setdefault('problem_history', []).append({
+            'problem_type': 'SCHEMA_MISMATCH',
+            'steps': ['DETECT', 'CLASSIFY', 'COLLECT_EVIDENCE',
+                      'ROOT_CAUSE_ANALYSIS', 'HOST_POLICY_VALIDATION',
+                      'EXECUTE_REVALIDATION', 'RESUME_ORIGINAL_GOAL'],
+            'root_cause': proposal['root_cause'],
+            'selected_action': proposal['solution_action'],
+            'rollback_rule': proposal['rollback_rule'],
+            'schema_revision_sha256': state['schema_revision']['sha256'],
+            'model_calls': 0, 'network_requests_added': 0})
+    return proposal
+
+
 def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 

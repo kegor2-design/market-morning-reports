@@ -27,10 +27,10 @@ class SourceAdapter:
             raise ValueError('Series unsupported by source adapter')
         if self.source_id == 'US_TREASURY':
             year = int(start[:4])
-            if year != int(end[:4]) or not 2010 <= year <= 2029:
+            if year != int(end[:4]) or not 2010 <= year <= 2023:
                 raise ValueError('Treasury task must cover one supported year')
-            decade = year // 10 * 10
-            return f'{TREASURY_BASE}par-yield-curve-rates-{decade}-{decade + 9}.csv'
+            first, last = (2010, 2019) if year <= 2019 else (2020, 2023)
+            return f'{TREASURY_BASE}par-yield-curve-rates-{first}-{last}.csv'
         if self.source_id == 'NYFED_REFERENCE_RATES':
             params = {'startDate': datetime.strptime(start, '%Y-%m-%d').strftime('%m/%d/%Y'),
                       'endDate': datetime.strptime(end, '%Y-%m-%d').strftime('%m/%d/%Y')}
@@ -41,17 +41,22 @@ class SourceAdapter:
         if series not in self.series:
             raise ValueError('Series unsupported by source adapter')
         if self.source_id == 'US_TREASURY':
-            columns = {'UST_2Y': '2 Yr', 'UST_10Y': '10 Yr'}
+            columns = {'UST_2Y': '2 yr', 'UST_10Y': '10 yr'}
             rows = csv.DictReader(io.StringIO(payload.decode('utf-8-sig')))
-            if not rows.fieldnames or 'Date' not in rows.fieldnames or columns[series] not in rows.fieldnames:
+            normalized = {name.strip().lower(): name for name in (rows.fieldnames or [])}
+            if 'date' not in normalized or columns[series] not in normalized:
                 raise ValueError('Official CSV columns changed')
             items = []
             for row in rows:
                 try:
-                    day = datetime.strptime(row['Date'], '%m/%d/%y').date().isoformat()
+                    raw_date = row[normalized['date']]
+                    try:
+                        day = datetime.strptime(raw_date, '%m/%d/%Y').date().isoformat()
+                    except ValueError:
+                        day = datetime.strptime(raw_date, '%m/%d/%y').date().isoformat()
                 except (TypeError, ValueError) as exc:
                     raise ValueError('Invalid source observation date') from exc
-                items.append((day, row[columns[series]]))
+                items.append((day, row[normalized[columns[series]]]))
         elif self.source_id == 'NYFED_REFERENCE_RATES':
             response = json.loads(payload)
             if not isinstance(response, dict) or not isinstance(response.get('refRates'), list):

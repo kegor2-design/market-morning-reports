@@ -17,6 +17,7 @@ from pathlib import Path
 from .engine import canonical, locked_state, now, write_state
 from .isolated_codex import PRIVATE_ROOT
 from .research_planner import UnsupportedGoal, plan_goal
+from .ai_research_planner import validate_candidate
 
 FINAL = {'VERIFIED', 'COMPLETED_EXPLORATORY', 'BLOCKED_EVIDENCE', 'BLOCKED_ENV',
          'APPROVAL_REQUIRED', 'FAILED', 'CANCELLED', 'UNSUPPORTED'}
@@ -54,6 +55,20 @@ def _load(path: Path) -> dict:
     if queue.get('schema_version') != 1 or not isinstance(queue.get('jobs'), dict):
         raise ValueError('Invalid runtime queue')
     for goal_id, job in queue['jobs'].items():
+        if isinstance(job.get('ai_candidate'), dict):
+            # Earlier supervisor writes shared the candidate dict with the
+            # mutable DAG. Restore only from the separately sealed proposal.
+            original = dict(job['ai_candidate'])
+            original.pop('updated_at_utc', None)
+            if hashlib.sha256(canonical(original)).hexdigest() != job.get('ai_candidate_sha256'):
+                sealed = path.parent / 'programs' / goal_id / 'ai_program_candidate.json'
+                if sealed.is_symlink() or not sealed.is_file():
+                    raise ValueError('Research AI candidate changed')
+                original = json.loads(sealed.read_text())
+                original.pop('updated_at_utc', None)
+                if hashlib.sha256(canonical(original)).hexdigest() != job.get('ai_candidate_sha256'):
+                    raise ValueError('Research AI candidate changed')
+            job['ai_candidate'] = original
         if goal_id != job['goal_id'] or job['status'] not in FINAL | ACTIVE:
             raise ValueError('Runtime job identity or state changed')
         if job['approval_status'] != 'APPROVED' and job['status'] in ACTIVE:
@@ -84,7 +99,7 @@ def submit(goal: str, directory: Path, *, approval_required: bool = False,
     with locked_state(directory) as path:
         queue = _load(path)
         try:
-            plan = plan_goal(goal)
+            plan = plan_goal(goal) if ai_candidate is None else validate_candidate(goal, ai_candidate)
         except UnsupportedGoal as exc:
             goal_id = 'research_' + hashlib.sha256(goal.encode()).hexdigest()[:12]
             plan = None
@@ -93,7 +108,6 @@ def submit(goal: str, directory: Path, *, approval_required: bool = False,
             goal_id = plan['goal_id']
             reason = None
         if ai_candidate is not None:
-            from .ai_research_planner import validate_candidate
             reviewed = validate_candidate(goal, ai_candidate)
             if plan is None or canonical(reviewed) != canonical(plan):
                 raise ValueError('AI candidate has no reviewed executable plan')
@@ -147,19 +161,21 @@ def _sync_tasks(job: dict, program: dict) -> None:
         record = program['records'][task_id]
         current_input_sha = hashlib.sha256(canonical(task['inputs'])).hexdigest()
         if row['input_sha256'] != current_input_sha:
-            revision = program.get('calendar_revision') or {}
+            revision = program.get('calendar_revision') or program.get('schema_revision') or {}
             revision_path = Path(revision['path']) if revision.get('path') else None
             program_dir = Path(job['checkpoint']).parent if job.get('checkpoint') else None
+            revision_kind = ('calendar' if program.get('calendar_revision') else 'schema')
+            revision_key = revision_kind + '_revision_sha256'
             if (task_id != 'analyze_rates' or row['attempt_count'] != 0 or
                     row['status'] not in {'PENDING', 'WAITING_DEPENDENCY'} or
-                    task['inputs'].get('calendar_revision_sha256') != revision.get('sha256') or
+                    task['inputs'].get(revision_key) != revision.get('sha256') or
                     revision_path is None or program_dir is None or
                     revision_path.parent != program_dir or
-                    revision_path.name != 'calendar_revision_v1.json' or
+                    revision_path.name != revision_kind + '_revision_v1.json' or
                     _sha(revision_path) != revision['sha256']):
                 raise ValueError('Runtime task input changed')
             row['original_input_sha256'] = row['input_sha256']
-            row['calendar_revision_sha256'] = revision['sha256']
+            row[revision_key] = revision['sha256']
             row['input_sha256'] = current_input_sha
         row['dependencies'] = task['dependencies']
         row.update(status=record['status'], attempt_count=record['attempts'],
@@ -179,7 +195,7 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
         time.sleep(startup_delay)
     with locked_state(directory) as path:
         queue = _load(path)
-        from .problem_solver import solve_calendar_gap
+        from .problem_solver import solve_calendar_gap, solve_schema_gap
         for candidate in queue['jobs'].values():
             if (candidate['status'] != 'BLOCKED_EVIDENCE' or
                     candidate['approval_status'] != 'APPROVED' or
@@ -188,8 +204,11 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
             program_dir = directory / 'programs' / candidate['goal_id']
             try:
                 saved = json.loads((program_dir / 'state.json').read_text())
-                evidence = solve_calendar_gap(plan_goal(candidate['research_goal']),
-                                              saved, program_dir)
+                proposed = candidate.get('ai_candidate')
+                plan = (plan_goal(candidate['research_goal']) if proposed is None else
+                        validate_candidate(candidate['research_goal'], proposed))
+                evidence = (solve_calendar_gap(plan, saved, program_dir) or
+                            solve_schema_gap(plan, saved, program_dir))
             except (OSError, ValueError, KeyError) as exc:
                 candidate['last_error'] = 'CALENDAR_DIAGNOSIS_' + type(exc).__name__
                 candidate['next_action'] = 'REVIEW_CALENDAR_EVIDENCE'
@@ -200,8 +219,10 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
             if evidence is not None:
                 candidate['status'] = 'READY'
                 candidate['next_action'] = evidence['solution_action']
+                recovery_event = ('SCHEMA_RECOVERY_READY' if evidence['problem_type'] ==
+                                  'SCHEMA_MISMATCH' else 'CALENDAR_RECOVERY_READY')
                 queue['events'].append({'at_utc': now(), 'goal_id': candidate['goal_id'],
-                                        'event': 'CALENDAR_RECOVERY_READY',
+                                        'event': recovery_event,
                                         'evidence_sha256': hashlib.sha256(canonical(evidence)).hexdigest()})
                 _save(path, queue)
         started = time.monotonic()
@@ -233,11 +254,11 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
             _save(path, queue)
             from .process_supervisor import run_research_program
             try:
-                current_plan = plan_goal(job['research_goal'])
+                current_plan = (plan_goal(job['research_goal']) if job.get('ai_candidate') is None
+                                else validate_candidate(job['research_goal'], job['ai_candidate']))
                 if hashlib.sha256(canonical(current_plan)).hexdigest() != job['plan_sha256']:
                     raise ValueError('Reviewed research plan changed after queue submission')
                 if job.get('ai_candidate') is not None:
-                    from .ai_research_planner import validate_candidate
                     if (hashlib.sha256(canonical(job['ai_candidate'])).hexdigest() !=
                             job.get('ai_candidate_sha256') or
                             canonical(validate_candidate(job['research_goal'], job['ai_candidate'])) !=

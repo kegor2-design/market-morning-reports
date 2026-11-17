@@ -15,6 +15,7 @@
     "analysis_dates": {"type": "array", "minItems": 10, "maxItems": 31, "uniqueItems": true,
       "items": {"type": "string"}},
     "train_rows": {"type": "integer", "minimum": 5, "maximum": 25},
+    "analysis_signal": {"enum": ["positive_spread", "widening_spread"]},
     "data_request": {"type": "object", "additionalProperties": false,
       "required": ["goal_id", "job_id", "task_id", "series", "market", "start", "end", "expected_dates", "existing", "unit", "allowed_sources", "budget"],
       "properties": {

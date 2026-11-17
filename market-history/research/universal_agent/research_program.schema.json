@@ -198,6 +198,7 @@
               "DATA_DISCOVERY",
               "DATA_ACQUISITION",
               "DATA_CALENDAR_REVALIDATION",
+              "DATA_SCHEMA_REVALIDATION",
               "PIT_VALIDATION",
               "EXPERIMENT_EXECUTION",
               "KR_INDEX_VALIDATION",
@@ -304,7 +305,7 @@
       "additionalProperties": false,
       "properties": {
         "version": {
-          "const": 1
+          "enum": [1, 2]
         },
         "goal_id": {
           "type": "string"

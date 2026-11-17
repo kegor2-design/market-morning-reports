@@ -47,11 +47,13 @@ def _child_for(plan: dict, task: dict, program_dir: Path,
     base = {'schema_version': 1, 'job_id': job_id,
             'goal': plan['research_goal'], 'max_seconds': 60,
             'max_restarts': 1, 'max_model_calls': 0}
-    if task['task_type'] in {'DATA_ACQUISITION', 'DATA_CALENDAR_REVALIDATION'}:
+    if task['task_type'] in {'DATA_ACQUISITION', 'DATA_CALENDAR_REVALIDATION',
+                             'DATA_SCHEMA_REVALIDATION'}:
         series = task['inputs']['series']
         source = 'NYFED_REFERENCE_RATES' if series == 'NYFED_SOFR' else 'US_TREASURY'
-        revalidation = task['task_type'] == 'DATA_CALENDAR_REVALIDATION'
-        if revalidation:
+        calendar_revalidation = task['task_type'] == 'DATA_CALENDAR_REVALIDATION'
+        revalidation = task['task_type'] != 'DATA_ACQUISITION'
+        if calendar_revalidation:
             from .us_rates_calendar import expected_observations
             expected, _ = expected_observations(plan['research_period']['start'],
                                                 plan['research_period']['end'], series)
@@ -68,14 +70,17 @@ def _child_for(plan: dict, task: dict, program_dir: Path,
                        'max_seconds': 25,
                        'max_retries': 0, 'max_model_calls': 0}})
     elif task['task_type'] == 'EXPERIMENT_EXECUTION':
-        revalidation = 'calendar_revision_sha256' in task['inputs']
+        calendar_revalidation = 'calendar_revision_sha256' in task['inputs']
+        schema_revalidation = 'schema_revision_sha256' in task['inputs']
         sources = {}
         for series in SERIES:
-            child_id = ('revalidate_' if revalidation else 'collect_') + series.lower()
+            child_id = (('schema_revalidate_' if series in ('UST_2Y', 'UST_10Y')
+                         else 'collect_') if schema_revalidation else
+                        ('revalidate_' if calendar_revalidation else 'collect_')) + series.lower()
             sources[series] = {
                 'manifest': str((program_dir / 'manifests' / (child_id + '.json')).resolve()),
                 'job_dir': str((program_dir / 'jobs' / child_id).resolve())}
-        if revalidation:
+        if calendar_revalidation:
             from .us_rates_calendar import expected_observations
             analysis_dates, _ = expected_observations(plan['research_period']['start'],
                 plan['research_period']['end'], SERIES[0])
@@ -87,6 +92,8 @@ def _child_for(plan: dict, task: dict, program_dir: Path,
             analysis_dates = dates_for(plan)
         base.update(mode='rate_analysis', analysis_sources=sources,
                     analysis_dates=analysis_dates, train_rows=12)
+        if plan['goal_contract']['version'] == 2:
+            base['analysis_signal'] = task['inputs']['signal']
         if test_analysis_delay:
             base['fixture_delay_before_output_seconds'] = test_analysis_delay
     else:
@@ -120,6 +127,8 @@ def _program_result(state: dict, program_dir: Path) -> dict:
               'next_action': analysis.get('next_action',
                              'ACQUIRE_PIT_AND_INDEPENDENT_HOLDOUT') if analysis else
                              'RESUME_BOUNDED_TASKS'}
+    if state.get('schema_revision'):
+        result['schema_revision'] = state['schema_revision']
     write_state(program_dir / 'research_report.json', result)
     return result
 
@@ -132,11 +141,12 @@ def run_research_program(goal: str, program_dir: Path | None = None,
     from .isolated_codex import PRIVATE_ROOT as JOB_ROOT
     from .research_planner import plan_goal, validate_plan, dates_for, UnsupportedGoal
     from .research_job import supervise as supervise_research
+    from .ai_research_planner import validate_candidate
     if (not 1 <= max_tasks <= 12 or not 10 <= max_seconds <= 300 or
             not 0 <= test_analysis_delay <= 3):
         raise ValueError('Program budget exceeded')
     try:
-        plan = plan_goal(goal)
+        plan = plan_goal(goal) if ai_candidate is None else validate_candidate(goal, ai_candidate)
     except UnsupportedGoal as exc:
         goal_id = 'research_' + hashlib.sha256(goal.encode()).hexdigest()[:12]
         unsupported_dir = program_dir or JOB_ROOT / 'programs' / goal_id
@@ -171,7 +181,6 @@ def run_research_program(goal: str, program_dir: Path | None = None,
             write_state(unsupported_dir / 'research_report.json', state)
             return state
     if ai_candidate is not None:
-        from .ai_research_planner import validate_candidate
         reviewed = validate_candidate(goal, ai_candidate)
         if canonical(reviewed) != canonical(plan):
             raise ValueError('AI candidate plan changed before execution')
@@ -189,7 +198,7 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                 if canonical(prior) != canonical(ai_candidate):
                     raise ValueError('AI candidate changed after registration')
             else:
-                write_state(candidate_path, ai_candidate)
+                write_state(candidate_path, dict(ai_candidate))
         plan_path = program_dir / 'plan.json'
         contract_path = program_dir / 'goal_contract.json'
         plan_hash = hashlib.sha256(canonical(plan)).hexdigest()
@@ -240,6 +249,7 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                     raise ValueError('Child Research Job checkpoint changed')
                 if saved_task['task_type'] in {'DATA_ACQUISITION',
                                                'DATA_CALENDAR_REVALIDATION',
+                                               'DATA_SCHEMA_REVALIDATION',
                                                'EXPERIMENT_EXECUTION'}:
                     from .research_job import manifest_load, plan_for, verify_artifact
                     manifest_path = program_dir / 'manifests' / (saved_task['task_id'] + '.json')
@@ -263,6 +273,10 @@ def run_research_program(goal: str, program_dir: Path | None = None,
         if state['status'] == 'RESEARCH_BLOCKED' and not state.get('calendar_revision'):
             from .problem_solver import solve_calendar_gap
             if solve_calendar_gap(plan, state, program_dir, execute=True):
+                write_state(checkpoint, state)
+        if state['status'] == 'RESEARCH_BLOCKED' and not state.get('schema_revision'):
+            from .problem_solver import solve_schema_gap
+            if solve_schema_gap(plan, state, program_dir, execute=True):
                 write_state(checkpoint, state)
         validate_plan(dict(plan, tasks=state['tasks']))
         started = time.monotonic()
@@ -365,6 +379,9 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                 job_dir = program_dir / 'jobs' / task_id
                 if task['task_type'] == 'DATA_CALENDAR_REVALIDATION':
                     from .calendar_recovery import seed_revalidation
+                    seed_revalidation(plan, task, child_manifest, program_dir, job_dir)
+                elif task['task_type'] == 'DATA_SCHEMA_REVALIDATION':
+                    from .source_schema_recovery import seed_revalidation
                     seed_revalidation(plan, task, child_manifest, program_dir, job_dir)
                 child = supervise_research(manifest_path, job_dir)
                 record['checkpoint'] = str(job_dir / 'job.json')

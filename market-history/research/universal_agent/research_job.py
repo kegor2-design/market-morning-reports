@@ -114,6 +114,9 @@ def manifest_load(path: Path) -> tuple[dict, str]:
         if set(data['analysis_sources']) != set(SERIES) or \
                 not 5 <= data['train_rows'] < len(data['analysis_dates']) - 2:
             raise ValueError('Analysis contract invalid')
+        if data.get('analysis_signal', 'positive_spread') not in {
+                'positive_spread', 'widening_spread'}:
+            raise ValueError('Unreviewed analysis signal')
         for entry in data['analysis_sources'].values():
             for key in ('manifest', 'job_dir'):
                 candidate = Path(entry[key])
@@ -124,7 +127,7 @@ def manifest_load(path: Path) -> tuple[dict, str]:
 
 def plan_for(manifest: dict, manifest_sha: str) -> dict:
     contract = ACTION_REGISTRY[manifest['mode']]
-    input_sha = hashlib.sha256(canonical({
+    identity_fields = {
         'goal': manifest['goal'], 'hypothesis': manifest.get('hypothesis'),
         'values': manifest.get('synthetic_values'), 'mode': manifest['mode'],
         'ai_state_dir': manifest.get('ai_state_dir'),
@@ -136,7 +139,10 @@ def plan_for(manifest: dict, manifest_sha: str) -> dict:
         'analysis_dates': manifest.get('analysis_dates'),
         'train_rows': manifest.get('train_rows'),
         'next_task': manifest.get('next_task'),
-        'max_follow_on_hypotheses': manifest.get('max_follow_on_hypotheses')})).hexdigest()
+        'max_follow_on_hypotheses': manifest.get('max_follow_on_hypotheses')}
+    if 'analysis_signal' in manifest:
+        identity_fields['analysis_signal'] = manifest['analysis_signal']
+    input_sha = hashlib.sha256(canonical(identity_fields)).hexdigest()
     task_id = manifest['job_id'] + '_execute'
     task_key = hashlib.sha256(canonical((manifest_sha, task_id, input_sha))).hexdigest()
     plan = {'goal': manifest['goal'], 'hypothesis': manifest.get('hypothesis'),
@@ -228,7 +234,8 @@ def _worker(manifest_path: Path, state_dir: Path, task_key: str) -> int:
     elif plan['action'] == 'RATE_ANALYSIS':
         from .rate_analysis import analyze
         result = analyze(manifest['analysis_sources'], manifest['analysis_dates'],
-                         manifest['train_rows'])
+                         manifest['train_rows'],
+                         manifest.get('analysis_signal', 'positive_spread'))
     else:
         raise ValueError('Unregistered action')
     write_state(artifact, {'task_key': task_key, 'action': plan['action'],
@@ -447,7 +454,8 @@ def verify_artifact(manifest: dict, plan: dict, state_dir: Path) -> dict:
     elif plan['action'] == 'RATE_ANALYSIS':
         from .rate_analysis import analyze
         expected = analyze(manifest['analysis_sources'], manifest['analysis_dates'],
-                           manifest['train_rows'])
+                           manifest['train_rows'],
+                           manifest.get('analysis_signal', 'positive_spread'))
         if result != expected or result['official_market_claim'] is not False or \
                 result['pit_status'] != 'PIT_UNVERIFIED':
             raise ValueError('Independent rate analysis mismatch')
