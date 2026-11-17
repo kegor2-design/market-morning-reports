@@ -2,7 +2,7 @@
 
 ## Post-restart handoff — 2026-11-18
 
-- Branch `research/universal-agent-session-c-dynamic-planner-20261118`; starting SHA `3d3af77418ce4715b380829344e46764412d3781`. Existing private Goal checkpoints and source hashes were preserved. No research Worker is running.
+- Branch `research/universal-agent-session-c-dynamic-planner-20261118`; starting SHA `3d3af77418ce4715b380829344e46764412d3781`; last verified code commit `69fec86becd19103686ffc335a1836e6fa30f9ae` plus this handoff update. Existing private Goal checkpoints and source hashes were preserved. No research Worker is running.
 - Completed in this iteration: HTTP response versus uncertain transport outcome is saved in the data recovery checkpoint and carried into the Research Job and program Task record. Local HTTP 503 and timeout fault injection confirms no automatic replay. Universal Agent 153 PASS, Regime190 55 PASS, compileall PASS, `git diff --check` PASS. No model or live network call was added.
 - Still blocked: autonomous API recovery with a separately authorized new request budget, AI plan generation with enforceable cost cap, general Source Discovery, AI Self Repair DAG integration, official Korean market PIT, a new independent holdout, strict outer runtime time budget, and actual SSH disconnect/reconnect. Session C, general-purpose and production readiness remain false.
 - Next coding task: add a reviewed API retry Task with a new request identity and bounded budget. Preserve the blocked original attempt and never replay a request whose outcome is uncertain. Then validate the new Task under a local HTTP fault server before considering an official provider call.
