@@ -244,8 +244,8 @@ def run_research_program(goal: str, program_dir: Path | None = None,
             write_state(checkpoint, state)
             return _program_result(state, program_dir)
         if state['status'] == 'RESEARCH_BLOCKED' and not state.get('calendar_revision'):
-            from .calendar_recovery import replan
-            if replan(plan, state, program_dir):
+            from .problem_solver import solve_calendar_gap
+            if solve_calendar_gap(plan, state, program_dir, execute=True):
                 write_state(checkpoint, state)
         validate_plan(dict(plan, tasks=state['tasks']))
         started = time.monotonic()

@@ -40,6 +40,33 @@ def recover_data_gap(request: dict, state_dir: Path) -> dict:
     return recover(request, state_dir)
 
 
+def solve_calendar_gap(plan: dict, state: dict, program_dir: Path,
+                       *, execute: bool = False) -> dict | None:
+    """Diagnose a reviewed closure gap and optionally revise the original DAG.
+
+    This zero-model, zero-network solution is confined to previously collected
+    official US rate bytes. The caller persists the revised program checkpoint.
+    """
+    from .calendar_recovery import diagnose, replan
+    proposal = diagnose(plan, state, program_dir)
+    if proposal is None:
+        return None
+    if execute:
+        if not replan(plan, state, program_dir):
+            raise ValueError('Calendar solution was not applied')
+        state.setdefault('problem_history', []).append({
+            'problem_type': 'CALENDAR_MISMATCH',
+            'steps': ['DETECT', 'CLASSIFY', 'COLLECT_EVIDENCE',
+                      'ROOT_CAUSE_ANALYSIS', 'HOST_POLICY_VALIDATION',
+                      'EXECUTE_REVALIDATION', 'RESUME_ORIGINAL_GOAL'],
+            'root_cause': proposal['root_cause'],
+            'selected_action': proposal['solution_action'],
+            'rollback_rule': proposal['rollback_rule'],
+            'calendar_revision_sha256': state['calendar_revision']['sha256'],
+            'model_calls': 0, 'network_requests_added': 0})
+    return proposal
+
+
 def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 

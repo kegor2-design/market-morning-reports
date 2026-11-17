@@ -136,11 +136,15 @@ def _sync_tasks(job: dict, program: dict) -> None:
         current_input_sha = hashlib.sha256(canonical(task['inputs'])).hexdigest()
         if row['input_sha256'] != current_input_sha:
             revision = program.get('calendar_revision') or {}
+            revision_path = Path(revision['path']) if revision.get('path') else None
+            program_dir = Path(job['checkpoint']).parent if job.get('checkpoint') else None
             if (task_id != 'analyze_rates' or row['attempt_count'] != 0 or
                     row['status'] not in {'PENDING', 'WAITING_DEPENDENCY'} or
                     task['inputs'].get('calendar_revision_sha256') != revision.get('sha256') or
-                    not revision.get('path') or
-                    _sha(Path(revision['path'])) != revision['sha256']):
+                    revision_path is None or program_dir is None or
+                    revision_path.parent != program_dir or
+                    revision_path.name != 'calendar_revision_v1.json' or
+                    _sha(revision_path) != revision['sha256']):
                 raise ValueError('Runtime task input changed')
             row['original_input_sha256'] = row['input_sha256']
             row['calendar_revision_sha256'] = revision['sha256']
@@ -163,7 +167,7 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
         time.sleep(startup_delay)
     with locked_state(directory) as path:
         queue = _load(path)
-        from .calendar_recovery import diagnose as diagnose_calendar
+        from .problem_solver import solve_calendar_gap
         for candidate in queue['jobs'].values():
             if (candidate['status'] != 'BLOCKED_EVIDENCE' or
                     candidate['approval_status'] != 'APPROVED' or
@@ -172,8 +176,8 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
             program_dir = directory / 'programs' / candidate['goal_id']
             try:
                 saved = json.loads((program_dir / 'state.json').read_text())
-                evidence = diagnose_calendar(plan_goal(candidate['research_goal']),
-                                             saved, program_dir)
+                evidence = solve_calendar_gap(plan_goal(candidate['research_goal']),
+                                              saved, program_dir)
             except (OSError, ValueError, KeyError) as exc:
                 candidate['last_error'] = 'CALENDAR_DIAGNOSIS_' + type(exc).__name__
                 candidate['next_action'] = 'REVIEW_CALENDAR_EVIDENCE'
@@ -278,12 +282,13 @@ def reconcile_calendar(directory: Path) -> dict:
             raise ValueError('Queue failure is not eligible for calendar reconciliation')
         program = json.loads((program_dir / 'state.json').read_text())
         revision = program.get('calendar_revision') or {}
+        revision_path = Path(revision['path']) if revision.get('path') else None
         if (program['status'] != 'RESEARCH_COMPLETED_EXPLORATORY' or
                 program['goal_id'] != job['goal_id'] or
                 program['plan_sha256'] != job['plan_sha256'] or
                 program['goal_contract_sha256'] != job['goal_contract_sha256'] or
-                not revision.get('path') or
-                _sha(Path(revision['path'])) != revision.get('sha256') or
+                revision_path != program_dir / 'calendar_revision_v1.json' or
+                _sha(revision_path) != revision.get('sha256') or
                 any(record['status'] in ACTIVE for record in program['records'].values())):
             raise ValueError('Calendar program is not sealed and terminal')
         from .process_supervisor import run_research_program
