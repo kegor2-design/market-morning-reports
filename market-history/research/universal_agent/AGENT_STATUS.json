@@ -35,7 +35,7 @@
     "AUTOMATIC_REPLANNING_VERIFIED": "PASS",
     "REAL_RESEARCH_FALLBACK_VERIFIED": "PASS",
     "PROBLEM_SOLVER_INTEGRATED": "PASS",
-    "CHECKPOINT_RESUME_VERIFIED": "BLOCKED",
+    "CHECKPOINT_RESUME_VERIFIED": "PASS",
     "INDEPENDENT_RESEARCH_VERIFICATION_PASS": "BLOCKED",
     "CORE_REGRESSION_VERIFIED": "PASS",
     "SANDBOX_AND_POLICY_VERIFIED": "PASS"
@@ -46,7 +46,7 @@
     ".universal_private/programs/research_454c6a494cc6/state.json"
   ],
   "session_b_remaining_work": [
-    "Real Worker and Supervisor SIGKILL recovery with unresolved network call safety",
+    "Live unresolved external API interruption remains untested; controlled SIGKILL and uncertain-call replay prevention passed",
     "Sealed independent market holdout and historical row-level PIT evidence",
     "Broader reviewed goal, source, and analysis contracts"
   ],

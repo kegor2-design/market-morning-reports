@@ -150,10 +150,11 @@ def run_research_program(goal: str, program_dir: Path | None = None,
         validate_plan(dict(plan, tasks=state['tasks']))
         started = time.monotonic()
         executed = 0
+        deferred = set()
         while executed < max_tasks and time.monotonic() - started < max_seconds:
             tasks = sorted(state['tasks'], key=lambda item: (item['priority'], item['task_id']))
             ready = [task for task in tasks if state['records'][task['task_id']]['status'] in
-                     {'PENDING', 'READY', 'RUNNING'} and all(
+                     {'PENDING', 'READY', 'RUNNING'} and task['task_id'] not in deferred and all(
                          state['records'][dep]['status'] in {'VERIFIED', 'COMPLETED_EXPLORATORY'}
                          for dep in task['dependencies'])]
             if not ready:
@@ -217,6 +218,14 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                 job_dir = program_dir / 'jobs' / task_id
                 child = supervise_research(manifest_path, job_dir)
                 record['checkpoint'] = str(job_dir / 'job.json')
+                if child['status'] == 'RUNNING':
+                    # An earlier supervisor may have died while its worker is
+                    # still running. Keep the task resumable and run other
+                    # independent tasks without launching a duplicate worker.
+                    record.update(status='RUNNING', next_action='WAIT_FOR_PRIOR_WORKER')
+                    deferred.add(task_id)
+                    write_state(checkpoint, state)
+                    continue
                 record['checkpoint_sha256'] = hashlib.sha256(
                     (job_dir / 'job.json').read_bytes()).hexdigest()
                 reason = child.get('conclusion', {}).get('reason')

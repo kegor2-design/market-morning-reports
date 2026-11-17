@@ -1,8 +1,14 @@
 import json
+import os
+import signal
+import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
+from threading import Timer
+from unittest.mock import patch
 
 from jsonschema import ValidationError
 
@@ -120,6 +126,79 @@ class ResearchJobBoundaryTests(unittest.TestCase):
                 with self.assertRaises(ValidationError):
                     manifest_load(self.manifest)
                 self.data[key] = original
+
+    def test_actual_worker_sigkill_then_resume_without_duplicate(self):
+        """Kill a real child process before it can write an artifact."""
+        self.save()
+        actual_popen = subprocess.Popen
+        launches = []
+
+        def injected_popen(command, **kwargs):
+            if not launches:
+                process = actual_popen(['/bin/sleep', '5'], **kwargs)
+                launches.append(process.pid)
+                Timer(0.15, lambda: os.kill(process.pid, signal.SIGKILL)).start()
+                return process
+            return actual_popen(command, **kwargs)
+
+        with patch('universal_agent.research_job.subprocess.Popen', side_effect=injected_popen):
+            result = supervise(self.manifest, self.state)
+        self.assertEqual(result['status'], 'VERIFIED_RESEARCH_CONCLUSION')
+        self.assertEqual(result['worker_crashes'], 1)
+        self.assertEqual(result['worker_restarts'], 1)
+        self.assertEqual(result['attempts'], 2)
+        self.assertEqual(result['duplicate_completion_count'], 0)
+        self.assertEqual(supervise(self.manifest, self.state)['attempts'], 2)
+
+    def test_actual_supervisor_sigkill_then_checkpoint_resume(self):
+        """Kill the supervisor and its test worker; resume the sealed job."""
+        self.save()
+        code = (
+            'import subprocess; from pathlib import Path; '
+            'from universal_agent.research_job import supervise; '
+            'real=subprocess.Popen; '
+            'subprocess.Popen=lambda command, **kwargs: real(["/bin/sleep", "30"], **kwargs); '
+            f'supervise(Path({str(self.manifest)!r}), Path({str(self.state)!r}))'
+        )
+        process = subprocess.Popen([sys.executable, '-c', code],
+                                   env={'PATH': '/usr/bin:/bin',
+                                        'PYTHONPATH': str(Path(__file__).resolve().parents[2])},
+                                   stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                                   stderr=subprocess.PIPE, text=True)
+        worker_pid = None
+        try:
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline:
+                if (self.state / 'job.json').exists():
+                    saved = json.loads((self.state / 'job.json').read_text())
+                    if saved.get('worker_pid') and saved['status'] == 'RUNNING':
+                        worker_pid = saved['worker_pid']
+                        break
+                time.sleep(.02)
+            self.assertIsNotNone(worker_pid, 'Test supervisor did not start a worker')
+            os.kill(process.pid, signal.SIGKILL)
+            process.wait(timeout=3)
+            deferred = supervise(self.manifest, self.state)
+            self.assertEqual(deferred['status'], 'RUNNING')
+            self.assertEqual(deferred['attempts'], 1)
+            self.assertIn('Prior worker is still active', deferred['reason'])
+            os.kill(worker_pid, signal.SIGKILL)
+            recovered = supervise(self.manifest, self.state)
+            self.assertEqual(recovered['status'], 'VERIFIED_RESEARCH_CONCLUSION')
+            self.assertEqual(recovered['attempts'], 2)
+            self.assertEqual(recovered['duplicate_completion_count'], 0)
+            self.assertEqual(supervise(self.manifest, self.state)['attempts'], 2)
+        finally:
+            if process.poll() is None:
+                process.kill()
+                process.wait(timeout=3)
+            if process.stderr is not None:
+                process.stderr.close()
+            if worker_pid is not None:
+                try:
+                    os.kill(worker_pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
 
 
 if __name__ == '__main__':

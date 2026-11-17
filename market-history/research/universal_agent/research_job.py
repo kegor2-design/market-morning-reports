@@ -55,6 +55,17 @@ def private(path: Path) -> Path:
     return resolved
 
 
+def _worker_identity(pid: int) -> str | None:
+    """Read Linux process start ticks so a recycled PID cannot authorize a retry."""
+    try:
+        fields = Path(f'/proc/{pid}/stat').read_text().rsplit(') ', 1)[1].split()
+        if fields[0] == 'Z':
+            return None
+        return fields[19]
+    except (OSError, IndexError, ValueError):
+        return None
+
+
 def manifest_load(path: Path) -> tuple[dict, str]:
     if path.is_symlink():
         raise ValueError('Symlinked manifest')
@@ -512,6 +523,15 @@ def supervise(manifest_path: Path, state_dir: Path) -> dict:
                 if sha(_artifact(state_dir)) != state['output_sha256']:
                     raise ValueError('Final output integrity mismatch')
             return {**state, 'reused_checkpoint': True}
+        # A killed supervisor does not kill its independent worker. Do not
+        # launch another worker while the old one may still own a source call.
+        old_pid = state.get('worker_pid')
+        if (state['status'] == 'RUNNING' and old_pid and
+                not _artifact(state_dir).exists()):
+            identity = _worker_identity(old_pid)
+            if identity and (not state.get('worker_start_ticks') or
+                             identity == state['worker_start_ticks']):
+                return {**state, 'reason': 'Prior worker is still active; retry deferred'}
         state['supervisor_pid'] = os.getpid()
         deadline = time.monotonic() + manifest['max_seconds']
         stopping = False
@@ -584,6 +604,7 @@ def supervise(manifest_path: Path, state_dir: Path) -> dict:
                     state['worker_restarts'] += 1
                 state['attempts'] += 1
                 state['worker_pid'] = worker.pid
+                state['worker_start_ticks'] = _worker_identity(worker.pid)
                 state['task_status'] = 'RUNNING'
                 state['events'].append({'at_utc': now(), 'event': 'WORKER_STARTED',
                                         'worker_pid': worker.pid, 'task_key': plan['task_key']})

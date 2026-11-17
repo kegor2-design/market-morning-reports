@@ -63,6 +63,38 @@ class DataRecoveryTests(unittest.TestCase):
         saved = recover(item, self.root, fetch=lambda *_: self.fail('API replay'))
         self.assertEqual(saved['status'], 'BLOCKED_UNCERTAIN_API_CALL')
 
+    def test_sigkill_during_reserved_source_call_blocks_replay(self):
+        import json
+        import multiprocessing
+        import time
+
+        item = request()
+        def stalled_fetch(*_):
+            time.sleep(30)
+            raise AssertionError('stalled call returned')
+        process = multiprocessing.get_context('fork').Process(
+            target=recover, args=(item, self.root), kwargs={'fetch': stalled_fetch})
+        process.start()
+        try:
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline:
+                checkpoint = self.root / 'data_recovery.json'
+                if checkpoint.exists() and json.loads(checkpoint.read_text()).get('network_requests') == 1:
+                    break
+                time.sleep(.02)
+            else:
+                self.fail('Source call was not reserved before kill')
+            process.kill()
+            process.join(timeout=3)
+            self.assertEqual(process.exitcode, -9)
+            saved = recover(item, self.root, fetch=lambda *_: self.fail('Unsafe API replay'))
+            self.assertEqual(saved['status'], 'BLOCKED_UNCERTAIN_API_CALL')
+            self.assertEqual(saved['network_requests'], 1)
+        finally:
+            if process.is_alive():
+                process.kill()
+                process.join(timeout=3)
+
     def test_source_errors_and_bad_budget(self):
         self.assertEqual(classify_error(urllib.error.HTTPError('x', 429, 'rate', {}, None)),
                          'RATE_LIMIT')
