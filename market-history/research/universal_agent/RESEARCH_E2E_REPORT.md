@@ -1,5 +1,11 @@
 # Session B real data E2E
 
+## New 2020 widening-spread research — 2026-11-18
+
+Goal `research_471a35e13cfa`: “Explore widening Treasury yield spread and SOFR from 2020-08-03 to 2020-08-28 in chronological order.” A synthetic dynamic proposal chose the implemented widening-spread signal and a sequential dependency for the 10Y discovery task. The host compiled and sealed a version 2 Research Program. Three approved requests collected official US Treasury 2Y/10Y and NY Fed SOFR data. The initial Treasury schema mismatch blocked analysis, then the Problem Solver added two zero-network revalidation tasks and resumed this same Goal. The completed exploratory validation had 2/7 accuracy (28.6%) versus 6/7 (85.7%) for the no-increase baseline, so the hypothesis was `REJECTED_EXPLORATORY`. Independent recomputation from the sealed child jobs matched the report exactly. PIT first-access evidence and an independent holdout are unavailable; this is not a verified investment prediction. No real AI model generated the proposal.
+
+Three separate new Goal texts for Korean crash prediction, Korean market regime transition and Bitcoin options were retained as `RESEARCH_UNSUPPORTED` with no executable data task. They were not replaced with an unrelated study. Official KRX data and Regime190 label/PIT verification remain pending.
+
 ## 2026-11-18 planner handoff scope
 
 A synthetic June 2018 proposal passed host validation and entered the persistent queue; its first data-discovery task completed with zero model and network calls. No new real-data analysis or independent holdout was run. The prior May 2018/2019 and July 2018 exploratory results below remain the latest real-data evidence. Research A/C official data and Research D's unsupported classification are unchanged. Actual AI-generated research E2E remains blocked by the unapproved/unmetered model path and the narrow reviewed action registry.

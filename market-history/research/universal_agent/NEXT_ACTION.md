@@ -1,5 +1,26 @@
 # Next research actions
 
+## Dynamic planner and source-schema recovery handoff — 2026-11-18
+
+- Branch `research/universal-agent-session-c-dynamic-planner-20261118`; start SHA `de9af2fe6c2de3669dc1a00243752d1ac5a6670a`; last verified code commit `48482c8` plus this report checkpoint commit.
+- Completed: reviewed alternative rate hypothesis and DAG dependency compilation; version 2 Goal Contract with immutable policy; 2020 Treasury official URI/header support; autonomous zero-network schema recovery for original Goal `research_471a35e13cfa`; independent result recomputation; terminal deduplication. Universal Agent 152 PASS and Regime190 55 PASS; compileall and diff check PASS. No Worker running.
+- Checkpoints: `.universal_private/session_c_dynamic_aug2020_fixed/state.json` completed exploratory; `.universal_private/session_c_dynamic_aug2020_verified/state.json` blocked on earlier official URI 404; `.universal_private/session_c_dynamic_aug2020/state.json` blocked under network-isolated execution; `.universal_private/session_c_rates_may2018/state.json` remains completed exploratory. All were preserved.
+- Remaining: enforceable per-call model cost control and explicit paid-call approval; actual AI-generated plan; general capability registry with input/output contracts; safe API recovery with a new approved budget; isolated AI Self Repair/Rollback in DAG; official KRX/PIT and independent holdout; strict outer time budget and actual SSH disconnect/reconnect. A 404 Goal whose three network reservations were consumed must not be automatically retried.
+- Required approval before real model invocation: provider, model, call count, maximum cost, validity window, purpose and evidence that the cap is enforceable. Existing Codex CLI authentication alone is insufficient. No production code, scheduler, DB, service or operating branch changed.
+
+Verified resume commands (module invocation requires no chmod):
+
+```bash
+cd /home/kegor2/market-morning-reports-session-c
+git fetch origin research/universal-agent-session-c-dynamic-planner-20261118
+git status --short --branch
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.research_runtime status --queue-dir .universal_private/session_c_dynamic_aug2020_fixed
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/universal_agent/tests -q
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/regime190/tests -q
+```
+
+Next independent coding task: host-approved API fault recovery with an explicit new network budget, plus isolated fixture repair/rollback DAG integration. Preserve the completed Goal and source hashes.
+
 ## Session C AI planner boundary handoff — 2026-11-18
 
 - Branch: `research/universal-agent-session-c-ai-planner-20261118`; starting commit `8aa7af567124ec27e5ac7afb1d18467796ffa822`; last verified code commit `737368b` plus the subsequent cost fail-closed check and report update in this handoff commit.

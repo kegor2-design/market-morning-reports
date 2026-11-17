@@ -1,5 +1,9 @@
 # Session C source discovery checkpoint
 
+## 2020 Treasury archive and schema — 2026-11-18
+
+The [Treasury's official archive index](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rate-archives) lists par yield curve files for 2010-2019 and 2020-2023. The existing adapter had incorrectly constructed a 2020-2029 URL; it now uses the listed 2020-2023 file and fails closed for later years until reviewed. The actual 2020 response uses lowercase column labels and four-digit dates, while the older archive used title case and two-digit dates. The parser now accepts either reviewed shape, still requires the selected tenor and date field, and rejects unknown layouts. 2020 Treasury and NY Fed responses were actually collected. Historical first-publication and first-access timestamps remain unverified; no official investment claim is authorized.
+
 ## 2026-11-18 AI proposal source gate
 
 The new candidate validator accepts only the approved sources already present in the host Research Program and rejects an unreviewed provider before queue registration. This is a registry-policy test, not discovery of a new source. No additional official Korean data, source access approval, or historical PIT timestamp was obtained in this continuation.

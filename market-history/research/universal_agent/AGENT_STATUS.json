@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "session_a_completed": false,
-  "branch": "research/universal-agent-session-c-ai-planner-20261118",
-  "last_verified_commit": "737368b",
+  "branch": "research/universal-agent-session-c-dynamic-planner-20261118",
+  "last_verified_commit": "48482c8",
   "last_checkpoint": ".universal_private/session_c_rates_may2018/state.json",
   "gates": {
     "GENERAL_DATA_ACQUISITION_CONNECTED": "PASS",
@@ -101,11 +101,11 @@
   "GENERAL_PURPOSE_RESEARCH_READY": false,
   "PRODUCTION_READY": false,
   "AUTONOMOUS_RUNTIME_CONTINUITY": "PASS",
-  "session_c_branch": "research/universal-agent-session-c-ai-planner-20261118",
+  "session_c_branch": "research/universal-agent-session-c-dynamic-planner-20261118",
   "session_c_base_commit": "cea23c0070c445c402f1def51e324ddbb03a1a13",
   "session_c_continuation_start_commit": "cd5aefef1479203fc994371e183cb7be31f9d295",
-  "session_c_last_verified_code_commit": "737368b",
-  "session_c_phase": "C3_AI_PLAN_BOUNDARY_VERIFIED_MODEL_CALL_BLOCKED",
+  "session_c_last_verified_code_commit": "48482c8",
+  "session_c_phase": "DYNAMIC_RATE_PLAN_AND_SCHEMA_RECOVERY_VERIFIED_MODEL_CALL_BLOCKED",
   "session_c_gates": {
     "PERSISTENT_JOB_QUEUE_VERIFIED": "PASS",
     "SESSION_INDEPENDENT_RUNTIME_VERIFIED": "PASS",
@@ -168,7 +168,7 @@
     "Integrate bounded non-calendar Problem Solver and isolated Self Repair into the program DAG",
     "Run supported Research A and C with official data and sealed independent holdout for Research B"
   ],
-  "session_c_next_action": "Read NEXT_ACTION.md; continue strict runtime budget and generic solver integration from 737368b",
+  "session_c_next_action": "Read NEXT_ACTION.md; continue API fault policy, model adapter and Korean capability development from 48482c8",
   "session_c_continuation_gates": {
     "STRICT_TIME_BUDGET_VERIFIED": "BLOCKED",
     "MODEL_UNAVAILABLE_HANDLING_VERIFIED": "BLOCKED",
@@ -205,5 +205,44 @@
     "regime190_tests": "PASS 55",
     "running_worker": null,
     "private_checkpoint": ".universal_private/session_c_rates_may2018/state.json"
+  },
+  "session_c_dynamic_iteration": {
+    "start_commit": "de9af2fe6c2de3669dc1a00243752d1ac5a6670a",
+    "verified_code_commit": "48482c8",
+    "research_goal_id": "research_471a35e13cfa",
+    "research_status": "RESEARCH_COMPLETED_EXPLORATORY",
+    "research_checkpoint": ".universal_private/session_c_dynamic_aug2020_fixed/state.json",
+    "source_sha256_treasury": "25877e5541442e8c8c642a3cf9709d8c20eb2c1603556e3ebd84545f1f0acfe2",
+    "schema_revision_sha256": "3eb4553f755e9416a7b171430c047e5a1b633101c6d53a31bec0864d09b53f46",
+    "network_requests_reserved": 3,
+    "model_calls": 0,
+    "validation_accuracy": "2/7",
+    "baseline_accuracy": "6/7",
+    "hypothesis_result": "REJECTED_EXPLORATORY",
+    "gates": {
+      "DYNAMIC_PLAN_CONTRACT_VERIFIED": "PASS",
+      "CAPABILITY_REGISTRY_VERIFIED": "BLOCKED",
+      "FLEXIBLE_HOST_VALIDATION_VERIFIED": "PASS",
+      "PLAN_TO_DAG_COMPILATION_VERIFIED": "PASS",
+      "GOAL_CONTRACT_PRESERVATION_VERIFIED": "PASS",
+      "MODEL_ADAPTER_VERIFIED": "BLOCKED",
+      "MODEL_COST_ENFORCEMENT_VERIFIED": "BLOCKED",
+      "MODEL_APPROVAL_POLICY_VERIFIED": "PASS",
+      "REAL_AI_PLAN_GENERATION_VERIFIED": "BLOCKED",
+      "MODEL_ERROR_RECOVERY_VERIFIED": "BLOCKED",
+      "AI_PLAN_TO_RUNTIME_VERIFIED": "BLOCKED",
+      "SYNTHETIC_DYNAMIC_PLAN_TO_RUNTIME_VERIFIED": "PASS",
+      "AUTONOMOUS_SCHEMA_RECOVERY_VERIFIED": "PASS",
+      "AUTONOMOUS_API_RECOVERY_VERIFIED": "BLOCKED",
+      "AI_SELF_REPAIR_DAG_INTEGRATION_VERIFIED": "BLOCKED",
+      "SAFE_ROLLBACK_VERIFIED": "BLOCKED",
+      "ORIGINAL_GOAL_RESUME_VERIFIED": "PASS",
+      "PIT_EVIDENCE_VERIFIED": "BLOCKED",
+      "INDEPENDENT_HOLDOUT_VERIFIED": "BLOCKED",
+      "CORE_REGRESSION_VERIFIED": "PASS"
+    },
+    "tests": {"universal_agent": "PASS 152", "regime190": "PASS 55",
+              "compileall": "PASS", "git_diff_check": "PASS"},
+    "running_worker": null
   }
 }

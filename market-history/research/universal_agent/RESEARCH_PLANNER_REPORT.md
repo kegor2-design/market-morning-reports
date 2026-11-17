@@ -1,5 +1,11 @@
 # Session B research planner
 
+## Dynamic plan and host compiler — 2026-11-18
+
+Starting at `de9af2fe6c2de3669dc1a00243752d1ac5a6670a`, the host compiler now permits two implemented US rate signals: positive 10Y-2Y spread and widening 10Y-2Y spread. It also permits a different acyclic dependency order among reviewed discovery tasks. For the same original Goal, both proposals pass with distinct plan hashes, hypotheses and DAGs. The original Goal ID/text, market, period, required series, approved sources/actions, zero-model execution budget, PIT and holdout policy remain host controlled. The revised executable Goal Contract is sealed as version 2; version 1 checkpoints are still accepted. Unknown source/action, missing dependency, cycle and unimplemented hypothesis are rejected. A synthetic widening-spread proposal entered the existing persistent Queue and ran approved tasks. These results prove flexible host validation and execution of a synthetic proposal, not AI generation.
+
+The available production Codex CLI still has no enforceable request-level dollar ceiling and no paid planning call was made. [OpenAI's project spend controls](https://help.openai.com/en/articles/9186755-managing-projects-in-the-api-platform) can enforce a hard monthly limit when configured by an owner, but enforcement is not instantaneous and recorded spend can exceed that limit slightly; [prepaid balance exhaustion](https://help.openai.com/en/articles/8264644-setting-up-and-managing-prepaid-api-billing) also has processing delay. Neither account configuration nor an explicit paid-call approval was available to this research worker. Real AI plan generation remains `BLOCKED`.
+
 ## Session C AI planner boundary — 2026-11-18
 
 Starting from `8aa7af567124ec27e5ac7afb1d18467796ffa822`, the new `ai_research_planner.py` validates a structured model candidate against `ai_program_candidate.schema.json` and the independently generated, reviewed Research Program. The candidate must preserve the exact Goal ID/text, market, hypothesis, data requirements, approved sources, evaluation methods, and task DAG. A different source, action, dependency or PIT assertion is rejected before execution. The legacy `research_plan.schema.json` describes a hypothesis plan and remains unchanged; the executable `research_program.schema.json` remains the supervisor contract.
