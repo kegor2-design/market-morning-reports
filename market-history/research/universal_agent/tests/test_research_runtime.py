@@ -91,7 +91,7 @@ class ResearchRuntimeTests(unittest.TestCase):
     def test_unsupported_goal_preserves_original_contract(self):
         goal = 'Investigate Antarctic whale migration with satellite images.'
         item = submit(goal, self.queue_dir)
-        self.assertEqual(item['status'], 'FAILED')
+        self.assertEqual(item['status'], 'UNSUPPORTED')
         self.assertEqual(run(self.queue_dir, max_seconds=30)['processed'], 0)
         contract = json.loads((self.queue_dir / 'programs' / item['goal_id'] /
             'goal_contract.json').read_text())

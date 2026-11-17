@@ -19,7 +19,7 @@ from .isolated_codex import PRIVATE_ROOT
 from .research_planner import UnsupportedGoal, plan_goal
 
 FINAL = {'VERIFIED', 'COMPLETED_EXPLORATORY', 'BLOCKED_EVIDENCE', 'BLOCKED_ENV',
-         'APPROVAL_REQUIRED', 'FAILED', 'CANCELLED'}
+         'APPROVAL_REQUIRED', 'FAILED', 'CANCELLED', 'UNSUPPORTED'}
 ACTIVE = {'PENDING', 'READY', 'RUNNING', 'RETRY_WAIT'}
 
 
@@ -100,7 +100,7 @@ def submit(goal: str, directory: Path, *, approval_required: bool = False,
         if plan is None:
             from .process_supervisor import run_research_program
             run_research_program(goal, program_dir=unsupported_dir)
-        status = 'FAILED' if plan is None else 'APPROVAL_REQUIRED' if approval_required else 'PENDING'
+        status = 'UNSUPPORTED' if plan is None else 'APPROVAL_REQUIRED' if approval_required else 'PENDING'
         job = {'job_id': goal_id, 'goal_id': goal_id, 'research_goal': goal,
             'status': status, 'priority': priority, 'created_at_utc': now(),
             'plan_sha256': hashlib.sha256(canonical(plan)).hexdigest() if plan else None,

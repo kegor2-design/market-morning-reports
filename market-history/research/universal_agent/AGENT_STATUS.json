@@ -2,7 +2,7 @@
   "schema_version": 1,
   "session_a_completed": false,
   "branch": "research/universal-agent-session-c-20261117",
-  "last_verified_commit": "f22df0f",
+  "last_verified_commit": "a6e19ed",
   "last_checkpoint": ".universal_private/session_c_rates_june2018/state.json",
   "gates": {
     "GENERAL_DATA_ACQUISITION_CONNECTED": "PASS",
@@ -100,15 +100,15 @@
   "SESSION_C_COMPLETED": false,
   "GENERAL_PURPOSE_RESEARCH_READY": false,
   "PRODUCTION_READY": false,
-  "AUTONOMOUS_RUNTIME_CONTINUITY": "BLOCKED",
+  "AUTONOMOUS_RUNTIME_CONTINUITY": "PASS",
   "session_c_branch": "research/universal-agent-session-c-20261117",
   "session_c_base_commit": "cea23c0070c445c402f1def51e324ddbb03a1a13",
   "session_c_last_verified_code_commit": "f22df0f",
   "session_c_phase": "C1_PARTIAL",
   "session_c_gates": {
     "PERSISTENT_JOB_QUEUE_VERIFIED": "PASS",
-    "SESSION_INDEPENDENT_RUNTIME_VERIFIED": "BLOCKED",
-    "CHECKPOINT_RECOVERY_VERIFIED": "BLOCKED",
+    "SESSION_INDEPENDENT_RUNTIME_VERIFIED": "PASS",
+    "CHECKPOINT_RECOVERY_VERIFIED": "PASS",
     "NO_DUPLICATE_EXECUTION_VERIFIED": "PASS",
     "DEVELOPMENT_RESUME_VERIFIED": "BLOCKED",
     "AI_RESEARCH_PLANNER_VERIFIED": "BLOCKED",
@@ -135,20 +135,26 @@
   "session_c_research_goal_states": {
     "research_248bf5aefcbf": "RESEARCH_BLOCKED",
     "research_21ae71a8bd77": "RESEARCH_BLOCKED",
-    "research_162ab26e5092": "RESEARCH_COMPLETED_EXPLORATORY"
+    "research_162ab26e5092": "RESEARCH_COMPLETED_EXPLORATORY",
+    "research_b40f4deea759": "RESEARCH_UNSUPPORTED",
+    "research_4feaa3d81380": "RESEARCH_UNSUPPORTED",
+    "research_88aa9824ac88": "RESEARCH_UNSUPPORTED"
   },
   "session_c_running_worker": null,
   "session_c_private_checkpoints": [
     ".universal_private/session_c_disconnect_2/state.json",
     ".universal_private/session_c_rates_may2018/state.json",
-    ".universal_private/session_c_rates_june2018/state.json"
+    ".universal_private/session_c_rates_june2018/state.json",
+    ".universal_private/session_c_research_a_v2/state.json",
+    ".universal_private/session_c_research_c_v2/state.json",
+    ".universal_private/session_c_research_d_v2/state.json"
   ],
   "session_c_test_results": {
-    "universal_agent": "PASS 131 (server user execution)",
+    "universal_agent": "PASS 134 (server user execution)",
     "regime190": "PASS 55",
     "detached_shell_exit": "PASS 2 bounded goals",
     "actual_ssh_disconnect": "BLOCKED not exercised",
-    "new_queue_fault_matrix": "BLOCKED incomplete"
+    "new_queue_fault_matrix": "PARTIAL: SIGKILL, injected storage and provider failure pass; model and strict time budget unverified"
   },
   "session_c_remaining_work": [
     "Complete P0 disk, network, time, model, kill and actual SSH disconnect fault matrix for the new queue",
@@ -157,5 +163,5 @@
     "Integrate bounded Problem Solver and isolated Self Repair into the program DAG",
     "Run new Research A, C, D and sealed independent holdout for Research B"
   ],
-  "session_c_next_action": "Read NEXT_ACTION.md; continue P0 fault injection from f22df0f before AI planner work"
+  "session_c_next_action": "Read NEXT_ACTION.md; continue P0 strict time and model fault checks from a6e19ed before AI planner work"
 }
