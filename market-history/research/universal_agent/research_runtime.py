@@ -133,8 +133,18 @@ def _sync_tasks(job: dict, program: dict) -> None:
             job['tasks'][task_id] = _task(task)
         row = job['tasks'][task_id]
         record = program['records'][task_id]
-        if row['input_sha256'] != hashlib.sha256(canonical(task['inputs'])).hexdigest():
-            raise ValueError('Runtime task input changed')
+        current_input_sha = hashlib.sha256(canonical(task['inputs'])).hexdigest()
+        if row['input_sha256'] != current_input_sha:
+            revision = program.get('calendar_revision') or {}
+            if (task_id != 'analyze_rates' or row['attempt_count'] != 0 or
+                    row['status'] not in {'PENDING', 'WAITING_DEPENDENCY'} or
+                    task['inputs'].get('calendar_revision_sha256') != revision.get('sha256') or
+                    not revision.get('path') or
+                    _sha(Path(revision['path'])) != revision['sha256']):
+                raise ValueError('Runtime task input changed')
+            row['original_input_sha256'] = row['input_sha256']
+            row['calendar_revision_sha256'] = revision['sha256']
+            row['input_sha256'] = current_input_sha
         row['dependencies'] = task['dependencies']
         row.update(status=record['status'], attempt_count=record['attempts'],
             output_sha256=record.get('checkpoint_sha256'),
@@ -153,6 +163,31 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
         time.sleep(startup_delay)
     with locked_state(directory) as path:
         queue = _load(path)
+        from .calendar_recovery import diagnose as diagnose_calendar
+        for candidate in queue['jobs'].values():
+            if (candidate['status'] != 'BLOCKED_EVIDENCE' or
+                    candidate['approval_status'] != 'APPROVED' or
+                    candidate['attempt_count'] >= candidate['retry_policy']['max_launches']):
+                continue
+            program_dir = directory / 'programs' / candidate['goal_id']
+            try:
+                saved = json.loads((program_dir / 'state.json').read_text())
+                evidence = diagnose_calendar(plan_goal(candidate['research_goal']),
+                                             saved, program_dir)
+            except (OSError, ValueError, KeyError) as exc:
+                candidate['last_error'] = 'CALENDAR_DIAGNOSIS_' + type(exc).__name__
+                candidate['next_action'] = 'REVIEW_CALENDAR_EVIDENCE'
+                queue['events'].append({'at_utc': now(), 'goal_id': candidate['goal_id'],
+                                        'event': 'CALENDAR_DIAGNOSIS_BLOCKED'})
+                _save(path, queue)
+                continue
+            if evidence is not None:
+                candidate['status'] = 'READY'
+                candidate['next_action'] = evidence['solution_action']
+                queue['events'].append({'at_utc': now(), 'goal_id': candidate['goal_id'],
+                                        'event': 'CALENDAR_RECOVERY_READY',
+                                        'evidence_sha256': hashlib.sha256(canonical(evidence)).hexdigest()})
+                _save(path, queue)
         started = time.monotonic()
         processed = 0
         processed_ids: set[str] = set()
@@ -225,6 +260,55 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
                 'model_calls': queue['model_calls']}
 
 
+def reconcile_calendar(directory: Path) -> dict:
+    """Verify a completed calendar DAG after a failed queue projection; run no task."""
+    directory = _root(directory)
+    with locked_state(directory) as path:
+        if path.is_symlink():
+            raise ValueError('Symlinked runtime queue')
+        queue = json.loads(path.read_text())
+        if queue.get('schema_version') != 1 or len(queue.get('jobs', {})) != 1:
+            raise ValueError('Calendar reconciliation needs one sealed Goal')
+        job = next(iter(queue['jobs'].values()))
+        program_dir = directory / 'programs' / job['goal_id']
+        if (job['status'] != 'FAILED' or job['last_error'] != 'ValueError' or
+                job['next_action'] != 'INSPECT_RESEARCH_CHECKPOINT_BEFORE_RETRY' or
+                job['checkpoint'] != str(program_dir / 'state.json') or
+                job['output'] != str(program_dir / 'research_report.json')):
+            raise ValueError('Queue failure is not eligible for calendar reconciliation')
+        program = json.loads((program_dir / 'state.json').read_text())
+        revision = program.get('calendar_revision') or {}
+        if (program['status'] != 'RESEARCH_COMPLETED_EXPLORATORY' or
+                program['goal_id'] != job['goal_id'] or
+                program['plan_sha256'] != job['plan_sha256'] or
+                program['goal_contract_sha256'] != job['goal_contract_sha256'] or
+                not revision.get('path') or
+                _sha(Path(revision['path'])) != revision.get('sha256') or
+                any(record['status'] in ACTIVE for record in program['records'].values())):
+            raise ValueError('Calendar program is not sealed and terminal')
+        from .process_supervisor import run_research_program
+        verified = run_research_program(job['research_goal'], program_dir=program_dir,
+                                        max_seconds=10)
+        if verified['status'] != 'RESEARCH_COMPLETED_EXPLORATORY':
+            raise ValueError('Calendar result failed independent program verification')
+        program = json.loads((program_dir / 'state.json').read_text())
+        _sync_tasks(job, program)
+        job.update(status='COMPLETED_EXPLORATORY', last_error=None,
+                   next_action=verified['next_action'],
+                   checkpoint_sha256=_sha(program_dir / 'state.json'),
+                   output_sha256=_sha(program_dir / 'research_report.json'),
+                   network_requests_reserved=program['network_requests_reserved'])
+        queue['network_requests_reserved'] = sum(item['network_requests_reserved']
+            for item in queue['jobs'].values())
+        queue['events'].append({'at_utc': now(), 'goal_id': job['goal_id'],
+                                'event': 'CALENDAR_RESULT_RECONCILED',
+                                'reexecuted_tasks': 0})
+        _save(path, queue)
+        return {'goal_id': job['goal_id'], 'status': job['status'],
+                'reexecuted_tasks': 0,
+                'network_requests_reserved': job['network_requests_reserved']}
+
+
 def launch(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
            startup_delay: int = 0) -> int:
     directory = _root(directory)
@@ -250,7 +334,8 @@ def launch(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument('action', choices=('submit', 'run', 'launch', 'status', 'stop'))
+    parser.add_argument('action', choices=('submit', 'run', 'launch', 'status', 'stop',
+                                           'reconcile-calendar'))
     parser.add_argument('--queue-dir', type=Path, required=True)
     parser.add_argument('--goal')
     parser.add_argument('--approval-required', action='store_true')
@@ -285,6 +370,8 @@ def main() -> int:
         print(json.dumps({'generation': queue['generation'],
             'statuses': {key: value['status'] for key, value in queue['jobs'].items()},
             'events': queue['events'][-10:]}))
+    elif args.action == 'reconcile-calendar':
+        print(json.dumps(reconcile_calendar(args.queue_dir)))
     else:
         directory = _root(args.queue_dir)
         directory.mkdir(mode=0o700, parents=True, exist_ok=True)

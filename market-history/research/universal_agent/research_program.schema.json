@@ -197,6 +197,7 @@
             "enum": [
               "DATA_DISCOVERY",
               "DATA_ACQUISITION",
+              "DATA_CALENDAR_REVALIDATION",
               "PIT_VALIDATION",
               "EXPERIMENT_EXECUTION",
               "KR_INDEX_VALIDATION",

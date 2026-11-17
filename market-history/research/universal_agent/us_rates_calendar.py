@@ -12,8 +12,8 @@ from datetime import date, timedelta
 SIFMA_ARCHIVE = 'https://www.sifma.org/resources/guides-playbooks/us-holiday-archive'
 NYFED_POLICY = ('https://www.newyorkfed.org/markets/reference-rates/'
                 'additional-information-about-reference-rates')
-TREASURY_ARCHIVE = ('https://home.treasury.gov/policy-issues/financing-the-government/'
-                    'interest-rate-statistics?data=yieldyear&year=2018')
+TREASURY_ARCHIVE = ('https://home.treasury.gov/resource-center/data-chart-center/'
+                    'interest-rates/daily-treasury-rate-archives')
 
 # Full closures only. Early-close dates are intentionally excluded.
 FULL_CLOSE = {

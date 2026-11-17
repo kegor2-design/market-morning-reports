@@ -19,6 +19,7 @@ SCHEMA = Path(__file__).with_name('research_program.schema.json')
 SERIES = ('UST_2Y', 'UST_10Y', 'NYFED_SOFR')
 ACTIONS = {'DATA_DISCOVERY': 'CHECK_EXISTING_DATA',
            'DATA_ACQUISITION': 'DATA_RECOVERY',
+           'DATA_CALENDAR_REVALIDATION': 'DATA_RECOVERY',
            'PIT_VALIDATION': 'EVIDENCE_WORKFLOW',
            'EXPERIMENT_EXECUTION': 'RATE_ANALYSIS',
            'KR_INDEX_VALIDATION': 'VERIFY_HASHED_INDEX',
@@ -57,9 +58,14 @@ def validate_plan(plan: dict) -> None:
             raise ValueError('Unreviewed task action')
         if any(dep not in graph or dep == task['task_id'] for dep in task['dependencies']):
             raise ValueError('Unknown or self dependency')
-        if task['task_type'] in {'DATA_DISCOVERY', 'DATA_ACQUISITION'} and \
+        if task['task_type'] in {'DATA_DISCOVERY', 'DATA_ACQUISITION',
+                                'DATA_CALENDAR_REVALIDATION'} and \
                 task['inputs'].get('series') not in SERIES:
             raise ValueError('Unreviewed data requirement')
+        if task['task_type'] == 'DATA_CALENDAR_REVALIDATION' and \
+                (not isinstance(task['inputs'].get('calendar_revision_sha256'), str) or
+                 len(task['inputs']['calendar_revision_sha256']) != 64):
+            raise ValueError('Unreviewed calendar revision')
         if task['resource_budget']['max_model_calls'] != 0 or \
                 task['resource_budget']['max_network_requests'] != \
                 (1 if task['task_type'] == 'DATA_ACQUISITION' else 0) or \
@@ -109,7 +115,9 @@ def validate_plan(plan: dict) -> None:
         start, end = date.fromisoformat(period['start']), date.fromisoformat(period['end'])
         if (set(plan['data_requirements']) != set(SERIES) or
                 set(plan['allowed_sources']) != {'US_TREASURY', 'NYFED_REFERENCE_RATES'} or
-                {t['task_type'] for t in tasks} - {'DATA_DISCOVERY', 'DATA_ACQUISITION', 'EXPERIMENT_EXECUTION'} or
+                {t['task_type'] for t in tasks} - {'DATA_DISCOVERY', 'DATA_ACQUISITION',
+                                                   'DATA_CALENDAR_REVALIDATION',
+                                                   'EXPERIMENT_EXECUTION'} or
                 {t['inputs']['series'] for t in tasks if t['task_type'] == 'DATA_DISCOVERY'} != set(SERIES) or
                 sum(t['task_type'] == 'EXPERIMENT_EXECUTION' for t in tasks) != 1 or
                 plan['goal_contract']['allowed_actions'] !=

@@ -47,27 +47,46 @@ def _child_for(plan: dict, task: dict, program_dir: Path,
     base = {'schema_version': 1, 'job_id': job_id,
             'goal': plan['research_goal'], 'max_seconds': 60,
             'max_restarts': 1, 'max_model_calls': 0}
-    if task['task_type'] == 'DATA_ACQUISITION':
+    if task['task_type'] in {'DATA_ACQUISITION', 'DATA_CALENDAR_REVALIDATION'}:
         series = task['inputs']['series']
         source = 'NYFED_REFERENCE_RATES' if series == 'NYFED_SOFR' else 'US_TREASURY'
+        revalidation = task['task_type'] == 'DATA_CALENDAR_REVALIDATION'
+        if revalidation:
+            from .us_rates_calendar import expected_observations
+            expected, _ = expected_observations(plan['research_period']['start'],
+                                                plan['research_period']['end'], series)
+        else:
+            expected = dates_for(plan)
         base.update(mode='data_recovery', data_request={
             'goal_id': job_id, 'job_id': job_id, 'task_id': task_id,
             'series': series, 'market': 'US', 'unit': 'percent',
             'start': plan['research_period']['start'],
             'end': plan['research_period']['end'],
-            'expected_dates': dates_for(plan), 'existing': {},
+            'expected_dates': expected, 'existing': {},
             'allowed_sources': [source],
-            'budget': {'max_network_requests': 1, 'max_seconds': 25,
+            'budget': {'max_network_requests': 0 if revalidation else 1,
+                       'max_seconds': 25,
                        'max_retries': 0, 'max_model_calls': 0}})
     elif task['task_type'] == 'EXPERIMENT_EXECUTION':
+        revalidation = 'calendar_revision_sha256' in task['inputs']
         sources = {}
         for series in SERIES:
-            child_id = 'collect_' + series.lower()
+            child_id = ('revalidate_' if revalidation else 'collect_') + series.lower()
             sources[series] = {
                 'manifest': str((program_dir / 'manifests' / (child_id + '.json')).resolve()),
                 'job_dir': str((program_dir / 'jobs' / child_id).resolve())}
+        if revalidation:
+            from .us_rates_calendar import expected_observations
+            analysis_dates, _ = expected_observations(plan['research_period']['start'],
+                plan['research_period']['end'], SERIES[0])
+            if any(expected_observations(plan['research_period']['start'],
+                    plan['research_period']['end'], series)[0] != analysis_dates
+                   for series in SERIES[1:]):
+                raise ValueError('Source calendars do not align for analysis')
+        else:
+            analysis_dates = dates_for(plan)
         base.update(mode='rate_analysis', analysis_sources=sources,
-                    analysis_dates=dates_for(plan), train_rows=12)
+                    analysis_dates=analysis_dates, train_rows=12)
         if test_analysis_delay:
             base['fixture_delay_before_output_seconds'] = test_analysis_delay
     else:
@@ -94,6 +113,7 @@ def _program_result(state: dict, program_dir: Path) -> dict:
                                 if value['status'].startswith('BLOCKED')],
               'selection_history': state['selection_history'],
               'replanning_history': state['replanning_history'],
+              'calendar_revision': state.get('calendar_revision'),
               'independent_goal': state.get('independent_goal'),
               'analysis': analysis, 'pit_status': 'PIT_UNVERIFIED',
               'official_market_claim': False, 'independent_holdout': 'NOT_AVAILABLE',
@@ -201,7 +221,9 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                         saved_checkpoint.read_bytes()).hexdigest() != \
                         saved_record['checkpoint_sha256']:
                     raise ValueError('Child Research Job checkpoint changed')
-                if saved_task['task_type'] in {'DATA_ACQUISITION', 'EXPERIMENT_EXECUTION'}:
+                if saved_task['task_type'] in {'DATA_ACQUISITION',
+                                               'DATA_CALENDAR_REVALIDATION',
+                                               'EXPERIMENT_EXECUTION'}:
                     from .research_job import manifest_load, plan_for, verify_artifact
                     manifest_path = program_dir / 'manifests' / (saved_task['task_id'] + '.json')
                     manifest, digest = manifest_load(manifest_path)
@@ -221,6 +243,10 @@ def run_research_program(goal: str, program_dir: Path | None = None,
             state['status'] = 'RESEARCH_CANCELLED'
             write_state(checkpoint, state)
             return _program_result(state, program_dir)
+        if state['status'] == 'RESEARCH_BLOCKED' and not state.get('calendar_revision'):
+            from .calendar_recovery import replan
+            if replan(plan, state, program_dir):
+                write_state(checkpoint, state)
         validate_plan(dict(plan, tasks=state['tasks']))
         started = time.monotonic()
         executed = 0
@@ -320,6 +346,9 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                 manifest_path = _program_manifest(program_dir / 'manifests' /
                                                   (task_id + '.json'), child_manifest)
                 job_dir = program_dir / 'jobs' / task_id
+                if task['task_type'] == 'DATA_CALENDAR_REVALIDATION':
+                    from .calendar_recovery import seed_revalidation
+                    seed_revalidation(plan, task, child_manifest, program_dir, job_dir)
                 child = supervise_research(manifest_path, job_dir)
                 record['checkpoint'] = str(job_dir / 'job.json')
                 record['checkpoint_sha256'] = hashlib.sha256(
