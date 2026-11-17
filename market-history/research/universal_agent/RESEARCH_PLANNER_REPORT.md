@@ -1,5 +1,9 @@
 # Session B research planner
 
+## Session C continuation (2026-11-18)
+
+The host planner now accepts one versioned `DATA_CALENDAR_REVALIDATION` task type for an already blocked, reviewed US rates Goal. The Task DAG revision is evidence-gated, adds no network or model budget, retains original blocked tasks and the sealed Goal Contract, and records changed dependencies and the calendar revision hash. This is deterministic Problem Solver replanning, not an AI-generated research plan. The existing isolated Codex model path and secure runner were inspected; no new paid model invocation was authorized or made in this continuation. The AI Research Planner gate remains `BLOCKED`.
+
 The original Session B branch started at `497782dff9fe911ff9e1c4ff727aec3423d259bf`; this follow-up starts at `ef87bb9028cee2d33f181132fd8a615f01c2c16d`. Existing Research Job, data recovery, Problem Solver evidence collection, process supervisor, and private checkpoints are reused. The rule based planner initially accepted reviewed US rates research and indicator 116 PIT context. It uses zero model calls.
 
 The host validates the JSON Schema, task identities, DAG acyclicity, source list, actions, task budgets, and read only policy. For the US rates goal, it created three discovery tasks and one analysis task. The supervisor added three collection tasks when discovery found missing data. The fixed window is 2018-04-03 through 2018-04-30; the default and the lack of a sealed independent market holdout are recorded in the plan. A Korean indicator 116 goal adds a separate PIT task and independent US rates work.

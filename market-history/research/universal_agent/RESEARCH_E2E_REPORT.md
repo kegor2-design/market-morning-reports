@@ -1,5 +1,11 @@
 # Session B real data E2E
 
+## Session C continuation: original May Goal and autonomous reproductions
+
+Original May 2018 Goal `research_21ae71a8bd77` resumed under its original Goal ID after an evidence-backed calendar DAG revision. The reviewed 22 observation dates exclude the full closure on 2018-05-28. Three revalidation jobs used the identical sealed Treasury/NY Fed source hashes with zero additional network calls. The predeclared positive-spread hypothesis had validation accuracy 3/9 (33.3%) versus the no-increase baseline 6/9 (66.7%): `REJECTED_EXPLORATORY`. The result was independently recomputed from the revised source jobs and matched exactly.
+
+Independent May 2019 and July 2018 Goals reproduced holiday gaps and were automatically repaired by the Problem Solver on their second queue runs. May 2019 validation accuracy was 2/9 (22.2%) versus 7/9 (77.8%) baseline; July 2018 was 3/8 (37.5%) versus 5/8 (62.5%). Both hypotheses were rejected exploratorily. Each retained its original Goal ID, source hashes, and three-request budget. None of these new goals has a sealed independent holdout or historical row-level first-access evidence; official investment claims remain blocked.
+
 Sources: official US Treasury archive (2Y and 10Y yields) and NY Fed reference rates (SOFR), 20 common weekdays from 2018-04-03 through 2018-04-30. Private recovery checkpoints retain content hashes and source records; raw source payloads are not committed.
 
 The first 10Y minus 2Y spread was 0.51 percentage points and the last was 0.46. SOFR moved from 1.83% to 1.77%. The predeclared exploratory hypothesis was that a positive spread predicts a next day SOFR increase. Training accuracy was 3/12 (25%) versus a no increase baseline of 9/12 (75%). Validation accuracy was 3/7 (42.9%) versus a no increase baseline of 4/7 (57.1%). The hypothesis was **rejected in this exploratory window**.

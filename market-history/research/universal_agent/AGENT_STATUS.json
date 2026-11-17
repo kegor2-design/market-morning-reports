@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "session_a_completed": false,
-  "branch": "research/universal-agent-session-c-20261117",
-  "last_verified_commit": "a6e19ed",
-  "last_checkpoint": ".universal_private/session_c_rates_june2018/state.json",
+  "branch": "research/universal-agent-session-c-autonomous-recovery-20261118",
+  "last_verified_commit": "eb9e67d",
+  "last_checkpoint": ".universal_private/session_c_rates_may2018/state.json",
   "gates": {
     "GENERAL_DATA_ACQUISITION_CONNECTED": "PASS",
     "AUTOMATIC_GAP_RECOVERY_VERIFIED": "PASS",
@@ -101,10 +101,11 @@
   "GENERAL_PURPOSE_RESEARCH_READY": false,
   "PRODUCTION_READY": false,
   "AUTONOMOUS_RUNTIME_CONTINUITY": "PASS",
-  "session_c_branch": "research/universal-agent-session-c-20261117",
+  "session_c_branch": "research/universal-agent-session-c-autonomous-recovery-20261118",
   "session_c_base_commit": "cea23c0070c445c402f1def51e324ddbb03a1a13",
-  "session_c_last_verified_code_commit": "f22df0f",
-  "session_c_phase": "C1_PARTIAL",
+  "session_c_continuation_start_commit": "cd5aefef1479203fc994371e183cb7be31f9d295",
+  "session_c_last_verified_code_commit": "eb9e67d",
+  "session_c_phase": "C2_CALENDAR_RECOVERY_VERIFIED_C1_PARTIAL",
   "session_c_gates": {
     "PERSISTENT_JOB_QUEUE_VERIFIED": "PASS",
     "SESSION_INDEPENDENT_RUNTIME_VERIFIED": "PASS",
@@ -124,7 +125,7 @@
     "AUTOMATIC_REPLANNING_VERIFIED": "PASS",
     "AI_SELF_REPAIR_DAG_INTEGRATION_VERIFIED": "BLOCKED",
     "SAFE_ROLLBACK_VERIFIED": "BLOCKED",
-    "ORIGINAL_GOAL_RESUME_VERIFIED": "BLOCKED",
+    "ORIGINAL_GOAL_RESUME_VERIFIED": "PASS",
     "MULTI_DOMAIN_RESEARCH_VERIFIED": "BLOCKED",
     "REAL_RESEARCH_E2E_VERIFIED": "BLOCKED",
     "INDEPENDENT_HOLDOUT_VERIFIED": "BLOCKED",
@@ -134,8 +135,10 @@
   },
   "session_c_research_goal_states": {
     "research_248bf5aefcbf": "RESEARCH_BLOCKED",
-    "research_21ae71a8bd77": "RESEARCH_BLOCKED",
+    "research_21ae71a8bd77": "RESEARCH_COMPLETED_EXPLORATORY",
     "research_162ab26e5092": "RESEARCH_COMPLETED_EXPLORATORY",
+    "research_48fa238a75b9": "RESEARCH_COMPLETED_EXPLORATORY",
+    "research_c82cdf92d25e": "RESEARCH_COMPLETED_EXPLORATORY",
     "research_b40f4deea759": "RESEARCH_UNSUPPORTED",
     "research_4feaa3d81380": "RESEARCH_UNSUPPORTED",
     "research_88aa9824ac88": "RESEARCH_UNSUPPORTED"
@@ -144,24 +147,45 @@
   "session_c_private_checkpoints": [
     ".universal_private/session_c_disconnect_2/state.json",
     ".universal_private/session_c_rates_may2018/state.json",
+    ".universal_private/session_c_rates_may2019/state.json",
+    ".universal_private/session_c_rates_july2018/state.json",
     ".universal_private/session_c_rates_june2018/state.json",
     ".universal_private/session_c_research_a_v2/state.json",
     ".universal_private/session_c_research_c_v2/state.json",
     ".universal_private/session_c_research_d_v2/state.json"
   ],
   "session_c_test_results": {
-    "universal_agent": "PASS 134 (server user execution)",
+    "universal_agent": "PASS 139 (server user execution)",
     "regime190": "PASS 55",
     "detached_shell_exit": "PASS 2 bounded goals",
     "actual_ssh_disconnect": "BLOCKED not exercised",
     "new_queue_fault_matrix": "PARTIAL: SIGKILL, injected storage and provider failure pass; model and strict time budget unverified"
   },
   "session_c_remaining_work": [
-    "Complete P0 disk, network, time, model, kill and actual SSH disconnect fault matrix for the new queue",
+    "Complete P0 strict time, model-unavailable, live-provider interruption and actual SSH disconnect checks",
     "Implement reviewed AI Research Planner through the existing isolated model path with explicit budget",
-    "Add evidence-backed US market calendar and official KRX source access",
-    "Integrate bounded Problem Solver and isolated Self Repair into the program DAG",
-    "Run new Research A, C, D and sealed independent holdout for Research B"
+    "Extend reviewed calendar years beyond 2018 and 2019 and acquire official KRX source access",
+    "Integrate bounded non-calendar Problem Solver and isolated Self Repair into the program DAG",
+    "Run supported Research A and C with official data and sealed independent holdout for Research B"
   ],
-  "session_c_next_action": "Read NEXT_ACTION.md; continue P0 strict time and model fault checks from a6e19ed before AI planner work"
+  "session_c_next_action": "Read NEXT_ACTION.md; continue P0 strict time/model checks and P2 host-validated AI planning from eb9e67d",
+  "session_c_continuation_gates": {
+    "STRICT_TIME_BUDGET_VERIFIED": "BLOCKED",
+    "MODEL_UNAVAILABLE_HANDLING_VERIFIED": "BLOCKED",
+    "CALENDAR_ROOT_CAUSE_VERIFIED": "PASS",
+    "SOURCE_CALENDAR_FIX_VERIFIED": "PASS",
+    "MANUAL_REPAIR_VERIFIED": "PASS",
+    "AUTONOMOUS_CALENDAR_RECOVERY_VERIFIED": "PASS",
+    "ORIGINAL_MAY_GOAL_RESUMED": "PASS",
+    "INDEPENDENT_RESULT_VERIFIED": "PASS",
+    "AI_RESEARCH_PLANNER_VERIFIED": "BLOCKED",
+    "HOST_PLAN_VALIDATION_VERIFIED": "PASS",
+    "AUTONOMOUS_PROBLEM_SOLVING_VERIFIED": "BLOCKED",
+    "AI_SELF_REPAIR_DAG_INTEGRATION_VERIFIED": "BLOCKED",
+    "SAFE_ROLLBACK_VERIFIED": "BLOCKED",
+    "SOURCE_DISCOVERY_VERIFIED": "BLOCKED",
+    "PIT_EVIDENCE_VERIFIED": "BLOCKED",
+    "REAL_RESEARCH_E2E_VERIFIED": "BLOCKED",
+    "INDEPENDENT_HOLDOUT_VERIFIED": "BLOCKED"
+  }
 }

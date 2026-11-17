@@ -1,5 +1,30 @@
 # Next research actions
 
+## Session C continuation handoff — 2026-11-18
+
+- Branch: `research/universal-agent-session-c-autonomous-recovery-20261118`; start commit `cd5aefef1479203fc994371e183cb7be31f9d295`; last tested code commit `eb9e67d`.
+- Phase: C2 calendar recovery verified; C1 strict runtime time/model gates incomplete; C3 AI planner pending. No research Worker was running when this handoff was written.
+- Completed: original May 2018 Goal `research_21ae71a8bd77` resumed with 22 official-source observation days and rejected its hypothesis exploratorily. May 2019 `research_48fa238a75b9` and July 2018 `research_c82cdf92d25e` independently reproduced and automatically repaired full-closure gaps. All retained original IDs, source hashes, three original network requests, zero model calls, and zero duplicate completed-task runs. PIT and new sealed holdouts remain unavailable.
+- Private checkpoints: `.universal_private/session_c_rates_may2018/state.json`, `.universal_private/session_c_rates_may2018_before_calendar_recovery/state.json`, `.universal_private/session_c_rates_may2019/state.json`, `.universal_private/session_c_rates_july2018/state.json`. Private raw data and credentials are excluded from Git.
+- Tests: Universal Agent 139 PASS under server user execution, Regime190 55 PASS, compileall and diff check PASS. The 2018 May and 2019 May/July analyses were independently recomputed from sealed source jobs. `reconcile-calendar` was used only to repair the original May queue projection after its program completed; the 2019/July automatic runs did not require it.
+- Remaining: strict outer runtime time budget, model-unavailable task handling, actual SSH reconnect, host-validated AI planner and approved model-call budget, generic solver and isolated Self Repair DAG integration, official KRX data/PIT, new independent holdout, and Research A/C official E2E. Calendar recovery is reviewed only for 2018/2019; other years fail closed.
+- Approval needed before any paid model call or new source: a reviewed model/provider cost limit and source access terms. No production service, scheduler, DB, or branch was changed.
+
+Verified resume commands (module invocation needs no executable-bit change):
+
+```bash
+cd /home/kegor2/market-morning-reports-session-c
+git fetch origin research/universal-agent-session-c-autonomous-recovery-20261118
+git status --short --branch
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.research_runtime status --queue-dir .universal_private/session_c_rates_may2018
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/universal_agent/tests -q
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/regime190/tests -q
+```
+
+Continue with bounded P0 time/model fault checks and a host-validated AI planning candidate path. Do not rerun terminal research jobs or promote exploratory PIT-unverified outcomes.
+
+## Prior handoff
+
 ## Session C development handoff — 2026-11-17
 
 - Branch: `research/universal-agent-session-c-20261117`; last verified implementation commit: `f22df0f`; last verified fault-test commit: `a6e19ed` (based on Session B `cea23c0070c445c402f1def51e324ddbb03a1a13`).

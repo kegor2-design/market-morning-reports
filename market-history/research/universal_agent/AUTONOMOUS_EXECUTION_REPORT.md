@@ -1,5 +1,9 @@
 # Session B autonomous execution
 
+## Session C calendar recovery (2026-11-18)
+
+The original May 2018 rates goal was recovered without changing its Goal ID or replacing its source data. The host added a versioned calendar revision and three zero-network revalidation tasks, then executed its one pending analysis task. A queue input-hash projection bug required a manual, verification-only reconciliation after the program had completed. The same calendar error was then reproduced in May 2019 and July 2018. On each second run the Problem Solver classified the closure gap, revalidated sealed source bytes, updated the original DAG, and resumed the original research automatically. Both independent result recomputations matched. No code-generating AI or Self Repair was used.
+
 ## Session C checkpoint (2026-11-17)
 
 The new bounded Goal queue ran reviewed Research Program DAGs through the existing Supervisor. Detached Korean indicator 116 research preserved its Goal Contract and stopped at `BLOCKED_EVIDENCE`. A separate June 2018 Treasury/SOFR Goal discovered three gaps, added three approved acquisition tasks and analysis dependencies, collected official sources, and ended `COMPLETED_EXPLORATORY`; its hypothesis was rejected against the simple baseline. The May 2018 Goal stayed blocked because the weekday-only date list includes a closure. No AI planner, AI repair, or general source discovery was used. Full evidence is in `RUNTIME_CONTINUITY_REPORT.md`, `SOURCE_DISCOVERY_REPORT.md`, `PROBLEM_SOLVING_REPORT.md`, and `RESEARCH_E2E_SESSION_C_REPORT.md`.
