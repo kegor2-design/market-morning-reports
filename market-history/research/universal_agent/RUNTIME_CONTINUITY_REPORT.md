@@ -1,5 +1,9 @@
 # Session C runtime continuity checkpoint (2026-11-17)
 
+## 2026-11-18 development resume after server restart
+
+After the server restart, the Session C worktree was found clean at `3d3af77418ce4715b380829344e46764412d3781`. The previous private queue was read without rerunning its completed Goal; it remained `COMPLETED_EXPLORATORY` with generation 6. No research Worker was running. Development then resumed on the same isolated branch, added source-call failure evidence, passed 153 Universal Agent and 55 Regime190 tests, and pushed code commit `69fec86becd19103686ffc335a1836e6fa30f9ae` plus the handoff checkpoint. This verifies development checkpoint reuse across the restart. It does not verify that an active Worker survived an actual SSH disconnect or server reboot.
+
 ## 2026-11-18 dynamic Goal and schema recovery
 
 Queue `.universal_private/session_c_dynamic_aug2020_fixed/state.json` first moved Goal `research_471a35e13cfa` from `PENDING` to `BLOCKED_EVIDENCE` after three official-source reservations. The second run diagnosed a sealed-source schema mismatch, added two zero-network recovery jobs, and reached `COMPLETED_EXPLORATORY` under the same Goal. The third run processed 0 jobs. All original collection tasks and recovery tasks show one attempt each; model calls remained 0. The original May 2018 calendar Goal still reads `COMPLETED_EXPLORATORY` from its preserved checkpoint. A Queue candidate aliasing bug surfaced during recovery; the original candidate hash and separately sealed candidate file allowed exact restoration, and the compiler/supervisor now copy mutable structures before checkpoint writes. Strict outer wall-time enforcement and an actual SSH disconnect/reconnect test remain unverified. No Worker was left running at handoff.
