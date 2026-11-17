@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "session_a_completed": false,
-  "branch": "research/universal-agent-autonomous-data-recovery-20261114",
-  "last_verified_commit": "fab4950d0639f45744a6c3333bab9f4ef6b5232e",
-  "last_checkpoint": ".universal_private/autonomous_data_recovery_followup/revision_loop_job/job.json",
+  "branch": "research/universal-agent-session-c-20261117",
+  "last_verified_commit": "f22df0f",
+  "last_checkpoint": ".universal_private/session_c_rates_june2018/state.json",
   "gates": {
     "GENERAL_DATA_ACQUISITION_CONNECTED": "PASS",
     "AUTOMATIC_GAP_RECOVERY_VERIFIED": "PASS",
@@ -95,5 +95,67 @@
     "git_diff_check": "PASS",
     "local_http": "PASS 4",
     "real_process_sigkill": "PASS 4 scenarios"
-  }
+  },
+  "session_c_completed": false,
+  "SESSION_C_COMPLETED": false,
+  "GENERAL_PURPOSE_RESEARCH_READY": false,
+  "PRODUCTION_READY": false,
+  "AUTONOMOUS_RUNTIME_CONTINUITY": "BLOCKED",
+  "session_c_branch": "research/universal-agent-session-c-20261117",
+  "session_c_base_commit": "cea23c0070c445c402f1def51e324ddbb03a1a13",
+  "session_c_last_verified_code_commit": "f22df0f",
+  "session_c_phase": "C1_PARTIAL",
+  "session_c_gates": {
+    "PERSISTENT_JOB_QUEUE_VERIFIED": "PASS",
+    "SESSION_INDEPENDENT_RUNTIME_VERIFIED": "BLOCKED",
+    "CHECKPOINT_RECOVERY_VERIFIED": "BLOCKED",
+    "NO_DUPLICATE_EXECUTION_VERIFIED": "PASS",
+    "DEVELOPMENT_RESUME_VERIFIED": "BLOCKED",
+    "AI_RESEARCH_PLANNER_VERIFIED": "BLOCKED",
+    "GOAL_CONTRACT_PRESERVATION_VERIFIED": "PASS",
+    "DYNAMIC_TASK_DAG_VERIFIED": "PASS",
+    "PLAN_POLICY_VALIDATION_VERIFIED": "PASS",
+    "GENERAL_SOURCE_DISCOVERY_VERIFIED": "BLOCKED",
+    "MULTI_SOURCE_ACQUISITION_VERIFIED": "PASS",
+    "AUTOMATIC_DATA_RECOVERY_VERIFIED": "PASS",
+    "DATA_QUALITY_VALIDATION_VERIFIED": "PASS",
+    "PIT_EVIDENCE_VERIFIED": "BLOCKED",
+    "AUTONOMOUS_PROBLEM_SOLVING_VERIFIED": "BLOCKED",
+    "AUTOMATIC_REPLANNING_VERIFIED": "PASS",
+    "AI_SELF_REPAIR_DAG_INTEGRATION_VERIFIED": "BLOCKED",
+    "SAFE_ROLLBACK_VERIFIED": "BLOCKED",
+    "ORIGINAL_GOAL_RESUME_VERIFIED": "BLOCKED",
+    "MULTI_DOMAIN_RESEARCH_VERIFIED": "BLOCKED",
+    "REAL_RESEARCH_E2E_VERIFIED": "BLOCKED",
+    "INDEPENDENT_HOLDOUT_VERIFIED": "BLOCKED",
+    "UNSUPPORTED_GOAL_FAIL_CLOSED_VERIFIED": "PASS",
+    "CORE_REGRESSION_VERIFIED": "PASS",
+    "SECURITY_AND_BUDGET_VERIFIED": "BLOCKED"
+  },
+  "session_c_research_goal_states": {
+    "research_248bf5aefcbf": "RESEARCH_BLOCKED",
+    "research_21ae71a8bd77": "RESEARCH_BLOCKED",
+    "research_162ab26e5092": "RESEARCH_COMPLETED_EXPLORATORY"
+  },
+  "session_c_running_worker": null,
+  "session_c_private_checkpoints": [
+    ".universal_private/session_c_disconnect_2/state.json",
+    ".universal_private/session_c_rates_may2018/state.json",
+    ".universal_private/session_c_rates_june2018/state.json"
+  ],
+  "session_c_test_results": {
+    "universal_agent": "PASS 131 (server user execution)",
+    "regime190": "PASS 55",
+    "detached_shell_exit": "PASS 2 bounded goals",
+    "actual_ssh_disconnect": "BLOCKED not exercised",
+    "new_queue_fault_matrix": "BLOCKED incomplete"
+  },
+  "session_c_remaining_work": [
+    "Complete P0 disk, network, time, model, kill and actual SSH disconnect fault matrix for the new queue",
+    "Implement reviewed AI Research Planner through the existing isolated model path with explicit budget",
+    "Add evidence-backed US market calendar and official KRX source access",
+    "Integrate bounded Problem Solver and isolated Self Repair into the program DAG",
+    "Run new Research A, C, D and sealed independent holdout for Research B"
+  ],
+  "session_c_next_action": "Read NEXT_ACTION.md; continue P0 fault injection from f22df0f before AI planner work"
 }

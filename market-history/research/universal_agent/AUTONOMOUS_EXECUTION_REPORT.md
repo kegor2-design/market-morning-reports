@@ -1,5 +1,9 @@
 # Session B autonomous execution
 
+## Session C checkpoint (2026-11-17)
+
+The new bounded Goal queue ran reviewed Research Program DAGs through the existing Supervisor. Detached Korean indicator 116 research preserved its Goal Contract and stopped at `BLOCKED_EVIDENCE`. A separate June 2018 Treasury/SOFR Goal discovered three gaps, added three approved acquisition tasks and analysis dependencies, collected official sources, and ended `COMPLETED_EXPLORATORY`; its hypothesis was rejected against the simple baseline. The May 2018 Goal stayed blocked because the weekday-only date list includes a closure. No AI planner, AI repair, or general source discovery was used. Full evidence is in `RUNTIME_CONTINUITY_REPORT.md`, `SOURCE_DISCOVERY_REPORT.md`, `PROBLEM_SOLVING_REPORT.md`, and `RESEARCH_E2E_SESSION_C_REPORT.md`.
+
 Real goal `research_4414e0f7df4f` completed discovery, automatic insertion of three acquisition tasks, Treasury 2Y/10Y and NY Fed SOFR acquisition, and rate analysis. All seven tasks finished without an additional research instruction. The private checkpoint and report are under `.universal_private/programs/research_4414e0f7df4f/` and are excluded from Git.
 
 Real goal `research_454c6a494cc6` first recorded indicator 116 as `BLOCKED_EVIDENCE` using the existing Problem Solver evidence collector. It then selected independent real US rates tasks, acquired official data, and completed exploratory analysis. It did not execute a synthetic fallback. The selection and replan histories are in that program's private state.
