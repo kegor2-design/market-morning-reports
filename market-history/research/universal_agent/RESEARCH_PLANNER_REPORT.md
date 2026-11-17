@@ -1,5 +1,13 @@
 # Session B research planner
 
+## Session C AI planner boundary — 2026-11-18
+
+Starting from `8aa7af567124ec27e5ac7afb1d18467796ffa822`, the new `ai_research_planner.py` validates a structured model candidate against `ai_program_candidate.schema.json` and the independently generated, reviewed Research Program. The candidate must preserve the exact Goal ID/text, market, hypothesis, data requirements, approved sources, evaluation methods, and task DAG. A different source, action, dependency or PIT assertion is rejected before execution. The legacy `research_plan.schema.json` describes a hypothesis plan and remains unchanged; the executable `research_program.schema.json` remains the supervisor contract.
+
+`research_runtime.submit` now accepts a candidate, records its hash in the persistent queue, and passes it to `run_research_program`. The supervisor revalidates and seals it before selecting tasks. A synthetic candidate for a June 2018 rates Goal entered the queue and completed the first reviewed discovery task with zero model calls and zero network requests. Synthetic candidates for rates, Korean crash and indicator 116 yielded three different reviewed DAGs; unsupported arbitrary goals remain unsupported. These tests establish the host boundary and queue handoff only. The model did not generate those candidates.
+
+`request_plan` records prompt/schema hashes, request ID, one-call budget and finite duration before a test-provider call. A timeout or malformed response is recorded and never replayed automatically. The available isolated Codex CLI has no enforceable per-call dollar ceiling, so the production caller returns `BLOCKED_COST_ENFORCEMENT` before a paid call even when an amount is merely declared. No real model invocation occurred. `AI_PLAN_GENERATION_VERIFIED`, general dynamic planning and actual AI-to-DAG E2E therefore remain `BLOCKED`. A reviewed model adapter with enforceable spending limit and explicit cost approval is required before those gates can pass.
+
 ## Session C continuation (2026-11-18)
 
 The host planner now accepts one versioned `DATA_CALENDAR_REVALIDATION` task type for an already blocked, reviewed US rates Goal. The Task DAG revision is evidence-gated, adds no network or model budget, retains original blocked tasks and the sealed Goal Contract, and records changed dependencies and the calendar revision hash. This is deterministic Problem Solver replanning, not an AI-generated research plan. The existing isolated Codex model path and secure runner were inspected; no new paid model invocation was authorized or made in this continuation. The AI Research Planner gate remains `BLOCKED`.

@@ -1,5 +1,26 @@
 # Next research actions
 
+## Session C AI planner boundary handoff — 2026-11-18
+
+- Branch: `research/universal-agent-session-c-ai-planner-20261118`; starting commit `8aa7af567124ec27e5ac7afb1d18467796ffa822`; last verified code commit `737368b` plus the subsequent cost fail-closed check and report update in this handoff commit.
+- Phase: C3 AI proposal schema, host validator and persistent queue handoff verified with synthetic input. Actual model-generated plan remains blocked. No research Worker is running at handoff. Existing May 2018, May 2019 and July 2018 checkpoints and source hashes were preserved.
+- Verified: Universal Agent 147 tests and Regime190 55 tests after the final cost gate; compileall and diff check. The synthetic June 2018 candidate reached the first reviewed discovery task, with zero model and network requests. Simulated timeout, authentication failure and malformed model output were each reserved once and never replayed. The real Codex CLI path returns `BLOCKED_COST_ENFORCEMENT` before any call.
+- Remaining: implement a reviewed model adapter with enforceable monetary ceiling and explicit cost approval, then obtain an actual AI-generated plan; expand the reviewed source/action registry and plan conversion beyond exact host templates; integrate non-calendar error repair and isolated AI Self Repair/Rollback into DAG; strict outer time budget, actual SSH reconnect, official KRX/PIT and independent holdouts. Do not mark these PASS on synthetic tests.
+- Required approval: a provider and explicit maximum cost for paid model calls, with a way to enforce that cap. No service, scheduler, DB, trading system, or operating branch was changed.
+
+Verified resume commands (module invocation requires no executable-bit change):
+
+```bash
+cd /home/kegor2/market-morning-reports-session-c
+git fetch origin research/universal-agent-session-c-ai-planner-20261118
+git status --short --branch
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.research_runtime status --queue-dir .universal_private/session_c_rates_may2018
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/universal_agent/tests -q
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/regime190/tests -q
+```
+
+Next independent coding task: add a bounded, evidence-backed non-calendar repair action to the existing Problem Solver and Research Program DAG. Preserve the existing calendar recovery and terminal task hashes.
+
 ## Session C continuation handoff — 2026-11-18
 
 - Branch: `research/universal-agent-session-c-autonomous-recovery-20261118`; start commit `cd5aefef1479203fc994371e183cb7be31f9d295`; last tested code commit `eb9e67d`.

@@ -1,5 +1,9 @@
 # Session C problem solving checkpoint
 
+## AI-planner continuation boundary — 2026-11-18
+
+The new planner boundary rejected synthetic proposals that changed the original Goal, source registry, action or DAG dependency. A simulated model timeout and malformed JSON were each reserved once and then blocked from automatic replay. These are model-call safety tests, not new autonomous repair cases. Existing calendar recovery remains the only demonstrated automatic return to the original Goal. General API/schema fault repair and isolated AI Self Repair with rollback remain `BLOCKED`; no new production or research code was modified by a model.
+
 ## 2026-11-18 original Goal recovery
 
 The original May 2018 Goal `research_21ae71a8bd77` is now `RESEARCH_COMPLETED_EXPLORATORY`. The original plan, blocked child jobs, source bytes, and Goal Contract remain in place. The host identified `2018-05-28` as the sole missing day in all three series, matched it to the reviewed full-closure calendar, and added three zero-network revalidation tasks in `calendar_revision_v1.json`. The analysis task was reconnected to those tasks and ran once. Queue projection initially failed because its old input hash rejected the versioned analysis dependency. The completed program was verified and reconciled without reexecuting a task; this queue projection correction was manual code repair. Network requests remained at three. The original pre-repair private queue is preserved as `.universal_private/session_c_rates_may2018_before_calendar_recovery`.

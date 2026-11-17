@@ -80,6 +80,12 @@ def request_plan(goal: str, state_dir: Path, *, approval: dict | None = None,
             approval['max_cost_usd'] <= 0 or
             approval.get('max_seconds', 0) < timeout):
         return {'status': 'APPROVAL_REQUIRED', 'model_calls': 0}
+    # The existing Codex CLI exposes a wall-time limit but no enforceable
+    # per-call monetary ceiling. A declared dollar amount is not enforcement.
+    # Only a caller injected by a test provider can exercise the reservation
+    # protocol until a budget-enforcing production adapter is reviewed.
+    if caller is call_structured or approval.get('provider') != 'INJECTED_TEST':
+        return {'status': 'BLOCKED_COST_ENFORCEMENT', 'model_calls': 0}
     request_id = hashlib.sha256(canonical({'goal_id': plan['goal_id'],
         'prompt_sha256': prompt_sha, 'schema_sha256': schema_sha})).hexdigest()[:24]
     request = {'request_id': request_id, 'goal_id': plan['goal_id'],

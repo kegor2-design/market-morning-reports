@@ -70,7 +70,8 @@ class AIPlannerBoundaryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(dir=PRIVATE_ROOT) as folder:
             directory = Path(folder)
             approval = {'status': 'APPROVED', 'goal_id': plan_goal(GOAL)['goal_id'],
-                        'max_calls': 1, 'max_cost_usd': 1, 'max_seconds': 30}
+                        'max_calls': 1, 'max_cost_usd': 1, 'max_seconds': 30,
+                        'provider': 'INJECTED_TEST'}
             calls = []
             def failed(*args, **kwargs):
                 calls.append(1)
@@ -90,7 +91,8 @@ class AIPlannerBoundaryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(dir=PRIVATE_ROOT) as folder:
             directory = Path(folder)
             approval = {'status': 'APPROVED', 'goal_id': plan_goal(GOAL)['goal_id'],
-                        'max_calls': 1, 'max_cost_usd': 1, 'max_seconds': 30}
+                        'max_calls': 1, 'max_cost_usd': 1, 'max_seconds': 30,
+                        'provider': 'INJECTED_TEST'}
             calls = []
             def invalid(*args, **kwargs):
                 calls.append(1)
@@ -101,6 +103,34 @@ class AIPlannerBoundaryTests(unittest.TestCase):
             second = request_plan(GOAL, directory, approval=approval, timeout=30,
                                   caller=invalid)
             self.assertEqual(first['status'], 'BLOCKED_MODEL_OUTPUT')
+            self.assertEqual(second['status'], 'BLOCKED_UNCERTAIN_MODEL_CALL')
+            self.assertEqual(len(calls), 1)
+
+    def test_real_cli_path_blocks_without_enforceable_cost_ceiling(self):
+        PRIVATE_ROOT.mkdir(mode=0o700, parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=PRIVATE_ROOT) as folder:
+            approval = {'status': 'APPROVED', 'goal_id': plan_goal(GOAL)['goal_id'],
+                        'max_calls': 1, 'max_cost_usd': 1, 'max_seconds': 30}
+            result = request_plan(GOAL, Path(folder), approval=approval, timeout=30)
+            self.assertEqual(result['status'], 'BLOCKED_COST_ENFORCEMENT')
+            self.assertFalse((Path(folder) / 'ai_program_request.json').exists())
+
+    def test_auth_failure_is_sealed_without_retry(self):
+        PRIVATE_ROOT.mkdir(mode=0o700, parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=PRIVATE_ROOT) as folder:
+            directory = Path(folder)
+            approval = {'status': 'APPROVED', 'goal_id': plan_goal(GOAL)['goal_id'],
+                        'max_calls': 1, 'max_cost_usd': 1, 'max_seconds': 30,
+                        'provider': 'INJECTED_TEST'}
+            calls = []
+            def unauthorized(*args, **kwargs):
+                calls.append(1)
+                return subprocess.CompletedProcess([], 1, '', 'HTTP 401 unauthorized')
+            first = request_plan(GOAL, directory, approval=approval, timeout=30,
+                                 caller=unauthorized)
+            second = request_plan(GOAL, directory, approval=approval, timeout=30,
+                                  caller=unauthorized)
+            self.assertEqual(first['error_type'], 'AUTH_ERROR')
             self.assertEqual(second['status'], 'BLOCKED_UNCERTAIN_MODEL_CALL')
             self.assertEqual(len(calls), 1)
 

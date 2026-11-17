@@ -1,5 +1,9 @@
 # Session C source discovery checkpoint
 
+## 2026-11-18 AI proposal source gate
+
+The new candidate validator accepts only the approved sources already present in the host Research Program and rejects an unreviewed provider before queue registration. This is a registry-policy test, not discovery of a new source. No additional official Korean data, source access approval, or historical PIT timestamp was obtained in this continuation.
+
 ## 2026-11-18 calendar and source verification
 
 The [SIFMA historical holiday archive](https://www.sifma.org/resources/guides-playbooks/us-holiday-archive) lists full closures on 2018-05-28, 2018-07-04, and 2019-05-27. [NY Fed reference-rate methodology](https://www.newyorkfed.org/markets/reference-rates/additional-information-about-reference-rates) says SOFR is not calculated for SIFMA full-closure days; SOFR's value date is distinct from its publication date. [Treasury's interest-rate statistics](https://home.treasury.gov/policy-issues/financing-the-government/interest-rate-statistics?data=yieldyear&year=2018) show 2018-05-25 and 2018-05-29 around the May closure. The calendar module records full closures for 2018 and 2019, source-specific publication metadata, and no historical first-access claim. Other years fail closed in this recovery path.

@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "session_a_completed": false,
-  "branch": "research/universal-agent-session-c-autonomous-recovery-20261118",
-  "last_verified_commit": "eb9e67d",
+  "branch": "research/universal-agent-session-c-ai-planner-20261118",
+  "last_verified_commit": "737368b",
   "last_checkpoint": ".universal_private/session_c_rates_may2018/state.json",
   "gates": {
     "GENERAL_DATA_ACQUISITION_CONNECTED": "PASS",
@@ -23,8 +23,8 @@
     "Validate interruption during a live unresolved network call in approved isolation",
     "Acquire historical row-level PIT access evidence and independent market holdout"
   ],
-  "next_action": "Resume the terminal revision Research Job for hash verification; investigate source coverage and PIT evidence in new bounded tasks",
-  "resume_command": "PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.process_supervisor --research-manifest .universal_private/autonomous_data_recovery_followup/revision_loop_manifest.json --job-dir .universal_private/autonomous_data_recovery_followup/revision_loop_job",
+  "next_action": "Read NEXT_ACTION.md; continue bounded non-calendar DAG repair and cost-enforced model adapter work",
+  "resume_command": "cd /home/kegor2/market-morning-reports-session-c && PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/universal_agent/tests -q",
   "session_b_completed": true,
   "session_b_branch": "research/universal-agent-session-b-completion-20261117",
   "session_b_base_commit": "497782dff9fe911ff9e1c4ff727aec3423d259bf",
@@ -101,11 +101,11 @@
   "GENERAL_PURPOSE_RESEARCH_READY": false,
   "PRODUCTION_READY": false,
   "AUTONOMOUS_RUNTIME_CONTINUITY": "PASS",
-  "session_c_branch": "research/universal-agent-session-c-autonomous-recovery-20261118",
+  "session_c_branch": "research/universal-agent-session-c-ai-planner-20261118",
   "session_c_base_commit": "cea23c0070c445c402f1def51e324ddbb03a1a13",
   "session_c_continuation_start_commit": "cd5aefef1479203fc994371e183cb7be31f9d295",
-  "session_c_last_verified_code_commit": "eb9e67d",
-  "session_c_phase": "C2_CALENDAR_RECOVERY_VERIFIED_C1_PARTIAL",
+  "session_c_last_verified_code_commit": "737368b",
+  "session_c_phase": "C3_AI_PLAN_BOUNDARY_VERIFIED_MODEL_CALL_BLOCKED",
   "session_c_gates": {
     "PERSISTENT_JOB_QUEUE_VERIFIED": "PASS",
     "SESSION_INDEPENDENT_RUNTIME_VERIFIED": "PASS",
@@ -163,12 +163,12 @@
   },
   "session_c_remaining_work": [
     "Complete P0 strict time, model-unavailable, live-provider interruption and actual SSH disconnect checks",
-    "Implement reviewed AI Research Planner through the existing isolated model path with explicit budget",
+    "Add a production model adapter with enforceable per-call monetary budget and approved cost contract; actual AI plan generation is blocked",
     "Extend reviewed calendar years beyond 2018 and 2019 and acquire official KRX source access",
     "Integrate bounded non-calendar Problem Solver and isolated Self Repair into the program DAG",
     "Run supported Research A and C with official data and sealed independent holdout for Research B"
   ],
-  "session_c_next_action": "Read NEXT_ACTION.md; continue P0 strict time/model checks and P2 host-validated AI planning from eb9e67d",
+  "session_c_next_action": "Read NEXT_ACTION.md; continue strict runtime budget and generic solver integration from 737368b",
   "session_c_continuation_gates": {
     "STRICT_TIME_BUDGET_VERIFIED": "BLOCKED",
     "MODEL_UNAVAILABLE_HANDLING_VERIFIED": "BLOCKED",
@@ -187,5 +187,23 @@
     "PIT_EVIDENCE_VERIFIED": "BLOCKED",
     "REAL_RESEARCH_E2E_VERIFIED": "BLOCKED",
     "INDEPENDENT_HOLDOUT_VERIFIED": "BLOCKED"
+  },
+  "session_c_ai_planner_continuation": {
+    "start_commit": "8aa7af567124ec27e5ac7afb1d18467796ffa822",
+    "verified_code_commit": "737368b",
+    "model_path": "Existing isolated Codex CLI found; no enforceable per-call dollar ceiling",
+    "model_calls_made": 0,
+    "model_call_gate": "BLOCKED_COST_ENFORCEMENT",
+    "synthetic_candidate_schema": "PASS",
+    "host_candidate_validation": "PASS",
+    "synthetic_candidate_to_persistent_queue": "PASS",
+    "synthetic_candidate_to_reviewed_task": "PASS",
+    "actual_ai_plan_generation": "BLOCKED",
+    "generic_problem_solver": "BLOCKED",
+    "ai_self_repair_dag_integration": "BLOCKED",
+    "universal_agent_tests": "PASS 147",
+    "regime190_tests": "PASS 55",
+    "running_worker": null,
+    "private_checkpoint": ".universal_private/session_c_rates_may2018/state.json"
   }
 }

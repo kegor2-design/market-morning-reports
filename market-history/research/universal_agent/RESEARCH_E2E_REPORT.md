@@ -1,5 +1,9 @@
 # Session B real data E2E
 
+## 2026-11-18 planner handoff scope
+
+A synthetic June 2018 proposal passed host validation and entered the persistent queue; its first data-discovery task completed with zero model and network calls. No new real-data analysis or independent holdout was run. The prior May 2018/2019 and July 2018 exploratory results below remain the latest real-data evidence. Research A/C official data and Research D's unsupported classification are unchanged. Actual AI-generated research E2E remains blocked by the unapproved/unmetered model path and the narrow reviewed action registry.
+
 ## Session C continuation: original May Goal and autonomous reproductions
 
 Original May 2018 Goal `research_21ae71a8bd77` resumed under its original Goal ID after an evidence-backed calendar DAG revision. The reviewed 22 observation dates exclude the full closure on 2018-05-28. Three revalidation jobs used the identical sealed Treasury/NY Fed source hashes with zero additional network calls. The predeclared positive-spread hypothesis had validation accuracy 3/9 (33.3%) versus the no-increase baseline 6/9 (66.7%): `REJECTED_EXPLORATORY`. The result was independently recomputed from the revised source jobs and matched exactly.
