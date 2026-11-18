@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import subprocess
 from copy import deepcopy
 from pathlib import Path
@@ -17,7 +18,7 @@ from jsonschema import ValidationError, validate
 from .engine import canonical, now, write_state
 from .isolated_codex import (PRIVATE_ROOT, _try_reserve_request,
                              call_structured, classify_model_failure)
-from .research_planner import plan_goal, validate_plan
+from .research_planner import ACTIONS, SERIES, _task, plan_goal, validate_plan
 from .rate_analysis import SIGNALS
 from .source_adapters import REGISTRY
 
@@ -26,9 +27,44 @@ SCHEMA = Path(__file__).with_name('ai_program_candidate.schema.json')
 
 def capability_registry() -> dict:
     """Expose only implemented, reviewed source and analysis capabilities."""
-    from .research_planner import ACTIONS
-    return {'version': 1, 'sources': sorted(REGISTRY),
+    capabilities = {}
+    for task_type, action in ACTIONS.items():
+        input_schema = ({'type': 'object', 'required': ['series'],
+                         'properties': {'series': {'enum': list(SERIES)}}}
+                        if task_type.startswith('DATA_') else
+                        {'oneOf': [{'type': 'object', 'maxProperties': 0},
+                                   {'type': 'object',
+                                    'required': ['signal', 'hypothesis', 'train_rows'],
+                                    'properties': {'signal': {'enum': list(SIGNALS)},
+                                                   'train_rows': {'const': 12}}}]}
+                        if task_type == 'EXPERIMENT_EXECUTION' else
+                        {'type': 'object', 'required': ['indicator'],
+                         'properties': {'indicator': {'const': '116'}}}
+                        if task_type == 'PIT_VALIDATION' else
+                        {'type': 'object', 'maxProperties': 0})
+        sources = (['US_TREASURY', 'NYFED_REFERENCE_RATES']
+                   if task_type in {'DATA_DISCOVERY', 'DATA_ACQUISITION',
+                                    'DATA_CALENDAR_REVALIDATION',
+                                    'DATA_SCHEMA_REVALIDATION', 'EXPERIMENT_EXECUTION'}
+                   else ['FRED_ALFRED'] if task_type == 'PIT_VALIDATION'
+                   else ['NAVER_HASHED_LOCAL'])
+        capabilities[task_type] = {
+            'capability_id': task_type, 'capability_type': 'RESEARCH_TASK',
+            'input_schema': input_schema, 'output_schema': {'type': 'object'},
+            'allowed_data_types': list(SERIES) if 'DATA_' in task_type or
+                                  task_type == 'EXPERIMENT_EXECUTION' else [],
+            'supported_research_types': (['US_RATES'] if sources[0] == 'US_TREASURY'
+                                         else ['KR_EQUITY_CONTEXT'] if sources[0] == 'FRED_ALFRED'
+                                         else ['KR_EQUITY_EXPLORATORY']),
+            'required_sources': sources, 'action_id': action,
+            'execution_permission': 'HOST_REVIEWED',
+            'resource_requirements': {'max_network_requests':
+                                      1 if task_type == 'DATA_ACQUISITION' else 0,
+                                      'max_model_calls': 0},
+            'pit_limit': 'EXPLORATORY_ONLY', 'validation_status': 'IMPLEMENTED'}
+    return {'version': 2, 'sources': sorted(REGISTRY),
             'actions': sorted(set(ACTIONS.values())),
+            'capabilities': capabilities,
             'rate_signals': dict(SIGNALS),
             'pit_status': 'UNVERIFIED', 'official_claim_allowed': False}
 
@@ -46,15 +82,32 @@ def validate_candidate(goal: str, candidate: dict) -> dict:
         raise ValueError('AI proposal changes immutable Goal or reviewed source policy')
     expected = {task['task_id']: task for task in baseline['tasks']}
     proposed = {task['task_id']: task for task in candidate['task_dag']}
-    if len(proposed) != len(candidate['task_dag']) or set(proposed) != set(expected):
+    if len(proposed) != len(candidate['task_dag']) or not set(expected) <= set(proposed):
         raise ValueError('AI proposal DAG omits or duplicates reviewed capabilities')
     for task_id, task in proposed.items():
-        if task['task_type'] != expected[task_id]['task_type'] or \
-                task['allowed_actions'] != expected[task_id]['allowed_actions']:
-            raise ValueError('AI proposal DAG changes implemented action')
+        if task_id in expected:
+            if task['task_type'] != expected[task_id]['task_type'] or \
+                    task['allowed_actions'] != expected[task_id]['allowed_actions']:
+                raise ValueError('AI proposal DAG changes implemented action')
+        else:
+            series = task_id.removeprefix('collect_').upper()
+            if (baseline['market'] != 'US_RATES' or series not in SERIES or
+                    task_id != 'collect_' + series.lower() or
+                    task['task_type'] != 'DATA_ACQUISITION' or
+                    task['allowed_actions'] != ['DATA_RECOVERY'] or
+                    task['dependencies'] != ['discover_' + series.lower()]):
+                raise ValueError('AI proposal DAG adds unimplemented capability or action')
     plan = deepcopy(baseline)
+    for task_id in set(proposed) - set(expected):
+        series = task_id.removeprefix('collect_').upper()
+        plan['tasks'].append(_task(task_id, 'DATA_ACQUISITION', 20,
+                                   dependencies=proposed[task_id]['dependencies'],
+                                   inputs={'series': series}))
     for task in plan['tasks']:
         task['dependencies'] = list(proposed[task['task_id']]['dependencies'])
+    collection_ids = set(proposed) - set(expected)
+    if collection_ids and not collection_ids <= set(proposed['analyze_rates']['dependencies']):
+        raise ValueError('AI proposal DAG analysis omits acquisition dependency')
     if baseline['market'] == 'US_RATES':
         signal = next((key for key, description in SIGNALS.items()
                        if description == candidate['hypothesis']), None)
@@ -62,8 +115,9 @@ def validate_candidate(goal: str, candidate: dict) -> dict:
             raise ValueError('AI hypothesis requires an unimplemented analysis capability')
         analysis = next(task for task in plan['tasks']
                         if task['task_type'] == 'EXPERIMENT_EXECUTION')
-        if signal != 'positive_spread' or any(task['dependencies'] !=
-                expected[task['task_id']]['dependencies'] for task in plan['tasks']):
+        if collection_ids or signal != 'positive_spread' or any(task['dependencies'] !=
+                expected[task['task_id']]['dependencies'] for task in plan['tasks']
+                if task['task_id'] in expected):
             plan['goal_contract']['version'] = 2
             plan['research_hypotheses'] = [candidate['hypothesis']]
             plan['goal_contract']['hypotheses'] = [candidate['hypothesis']]
@@ -121,10 +175,13 @@ def request_plan(goal: str, state_dir: Path, *, approval: dict | None = None,
         return {'status': 'BLOCKED_UNCERTAIN_MODEL_CALL', 'request_id': request['request_id']}
     if (approval is None or approval.get('status') != 'APPROVED' or
             approval.get('goal_id') != plan['goal_id'] or
-            approval.get('max_calls') != 1 or
-            not isinstance(approval.get('max_cost_usd'), (int, float)) or
+            type(approval.get('max_calls')) is not int or
+            approval['max_calls'] != 1 or
+            type(approval.get('max_cost_usd')) not in (int, float) or
+            not math.isfinite(approval['max_cost_usd']) or
             approval['max_cost_usd'] <= 0 or
-            approval.get('max_seconds', 0) < timeout):
+            type(approval.get('max_seconds')) is not int or
+            approval['max_seconds'] < timeout):
         return {'status': 'APPROVAL_REQUIRED', 'model_calls': 0}
     # The existing Codex CLI exposes a wall-time limit but no enforceable
     # per-call monetary ceiling. A declared dollar amount is not enforcement.

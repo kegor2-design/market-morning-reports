@@ -69,6 +69,43 @@ class AIPlannerBoundaryTests(unittest.TestCase):
         self.assertEqual(capability_registry()['rate_signals']['widening_spread'],
                          alternative['hypothesis'])
 
+    def test_candidate_can_add_reviewed_acquisition_with_dependency(self):
+        candidate = candidate_for(GOAL)
+        candidate['task_dag'].insert(3, {
+            'task_id': 'collect_ust_2y', 'task_type': 'DATA_ACQUISITION',
+            'dependencies': ['discover_ust_2y'], 'allowed_actions': ['DATA_RECOVERY']})
+        candidate['task_dag'][-1]['dependencies'].append('collect_ust_2y')
+        plan = validate_candidate(GOAL, candidate)
+        self.assertEqual(plan['goal_contract']['version'], 2)
+        self.assertEqual(next(t for t in plan['tasks'] if t['task_id'] ==
+                              'collect_ust_2y')['resource_budget']['max_network_requests'], 1)
+        self.assertEqual(capability_registry()['capabilities']['DATA_ACQUISITION'][
+                         'validation_status'], 'IMPLEMENTED')
+        missing_dependency = copy.deepcopy(candidate)
+        missing_dependency['task_dag'][-1]['dependencies'].remove('collect_ust_2y')
+        with self.assertRaisesRegex(ValueError, 'omits acquisition'):
+            validate_candidate(GOAL, missing_dependency)
+        unauthorized = copy.deepcopy(candidate)
+        unauthorized['task_dag'][3]['allowed_actions'] = ['RUN_SHELL']
+        with self.assertRaisesRegex(ValueError, 'unimplemented capability or action'):
+            validate_candidate(GOAL, unauthorized)
+
+    def test_acquisition_plan_is_sealed_in_existing_queue(self):
+        PRIVATE_ROOT.mkdir(mode=0o700, parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=PRIVATE_ROOT) as folder:
+            candidate = candidate_for(GOAL)
+            candidate['task_dag'].insert(3, {
+                'task_id': 'collect_ust_2y', 'task_type': 'DATA_ACQUISITION',
+                'dependencies': ['discover_ust_2y'], 'allowed_actions': ['DATA_RECOVERY']})
+            candidate['task_dag'][-1]['dependencies'].append('collect_ust_2y')
+            job = submit(GOAL, Path(folder), ai_candidate=candidate,
+                         approval_required=True)
+            self.assertIn('collect_ust_2y', job['tasks'])
+            self.assertEqual(job['tasks']['collect_ust_2y']['resource_budget'][
+                             'max_network_requests'], 1)
+            self.assertEqual(run(Path(folder), max_jobs=1, max_seconds=30)['processed'], 0)
+            self.assertEqual(job['status'], 'APPROVAL_REQUIRED')
+
     def test_unimplemented_hypothesis_and_unknown_dependency_fail_closed(self):
         candidate = candidate_for(GOAL)
         candidate['hypothesis'] = 'Novel neural macro model forecasts tomorrow SOFR'
@@ -116,6 +153,23 @@ class AIPlannerBoundaryTests(unittest.TestCase):
             self.assertEqual(result['status'], 'APPROVAL_REQUIRED')
             self.assertEqual(called, [])
             self.assertFalse((Path(folder) / 'ai_program_request.json').exists())
+
+    def test_nonfinite_or_boolean_model_budget_is_rejected_before_reservation(self):
+        PRIVATE_ROOT.mkdir(mode=0o700, parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=PRIVATE_ROOT) as folder:
+            directory = Path(folder)
+            approval = {'status': 'APPROVED', 'goal_id': plan_goal(GOAL)['goal_id'],
+                        'max_calls': 1, 'max_cost_usd': 1, 'max_seconds': 30,
+                        'provider': 'INJECTED_TEST'}
+            for key, value in [('max_cost_usd', float('nan')),
+                               ('max_cost_usd', float('inf')),
+                               ('max_cost_usd', True), ('max_calls', True),
+                               ('max_seconds', True)]:
+                invalid = dict(approval, **{key: value})
+                result = request_plan(GOAL, directory, approval=invalid,
+                                      timeout=30, caller=lambda *a, **k: self.fail('called'))
+                self.assertEqual(result['status'], 'APPROVAL_REQUIRED')
+            self.assertFalse((directory / 'ai_program_request.json').exists())
 
     def test_reserved_failure_is_not_replayed(self):
         PRIVATE_ROOT.mkdir(mode=0o700, parents=True, exist_ok=True)

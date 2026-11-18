@@ -1,5 +1,12 @@
 # Next research actions
 
+## Reviewed acquisition candidate handoff — 2026-11-18
+
+- Start SHA `73a92af` on `research/universal-agent-session-c-dynamic-planner-20261118`. This continuation adds host-compiled optional US rate acquisition Tasks and Capability Registry version 2. The candidate is registered only in an approval-gated synthetic queue. Existing private checkpoints and completed research were not changed. No Worker is running.
+- Real AI generation, enforceable per-call model cost, generic API recovery, isolated AI repair and rollback, official Korean PIT, and independent holdout remain blocked or unimplemented. Do not label the synthetic queue test as actual AI generation or source acquisition. Session C, general-purpose readiness and production readiness remain false.
+- Next exact coding task: implement a reviewed API retry Task with a new request identity and a separately authorized bounded network budget, preserving the original blocked attempt. Validate against a local HTTP fault server, then integrate isolated repair and rollback. Do not replay uncertain requests.
+- Resume: `cd /home/kegor2/market-morning-reports-session-c` then `git status --short --branch` and `PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/universal_agent/tests -q`.
+
 ## Post-restart handoff — 2026-11-18
 
 - Branch `research/universal-agent-session-c-dynamic-planner-20261118`; starting SHA `3d3af77418ce4715b380829344e46764412d3781`; last verified code commit `69fec86becd19103686ffc335a1836e6fa30f9ae` plus this handoff update. Existing private Goal checkpoints and source hashes were preserved. No research Worker is running.

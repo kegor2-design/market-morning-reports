@@ -245,6 +245,22 @@
               "compileall": "PASS", "git_diff_check": "PASS"},
     "running_worker": null
   },
+  "session_c_candidate_acquisition_iteration": {
+    "base_commit": "73a92af",
+    "phase": "C1_REVIEWED_ACQUISITION_PROPOSAL",
+    "capability_registry_version": 2,
+    "reviewed_acquisition_candidate_compilation": "PASS_SYNTHETIC",
+    "approval_gated_queue_registration": "PASS_SYNTHETIC",
+    "real_model_calls": 0,
+    "real_source_requests_from_new_candidate": 0,
+    "tests": {"universal_agent": "PASS 156", "regime190": "PASS 55",
+              "compileall": "PASS", "git_diff_check": "PASS"},
+    "actual_ai_plan_generation": "BLOCKED",
+    "model_cost_enforcement": "BLOCKED",
+    "general_purpose_capability_registry": "PARTIAL",
+    "running_worker": null,
+    "next_action": "Implement an explicit, newly budgeted API retry Task with a new request identity; then add isolated repair and rollback DAG validation"
+  },
   "session_c_post_restart_iteration": {
     "base_commit": "3d3af77418ce4715b380829344e46764412d3781",
     "verified_code_commit": "69fec86becd19103686ffc335a1836e6fa30f9ae",
