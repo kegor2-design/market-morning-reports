@@ -264,6 +264,7 @@
   },
   "session_c_transport_retry_iteration": {
     "base_commit": "de7b982",
+    "verified_code_commit": "1ce8da0",
     "phase": "C4_UNKNOWN_SOURCE_CALL_NO_REPLAY",
     "definite_http_retry": "PASS_LOCAL_FAULT_TEST",
     "uncertain_timeout_no_retry": "PASS_LOCAL_FAULT_TEST",

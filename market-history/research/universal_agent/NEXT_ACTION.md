@@ -2,7 +2,7 @@
 
 ## Transport retry safety follow-up — 2026-11-18
 
-- Starting SHA `de7b982`; source fetcher now retries only after definite retryable HTTP status. Timeout and transport errors remain blocked with their original reservation. Local fault tests use zero paid model calls and no official provider requests. Universal Agent 156 PASS, Regime190 55 PASS, compileall PASS and diff check PASS. `PROBLEM_SOLVING_REPORT.md` records the limit of this result.
+- Starting SHA `de7b982`, verified code SHA `1ce8da0`; source fetcher now retries only after definite retryable HTTP status. Timeout and transport errors remain blocked with their original reservation. Local fault tests use zero paid model calls and no official provider requests. Universal Agent 156 PASS, Regime190 55 PASS, compileall PASS and diff check PASS. `PROBLEM_SOLVING_REPORT.md` records the limit of this result.
 - Next task remains the explicit new-request API retry Task and original-Goal DAG resume under a separately authorized bounded budget. Keep `AUTONOMOUS_API_RECOVERY_VERIFIED=BLOCKED` until that execution and verification pass.
 
 ## Reviewed acquisition candidate handoff — 2026-11-18
