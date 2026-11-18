@@ -2,7 +2,7 @@
 
 ## Local HTTP source recovery follow-up — 2026-11-18
 
-- Start SHA `7068cb2`. A loopback server returned HTTP 503 then an approved fixture CSV. The source adapter used exactly two bounded attempts, sealed the payload, and reused the checkpoint without a third request. This exercised local source acquisition only; no official provider or model call was made. Existing private research checkpoints were unchanged, and no Worker is running. Universal Agent 157 PASS, Regime190 55 PASS, compileall PASS and diff check PASS.
+- Start SHA `7068cb2`, verified code SHA `0a58586`. A loopback server returned HTTP 503 then an approved fixture CSV. The source adapter used exactly two bounded attempts, sealed the payload, and reused the checkpoint without a third request. This exercised local source acquisition only; no official provider or model call was made. Existing private research checkpoints were unchanged, and no Worker is running. Universal Agent 157 PASS, Regime190 55 PASS, compileall PASS and diff check PASS.
 - Next exact coding task: register an explicit API retry Task for a blocked original Goal with a new request identity and independently approved network budget; then verify original Task resumption and safe rollback. Do not treat the local fixture as `AUTONOMOUS_API_RECOVERY_VERIFIED` for the Research DAG.
 
 ## Transport retry safety follow-up — 2026-11-18

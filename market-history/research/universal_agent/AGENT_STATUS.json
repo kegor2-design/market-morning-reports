@@ -277,6 +277,7 @@
   },
   "session_c_local_http_recovery_iteration": {
     "base_commit": "7068cb2",
+    "verified_code_commit": "0a58586",
     "phase": "C4_LOCAL_HTTP_SOURCE_RECOVERY",
     "local_http_503_then_success": "PASS",
     "source_response_hash_sealed": "PASS",
