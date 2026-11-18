@@ -161,10 +161,12 @@ def _sync_tasks(job: dict, program: dict) -> None:
         record = program['records'][task_id]
         current_input_sha = hashlib.sha256(canonical(task['inputs'])).hexdigest()
         if row['input_sha256'] != current_input_sha:
-            revision = program.get('calendar_revision') or program.get('schema_revision') or {}
+            revision = (program.get('calendar_revision') or program.get('schema_revision') or
+                        program.get('api_recovery_revision') or {})
             revision_path = Path(revision['path']) if revision.get('path') else None
             program_dir = Path(job['checkpoint']).parent if job.get('checkpoint') else None
-            revision_kind = ('calendar' if program.get('calendar_revision') else 'schema')
+            revision_kind = ('calendar' if program.get('calendar_revision') else
+                             'schema' if program.get('schema_revision') else 'api_recovery')
             revision_key = revision_kind + '_revision_sha256'
             if (task_id != 'analyze_rates' or row['attempt_count'] != 0 or
                     row['status'] not in {'PENDING', 'WAITING_DEPENDENCY'} or
@@ -195,9 +197,9 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
         time.sleep(startup_delay)
     with locked_state(directory) as path:
         queue = _load(path)
-        from .problem_solver import solve_calendar_gap, solve_schema_gap
+        from .problem_solver import solve_calendar_gap, solve_schema_gap, solve_api_failure
         for candidate in queue['jobs'].values():
-            if (candidate['status'] != 'BLOCKED_EVIDENCE' or
+            if (candidate['status'] not in {'BLOCKED_EVIDENCE', 'BLOCKED_ENV'} or
                     candidate['approval_status'] != 'APPROVED' or
                     candidate['attempt_count'] >= candidate['retry_policy']['max_launches']):
                 continue
@@ -209,18 +211,22 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
                         validate_candidate(candidate['research_goal'], proposed))
                 evidence = (solve_calendar_gap(plan, saved, program_dir) or
                             solve_schema_gap(plan, saved, program_dir))
+                if evidence is None and (program_dir / 'api_recovery_approval.json').is_file():
+                    evidence = solve_api_failure(plan, saved, program_dir)
             except (OSError, ValueError, KeyError) as exc:
-                candidate['last_error'] = 'CALENDAR_DIAGNOSIS_' + type(exc).__name__
-                candidate['next_action'] = 'REVIEW_CALENDAR_EVIDENCE'
+                candidate['last_error'] = 'RECOVERY_DIAGNOSIS_' + type(exc).__name__
+                candidate['next_action'] = 'REVIEW_RECOVERY_EVIDENCE'
                 queue['events'].append({'at_utc': now(), 'goal_id': candidate['goal_id'],
-                                        'event': 'CALENDAR_DIAGNOSIS_BLOCKED'})
+                                        'event': 'RECOVERY_DIAGNOSIS_BLOCKED'})
                 _save(path, queue)
                 continue
             if evidence is not None:
                 candidate['status'] = 'READY'
                 candidate['next_action'] = evidence['solution_action']
                 recovery_event = ('SCHEMA_RECOVERY_READY' if evidence['problem_type'] ==
-                                  'SCHEMA_MISMATCH' else 'CALENDAR_RECOVERY_READY')
+                                  'SCHEMA_MISMATCH' else 'API_RECOVERY_READY' if
+                                  evidence['problem_type'] == 'API_ERROR' else
+                                  'CALENDAR_RECOVERY_READY')
                 queue['events'].append({'at_utc': now(), 'goal_id': candidate['goal_id'],
                                         'event': recovery_event,
                                         'evidence_sha256': hashlib.sha256(canonical(evidence)).hexdigest()})
@@ -272,6 +278,8 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
                 program = json.loads((program_dir / 'state.json').read_text())
                 _sync_tasks(job, program)
                 job['network_requests_reserved'] = program['network_requests_reserved']
+                job['recovery_network_requests_reserved'] = program.get(
+                    'recovery_network_requests_reserved', 0)
                 queue['network_requests_reserved'] = sum(j['network_requests_reserved']
                     for j in queue['jobs'].values())
                 status = result['status']

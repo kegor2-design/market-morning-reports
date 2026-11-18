@@ -72,6 +72,11 @@ class DataRecoveryTests(unittest.TestCase):
                          'AUTHORIZATION_REQUIRED')
         self.assertEqual(classify_error(urllib.error.HTTPError('x', 404, 'missing', {}, None)),
                          'SOURCE_NOT_FOUND')
+        for code in (500, 502, 503, 504):
+            self.assertEqual(classify_error(urllib.error.HTTPError(
+                'x', code, 'unavailable', {}, None)), 'SOURCE_UNAVAILABLE')
+        self.assertEqual(classify_error(urllib.error.HTTPError('x', 401, 'auth', {}, None)),
+                         'AUTHORIZATION_REQUIRED')
         item = request()
         item['budget']['max_network_requests'] = 4
         with self.assertRaisesRegex(ValueError, 'budget'):
@@ -161,9 +166,17 @@ class DataRecoveryTests(unittest.TestCase):
     def test_corrupt_checkpoint_and_invalid_csv_block(self):
         saved = recover(request(), self.root, fetch=lambda *_: (b'wrong', 1))
         self.assertEqual(saved['status'], 'BLOCKED_EVIDENCE')
+        self.assertEqual(saved['api_error_code'], 'MALFORMED_RESPONSE')
         (self.root / 'data_recovery.json').write_text('{bad')
         with self.assertRaises(json.JSONDecodeError):
             recover(request(), self.root, fetch=lambda *_: self.fail('API replay'))
+
+    def test_empty_response_is_sealed_and_not_retried(self):
+        saved = recover(request(), self.root, fetch=lambda *_: (b'', 1))
+        self.assertEqual(saved['api_error_code'], 'EMPTY_RESPONSE')
+        self.assertEqual(saved['status'], 'BLOCKED_EVIDENCE')
+        self.assertEqual(recover(request(), self.root, fetch=lambda *_:
+                         self.fail('empty response replay'))['status'], 'BLOCKED_EVIDENCE')
 
     def test_ny_fed_adapter_collects_distinct_reference_rate(self):
         item = request(series='NYFED_SOFR', start='2024-04-01', end='2024-04-03',

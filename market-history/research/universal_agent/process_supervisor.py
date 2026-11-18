@@ -42,17 +42,32 @@ def _child_for(plan: dict, task: dict, program_dir: Path,
                test_analysis_delay: int = 0) -> dict:
     """Translate one allowlisted DAG task into the existing Research Job contract."""
     from .research_planner import dates_for, SERIES
+    from .source_adapters import select
     task_id = task['task_id']
     job_id = plan['goal_id'] + '_' + task_id
     base = {'schema_version': 1, 'job_id': job_id,
             'goal': plan['research_goal'], 'max_seconds': 60,
             'max_restarts': 1, 'max_model_calls': 0}
     if task['task_type'] in {'DATA_ACQUISITION', 'DATA_CALENDAR_REVALIDATION',
-                             'DATA_SCHEMA_REVALIDATION'}:
+                             'DATA_SCHEMA_REVALIDATION', 'API_RECOVERY_RETRY'}:
         series = task['inputs']['series']
         source = 'NYFED_REFERENCE_RATES' if series == 'NYFED_SOFR' else 'US_TREASURY'
         calendar_revalidation = task['task_type'] == 'DATA_CALENDAR_REVALIDATION'
-        revalidation = task['task_type'] != 'DATA_ACQUISITION'
+        revalidation = task['task_type'] in {'DATA_CALENDAR_REVALIDATION',
+                                              'DATA_SCHEMA_REVALIDATION'}
+        if task['task_type'] == 'API_RECOVERY_RETRY':
+            from .api_recovery import verify_task
+            revision = verify_task(plan, task, program_dir)
+            fixture_path = program_dir / 'local_http_fixture.json'
+            if fixture_path.is_symlink():
+                raise ValueError('Symlinked local source fixture')
+            fixture_uri = (json.loads(fixture_path.read_text())['uris'][series]
+                           if fixture_path.is_file() else None)
+            if (revision['series'] != series or revision['source_id'] != source or
+                    revision['source_uri'] != (fixture_uri or select(series, [source]).uri(
+                        series, plan['research_period']['start'],
+                        plan['research_period']['end']))):
+                raise ValueError('Recovery source adapter changed')
         if calendar_revalidation:
             from .us_rates_calendar import expected_observations
             expected, _ = expected_observations(plan['research_period']['start'],
@@ -69,12 +84,34 @@ def _child_for(plan: dict, task: dict, program_dir: Path,
             'budget': {'max_network_requests': 0 if revalidation else 1,
                        'max_seconds': 25,
                        'max_retries': 0, 'max_model_calls': 0}})
+        fixture_path = program_dir / 'local_http_fixture.json'
+        if fixture_path.is_symlink():
+            raise ValueError('Symlinked local source fixture')
+        if fixture_path.is_file():
+            fixture = json.loads(fixture_path.read_text())
+            if (fixture.get('scope') != 'LOCAL_LOOPBACK_TEST' or
+                    fixture.get('goal_id') != plan['goal_id'] or
+                    set(fixture.get('uris', {})) != set(SERIES)):
+                raise ValueError('Local fixture contract changed')
+            base['data_request']['fixture_source_uri'] = fixture['uris'][series]
+            if fixture.get('request_timeout_seconds') == 1:
+                base['data_request']['budget']['max_seconds'] = 1
     elif task['task_type'] == 'EXPERIMENT_EXECUTION':
         calendar_revalidation = 'calendar_revision_sha256' in task['inputs']
         schema_revalidation = 'schema_revision_sha256' in task['inputs']
+        api_recovery = 'api_recovery_revision_sha256' in task['inputs']
+        recovered_series = None
+        if api_recovery:
+            revision_path = program_dir / 'api_recovery_revision_v1.json'
+            if hashlib.sha256(revision_path.read_bytes()).hexdigest() != \
+                    task['inputs']['api_recovery_revision_sha256']:
+                raise ValueError('Analysis API revision changed')
+            recovered_series = json.loads(revision_path.read_text())['series']
         sources = {}
         for series in SERIES:
-            child_id = (('schema_revalidate_' if series in ('UST_2Y', 'UST_10Y')
+            child_id = (('api_recover_' if series == recovered_series else 'collect_')
+                        if api_recovery else
+                        ('schema_revalidate_' if series in ('UST_2Y', 'UST_10Y')
                          else 'collect_') if schema_revalidation else
                         ('revalidate_' if calendar_revalidation else 'collect_')) + series.lower()
             sources[series] = {
@@ -129,6 +166,10 @@ def _program_result(state: dict, program_dir: Path) -> dict:
                              'RESUME_BOUNDED_TASKS'}
     if state.get('schema_revision'):
         result['schema_revision'] = state['schema_revision']
+    if state.get('api_recovery_revision'):
+        result['api_recovery_revision'] = state['api_recovery_revision']
+        result['recovery_network_requests_reserved'] = state.get(
+            'recovery_network_requests_reserved', 0)
     write_state(program_dir / 'research_report.json', result)
     return result
 
@@ -247,7 +288,7 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                         saved_checkpoint.read_bytes()).hexdigest() != \
                         saved_record['checkpoint_sha256']:
                     raise ValueError('Child Research Job checkpoint changed')
-                if saved_task['task_type'] in {'DATA_ACQUISITION',
+                if saved_task['task_type'] in {'DATA_ACQUISITION', 'API_RECOVERY_RETRY',
                                                'DATA_CALENDAR_REVALIDATION',
                                                'DATA_SCHEMA_REVALIDATION',
                                                'EXPERIMENT_EXECUTION'}:
@@ -278,6 +319,10 @@ def run_research_program(goal: str, program_dir: Path | None = None,
             from .problem_solver import solve_schema_gap
             if solve_schema_gap(plan, state, program_dir, execute=True):
                 write_state(checkpoint, state)
+        if state['status'] == 'RESEARCH_BLOCKED' and not state.get('api_recovery_revision'):
+            from .problem_solver import solve_api_failure
+            if solve_api_failure(plan, state, program_dir, execute=True):
+                write_state(checkpoint, state)
         validate_plan(dict(plan, tasks=state['tasks']))
         started = time.monotonic()
         executed = 0
@@ -305,6 +350,10 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                               task_key=_program_task_key(plan['goal_id'], task))
                 if task['task_type'] == 'DATA_ACQUISITION':
                     state['network_requests_reserved'] += 1
+                elif task['task_type'] == 'API_RECOVERY_RETRY':
+                    if state.get('recovery_network_requests_reserved', 0) >= 1:
+                        raise ValueError('Separate API recovery budget exhausted')
+                    state['recovery_network_requests_reserved'] = 1
                 write_state(checkpoint, state)
             if task['task_type'] == 'DATA_DISCOVERY':
                 gaps = dates_for(plan)
@@ -389,7 +438,7 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                     (job_dir / 'job.json').read_bytes()).hexdigest()
                 reason = child.get('conclusion', {}).get('reason')
                 record['reason'] = reason
-                if task['task_type'] == 'DATA_ACQUISITION':
+                if task['task_type'] in {'DATA_ACQUISITION', 'API_RECOVERY_RETRY'}:
                     conclusion = child.get('conclusion', {})
                     if conclusion.get('problem_type'):
                         record['problem_type'] = conclusion['problem_type']

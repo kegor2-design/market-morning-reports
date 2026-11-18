@@ -32,6 +32,12 @@ def capability_registry() -> dict:
         input_schema = ({'type': 'object', 'required': ['series'],
                          'properties': {'series': {'enum': list(SERIES)}}}
                         if task_type.startswith('DATA_') else
+                        {'type': 'object',
+                         'required': ['series', 'api_recovery_revision_sha256',
+                                      'original_task_id', 'original_request_sha256',
+                                      'new_request_id'],
+                         'properties': {'series': {'enum': list(SERIES)}}}
+                        if task_type == 'API_RECOVERY_RETRY' else
                         {'oneOf': [{'type': 'object', 'maxProperties': 0},
                                    {'type': 'object',
                                     'required': ['signal', 'hypothesis', 'train_rows'],
@@ -45,24 +51,29 @@ def capability_registry() -> dict:
         sources = (['US_TREASURY', 'NYFED_REFERENCE_RATES']
                    if task_type in {'DATA_DISCOVERY', 'DATA_ACQUISITION',
                                     'DATA_CALENDAR_REVALIDATION',
-                                    'DATA_SCHEMA_REVALIDATION', 'EXPERIMENT_EXECUTION'}
+                                    'DATA_SCHEMA_REVALIDATION', 'EXPERIMENT_EXECUTION',
+                                    'API_RECOVERY_RETRY'}
                    else ['FRED_ALFRED'] if task_type == 'PIT_VALIDATION'
                    else ['NAVER_HASHED_LOCAL'])
         capabilities[task_type] = {
             'capability_id': task_type, 'capability_type': 'RESEARCH_TASK',
             'input_schema': input_schema, 'output_schema': {'type': 'object'},
             'allowed_data_types': list(SERIES) if 'DATA_' in task_type or
-                                  task_type == 'EXPERIMENT_EXECUTION' else [],
+                                  task_type in {'EXPERIMENT_EXECUTION',
+                                                'API_RECOVERY_RETRY'} else [],
             'supported_research_types': (['US_RATES'] if sources[0] == 'US_TREASURY'
                                          else ['KR_EQUITY_CONTEXT'] if sources[0] == 'FRED_ALFRED'
                                          else ['KR_EQUITY_EXPLORATORY']),
             'required_sources': sources, 'action_id': action,
-            'execution_permission': 'HOST_REVIEWED',
+            'execution_permission': ('EXPLICIT_LOCAL_FIXTURE_APPROVAL'
+                                     if task_type == 'API_RECOVERY_RETRY'
+                                     else 'HOST_REVIEWED'),
             'resource_requirements': {'max_network_requests':
-                                      1 if task_type == 'DATA_ACQUISITION' else 0,
+                                      1 if task_type in {'DATA_ACQUISITION',
+                                                         'API_RECOVERY_RETRY'} else 0,
                                       'max_model_calls': 0},
             'pit_limit': 'EXPLORATORY_ONLY', 'validation_status': 'IMPLEMENTED'}
-    return {'version': 2, 'sources': sorted(REGISTRY),
+    return {'version': 3, 'sources': sorted(REGISTRY),
             'actions': sorted(set(ACTIONS.values())),
             'capabilities': capabilities,
             'rate_signals': dict(SIGNALS),

@@ -23,6 +23,29 @@ SCHEMA = HERE / 'problem_solutions.schema.json'
 SAFE_ACTIONS = {'VERIFY_PIT_LOCAL', 'RUN_EXISTING_EXPLORATORY', 'STOP_AND_REPORT'}
 STORE = PRIVATE_ROOT / 'problem_experience'
 
+RECOVERY_CAPABILITIES = {
+    'CALENDAR_MISMATCH': {'action': 'DATA_CALENDAR_REVALIDATION',
+        'evidence': ['sealed_source_hash', 'reviewed_full_closure'],
+        'permission': 'HOST_REVIEWED', 'network_budget': 0, 'model_budget': 0,
+        'max_retry': 0, 'verification': 'reparse_original_source',
+        'rollback': 'retain_original_blocked_jobs', 'resume': 'original_goal'},
+    'SCHEMA_MISMATCH': {'action': 'DATA_SCHEMA_REVALIDATION',
+        'evidence': ['sealed_source_hash', 'reviewed_schema_shape'],
+        'permission': 'HOST_REVIEWED', 'network_budget': 0, 'model_budget': 0,
+        'max_retry': 0, 'verification': 'reparse_original_source',
+        'rollback': 'retain_original_blocked_jobs', 'resume': 'original_goal'},
+    'API_ERROR': {'action': 'API_RECOVERY_RETRY',
+        'evidence': ['definite_retryable_http', 'original_request_hash',
+                     'separate_approval_hash'],
+        'permission': 'EXPLICIT_LOCAL_FIXTURE_APPROVAL', 'network_budget': 1,
+        'model_budget': 0, 'max_retry': 0,
+        'verification': 'independent_source_recompute',
+        'rollback': 'retain_original_failed_task', 'resume': 'original_goal'}}
+
+
+def recovery_capability_registry() -> dict:
+    return {'version': 1, 'capabilities': RECOVERY_CAPABILITIES}
+
 
 def collect_indicator_evidence(request: dict) -> dict:
     """Route an indicator-specific read-only request through the reviewed adapter.
@@ -87,6 +110,33 @@ def solve_schema_gap(plan: dict, state: dict, program_dir: Path,
             'rollback_rule': proposal['rollback_rule'],
             'schema_revision_sha256': state['schema_revision']['sha256'],
             'model_calls': 0, 'network_requests_added': 0})
+    return proposal
+
+
+def solve_api_failure(plan: dict, state: dict, program_dir: Path,
+                      *, execute: bool = False) -> dict | None:
+    """Diagnose a definite HTTP failure and require a separate host approval."""
+    from .api_recovery import diagnose, replan, validate_approval
+    proposal = diagnose(plan, state, program_dir)
+    if proposal is None:
+        return None
+    if not execute and validate_approval(proposal, program_dir) is None:
+        return None
+    if execute:
+        if not replan(plan, state, program_dir):
+            return None
+        state.setdefault('problem_history', []).append({
+            'problem_type': 'API_ERROR',
+            'steps': ['DETECT', 'CLASSIFY', 'COLLECT_EVIDENCE',
+                      'ROOT_CAUSE_ANALYSIS', 'HOST_POLICY_VALIDATION',
+                      'EXECUTE_RECOVERY_TASK', 'VERIFY_RESULT',
+                      'RESUME_ORIGINAL_GOAL'],
+            'http_status': proposal['http_status'],
+            'network_call_outcome': proposal['network_call_outcome'],
+            'error_evidence_sha256': proposal['error_evidence_sha256'],
+            'selected_action': proposal['solution_action'],
+            'rollback_rule': proposal['rollback_rule'],
+            'model_calls': 0})
     return proposal
 
 

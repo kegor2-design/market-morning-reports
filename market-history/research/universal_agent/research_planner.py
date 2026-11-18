@@ -21,6 +21,7 @@ ACTIONS = {'DATA_DISCOVERY': 'CHECK_EXISTING_DATA',
            'DATA_ACQUISITION': 'DATA_RECOVERY',
            'DATA_CALENDAR_REVALIDATION': 'DATA_RECOVERY',
            'DATA_SCHEMA_REVALIDATION': 'DATA_RECOVERY',
+           'API_RECOVERY_RETRY': 'DATA_RECOVERY',
            'PIT_VALIDATION': 'EVIDENCE_WORKFLOW',
            'EXPERIMENT_EXECUTION': 'RATE_ANALYSIS',
            'KR_INDEX_VALIDATION': 'VERIFY_HASHED_INDEX',
@@ -61,7 +62,8 @@ def validate_plan(plan: dict) -> None:
             raise ValueError('Unknown or self dependency')
         if task['task_type'] in {'DATA_DISCOVERY', 'DATA_ACQUISITION',
                                 'DATA_CALENDAR_REVALIDATION',
-                                'DATA_SCHEMA_REVALIDATION'} and \
+                                'DATA_SCHEMA_REVALIDATION',
+                                'API_RECOVERY_RETRY'} and \
                 task['inputs'].get('series') not in SERIES:
             raise ValueError('Unreviewed data requirement')
         if task['task_type'] == 'DATA_CALENDAR_REVALIDATION' and \
@@ -72,9 +74,23 @@ def validate_plan(plan: dict) -> None:
                 (not isinstance(task['inputs'].get('schema_revision_sha256'), str) or
                  len(task['inputs']['schema_revision_sha256']) != 64):
             raise ValueError('Unreviewed schema revision')
+        if task['task_type'] == 'API_RECOVERY_RETRY':
+            series = task['inputs']['series']
+            if (plan['market'] != 'US_RATES' or
+                    task['task_id'] != 'api_recover_' + series.lower() or
+                    task['dependencies'] != ['discover_' + series.lower()] or
+                    task['inputs'].get('original_task_id') != 'collect_' + series.lower() or
+                    not isinstance(task['inputs'].get('api_recovery_revision_sha256'), str) or
+                    len(task['inputs']['api_recovery_revision_sha256']) != 64 or
+                    not isinstance(task['inputs'].get('original_request_sha256'), str) or
+                    len(task['inputs']['original_request_sha256']) != 64 or
+                    not isinstance(task['inputs'].get('new_request_id'), str) or
+                    len(task['inputs']['new_request_id']) != 24):
+                raise ValueError('Unreviewed API recovery task contract')
         if task['resource_budget']['max_model_calls'] != 0 or \
                 task['resource_budget']['max_network_requests'] != \
-                (1 if task['task_type'] == 'DATA_ACQUISITION' else 0) or \
+                (1 if task['task_type'] in {'DATA_ACQUISITION',
+                                           'API_RECOVERY_RETRY'} else 0) or \
                 task['resource_budget']['max_seconds'] > 60 or \
                 task['estimated_cost'] != 0 or task['retry_policy'] != {'max_retries': 0}:
             raise ValueError('Unreviewed task budget or retry policy')
@@ -167,7 +183,9 @@ def validate_plan(plan: dict) -> None:
                 series in ('UST_2Y', 'UST_10Y') and
                 task_id == 'schema_revalidate_' + series.lower() and
                 len(task['inputs'].get('schema_revision_sha256', '')) == 64)
-            if (series not in SERIES or not (valid_collection or valid_schema) or
+            valid_api = (task['task_type'] == 'API_RECOVERY_RETRY' and
+                task_id == 'api_recover_' + series.lower())
+            if (series not in SERIES or not (valid_collection or valid_schema or valid_api) or
                     task['dependencies'] != ['discover_' + series.lower()]):
                 raise ValueError('Dynamic DAG adds unreviewed acquisition')
         # The standard checks below still verify source coverage and DAG cycles.
@@ -179,6 +197,7 @@ def validate_plan(plan: dict) -> None:
                 {t['task_type'] for t in tasks} - {'DATA_DISCOVERY', 'DATA_ACQUISITION',
                                                    'DATA_CALENDAR_REVALIDATION',
                                                    'DATA_SCHEMA_REVALIDATION',
+                                                   'API_RECOVERY_RETRY',
                                                    'EXPERIMENT_EXECUTION'} or
                 {t['inputs']['series'] for t in tasks if t['task_type'] == 'DATA_DISCOVERY'} != set(SERIES) or
                 sum(t['task_type'] == 'EXPERIMENT_EXECUTION' for t in tasks) != 1 or
@@ -213,7 +232,8 @@ def _task(task_id: str, kind: str, priority: int, *, dependencies=(), inputs=Non
             'inputs': inputs or {}, 'outputs': [task_id + '_result'],
             'priority': priority, 'estimated_cost': 0,
             'resource_budget': {'max_seconds': 60, 'max_network_requests':
-                                1 if kind == 'DATA_ACQUISITION' else 0,
+                                1 if kind in {'DATA_ACQUISITION',
+                                              'API_RECOVERY_RETRY'} else 0,
                                 'max_model_calls': 0},
             'allowed_actions': [ACTIONS[kind]], 'retry_policy': {'max_retries': 0},
             'verification_rule': 'independent_source_recompute'

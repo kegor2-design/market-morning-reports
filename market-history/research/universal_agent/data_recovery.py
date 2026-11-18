@@ -6,11 +6,13 @@ be a missing market observation. Source adapters are reviewed, fixed-URI readers
 from __future__ import annotations
 
 import hashlib
+import http.client
 import json
 import socket
 import time
 import urllib.error
 import urllib.request
+from urllib.parse import urlparse
 from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
@@ -34,7 +36,13 @@ def classify_error(exc: Exception) -> str:
                 'AUTHORIZATION_REQUIRED' if exc.code in {401, 403} else 'INVALID_REQUEST')
     if isinstance(exc, (TimeoutError, socket.timeout)):
         return 'TIMEOUT'
+    if isinstance(exc, (ConnectionResetError, http.client.RemoteDisconnected)):
+        return 'CONNECTION_RESET'
     if isinstance(exc, urllib.error.URLError):
+        if isinstance(exc.reason, (TimeoutError, socket.timeout)):
+            return 'TIMEOUT'
+        if isinstance(exc.reason, ConnectionResetError):
+            return 'CONNECTION_RESET'
         return 'SOURCE_UNAVAILABLE'
     return 'ENVIRONMENT_ERROR'
 
@@ -110,6 +118,16 @@ def recover(request: dict, state_dir: Path, *, fetch=_fetch) -> dict:
             budget['max_model_calls'] != 0):
         raise ValueError('Unsafe acquisition budget')
     uri = adapter.uri(request['series'], request['start'], request['end'])
+    if request.get('fixture_source_uri'):
+        fixture = urlparse(request['fixture_source_uri'])
+        if (fixture.scheme != 'http' or fixture.hostname != '127.0.0.1' or
+                not fixture.port or fixture.port < 1024 or
+                fixture.username or fixture.password or
+                fixture.query or fixture.fragment or not fixture.path.startswith('/') or
+                fixture.path != ('/sofr.json' if request['series'] == 'NYFED_SOFR'
+                                 else '/treasury.csv')):
+            raise ValueError('Fixture source must be a bounded loopback URI')
+        uri = request['fixture_source_uri']
     state_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
     if state_dir.is_symlink():
         raise ValueError('Symlinked checkpoint directory')
@@ -213,15 +231,25 @@ def recover(request: dict, state_dir: Path, *, fetch=_fetch) -> dict:
             outcome = ('DEFINITE_HTTP_ERROR' if isinstance(exc, urllib.error.HTTPError)
                        else 'UNCERTAIN_REQUEST_OUTCOME')
             http_status = exc.code if isinstance(exc, urllib.error.HTTPError) else None
+            error_code = ('HTTP_' + str(http_status) if http_status else
+                          'CONNECTION_TIMEOUT' if problem == 'TIMEOUT' else
+                          'CONNECTION_RESET' if problem == 'CONNECTION_RESET' else
+                          'UNKNOWN_REQUEST_OUTCOME')
+            retry_after = (exc.headers.get('Retry-After') if
+                           isinstance(exc, urllib.error.HTTPError) and exc.headers
+                           else None)
             next_action = ('REVIEW_AUTHORIZATION_OR_LICENSE' if problem == 'AUTHORIZATION_REQUIRED'
                            else 'RUN_INDEPENDENT_ALLOWED_TASK' if problem in
                            {'SOURCE_UNAVAILABLE', 'SOURCE_NOT_FOUND', 'RATE_LIMIT',
                             'TIMEOUT'}
                            else 'REVIEW_SOURCE_REQUEST')
             state.update(status='BLOCKED_ENV', problem_type=problem,
+                         api_error_code=error_code,
                          network_call_outcome=outcome,
                          failure_history=[{'type': type(exc).__name__,
                                            'http_status': http_status,
+                                           'api_error_code': error_code,
+                                           'retry_after': retry_after,
                                            'attempt_budget': budget['max_retries'] + 1,
                                            'network_call_outcome': outcome}],
                          next_action=next_action, blocked_tasks=[request['task_id']])
@@ -243,10 +271,17 @@ def recover(request: dict, state_dir: Path, *, fetch=_fetch) -> dict:
         write_state(receipt_file, {'request_sha256': identity, 'source_uri': uri,
             'content_sha256': state['content_sha256'], 'network_requests': attempts})
         write_state(checkpoint, state)
+    if not payload:
+        state.update(status='BLOCKED_EVIDENCE', problem_type='EMPTY_RESPONSE',
+                     api_error_code='EMPTY_RESPONSE', next_action='REVIEW_EMPTY_SOURCE',
+                     blocked_tasks=[request['task_id']])
+        write_state(checkpoint, state)
+        return state
     try:
         values = adapter.parse(request['series'], payload, set(dates))
     except (UnicodeError, ValueError) as exc:
         state.update(status='BLOCKED_EVIDENCE', problem_type='DATA_MISMATCH',
+                     api_error_code='MALFORMED_RESPONSE',
                      failure_history=[{'type': type(exc).__name__, 'detail': str(exc)}],
                      next_action='REVIEW_SOURCE_FORMAT', blocked_tasks=[request['task_id']])
         write_state(checkpoint, state)
@@ -255,7 +290,9 @@ def recover(request: dict, state_dir: Path, *, fetch=_fetch) -> dict:
                 for day in dates if day in existing and day in values
                 and Decimal(str(existing[day])) != Decimal(values[day])}
     missing = [day for day in gaps if day not in values]
-    record = {'source_id': adapter.source_id, 'source_uri': uri,
+    record = {'source_id': ('LOCAL_HTTP_FIXTURE_' + adapter.source_id
+                            if request.get('fixture_source_uri') else adapter.source_id),
+              'source_uri': uri,
               'observation_date': None, 'observation_time': None,
               'published_at': None, 'first_accessible_at': None,
               'vintage_date': None, 'retrieved_at': state.get('retrieved_at'),
@@ -348,7 +385,8 @@ def verify_recovery(request: dict, state_dir: Path) -> dict:
     payload = raw_file.read_bytes()
     if _sha(payload) != state['content_sha256']:
         raise ValueError('Source content hash changed')
-    uri = adapter.uri(request['series'], request['start'], request['end'])
+    uri = request.get('fixture_source_uri') or adapter.uri(
+        request['series'], request['start'], request['end'])
     if state['source_records'][0]['source_uri'] != uri:
         raise ValueError('Source URI changed')
     values = adapter.parse(request['series'], payload, set(request['expected_dates']))

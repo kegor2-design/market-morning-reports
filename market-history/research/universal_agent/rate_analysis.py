@@ -24,6 +24,7 @@ def analyze(source_jobs: dict, dates: list[str], train_rows: int,
         raise ValueError('Unreviewed rate prediction signal')
     values = {}
     hashes = {}
+    fixture_only = False
     for series in SERIES:
         entry = source_jobs[series]
         manifest_path = Path(entry['manifest'])
@@ -42,9 +43,14 @@ def analyze(source_jobs: dict, dates: list[str], train_rows: int,
             raise ValueError('Source job has no accepted exploratory data')
         verify_artifact(manifest, plan_for(manifest, manifest_hash), job_dir)
         source = verify_recovery(manifest['data_request'], job_dir / 'data_recovery')
+        expected_source = ('NYFED_REFERENCE_RATES' if series == 'NYFED_SOFR'
+                           else 'US_TREASURY')
+        if manifest['data_request'].get('fixture_source_uri'):
+            expected_source = 'LOCAL_HTTP_FIXTURE_' + expected_source
+            fixture_only = True
         record_values = {row['observation_date']: Decimal(row['value'])
                          for row in source['source_records']
-                         if row['source_id'] in {'US_TREASURY', 'NYFED_REFERENCE_RATES'}}
+                         if row['source_id'] == expected_source}
         if any(day not in record_values for day in dates):
             raise ValueError('Source lacks a declared analysis observation')
         values[series] = [record_values[day] for day in dates]
@@ -74,6 +80,9 @@ def analyze(source_jobs: dict, dates: list[str], train_rows: int,
             'hypothesis_result': 'SUPPORTED_EXPLORATORY' if validation['accuracy'] >
                 validation['no_increase_baseline_accuracy'] else 'REJECTED_EXPLORATORY',
             'next_action': 'ACQUIRE_PIT_AND_SEALED_HOLDOUT_BEFORE_OFFICIAL_USE'}
+    if fixture_only:
+        result['fixture_only'] = True
+        result['next_action'] = 'REPLACE_LOCAL_FIXTURE_WITH_APPROVED_OFFICIAL_EVIDENCE'
     if signal != 'positive_spread':
         result['signal'] = signal
     return result

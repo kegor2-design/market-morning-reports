@@ -199,6 +199,7 @@
               "DATA_ACQUISITION",
               "DATA_CALENDAR_REVALIDATION",
               "DATA_SCHEMA_REVALIDATION",
+              "API_RECOVERY_RETRY",
               "PIT_VALIDATION",
               "EXPERIMENT_EXECUTION",
               "KR_INDEX_VALIDATION",
