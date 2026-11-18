@@ -7,11 +7,13 @@ from __future__ import annotations
 
 import hashlib
 import json
-from datetime import datetime, timezone
+from copy import deepcopy
+from datetime import datetime, timedelta, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from urllib.parse import urlparse
 
-from .engine import canonical, write_state
+from .engine import canonical, now, write_state
 from .research_job import manifest_load, plan_for, verify_artifact
 from .research_planner import _task, validate_plan
 from .source_adapters import select
@@ -19,10 +21,59 @@ from .source_adapters import select
 RETRYABLE = {429, 500, 502, 503, 504}
 
 
+def retry_after_at(value: str | None, observed_at: str) -> str | None:
+    """Bounded, persistent next request time for a definite HTTP 429."""
+    if value is None or not isinstance(value, str):
+        return None
+    observed = datetime.fromisoformat(observed_at.replace('Z', '+00:00'))
+    if observed.tzinfo is None:
+        return None
+    try:
+        if value.isdecimal():
+            delay = int(value)
+            eligible = observed + timedelta(seconds=delay)
+        else:
+            eligible = parsedate_to_datetime(value)
+            if eligible.tzinfo is None:
+                return None
+            delay = (eligible - observed).total_seconds()
+    except (TypeError, ValueError, OverflowError):
+        return None
+    if not 0 <= delay <= 25:
+        return None
+    return eligible.astimezone(timezone.utc).isoformat()
+
+
 def _sha(path: Path) -> str:
     if path.is_symlink() or not path.is_file():
         raise ValueError('Missing or symlinked API recovery evidence')
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _saved(path: Path) -> dict:
+    if path.is_symlink() or not path.is_file():
+        raise ValueError('Missing or symlinked API recovery transaction')
+    value = json.loads(path.read_text())
+    value.pop('updated_at_utc', None)
+    return value
+
+
+def _write_or_verify(path: Path, value: dict) -> None:
+    if path.is_symlink():
+        raise ValueError('Symlinked API recovery transaction artifact')
+    if path.exists():
+        prior = _saved(path)
+        if prior != value:
+            raise ValueError('API recovery transaction artifact changed')
+    else:
+        write_state(path, value)
+
+
+def _transaction_identity(value: dict) -> str:
+    stable = {key: item for key, item in value.items() if key not in {
+        'transaction_state', 'created_at_utc', 'committed_at_utc',
+        'rolled_back_at_utc'}}
+    return hashlib.sha256(canonical(stable)).hexdigest()
 
 
 def diagnose(plan: dict, state: dict, program_dir: Path) -> dict | None:
@@ -49,8 +100,8 @@ def diagnose(plan: dict, state: dict, program_dir: Path) -> dict | None:
                 source['request_sha256'] != hashlib.sha256(canonical(request)).hexdigest() or
                 source.get('network_call_outcome') != 'DEFINITE_HTTP_ERROR' or
                 failure.get('http_status') not in RETRYABLE or
-                (failure.get('http_status') == 429 and
-                 failure.get('retry_after') != '0') or
+                (failure.get('http_status') == 429 and retry_after_at(
+                    failure.get('retry_after'), source['updated_at_utc']) is None) or
                 source.get('network_requests') != 1 or
                 request['budget'] != {'max_network_requests': 1, 'max_seconds': 25,
                                       'max_retries': 0, 'max_model_calls': 0} or
@@ -70,6 +121,9 @@ def diagnose(plan: dict, state: dict, program_dir: Path) -> dict | None:
                 'error_evidence_sha256': source_sha,
                 'http_status': failure['http_status'],
                 'retry_after': failure.get('retry_after'),
+                'next_eligible_retry_at': (retry_after_at(
+                    failure.get('retry_after'), source['updated_at_utc']) if
+                    failure['http_status'] == 429 else None),
                 'network_call_outcome': 'DEFINITE_HTTP_ERROR',
                 'recovery_reason': 'Definite retryable HTTP failure',
                 'solution_action': 'RETRY_APPROVED_SOURCE_NEW_REQUEST',
@@ -156,13 +210,15 @@ def replan(plan: dict, state: dict, program_dir: Path) -> bool:
                 'new_request_id': request_id, 'additional_network_budget': 1,
                 'retry_count': 0, 'maximum_duration_seconds': 25}
     revision_path = program_dir / 'api_recovery_revision_v1.json'
-    if revision_path.is_symlink() or revision_path.exists():
-        raise ValueError('API recovery revision already exists')
-    write_state(revision_path, revision)
+    _write_or_verify(revision_path, revision)
     revision_sha = _sha(revision_path)
-    analysis = next(t for t in state['tasks'] if t['task_id'] == 'analyze_rates')
-    if state['records']['analyze_rates']['attempts'] != 0:
+    candidate = deepcopy(state)
+    analysis = next(t for t in candidate['tasks'] if t['task_id'] == 'analyze_rates')
+    if candidate['records']['analyze_rates']['attempts'] != 0:
         raise ValueError('Cannot rewire executed analysis')
+    previous_analysis = deepcopy(analysis)
+    previous_record = deepcopy(candidate['records']['analyze_rates'])
+    previous_dag_sha = hashlib.sha256(canonical(candidate['tasks'])).hexdigest()
     task = _task(task_id, 'API_RECOVERY_RETRY', 25,
                  dependencies=['discover_' + evidence['series'].lower()],
                  inputs={'series': evidence['series'],
@@ -173,21 +229,151 @@ def replan(plan: dict, state: dict, program_dir: Path) -> bool:
     analysis['dependencies'] = [task_id if dep == evidence['original_task_id'] else dep
                                 for dep in analysis['dependencies']]
     analysis['inputs']['api_recovery_revision_sha256'] = revision_sha
-    state['tasks'].append(task)
-    state['records'][task_id] = {'status': 'PENDING', 'attempts': 0}
-    state['records']['analyze_rates']['status'] = 'PENDING'
-    validate_plan(dict(plan, tasks=state['tasks']))
-    state['api_recovery_revision'] = {'path': str(revision_path), 'sha256': revision_sha,
+    candidate['tasks'].append(task)
+    candidate['records'][task_id] = {'status': 'PENDING', 'attempts': 0}
+    candidate['records']['analyze_rates']['status'] = 'PENDING'
+    validate_plan(dict(plan, tasks=candidate['tasks']))
+    proposed_dag_sha = hashlib.sha256(canonical(candidate['tasks'])).hexdigest()
+    tx_path = program_dir / 'api_recovery_transaction_v1.json'
+    transaction = {'schema_version': 1, 'revision_id': revision_sha[:24],
+        'transaction_state': 'REVISION_PREPARED', 'original_plan_sha256':
+        state['plan_sha256'], 'goal_contract_sha256': state['goal_contract_sha256'],
+        'previous_active_revision': state.get('active_revision_sha256'),
+        'previous_dag_sha256': previous_dag_sha,
+        'proposed_dag_sha256': proposed_dag_sha,
+        'changed_task_ids': [task_id, 'analyze_rates'],
+        'changed_dependencies': {'analyze_rates': {
+            'before': previous_analysis['dependencies'],
+            'after': analysis['dependencies']}},
+        'approval_sha256': approval_sha,
+        'recovery_evidence_sha256': evidence['error_evidence_sha256'],
+        'revision_sha256': revision_sha, 'rollback_target': 'PREVIOUS_BLOCKED_DAG',
+        'previous_analysis_task': previous_analysis,
+        'previous_analysis_record': previous_record,
+        'completed_task_hashes': {key: value.get('checkpoint_sha256')
+            for key, value in state['records'].items() if value['status'] in
+            {'VERIFIED', 'COMPLETED_EXPLORATORY'}},
+        'original_network_requests_reserved': state['network_requests_reserved'],
+        'created_at_utc': now(), 'committed_at_utc': None,
+        'validation_result': 'PASS'}
+    if tx_path.is_symlink():
+        raise ValueError('Symlinked API recovery transaction')
+    if tx_path.exists():
+        prior = _saved(tx_path)
+        if prior.get('transaction_state') != 'REVISION_PREPARED':
+            raise ValueError('API recovery transaction is not preparable')
+        for key in ('created_at_utc', 'committed_at_utc', 'transaction_state'):
+            prior.pop(key, None)
+            transaction.pop(key, None)
+        if prior != transaction:
+            raise ValueError('API recovery transaction changed')
+    else:
+        write_state(tx_path, transaction)
+    candidate['api_recovery_revision'] = {'path': str(revision_path), 'sha256': revision_sha,
                                       'approval_sha256': approval_sha,
-                                      'status': 'APPROVED_LOCAL_FIXTURE'}
-    state.setdefault('plan_versions', []).append({'version': 2,
+                                      'status': 'REVISION_PREPARED',
+                                      'transaction_path': str(tx_path),
+                                      'transaction_identity_sha256': _transaction_identity(
+                                          _saved(tx_path))}
+    candidate.setdefault('plan_versions', []).append({'version': 2,
         'original_plan_sha256': state['plan_sha256'], 'revision_sha256': revision_sha,
         'reason': evidence['recovery_reason'], 'added_tasks': [task_id],
         'network_requests_added': 1, 'approval_sha256': approval_sha})
-    state['replanning_history'].append({'cause': 'API_ERROR',
+    candidate['replanning_history'].append({'cause': 'API_ERROR',
         'evidence_sha256': evidence['error_evidence_sha256'],
         'solution_action': evidence['solution_action'],
         'resume_original_goal_id': plan['goal_id']})
+    state.clear()
+    state.update(candidate)
+    return True
+
+
+def finalize_transaction(state: dict, program_dir: Path) -> None:
+    """Finish a prepared journal only after the active DAG checkpoint is saved."""
+    revision = state.get('api_recovery_revision')
+    if not revision or not revision.get('transaction_path'):
+        return
+    path = program_dir / 'api_recovery_transaction_v1.json'
+    revision_path = program_dir / 'api_recovery_revision_v1.json'
+    if (revision['transaction_path'] != str(path) or
+            revision['path'] != str(revision_path) or
+            _sha(revision_path) != revision['sha256']):
+        raise ValueError('API recovery revision identity changed')
+    tx = _saved(path)
+    if (_transaction_identity(tx) != revision['transaction_identity_sha256'] or
+            tx['original_plan_sha256'] != state['plan_sha256'] or
+            tx['goal_contract_sha256'] != state['goal_contract_sha256'] or
+            tx['revision_sha256'] != revision['sha256']):
+        raise ValueError('API recovery transaction identity changed')
+    if revision['status'] == 'REVISION_ROLLED_BACK':
+        if hashlib.sha256(canonical(state['tasks'])).hexdigest() != tx['previous_dag_sha256']:
+            raise ValueError('Rolled-back DAG changed')
+        if tx['transaction_state'] != 'REVISION_ROLLED_BACK':
+            tx.update(transaction_state='REVISION_ROLLED_BACK',
+                      rolled_back_at_utc=now())
+            write_state(path, tx)
+        return
+    if hashlib.sha256(canonical(state['tasks'])).hexdigest() != tx['proposed_dag_sha256']:
+        # Completed tasks may append independent data-recovery tasks only after
+        # the revision was committed; an uncommitted proposal must match exactly.
+        if tx['transaction_state'] == 'REVISION_PREPARED':
+            raise ValueError('Prepared API DAG changed before commit')
+    if tx['transaction_state'] == 'REVISION_PREPARED':
+        tx.update(transaction_state='REVISION_COMMITTED', committed_at_utc=now())
+        write_state(path, tx)
+    elif tx['transaction_state'] != 'REVISION_COMMITTED':
+        raise ValueError('Invalid API recovery transaction state')
+    revision['status'] = 'REVISION_ACTIVE'
+    state['active_revision_sha256'] = revision['sha256']
+
+
+def rollback_failed_recovery(plan: dict, state: dict, program_dir: Path) -> bool:
+    """Restore the previous active DAG; retain the failed request and artifacts."""
+    revision = state.get('api_recovery_revision')
+    if not revision or not revision.get('transaction_path') or \
+            revision['status'] == 'REVISION_ROLLED_BACK':
+        return False
+    revision_path = program_dir / 'api_recovery_revision_v1.json'
+    if (revision['path'] != str(revision_path) or
+            revision['transaction_path'] != str(program_dir /
+                'api_recovery_transaction_v1.json') or
+            _sha(revision_path) != revision['sha256']):
+        raise ValueError('API recovery revision identity changed')
+    tx = _saved(program_dir / 'api_recovery_transaction_v1.json')
+    task_id = 'api_recover_' + _saved(revision_path)['series'].lower()
+    record = state['records'].get(task_id, {})
+    analysis_record = state['records']['analyze_rates']
+    if (record.get('status') not in {'BLOCKED_ENV', 'BLOCKED_EVIDENCE', 'FAILED'} and
+            analysis_record.get('status') not in {'BLOCKED_ENV', 'BLOCKED_EVIDENCE', 'FAILED'}):
+        return False
+    if (_transaction_identity(tx) != revision['transaction_identity_sha256'] or
+            tx['original_plan_sha256'] != state['plan_sha256'] or
+            tx['goal_contract_sha256'] != state['goal_contract_sha256'] or
+            tx['revision_sha256'] != revision['sha256'] or
+            any(state['records'].get(key, {}).get('checkpoint_sha256') != digest
+                for key, digest in tx['completed_task_hashes'].items())):
+        raise ValueError('Cannot rollback changed original research evidence')
+    candidate = deepcopy(state)
+    recovery_task = next(t for t in candidate['tasks'] if t['task_id'] == task_id)
+    candidate['retired_recovery_tasks'] = candidate.get('retired_recovery_tasks', []) + [{
+        'task': deepcopy(recovery_task), 'record': deepcopy(candidate['records'][task_id]),
+        'analysis_record': deepcopy(candidate['records']['analyze_rates'])}]
+    candidate['tasks'] = [t for t in candidate['tasks'] if t['task_id'] != task_id]
+    candidate['records'].pop(task_id)
+    analysis = next(t for t in candidate['tasks'] if t['task_id'] == 'analyze_rates')
+    analysis.clear()
+    analysis.update(deepcopy(tx['previous_analysis_task']))
+    candidate['records']['analyze_rates'] = deepcopy(tx['previous_analysis_record'])
+    candidate['active_revision_sha256'] = tx['previous_active_revision']
+    candidate['api_recovery_revision']['status'] = 'REVISION_ROLLED_BACK'
+    candidate['plan_versions'][-1]['status'] = 'REVISION_ROLLED_BACK'
+    candidate['status'] = 'RESEARCH_BLOCKED'
+    candidate['next_action'] = 'REVIEW_FAILED_API_RECOVERY_EVIDENCE'
+    validate_plan(dict(plan, tasks=candidate['tasks']))
+    if hashlib.sha256(canonical(candidate['tasks'])).hexdigest() != tx['previous_dag_sha256']:
+        raise ValueError('Rollback did not restore previous DAG')
+    state.clear()
+    state.update(candidate)
     return True
 
 

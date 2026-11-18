@@ -1,5 +1,6 @@
 """Host validation and restart checks for the bounded research program."""
 import copy
+import datetime
 import json
 import tempfile
 import unittest
@@ -8,6 +9,7 @@ from pathlib import Path
 from universal_agent.research_planner import (plan_goal, validate_plan, _task,
     APPROVED_INDEPENDENT_RATES_GOAL)
 from universal_agent.process_supervisor import run_research_program
+from universal_agent.engine import write_state
 from universal_agent.isolated_codex import PRIVATE_ROOT
 
 
@@ -100,6 +102,26 @@ class ResearchProgramTests(unittest.TestCase):
             contract.write_text(json.dumps(saved))
             with self.assertRaisesRegex(ValueError, 'contract changed'):
                 run_research_program(goal, directory)
+
+    def test_goal_deadline_survives_restart_and_blocks_new_tasks(self):
+        PRIVATE_ROOT.mkdir(mode=0o700, parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=PRIVATE_ROOT) as folder:
+            directory = Path(folder)
+            first = run_research_program(GOAL, directory, max_tasks=1, max_seconds=10)
+            saved = json.loads((directory / 'state.json').read_text())
+            self.assertEqual(saved['goal_budget_seconds'], 10)
+            self.assertEqual(len(first['executed_tasks']), 1)
+            attempts = {key: value['attempts'] for key, value in saved['records'].items()}
+            saved['goal_deadline_utc'] = (datetime.datetime.now(
+                datetime.timezone.utc) - datetime.timedelta(seconds=1)).isoformat()
+            write_state(directory / 'state.json', saved)
+            second = run_research_program(GOAL, directory, max_seconds=300)
+            resumed = json.loads((directory / 'state.json').read_text())
+            self.assertEqual(second['status'], 'RESEARCH_BLOCKED')
+            self.assertEqual(second['next_action'], 'GOAL_DEADLINE_EXHAUSTED')
+            self.assertEqual(resumed['goal_budget_seconds'], 10)
+            self.assertEqual({key: value['attempts'] for key, value in
+                              resumed['records'].items()}, attempts)
 
 
 if __name__ == '__main__':

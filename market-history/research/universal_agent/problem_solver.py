@@ -140,6 +140,29 @@ def solve_api_failure(plan: dict, state: dict, program_dir: Path,
     return proposal
 
 
+def solve_recovery(plan: dict, state: dict, program_dir: Path,
+                   *, execute: bool = False) -> dict | None:
+    """Use one reviewed selection boundary for existing recovery capabilities."""
+    if state.get('status') != 'RESEARCH_BLOCKED':
+        return None
+    choices = (
+        ('CALENDAR_MISMATCH', 'calendar_revision', solve_calendar_gap),
+        ('SCHEMA_MISMATCH', 'schema_revision', solve_schema_gap),
+        ('API_ERROR', 'api_recovery_revision', solve_api_failure),
+    )
+    for problem_type, revision_key, handler in choices:
+        if state.get(revision_key):
+            continue
+        proposal = handler(plan, state, program_dir, execute=execute)
+        if proposal is None:
+            continue
+        if (proposal.get('problem_type') != problem_type or
+                problem_type not in RECOVERY_CAPABILITIES):
+            raise ValueError('Recovery capability classification changed')
+        return proposal
+    return None
+
+
 def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 

@@ -12,6 +12,7 @@ import os
 import subprocess
 import sys
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 from .engine import canonical, locked_state, now, write_state
@@ -197,7 +198,7 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
         time.sleep(startup_delay)
     with locked_state(directory) as path:
         queue = _load(path)
-        from .problem_solver import solve_calendar_gap, solve_schema_gap, solve_api_failure
+        from .problem_solver import solve_recovery
         for candidate in queue['jobs'].values():
             if (candidate['status'] not in {'BLOCKED_EVIDENCE', 'BLOCKED_ENV'} or
                     candidate['approval_status'] != 'APPROVED' or
@@ -209,10 +210,7 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
                 proposed = candidate.get('ai_candidate')
                 plan = (plan_goal(candidate['research_goal']) if proposed is None else
                         validate_candidate(candidate['research_goal'], proposed))
-                evidence = (solve_calendar_gap(plan, saved, program_dir) or
-                            solve_schema_gap(plan, saved, program_dir))
-                if evidence is None and (program_dir / 'api_recovery_approval.json').is_file():
-                    evidence = solve_api_failure(plan, saved, program_dir)
+                evidence = solve_recovery(plan, saved, program_dir)
             except (OSError, ValueError, KeyError) as exc:
                 candidate['last_error'] = 'RECOVERY_DIAGNOSIS_' + type(exc).__name__
                 candidate['next_action'] = 'REVIEW_RECOVERY_EVIDENCE'
@@ -221,8 +219,13 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
                 _save(path, queue)
                 continue
             if evidence is not None:
-                candidate['status'] = 'READY'
-                candidate['next_action'] = evidence['solution_action']
+                eligible = evidence.get('next_eligible_retry_at')
+                candidate['next_eligible_retry_at'] = eligible
+                waiting = bool(eligible and datetime.fromisoformat(eligible) >
+                               datetime.now(timezone.utc))
+                candidate['status'] = 'RETRY_WAIT' if waiting else 'READY'
+                candidate['next_action'] = ('WAIT_RETRY_AFTER' if waiting else
+                                            evidence['solution_action'])
                 recovery_event = ('SCHEMA_RECOVERY_READY' if evidence['problem_type'] ==
                                   'SCHEMA_MISMATCH' else 'API_RECOVERY_READY' if
                                   evidence['problem_type'] == 'API_ERROR' else
@@ -239,6 +242,9 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
                 break
             candidates = sorted((job for job in queue['jobs'].values()
                 if job['status'] in {'PENDING', 'READY', 'RUNNING', 'RETRY_WAIT'} and
+                   (not job.get('next_eligible_retry_at') or
+                    datetime.fromisoformat(job['next_eligible_retry_at']) <=
+                    datetime.now(timezone.utc)) and
                    job['goal_id'] not in processed_ids and
                    job['approval_status'] == 'APPROVED'),
                 key=lambda job: (job['priority'], job['created_at_utc'], job['job_id']))

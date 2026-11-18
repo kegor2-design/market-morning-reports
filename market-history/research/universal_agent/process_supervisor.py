@@ -9,6 +9,7 @@ import signal
 import subprocess
 import sys
 import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from .engine import canonical, locked_state, now, write_state
@@ -161,15 +162,16 @@ def _program_result(state: dict, program_dir: Path) -> dict:
               'independent_goal': state.get('independent_goal'),
               'analysis': analysis, 'pit_status': 'PIT_UNVERIFIED',
               'official_market_claim': False, 'independent_holdout': 'NOT_AVAILABLE',
-              'next_action': analysis.get('next_action',
+              'next_action': state.get('next_action') or (analysis.get('next_action',
                              'ACQUIRE_PIT_AND_INDEPENDENT_HOLDOUT') if analysis else
-                             'RESUME_BOUNDED_TASKS'}
+                             'RESUME_BOUNDED_TASKS')}
     if state.get('schema_revision'):
         result['schema_revision'] = state['schema_revision']
     if state.get('api_recovery_revision'):
         result['api_recovery_revision'] = state['api_recovery_revision']
         result['recovery_network_requests_reserved'] = state.get(
             'recovery_network_requests_reserved', 0)
+        result['retired_recovery_tasks'] = state.get('retired_recovery_tasks', [])
     write_state(program_dir / 'research_report.json', result)
     return result
 
@@ -270,11 +272,27 @@ def run_research_program(goal: str, program_dir: Path | None = None,
             'status': 'RESEARCH_INCOMPLETE',
             'selection_history': [], 'replanning_history': [],
             'network_requests_reserved': 0, 'model_calls': 0,
-            'started_at_utc': now()}
+            'started_at_utc': now(),
+            'goal_budget_seconds': max_seconds,
+            'goal_deadline_utc': (datetime.now(timezone.utc) +
+                                  timedelta(seconds=max_seconds)).isoformat()}
         if (state['goal_id'] != plan['goal_id'] or state['plan_sha256'] != plan_hash or
                 state['goal_contract_sha256'] != contract_hash or
                 state.get('test_analysis_delay', 0) != test_analysis_delay):
             raise ValueError('Program checkpoint identity changed')
+        if 'goal_deadline_utc' not in state:
+            # Upgrade old checkpoints once; later invocations cannot renew this budget.
+            state['goal_budget_seconds'] = max_seconds
+            state['goal_deadline_utc'] = (datetime.now(timezone.utc) +
+                                           timedelta(seconds=max_seconds)).isoformat()
+            write_state(checkpoint, state)
+        goal_deadline = datetime.fromisoformat(state['goal_deadline_utc'])
+        if (goal_deadline.tzinfo is None or
+                type(state.get('goal_budget_seconds')) is not int or
+                not 10 <= state['goal_budget_seconds'] <= 300):
+            raise ValueError('Invalid persistent goal deadline')
+        def remaining_goal_seconds() -> float:
+            return (goal_deadline - datetime.now(timezone.utc)).total_seconds()
         for saved_task in state['tasks']:
             saved_record = state['records'][saved_task['task_id']]
             if saved_record.get('task_key') and saved_record['task_key'] != \
@@ -307,26 +325,42 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                     from .kr_crash_analysis import analyze
                     if json.loads(saved_checkpoint.read_text())['result'] != analyze():
                         raise ValueError('Korean crash analysis changed after checkpoint')
+        for retired in state.get('retired_recovery_tasks', []):
+            saved_record = retired['record']
+            if saved_record.get('checkpoint_sha256'):
+                saved_checkpoint = Path(saved_record['checkpoint'])
+                if (saved_checkpoint.is_symlink() or
+                        not saved_checkpoint.resolve().is_relative_to(program_dir) or
+                        hashlib.sha256(saved_checkpoint.read_bytes()).hexdigest() !=
+                        saved_record['checkpoint_sha256']):
+                    raise ValueError('Retired recovery checkpoint changed')
+        if state.get('api_recovery_revision'):
+            from .api_recovery import finalize_transaction
+            finalize_transaction(state, program_dir)
+            write_state(checkpoint, state)
         if (program_dir / 'STOP').exists():
             state['status'] = 'RESEARCH_CANCELLED'
             write_state(checkpoint, state)
             return _program_result(state, program_dir)
-        if state['status'] == 'RESEARCH_BLOCKED' and not state.get('calendar_revision'):
-            from .problem_solver import solve_calendar_gap
-            if solve_calendar_gap(plan, state, program_dir, execute=True):
+        if remaining_goal_seconds() <= 0 and state['status'] != 'RESEARCH_COMPLETED_EXPLORATORY':
+            state['status'] = 'RESEARCH_BLOCKED'
+            state['next_action'] = 'GOAL_DEADLINE_EXHAUSTED'
+            write_state(checkpoint, state)
+            return _program_result(state, program_dir)
+        if state['status'] == 'RESEARCH_BLOCKED':
+            from .problem_solver import solve_recovery
+            proposal = solve_recovery(plan, state, program_dir, execute=True)
+            if proposal:
                 write_state(checkpoint, state)
-        if state['status'] == 'RESEARCH_BLOCKED' and not state.get('schema_revision'):
-            from .problem_solver import solve_schema_gap
-            if solve_schema_gap(plan, state, program_dir, execute=True):
-                write_state(checkpoint, state)
-        if state['status'] == 'RESEARCH_BLOCKED' and not state.get('api_recovery_revision'):
-            from .problem_solver import solve_api_failure
-            if solve_api_failure(plan, state, program_dir, execute=True):
-                write_state(checkpoint, state)
+                if proposal['problem_type'] == 'API_ERROR':
+                    from .api_recovery import finalize_transaction
+                    finalize_transaction(state, program_dir)
+                    write_state(checkpoint, state)
         validate_plan(dict(plan, tasks=state['tasks']))
         started = time.monotonic()
         executed = 0
-        while executed < max_tasks and time.monotonic() - started < max_seconds:
+        while (executed < max_tasks and time.monotonic() - started < max_seconds
+               and remaining_goal_seconds() > 0):
             tasks = sorted(state['tasks'], key=lambda item: (item['priority'], item['task_id']))
             ready = [task for task in tasks if state['records'][task['task_id']]['status'] in
                      {'PENDING', 'READY', 'RUNNING'} and all(
@@ -337,6 +371,13 @@ def run_research_program(goal: str, program_dir: Path | None = None,
             task = ready[0]
             task_id = task['task_id']
             record = state['records'][task_id]
+            if (task['task_type'] not in {'DATA_DISCOVERY', 'PIT_VALIDATION',
+                    'KR_INDEX_VALIDATION', 'KR_CRASH_ANALYSIS'} and
+                    remaining_goal_seconds() < 60):
+                state['status'] = 'RESEARCH_BLOCKED'
+                state['next_action'] = 'GOAL_DEADLINE_INSUFFICIENT_FOR_TASK'
+                write_state(checkpoint, state)
+                break
             if task['task_type'] == 'DATA_ACQUISITION' and record['status'] != 'RUNNING' and \
                     state['network_requests_reserved'] >= plan['resource_budget']['max_network_requests']:
                 record.update(status='BLOCKED_ENV', reason='Program network budget exhausted')
@@ -468,6 +509,12 @@ def run_research_program(goal: str, program_dir: Path | None = None,
             if record['status'] == 'PENDING' and any(state['records'][dep]['status'].startswith(
                     'BLOCKED') for dep in task['dependencies']):
                 record['status'] = 'WAITING_DEPENDENCY'
+        if state.get('api_recovery_revision'):
+            from .api_recovery import rollback_failed_recovery, finalize_transaction
+            if rollback_failed_recovery(plan, state, program_dir):
+                write_state(checkpoint, state)
+                finalize_transaction(state, program_dir)
+                write_state(checkpoint, state)
         if (program_dir / 'STOP').exists():
             state['status'] = 'RESEARCH_CANCELLED'
         elif any(state['records'].get(task_id, {}).get('status') == 'COMPLETED_EXPLORATORY'
@@ -479,7 +526,13 @@ def run_research_program(goal: str, program_dir: Path | None = None,
             state['status'] = 'RESEARCH_FAILED'
         else:
             state['status'] = 'RESEARCH_INCOMPLETE'
-        state['next_action'] = 'VERIFY_OR_RESUME'
+        if remaining_goal_seconds() <= 0 and state['status'] != 'RESEARCH_COMPLETED_EXPLORATORY':
+            state['status'] = 'RESEARCH_BLOCKED'
+            state['next_action'] = 'GOAL_DEADLINE_EXHAUSTED'
+        elif state.get('next_action') not in {
+                'GOAL_DEADLINE_INSUFFICIENT_FOR_TASK',
+                'REVIEW_FAILED_API_RECOVERY_EVIDENCE'}:
+            state['next_action'] = 'VERIFY_OR_RESUME'
         write_state(checkpoint, state)
         if (state['status'] == 'RESEARCH_BLOCKED' and
                 plan['goal_contract']['approved_independent_goal_ids'] and

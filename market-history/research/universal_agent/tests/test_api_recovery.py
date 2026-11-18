@@ -13,13 +13,16 @@ import tempfile
 import threading
 import time
 import unittest
+from copy import deepcopy
 from pathlib import Path
+from unittest import mock
 
+from universal_agent import api_recovery
 from universal_agent.api_recovery import authorize_local
 from universal_agent.ai_research_planner import capability_registry
-from universal_agent.engine import canonical
+from universal_agent.engine import canonical, write_state
 from universal_agent.isolated_codex import PRIVATE_ROOT
-from universal_agent.research_planner import dates_for, plan_goal
+from universal_agent.research_planner import _task, dates_for, plan_goal
 from universal_agent.research_runtime import submit
 from universal_agent.problem_solver import recovery_capability_registry
 
@@ -27,6 +30,67 @@ GOAL = 'Study Treasury yield spread and SOFR from 2018-06-01 to 2018-06-29.'
 
 
 class ApiRecoveryDagTests(unittest.TestCase):
+    def test_retry_after_is_bounded_and_parses_http_date(self):
+        observed = '2026-11-18T00:00:00+00:00'
+        self.assertEqual(api_recovery.retry_after_at('2', observed),
+                         '2026-11-18T00:00:02+00:00')
+        self.assertEqual(api_recovery.retry_after_at(
+            'Wed, 18 Nov 2026 00:00:02 GMT', observed),
+            '2026-11-18T00:00:02+00:00')
+        for value in (None, '', 'abc', '26', '-1',
+                      'Wed, 18 Nov 2026 00:01:00 GMT'):
+            self.assertIsNone(api_recovery.retry_after_at(value, observed))
+
+    def test_revision_prepare_failures_leave_original_state_intact(self):
+        plan = plan_goal(GOAL)
+        tasks = deepcopy(plan['tasks'])
+        collect = _task('collect_ust_2y', 'DATA_ACQUISITION', 20,
+                        dependencies=['discover_ust_2y'], inputs={'series': 'UST_2Y'})
+        tasks.append(collect)
+        tasks[3]['dependencies'].append('collect_ust_2y')
+        state = {'goal_id': plan['goal_id'], 'plan_sha256': 'plan-hash',
+                 'goal_contract_sha256': 'contract-hash', 'tasks': tasks,
+                 'records': {task['task_id']: {'status': 'VERIFIED', 'attempts': 1}
+                             for task in tasks}, 'network_requests_reserved': 1,
+                 'replanning_history': []}
+        state['records']['analyze_rates'] = {'status': 'WAITING_DEPENDENCY', 'attempts': 0}
+        state['records']['collect_ust_2y'] = {'status': 'BLOCKED_ENV', 'attempts': 1}
+        evidence = {'series': 'UST_2Y', 'original_task_id': 'collect_ust_2y',
+                    'original_request_sha256': 'a' * 64,
+                    'error_evidence_sha256': 'error-hash', 'recovery_reason': 'HTTP 503',
+                    'solution_action': 'RETRY_APPROVED_SOURCE_NEW_REQUEST'}
+        PRIVATE_ROOT.mkdir(mode=0o700, parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=PRIVATE_ROOT) as folder:
+            directory = Path(folder)
+            write_state(directory / 'api_recovery_approval.json', {'approved': True})
+            original = deepcopy(state)
+            real_write = api_recovery.write_state
+            def fail_journal(path, value):
+                if path.name == 'api_recovery_transaction_v1.json':
+                    raise OSError('injected journal failure')
+                return real_write(path, value)
+            with mock.patch.object(api_recovery, 'diagnose', return_value=evidence), \
+                 mock.patch.object(api_recovery, 'validate_approval', return_value={
+                     'approved': True}), \
+                 mock.patch.object(api_recovery, 'write_state', side_effect=fail_journal):
+                with self.assertRaisesRegex(OSError, 'injected journal failure'):
+                    api_recovery.replan(plan, state, directory)
+            self.assertEqual(state, original)
+            with mock.patch.object(api_recovery, 'diagnose', return_value=evidence), \
+                 mock.patch.object(api_recovery, 'validate_approval', return_value={
+                     'approved': True}):
+                self.assertTrue(api_recovery.replan(plan, state, directory))
+            self.assertEqual(state['api_recovery_revision']['status'], 'REVISION_PREPARED')
+            write_state(directory / 'state.json', state)
+            api_recovery.finalize_transaction(state, directory)
+            self.assertEqual(state['api_recovery_revision']['status'], 'REVISION_ACTIVE')
+            tx_path = directory / 'api_recovery_transaction_v1.json'
+            changed = json.loads(tx_path.read_text())
+            changed['previous_analysis_record']['attempts'] = 99
+            write_state(tx_path, changed)
+            with self.assertRaisesRegex(ValueError, 'transaction identity changed'):
+                api_recovery.finalize_transaction(state, directory)
+
     def test_recovery_registry_has_separate_api_permission(self):
         capabilities = recovery_capability_registry()['capabilities']
         self.assertEqual(set(capabilities), {'CALENDAR_MISMATCH',
@@ -43,6 +107,9 @@ class ApiRecoveryDagTests(unittest.TestCase):
 
     def test_429_requires_new_approval_then_resumes(self):
         self._exercise_recovery(429)
+
+    def test_429_retry_after_delay_survives_queue_restart(self):
+        self._exercise_recovery(429, retry_after='15')
 
     def test_404_is_not_promoted_to_recovery_task(self):
         self._exercise_recovery(404)
@@ -64,7 +131,7 @@ class ApiRecoveryDagTests(unittest.TestCase):
 
     def _exercise_recovery(self, first_status, bad_recovery=False,
                            kill_recovery=False, tamper_approval=False,
-                           persist=False):
+                           persist=False, retry_after='0'):
         plan = plan_goal(GOAL)
         days = dates_for(plan)
         csv = ('Date,2 Yr,10 Yr\n' + ''.join(
@@ -97,7 +164,7 @@ class ApiRecoveryDagTests(unittest.TestCase):
                 self.send_response(first_status if failed and
                                    isinstance(first_status, int) else 200)
                 if failed and first_status == 429:
-                    self.send_header('Retry-After', '0')
+                    self.send_header('Retry-After', retry_after)
                 self.send_header('Content-Length', str(len(body)))
                 self.end_headers()
                 if body:
@@ -162,6 +229,17 @@ class ApiRecoveryDagTests(unittest.TestCase):
                 return
             authorize_local(plan, first, program_dir, approved_by='LOCAL_TEST_OWNER',
                             valid_until_utc=expires)
+            if first_status == 429 and retry_after != '0':
+                waiting = self._run(queue_dir)
+                self.assertEqual(waiting['processed'], 0)
+                self.assertEqual(waiting['statuses'][job['goal_id']], 'RETRY_WAIT')
+                queued = json.loads((queue_dir / 'state.json').read_text())
+                self.assertTrue(queued['jobs'][job['goal_id']]['next_eligible_retry_at'])
+                self.assertEqual(len(requests), 3)
+                eligible = datetime.datetime.fromisoformat(
+                    queued['jobs'][job['goal_id']]['next_eligible_retry_at'])
+                time.sleep(max(0, (eligible - datetime.datetime.now(
+                    datetime.timezone.utc)).total_seconds()) + 0.1)
             if tamper_approval:
                 approval_path = program_dir / 'api_recovery_approval.json'
                 approval = json.loads(approval_path.read_text())
@@ -206,8 +284,17 @@ class ApiRecoveryDagTests(unittest.TestCase):
                 queue = json.loads((queue_dir / 'state.json').read_text())
                 self.assertEqual(outcome, 'BLOCKED_ENV', msg=str(queue['jobs'][job['goal_id']]))
                 blocked = json.loads((program_dir / 'state.json').read_text())
-                self.assertEqual(blocked['records']['api_recover_ust_2y']['status'],
+                self.assertEqual(blocked['api_recovery_revision']['status'],
+                                 'REVISION_ROLLED_BACK')
+                self.assertEqual(blocked['retired_recovery_tasks'][0]['record']['status'],
                                  'BLOCKED_EVIDENCE')
+                self.assertEqual(hashlib.sha256(canonical(blocked['tasks'])).hexdigest(),
+                                 hashlib.sha256(canonical(first['tasks'])).hexdigest())
+                transaction = json.loads((program_dir /
+                    'api_recovery_transaction_v1.json').read_text())
+                self.assertEqual(transaction['transaction_state'],
+                                 'REVISION_ROLLED_BACK')
+                self.assertEqual(blocked['recovery_network_requests_reserved'], 1)
                 self.assertNotEqual(blocked['records']['analyze_rates']['status'],
                                     'COMPLETED_EXPLORATORY')
                 self.assertEqual(self._run(queue_dir)['processed'], 0)
@@ -217,6 +304,10 @@ class ApiRecoveryDagTests(unittest.TestCase):
                              'COMPLETED_EXPLORATORY')
             second = json.loads((program_dir / 'state.json').read_text())
             revision = json.loads((program_dir / 'api_recovery_revision_v1.json').read_text())
+            transaction = json.loads((program_dir /
+                'api_recovery_transaction_v1.json').read_text())
+            self.assertEqual(transaction['transaction_state'], 'REVISION_COMMITTED')
+            self.assertEqual(second['api_recovery_revision']['status'], 'REVISION_ACTIVE')
             self.assertEqual(second['goal_id'], job['goal_id'])
             self.assertEqual(second['goal_contract_sha256'], original_hash)
             self.assertEqual(second['plan_sha256'], first['plan_sha256'])
