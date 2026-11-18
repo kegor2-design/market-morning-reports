@@ -247,6 +247,7 @@
   },
   "session_c_candidate_acquisition_iteration": {
     "base_commit": "73a92af",
+    "verified_code_commit": "a5a1ee7",
     "phase": "C1_REVIEWED_ACQUISITION_PROPOSAL",
     "capability_registry_version": 2,
     "reviewed_acquisition_candidate_compilation": "PASS_SYNTHETIC",
