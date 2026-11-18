@@ -275,6 +275,19 @@
               "compileall": "PASS", "git_diff_check": "PASS"},
     "running_worker": null
   },
+  "session_c_local_http_recovery_iteration": {
+    "base_commit": "7068cb2",
+    "phase": "C4_LOCAL_HTTP_SOURCE_RECOVERY",
+    "local_http_503_then_success": "PASS",
+    "source_response_hash_sealed": "PASS",
+    "source_request_deduplication": "PASS",
+    "original_goal_dag_resume": "BLOCKED",
+    "official_provider_requests_added": 0,
+    "real_model_calls": 0,
+    "tests": {"universal_agent": "PASS 157", "regime190": "PASS 55",
+              "compileall": "PASS", "git_diff_check": "PASS"},
+    "running_worker": null
+  },
   "session_c_post_restart_iteration": {
     "base_commit": "3d3af77418ce4715b380829344e46764412d3781",
     "verified_code_commit": "69fec86becd19103686ffc335a1836e6fa30f9ae",

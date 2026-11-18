@@ -1,7 +1,9 @@
 import json
 import hashlib
+import http.server
 import sys
 import tempfile
+import threading
 import unittest
 import urllib.error
 from pathlib import Path
@@ -100,6 +102,36 @@ class DataRecoveryTests(unittest.TestCase):
             with self.assertRaises(TimeoutError):
                 _fetch(uri, 3, 1)
             self.assertEqual(opener.call_count, 1)
+
+    def test_local_http_503_then_recovery_is_sealed_once(self):
+        calls = []
+        class Handler(http.server.BaseHTTPRequestHandler):
+            def do_GET(self):
+                calls.append(self.path)
+                self.send_response(503 if len(calls) == 1 else 200)
+                self.end_headers()
+                if len(calls) > 1:
+                    self.wfile.write(CSV)
+            def log_message(self, *_):
+                pass
+        server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        self.addCleanup(thread.join, 2)
+        self.addCleanup(server.server_close)
+        self.addCleanup(server.shutdown)
+        uri = f'http://127.0.0.1:{server.server_port}/official.csv'
+        item = request(budget={'max_network_requests': 2, 'max_seconds': 10,
+                               'max_retries': 1, 'max_model_calls': 0})
+        with patch('universal_agent.source_adapters.SourceAdapter.uri', return_value=uri), \
+             patch('universal_agent.data_recovery.time.sleep'):
+            first = recover(item, self.root)
+            second = recover(item, self.root)
+        self.assertEqual(first['status'], 'DATA_RECOVERED_PIT_UNVERIFIED')
+        self.assertEqual(first['network_requests'], 2)
+        self.assertEqual(first['recovered'], {'2015-04-02': '1.92'})
+        self.assertEqual(second['content_sha256'], first['content_sha256'])
+        self.assertEqual(len(calls), 2)
 
     def test_source_unavailable_records_safe_next_action(self):
         def unavailable(*_):

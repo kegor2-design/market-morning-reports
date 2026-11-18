@@ -2,7 +2,7 @@
 
 ## Transport retry policy correction — 2026-11-18
 
-The shared source fetcher now retries only after a definite HTTP 429/5xx response within the caller's preapproved attempt budget. A timeout or transport failure may have reached the provider, so it is classified as `TIMEOUT` or unavailable and is never retried inside `_fetch`. A three-attempt fault test confirms a timeout makes only one request. Existing checkpoint behavior still blocks subsequent `recover` calls for the same uncertain request. This closes a replay path in the common helper, but a new authorized API retry Task and original-Goal DAG resumption are still unimplemented; `AUTONOMOUS_API_RECOVERY_VERIFIED` remains BLOCKED.
+The shared source fetcher now retries only after a definite HTTP 429/5xx response within the caller's preapproved attempt budget. A timeout or transport failure may have reached the provider, so it is classified as `TIMEOUT` or unavailable and is never retried inside `_fetch`. A three-attempt fault test confirms a timeout makes only one request. A loopback HTTP server then returned 503 followed by a valid Treasury CSV: `recover` used exactly two prebudgeted requests, sealed the response hash, recovered the missing observation and reused its checkpoint with zero duplicate requests. The loopback test needed local socket permission outside the restricted process sandbox. Existing checkpoint behavior still blocks subsequent `recover` calls for the same uncertain request. This verifies a bounded source-adapter recovery, but a new authorized API retry Task and original-Goal DAG resumption are still unimplemented; `AUTONOMOUS_API_RECOVERY_VERIFIED` remains BLOCKED.
 
 ## Post-restart API failure evidence — 2026-11-18
 
