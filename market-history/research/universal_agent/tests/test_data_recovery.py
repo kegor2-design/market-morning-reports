@@ -95,6 +95,11 @@ class DataRecoveryTests(unittest.TestCase):
             with self.assertRaises(urllib.error.HTTPError):
                 _fetch(uri, 3, 1)
             self.assertEqual(opener.call_count, 1)
+        with patch('universal_agent.data_recovery.urllib.request.urlopen',
+                   side_effect=TimeoutError('response unknown')) as opener:
+            with self.assertRaises(TimeoutError):
+                _fetch(uri, 3, 1)
+            self.assertEqual(opener.call_count, 1)
 
     def test_source_unavailable_records_safe_next_action(self):
         def unavailable(*_):
@@ -112,6 +117,7 @@ class DataRecoveryTests(unittest.TestCase):
         def timed_out(*_):
             raise TimeoutError('injected response timeout')
         state = recover(request(), self.root, fetch=timed_out)
+        self.assertEqual(state['problem_type'], 'TIMEOUT')
         self.assertEqual(state['network_call_outcome'], 'UNCERTAIN_REQUEST_OUTCOME')
         self.assertEqual(state['network_requests'], 1)
         self.assertIsNone(state['failure_history'][0]['http_status'])

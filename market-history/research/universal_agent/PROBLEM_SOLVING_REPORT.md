@@ -1,5 +1,9 @@
 # Session C problem solving checkpoint
 
+## Transport retry policy correction — 2026-11-18
+
+The shared source fetcher now retries only after a definite HTTP 429/5xx response within the caller's preapproved attempt budget. A timeout or transport failure may have reached the provider, so it is classified as `TIMEOUT` or unavailable and is never retried inside `_fetch`. A three-attempt fault test confirms a timeout makes only one request. Existing checkpoint behavior still blocks subsequent `recover` calls for the same uncertain request. This closes a replay path in the common helper, but a new authorized API retry Task and original-Goal DAG resumption are still unimplemented; `AUTONOMOUS_API_RECOVERY_VERIFIED` remains BLOCKED.
+
 ## Post-restart API failure evidence — 2026-11-18
 
 The approved data recovery path now records whether an exception includes a definite HTTP response or has an uncertain transport outcome. It records the numeric HTTP status only when available, carries the problem type and call outcome through the Research Job conclusion into the Task record, and preserves the original network reservation. Local injected HTTP 503 and timeout tests confirmed both classifications and confirmed that a second call was not made. This change adds diagnosis and checkpoint evidence; it does not authorize or execute a new provider request. `AUTONOMOUS_API_RECOVERY_VERIFIED` remains BLOCKED until a separately reviewed retry Task with a new request identity and explicit budget is implemented and tested. No live provider call or AI Self Repair occurred in this iteration.

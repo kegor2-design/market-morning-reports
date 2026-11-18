@@ -33,7 +33,7 @@ def classify_error(exc: Exception) -> str:
                 if exc.code in {500, 502, 503, 504} else
                 'AUTHORIZATION_REQUIRED' if exc.code in {401, 403} else 'INVALID_REQUEST')
     if isinstance(exc, (TimeoutError, socket.timeout)):
-        return 'SOURCE_UNAVAILABLE'
+        return 'TIMEOUT'
     if isinstance(exc, urllib.error.URLError):
         return 'SOURCE_UNAVAILABLE'
     return 'ENVIRONMENT_ERROR'
@@ -53,8 +53,9 @@ def _fetch(uri: str, attempts: int, timeout: float) -> tuple[bytes, int]:
                     raise ValueError('Source exceeds byte budget')
                 return payload, attempt + 1
         except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as exc:
-            retry = (isinstance(exc, urllib.error.HTTPError) and exc.code in RETRYABLE
-                     or not isinstance(exc, urllib.error.HTTPError))
+            # Only an explicit HTTP response is a known failed attempt. A
+            # transport error or timeout may have reached the provider.
+            retry = isinstance(exc, urllib.error.HTTPError) and exc.code in RETRYABLE
             if not retry or attempt + 1 == attempts:
                 raise
             time.sleep(min(2 ** attempt, 2))
@@ -214,7 +215,8 @@ def recover(request: dict, state_dir: Path, *, fetch=_fetch) -> dict:
             http_status = exc.code if isinstance(exc, urllib.error.HTTPError) else None
             next_action = ('REVIEW_AUTHORIZATION_OR_LICENSE' if problem == 'AUTHORIZATION_REQUIRED'
                            else 'RUN_INDEPENDENT_ALLOWED_TASK' if problem in
-                           {'SOURCE_UNAVAILABLE', 'SOURCE_NOT_FOUND', 'RATE_LIMIT'}
+                           {'SOURCE_UNAVAILABLE', 'SOURCE_NOT_FOUND', 'RATE_LIMIT',
+                            'TIMEOUT'}
                            else 'REVIEW_SOURCE_REQUEST')
             state.update(status='BLOCKED_ENV', problem_type=problem,
                          network_call_outcome=outcome,

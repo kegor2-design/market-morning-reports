@@ -262,6 +262,18 @@
     "running_worker": null,
     "next_action": "Implement an explicit, newly budgeted API retry Task with a new request identity; then add isolated repair and rollback DAG validation"
   },
+  "session_c_transport_retry_iteration": {
+    "base_commit": "de7b982",
+    "phase": "C4_UNKNOWN_SOURCE_CALL_NO_REPLAY",
+    "definite_http_retry": "PASS_LOCAL_FAULT_TEST",
+    "uncertain_timeout_no_retry": "PASS_LOCAL_FAULT_TEST",
+    "autonomous_api_recovery": "BLOCKED",
+    "real_model_calls": 0,
+    "official_provider_requests_added": 0,
+    "tests": {"universal_agent": "PASS 156", "regime190": "PASS 55",
+              "compileall": "PASS", "git_diff_check": "PASS"},
+    "running_worker": null
+  },
   "session_c_post_restart_iteration": {
     "base_commit": "3d3af77418ce4715b380829344e46764412d3781",
     "verified_code_commit": "69fec86becd19103686ffc335a1836e6fa30f9ae",

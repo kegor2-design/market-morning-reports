@@ -1,5 +1,10 @@
 # Next research actions
 
+## Transport retry safety follow-up — 2026-11-18
+
+- Starting SHA `de7b982`; source fetcher now retries only after definite retryable HTTP status. Timeout and transport errors remain blocked with their original reservation. Local fault tests use zero paid model calls and no official provider requests. Universal Agent 156 PASS, Regime190 55 PASS, compileall PASS and diff check PASS. `PROBLEM_SOLVING_REPORT.md` records the limit of this result.
+- Next task remains the explicit new-request API retry Task and original-Goal DAG resume under a separately authorized bounded budget. Keep `AUTONOMOUS_API_RECOVERY_VERIFIED=BLOCKED` until that execution and verification pass.
+
 ## Reviewed acquisition candidate handoff — 2026-11-18
 
 - Start SHA `73a92af`, verified code SHA `a5a1ee7` on `research/universal-agent-session-c-dynamic-planner-20261118`. This continuation adds host-compiled optional US rate acquisition Tasks and Capability Registry version 2. The candidate is registered only in an approval-gated synthetic queue. Existing private checkpoints and completed research were not changed. No Worker is running. Universal Agent 156 PASS, Regime190 55 PASS, compileall PASS, and diff check PASS.
