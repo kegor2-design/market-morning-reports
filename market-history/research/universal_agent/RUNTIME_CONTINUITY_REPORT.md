@@ -1,5 +1,11 @@
 # Session C runtime continuity checkpoint (2026-11-17)
 
+## Local API recovery Worker continuity — 2026-11-18
+
+The new recovery test runs the existing persistent Runtime in a separate OS process and source/analysis Research Jobs in existing child Worker processes. Its original Goal keeps the baseline Goal Contract and Plan hashes. A versioned, hashed API recovery revision and separate approval are stored only in the private test program directory. One original failed request and its child checkpoint remain; the approved recovery uses a new Task/Job/request identity and one additional reserved network request. The durable private queue `.universal_private/session_c_api_recovery_e2e/state.json` reached generation 6 for Goal `research_b7188d9b5674`; its recorded transitions include the original `BLOCKED_ENV`, `API_RECOVERY_READY`, and final `COMPLETED_EXPLORATORY`. Completed fixture research was reopened through the Queue: `processed=0` and no additional HTTP request.
+
+During a second isolated fixture run, SIGKILL stopped only the recovery child Worker while its HTTP request was pending. The Research Job checkpoint retained the reserved request; its bounded restart classified the outcome as uncertain and did not issue another HTTP call. The Queue remained blocked under the original Goal. This validates child Worker interruption safety for the local fixture. Strict outer wall-clock enforcement and actual SSH disconnect/reconnect remain unverified. No production Worker, scheduler or service changed.
+
 ## 2026-11-18 development resume after server restart
 
 After the server restart, the Session C worktree was found clean at `3d3af77418ce4715b380829344e46764412d3781`. The previous private queue was read without rerunning its completed Goal; it remained `COMPLETED_EXPLORATORY` with generation 6. No research Worker was running. Development then resumed on the same isolated branch, added source-call failure evidence, passed 153 Universal Agent and 55 Regime190 tests, and pushed code commit `69fec86becd19103686ffc335a1836e6fa30f9ae` plus the handoff checkpoint. This verifies development checkpoint reuse across the restart. It does not verify that an active Worker survived an actual SSH disconnect or server reboot.

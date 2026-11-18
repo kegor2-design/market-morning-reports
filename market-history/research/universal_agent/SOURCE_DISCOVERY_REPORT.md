@@ -1,5 +1,9 @@
 # Session C source discovery checkpoint
 
+## Local API fault fixture — 2026-11-18
+
+The API recovery DAG experiment used a loopback HTTP server with generated Treasury-shaped CSV and NY Fed-shaped JSON. Its source records are explicitly labeled `LOCAL_HTTP_FIXTURE_*`; the resulting rate analysis has `fixture_only=true` and cannot serve as official source or PIT evidence. No new external Source Adapter, live provider call, credential or source license approval was added.
+
 ## 2020 Treasury archive and schema — 2026-11-18
 
 The [Treasury's official archive index](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rate-archives) lists par yield curve files for 2010-2019 and 2020-2023. The existing adapter had incorrectly constructed a 2020-2029 URL; it now uses the listed 2020-2023 file and fails closed for later years until reviewed. The actual 2020 response uses lowercase column labels and four-digit dates, while the older archive used title case and two-digit dates. The parser now accepts either reviewed shape, still requires the selected tenor and date field, and rejects unknown layouts. 2020 Treasury and NY Fed responses were actually collected. Historical first-publication and first-access timestamps remain unverified; no official investment claim is authorized.
