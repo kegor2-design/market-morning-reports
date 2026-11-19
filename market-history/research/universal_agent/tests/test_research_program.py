@@ -122,6 +122,14 @@ class ResearchProgramTests(unittest.TestCase):
             self.assertEqual(resumed['goal_budget_seconds'], 10)
             self.assertEqual({key: value['attempts'] for key, value in
                               resumed['records'].items()}, attempts)
+            for _ in range(3):
+                repeated = run_research_program(GOAL, directory, max_seconds=300)
+                self.assertEqual(repeated['next_action'], 'GOAL_DEADLINE_EXHAUSTED')
+                repeat_state = json.loads((directory / 'state.json').read_text())
+                self.assertEqual(repeat_state['goal_deadline_utc'],
+                                 resumed['goal_deadline_utc'])
+                self.assertEqual({key: value['attempts'] for key, value in
+                                  repeat_state['records'].items()}, attempts)
 
 
 if __name__ == '__main__':

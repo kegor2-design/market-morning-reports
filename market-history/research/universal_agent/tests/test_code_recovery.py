@@ -9,10 +9,12 @@ import sys
 import tempfile
 import time
 import unittest
+from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
 
+from universal_agent import code_recovery
 from universal_agent.code_recovery import authorize_fixture, fixture_source, replan
 from universal_agent.engine import write_state
 from universal_agent.isolated_codex import PRIVATE_ROOT
@@ -73,8 +75,15 @@ class CodeRecoveryTests(unittest.TestCase):
         self.assertEqual(saved['records']['analyze_fixture']['attempts'], 2)
         self.assertEqual(second['analysis']['answer'], 42)
         self.assertEqual(second['analysis']['fixture_only'], True)
+        state_sha = hashlib.sha256((self.directory / 'state.json').read_bytes()).hexdigest()
+        report_sha = hashlib.sha256((self.directory /
+            'research_report.json').read_bytes()).hexdigest()
         self.assertEqual(run_research_program(GOAL, self.directory)['analysis'],
                          second['analysis'])
+        self.assertEqual(hashlib.sha256((self.directory / 'state.json').read_bytes()).hexdigest(),
+                         state_sha)
+        self.assertEqual(hashlib.sha256((self.directory /
+            'research_report.json').read_bytes()).hexdigest(), report_sha)
         self.assertEqual(json.loads((self.directory / 'state.json').read_text())[
             'records']['analyze_fixture']['attempts'], 2)
         source = fixture_source(self.directory)
@@ -92,6 +101,9 @@ class CodeRecoveryTests(unittest.TestCase):
         saved = json.loads((self.directory / 'state.json').read_text())
         self.assertEqual(second['status'], 'RESEARCH_BLOCKED')
         self.assertEqual(saved['code_repair_revision']['status'], 'REVISION_ROLLED_BACK')
+        self.assertEqual(json.loads((self.directory /
+            'code_repair_transaction_v1.json').read_text())['transaction_state'],
+            'REVISION_ROLLED_BACK')
         self.assertEqual([task['task_id'] for task in saved['tasks']],
                          [task['task_id'] for task in first['tasks']])
         self.assertEqual(hashlib.sha256(source.read_bytes()).hexdigest(), before)
@@ -185,12 +197,52 @@ class CodeRecoveryTests(unittest.TestCase):
             fixture_source(program)
         self.assertFalse((external / 'experiment.py').exists())
 
+    def test_code_revision_journal_write_and_commit_faults_are_recoverable(self):
+        state = self._initial_failure()
+        authorize_fixture(self.plan, state, self.directory,
+            candidate=GOOD, approved_by='FIXTURE_TEST_OWNER')
+        original = deepcopy(state)
+        real_artifact_write = code_recovery._write_or_verify
+        def fail_journal(path, value):
+            if path.name == 'code_repair_transaction_v1.json':
+                raise OSError('injected code journal failure')
+            return real_artifact_write(path, value)
+        with patch.object(code_recovery, '_write_or_verify', side_effect=fail_journal):
+            with self.assertRaisesRegex(OSError, 'injected code journal failure'):
+                replan(self.plan, state, self.directory)
+        self.assertEqual(state, original)
+        self.assertTrue(replan(self.plan, state, self.directory))
+        write_state(self.directory / 'state.json', state)
+        real_state_write = code_recovery.write_state
+        def fail_commit(path, value):
+            if path.name == 'code_repair_transaction_v1.json':
+                raise OSError('injected code commit failure')
+            return real_state_write(path, value)
+        with patch.object(code_recovery, 'write_state', side_effect=fail_commit):
+            with self.assertRaisesRegex(OSError, 'injected code commit failure'):
+                code_recovery.finalize_transaction(state, self.directory)
+        self.assertEqual(state['code_repair_revision']['status'], 'REVISION_PREPARED')
+        self.assertEqual(json.loads((self.directory /
+            'code_repair_transaction_v1.json').read_text())['transaction_state'],
+            'REVISION_PREPARED')
+        code_recovery.finalize_transaction(state, self.directory)
+        self.assertEqual(state['code_repair_revision']['status'], 'REVISION_ACTIVE')
+        self.assertEqual(json.loads((self.directory /
+            'code_repair_transaction_v1.json').read_text())['transaction_state'],
+            'REVISION_COMMITTED')
+        active = deepcopy(state)
+        self.assertFalse(replan(self.plan, state, self.directory))
+        self.assertEqual(state, active)
+
     def test_interrupted_patch_backup_restores_and_resumes(self):
         state = self._initial_failure()
         authorize_fixture(self.plan, state, self.directory,
             candidate=GOOD, approved_by='FIXTURE_TEST_OWNER')
         self.assertTrue(replan(self.plan, state, self.directory))
         write_state(self.directory / 'state.json', state)
+        self.assertEqual(json.loads((self.directory /
+            'code_repair_transaction_v1.json').read_text())['transaction_state'],
+            'REVISION_PREPARED')
         source = fixture_source(self.directory)
         source.with_name('.experiment.py.repair-backup').write_bytes(source.read_bytes())
         source.write_text(BAD)
@@ -198,6 +250,9 @@ class CodeRecoveryTests(unittest.TestCase):
         self.assertEqual(result['status'], 'RESEARCH_COMPLETED_EXPLORATORY')
         repaired = json.loads((self.directory / 'code_repair_result.json').read_text())
         self.assertTrue(repaired['recovered_interruption'])
+        self.assertEqual(json.loads((self.directory /
+            'code_repair_transaction_v1.json').read_text())['transaction_state'],
+            'REVISION_COMMITTED')
 
     def test_verified_patch_before_checkpoint_is_reused(self):
         state = self._initial_failure()
@@ -269,9 +324,15 @@ class CodeRecoveryTests(unittest.TestCase):
                          'REVISION_ROLLED_BACK')
         self.assertEqual(interrupted['goal_id'], first['goal_id'])
         self.assertEqual(interrupted['tasks'], first['tasks'])
+        self.assertEqual(json.loads((self.directory /
+            'code_repair_transaction_v1.json').read_text())['transaction_state'],
+            'REVISION_COMMITTED')
         self.assertEqual(hashlib.sha256(source.read_bytes()).hexdigest(), source_sha)
         resumed = run_research_program(GOAL, self.directory)
         self.assertEqual(resumed['status'], 'RESEARCH_BLOCKED')
+        self.assertEqual(json.loads((self.directory /
+            'code_repair_transaction_v1.json').read_text())['transaction_state'],
+            'REVISION_ROLLED_BACK')
         self.assertEqual(json.loads((self.directory / 'state.json').read_text())[
             'records']['analyze_fixture']['attempts'], 1)
 

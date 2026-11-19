@@ -10,6 +10,8 @@ from copy import deepcopy
 from pathlib import Path
 
 from .engine import canonical, now, write_state
+from .api_recovery import (_saved as _journal_saved,
+                           _transaction_identity, _write_or_verify)
 from .research_planner import _task, validate_plan
 from .self_repair import repair_research_source
 
@@ -123,12 +125,9 @@ def replan(plan: dict, state: dict, program_dir: Path) -> bool:
         'original_plan_sha256': state['plan_sha256'],
         'goal_contract_sha256': state['goal_contract_sha256'],
         'previous_dag_sha256': hashlib.sha256(canonical(state['tasks'])).hexdigest(),
-        'previous_analysis_task': old_analysis, 'previous_analysis_record': old_record,
-        'status': 'REVISION_PREPARED', 'created_at_utc': now()}
+        'previous_analysis_task': old_analysis, 'previous_analysis_record': old_record}
     revision_path = program_dir / 'code_repair_revision_v1.json'
-    if revision_path.exists() or revision_path.is_symlink():
-        raise ValueError('Code repair revision already exists')
-    write_state(revision_path, revision)
+    _write_or_verify(revision_path, revision)
     digest = _sha(revision_path)
     task = _task('code_repair_fixture', 'CODE_REPAIR_TASK', 10,
         inputs={'revision_sha256': digest, 'failed_task_id': 'analyze_fixture'})
@@ -138,8 +137,34 @@ def replan(plan: dict, state: dict, program_dir: Path) -> bool:
     candidate['records']['analyze_fixture'] = {'status': 'PENDING',
         'attempts': old_record['attempts']}
     validate_plan(dict(plan, tasks=candidate['tasks']))
+    proposed_dag_sha = hashlib.sha256(canonical(candidate['tasks'])).hexdigest()
+    transaction_path = program_dir / 'code_repair_transaction_v1.json'
+    transaction = {'schema_version': 1, 'revision_id': digest[:24],
+        'transaction_state': 'REVISION_PREPARED',
+        'original_plan_sha256': state['plan_sha256'],
+        'goal_contract_sha256': state['goal_contract_sha256'],
+        'previous_dag_sha256': revision['previous_dag_sha256'],
+        'proposed_dag_sha256': proposed_dag_sha,
+        'changed_task_ids': ['code_repair_fixture', 'analyze_fixture'],
+        'approval_sha256': proposal['approval_sha256'],
+        'recovery_evidence_sha256': proposal['error_evidence_sha256'],
+        'revision_sha256': digest, 'rollback_target': 'PREVIOUS_BLOCKED_DAG',
+        'completed_task_hashes': {key: value.get('checkpoint_sha256')
+            for key, value in state['records'].items() if value['status'] in
+            {'VERIFIED', 'COMPLETED_EXPLORATORY'}},
+        'created_at_utc': now(), 'committed_at_utc': None,
+        'validation_result': 'PASS'}
+    if transaction_path.exists():
+        prior = _journal_saved(transaction_path)
+        if prior['transaction_state'] != 'REVISION_PREPARED':
+            raise ValueError('Code repair transaction is not preparable')
+        transaction['created_at_utc'] = prior['created_at_utc']
+    _write_or_verify(transaction_path, transaction)
     candidate['code_repair_revision'] = {'path': str(revision_path),
-        'sha256': digest, 'status': 'REVISION_ACTIVE',
+        'sha256': digest, 'status': 'REVISION_PREPARED',
+        'transaction_path': str(transaction_path),
+        'transaction_identity_sha256': _transaction_identity(
+            _journal_saved(transaction_path)),
         'previous_dag_sha256': revision['previous_dag_sha256']}
     candidate.setdefault('plan_versions', []).append({'version': 2,
         'reason': 'CODE_ERROR', 'revision_sha256': digest,
@@ -151,6 +176,53 @@ def replan(plan: dict, state: dict, program_dir: Path) -> bool:
     state.clear()
     state.update(candidate)
     return True
+
+
+def finalize_transaction(state: dict, program_dir: Path) -> None:
+    """Commit or roll back the code revision after its checkpoint is durable."""
+    ref = state.get('code_repair_revision')
+    if not ref:
+        return
+    if not ref.get('transaction_path'):
+        # The first fixture E2E checkpoint predates this journal. Preserve its
+        # terminal evidence; never infer that a prepared legacy repair committed.
+        if (ref.get('status') == 'REVISION_ACTIVE' and
+                state['records'].get('code_repair_fixture', {}).get('status') == 'VERIFIED'
+                and state['records'].get('analyze_fixture', {}).get('status') ==
+                'COMPLETED_EXPLORATORY') or (
+                ref.get('status') == 'REVISION_ROLLED_BACK' and
+                state.get('retired_recovery_tasks')):
+            return
+        raise ValueError('Legacy code repair has no committed journal')
+    revision_path = program_dir / 'code_repair_revision_v1.json'
+    transaction_path = program_dir / 'code_repair_transaction_v1.json'
+    if (ref['path'] != str(revision_path) or
+            ref['transaction_path'] != str(transaction_path) or
+            _sha(revision_path) != ref['sha256']):
+        raise ValueError('Code repair revision identity changed')
+    tx = _journal_saved(transaction_path)
+    if (_transaction_identity(tx) != ref['transaction_identity_sha256'] or
+            tx['original_plan_sha256'] != state['plan_sha256'] or
+            tx['goal_contract_sha256'] != state['goal_contract_sha256'] or
+            tx['revision_sha256'] != ref['sha256']):
+        raise ValueError('Code repair transaction identity changed')
+    dag_sha = hashlib.sha256(canonical(state['tasks'])).hexdigest()
+    if ref['status'] == 'REVISION_ROLLED_BACK':
+        if dag_sha != tx['previous_dag_sha256']:
+            raise ValueError('Rolled-back code DAG changed')
+        if tx['transaction_state'] != 'REVISION_ROLLED_BACK':
+            tx.update(transaction_state='REVISION_ROLLED_BACK',
+                      rolled_back_at_utc=now())
+            write_state(transaction_path, tx)
+        return
+    if dag_sha != tx['proposed_dag_sha256']:
+        raise ValueError('Prepared code repair DAG changed')
+    if tx['transaction_state'] == 'REVISION_PREPARED':
+        tx.update(transaction_state='REVISION_COMMITTED', committed_at_utc=now())
+        write_state(transaction_path, tx)
+    elif tx['transaction_state'] != 'REVISION_COMMITTED':
+        raise ValueError('Code repair transaction state invalid')
+    ref['status'] = 'REVISION_ACTIVE'
 
 
 def execute_task(plan: dict, task: dict, program_dir: Path,
@@ -203,6 +275,16 @@ def rollback_failed_repair(plan: dict, state: dict, program_dir: Path) -> bool:
     revision_path = program_dir / 'code_repair_revision_v1.json'
     if _sha(revision_path) != revision_ref['sha256']:
         raise ValueError('Code repair revision changed before rollback')
+    if not revision_ref.get('transaction_path'):
+        raise ValueError('Code repair rollback has no transaction journal')
+    tx = _journal_saved(program_dir / 'code_repair_transaction_v1.json')
+    if (_transaction_identity(tx) != revision_ref['transaction_identity_sha256'] or
+            tx['revision_sha256'] != revision_ref['sha256'] or
+            tx['original_plan_sha256'] != state['plan_sha256'] or
+            tx['goal_contract_sha256'] != state['goal_contract_sha256'] or
+            any(state['records'].get(key, {}).get('checkpoint_sha256') != digest
+                for key, digest in tx['completed_task_hashes'].items())):
+        raise ValueError('Code repair transaction changed before rollback')
     revision = json.loads(revision_path.read_text())
     source = fixture_source(program_dir)
     original = revision['original_source_text'].encode()

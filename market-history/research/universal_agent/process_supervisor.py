@@ -235,6 +235,7 @@ def run_research_program(goal: str, program_dir: Path | None = None,
     program_dir = program_dir or JOB_ROOT / 'programs' / plan['goal_id']
     if program_dir.is_symlink() or not program_dir.resolve().is_relative_to(JOB_ROOT):
         raise ValueError('Program path outside private research root')
+    program_dir = program_dir.resolve()
     with locked_state(program_dir) as checkpoint:
         if ai_candidate is not None:
             candidate_path = program_dir / 'ai_program_candidate.json'
@@ -349,8 +350,24 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                         hashlib.sha256(saved_checkpoint.read_bytes()).hexdigest() !=
                         saved_record['checkpoint_sha256']):
                     raise ValueError('Retired recovery checkpoint changed')
+        if state['status'] == 'RESEARCH_COMPLETED_EXPLORATORY':
+            report_path = program_dir / 'research_report.json'
+            if report_path.is_symlink() or not report_path.is_file():
+                raise ValueError('Completed research report missing')
+            completed = json.loads(report_path.read_text())
+            if (completed['goal_id'] != state['goal_id'] or
+                    completed['goal_contract_sha256'] != state['goal_contract_sha256'] or
+                    completed['status'] != state['status'] or
+                    completed['task_statuses'] != {key: value['status']
+                        for key, value in state['records'].items()}):
+                raise ValueError('Completed research report changed')
+            return completed
         if state.get('api_recovery_revision'):
             from .api_recovery import finalize_transaction
+            finalize_transaction(state, program_dir)
+            write_state(checkpoint, state)
+        if state.get('code_repair_revision'):
+            from .code_recovery import finalize_transaction
             finalize_transaction(state, program_dir)
             write_state(checkpoint, state)
         if (program_dir / 'STOP').exists():
@@ -369,6 +386,10 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                 write_state(checkpoint, state)
                 if proposal['problem_type'] == 'API_ERROR':
                     from .api_recovery import finalize_transaction
+                    finalize_transaction(state, program_dir)
+                    write_state(checkpoint, state)
+                elif proposal['problem_type'] == 'CODE_ERROR':
+                    from .code_recovery import finalize_transaction
                     finalize_transaction(state, program_dir)
                     write_state(checkpoint, state)
         validate_plan(dict(plan, tasks=state['tasks']))
@@ -577,8 +598,10 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                 finalize_transaction(state, program_dir)
                 write_state(checkpoint, state)
         if state.get('code_repair_revision'):
-            from .code_recovery import rollback_failed_repair
+            from .code_recovery import rollback_failed_repair, finalize_transaction
             if rollback_failed_repair(plan, state, program_dir):
+                write_state(checkpoint, state)
+                finalize_transaction(state, program_dir)
                 write_state(checkpoint, state)
         if (program_dir / 'STOP').exists():
             state['status'] = 'RESEARCH_CANCELLED'

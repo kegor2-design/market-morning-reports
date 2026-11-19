@@ -1,5 +1,6 @@
 """Real OS process interruption of the research-only Supervisor and Worker."""
 import json
+import multiprocessing
 from datetime import datetime, timedelta, timezone
 import os
 import signal
@@ -11,6 +12,10 @@ import unittest
 from pathlib import Path
 
 from universal_agent.research_job import PRIVATE_ROOT, _worker_identity, supervise
+
+
+def _run_with_outer_deadline(manifest, job, deadline):
+    supervise(manifest, job, outer_deadline_utc=deadline)
 
 
 class ProcessRecoveryTests(unittest.TestCase):
@@ -78,6 +83,34 @@ class ProcessRecoveryTests(unittest.TestCase):
         self.assertEqual(json.loads((self.job / 'job.json').read_text())['status'],
                          'FAILED_TERMINAL')
         self.assertIsNone(_worker_identity(result['worker_pid'], self.job.resolve()))
+
+    def test_stopped_owned_worker_is_killed_after_shutdown_grace(self):
+        deadline = datetime.now(timezone.utc) + timedelta(seconds=1)
+        supervisor = multiprocessing.get_context('fork').Process(
+            target=_run_with_outer_deadline,
+            args=(self.manifest, self.job, deadline))
+        started = time.monotonic()
+        supervisor.start()
+        worker_pid = None
+        try:
+            state = self.active()
+            worker_pid = state['worker_pid']
+            os.kill(worker_pid, signal.SIGSTOP)
+            supervisor.join(timeout=7)
+            self.assertFalse(supervisor.is_alive())
+            final = json.loads((self.job / 'job.json').read_text())
+            self.assertEqual(final['status'], 'FAILED_TERMINAL')
+            self.assertEqual(final['reason'], 'Wall-time budget exhausted')
+            self.assertIsNone(_worker_identity(worker_pid, self.job.resolve()))
+            self.assertLess(time.monotonic() - started, 6)
+            self.assertTrue(any(event.get('event') == 'WORKER_EXITED' and
+                event.get('exit_code') == -signal.SIGKILL for event in final['events']))
+        finally:
+            if supervisor.is_alive():
+                supervisor.kill()
+                supervisor.join()
+            if worker_pid and _worker_identity(worker_pid, self.job.resolve()) is not None:
+                os.kill(worker_pid, signal.SIGKILL)
 
     def test_worker_killed_after_result_before_final_state(self):
         data = json.loads(self.manifest.read_text())
