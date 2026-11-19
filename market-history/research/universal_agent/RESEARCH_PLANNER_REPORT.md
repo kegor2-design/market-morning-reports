@@ -51,3 +51,9 @@ The reviewed dynamic Planner and existing Capability Registry were unchanged in 
 The 2026-11-19 continuation added a narrowly reviewed `ISOLATED_CODE_FIXTURE` plan and `CODE_REPAIR_TASK` capability. A host-approved candidate completed the fixture DAG through the persistent Queue. This does not expand the supported real-market research plan set. The Codex CLI still lacks a verified enforceable per-call monetary ceiling, so actual AI plan generation and AI-generated patch calls remain blocked; calls made here: **0**.
 
 An external Provider recovery approval schema was also added as a policy-only validator. It does not authorize runtime execution or change the model cost gate.
+
+## 2026-11-19 model boundary review
+
+The installed Codex executable and its local authentication/configuration files exist; their contents were not copied to the research Worktree or reports. `isolated_codex.py` reserves a call before its external side effect, bounds time and output Schema, and runs under Bubblewrap. `ai_research_planner.request_plan` accepts only a separately supplied one-call cost contract and currently allows actual execution only through an injected test Provider. Its production Codex route explicitly returns `BLOCKED_COST_ENFORCEMENT` because the available CLI path has no reviewed enforceable per-call monetary ceiling. A declared dollar estimate is insufficient. No real planner or repair model call was made in this continuation; model-generated plan and patch gates remain BLOCKED.
+
+New `AttributeError` and `TypeError` fixture Goals demonstrate Problem Solver and DAG repair reuse for different Python exception evidence, but their patches were host-supplied. The executable planner still supports only reviewed Capability Registry actions and cannot turn arbitrary new market goals into a validated DAG. No live external Provider request, official PIT acquisition or new market holdout was authorized here.

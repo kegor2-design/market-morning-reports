@@ -195,3 +195,24 @@ PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest
 ```
 
 The Universal Agent suite needs local loopback socket and Bubblewrap namespace permission. Python module execution needs no `chmod`. Next code task: finish the remaining API-specific P0 faults and P1 time/clock audits without rerunning terminal Goals. The pre-journal completed fixture Queue was reconciled at generation 9 with a recorded previous/current hash event after terminal state and report timestamp rewrites; no Task was rerun.
+
+## Session C priority continuation — 2026-11-19
+
+- Start SHA `6ff0e02b1096320f721e4c9facce0bb347075f81`; verified code commit `f57f9b6` on branch `research/universal-agent-session-c-priority-completion-20261119`, Worktree `/home/kegor2/market-morning-reports-session-c-priority`.
+- Phase: P0/P1/P2 partial verification. API-specific R6 and R8 now pass; P0 full per-point hash/ledger matrix remains BLOCKED. Persistent same-boot monotonic Deadline, backward-clock injection, boot-change fail-closed and Supervisor Deadline restart pass; P1 exact elapsed-time matrix remains BLOCKED.
+- New AttributeError Goal `research_3eb6de5bd6d8`: `COMPLETED_EXPLORATORY` in `.universal_private/session_c_attribute_repair_e2e_v3/state.json`; analysis attempts 2, repair attempts 1, network/model calls 0, terminal rerun processed 0. A TypeError Queue E2E also passed in disposable test storage. Existing completed Goals and their Checkpoints were not rerun.
+- Two earlier attempts in this Worktree are retained as private evidence: `research_09584b526eba` is correctly `UNSUPPORTED` because its fixture Goal contained a market-style date; `research_9fe03e56d13f` is `BLOCKED_EVIDENCE` with `SANDBOX_ERROR` from a restricted Bubblewrap launch. Neither is a completed repair Goal.
+- Regression: Universal Agent 194 PASS, Regime190 55 PASS, compileall PASS, diff check PASS. No research Worker running at handoff. Ignored Naver CSV snapshots were copied with their prior hashes for Regime190 tests; they must stay out of Git.
+- Next: add common R1–R8 per-point Goal/DAG/source/completed-task/approval/request ledger assertions and a T1–T8 timing audit with UTC start/end and grace bounds. Review a safe reboot clock reconciliation rule before allowing automatic continuation across boot IDs. Then extend Self Repair to a reviewed non-fixture analysis Capability. Actual paid model calls need a Provider-enforced cost ceiling and explicit approval. Official Korean PIT/KRX and a new market holdout remain unavailable.
+
+Exact resume commands:
+
+```bash
+cd /home/kegor2/market-morning-reports-session-c-priority
+git fetch --all --prune
+git status --short --branch
+git log -3 --oneline
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.research_runtime status --queue-dir .universal_private/session_c_attribute_repair_e2e_v3
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/universal_agent/tests -q
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/regime190/tests -q
+```

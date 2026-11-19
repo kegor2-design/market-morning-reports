@@ -60,3 +60,35 @@ For runtime, prior tests cover normal completion, persistent Deadline after rest
 Completed fixture Tasks now compare the saved analysis or repair source hash with the current `experiment.py` before program resume. A source-tampering injection was rejected while retaining the completed Checkpoint; the terminal Queue itself was not replayed.
 
 A manual inspection reopened the earlier completed fixture Program through a relative path and exposed a legacy behavior that rewrote terminal state and report timestamps. The Program now returns a validated completed report without rewriting either file; a regression test compares both hashes before and after reopening. The single affected private Queue was reconciled under its lock after verifying Goal and plan hashes, both Task attempt counts, exact answer 42, source hash, and zero network/model calls. Queue generation 9 records the previous and current Checkpoint/report hashes. A terminal rerun processed zero jobs and the Queue passed integrity loading.
+
+## 2026-11-19 priority continuation: API rollback and Deadline faults
+
+Starting code SHA `6ff0e02b1096320f721e4c9facce0bb347075f81`; verified code commit `f57f9b6`. All new fault trials used disposable private directories. The preserved API and NameError fixture Goals were not rerun. The API R6/R8 tests use an actual local HTTP server and child Research Workers; they do not use an external Provider.
+
+| ID | Injection and direct evidence | Result | Remaining qualification |
+|---|---|---|---|
+| R1 | Existing approval rejection before Revision creation | PASS for unchanged active DAG | Full per-point ledger/hash matrix not recorded |
+| R2 | Existing API journal write `OSError` | PASS for unchanged in-memory state and safe replay | Full per-point ledger/hash matrix not recorded |
+| R3 | Existing prepared Checkpoint and pre-commit write failure | PASS for same Revision commit on replay | Full per-point ledger/hash matrix not recorded |
+| R4 | Existing API recovery child Worker `SIGKILL` | PASS for one uncertain recovery reservation and no resend | Full per-point ledger/hash matrix not recorded |
+| R5 | Existing malformed HTTP 200 recovery body | PASS for original DAG and blocked analysis | Full per-point ledger/hash matrix not recorded |
+| R6 | New API recovery succeeds; parent independent analysis artifact verification raises injected `ValueError` | PASS: prior DAG and Goal/plan/contract hashes restored; retired recovery Task remains `VERIFIED`, failed analysis remains `FAILED`, original requests 3 plus one recovery request; no completed analysis | Real provider and full common invariant audit remain blocked |
+| R7 | Existing duplicate Revision attempt | PASS for rejection without state mutation | Full per-point ledger/hash matrix not recorded |
+| R8 | New API bad-response rollback Checkpoint is written, then only its Supervisor receives `SIGKILL` | PASS: restart marks the same Journal `REVISION_ROLLED_BACK`, restores original DAG, analysis attempts 0, request count 4 | Real provider and full common invariant audit remain blocked |
+
+These API-specific R6/R8 results close the earlier capability gap. `ROLLBACK_FAULT_MATRIX_8_OF_8_VERIFIED` remains **BLOCKED** because each row has not yet captured every requested source/completed Task hash, ledger, approval and Checkpoint-generation invariant. Existing tests are retained without weaker assertions.
+
+The Goal checkpoint now stores a Linux boot ID and absolute monotonic Deadline alongside its UTC Deadline. On the same boot, remaining time is the minimum of both clocks. Child analysis and code-repair tasks receive that smaller allowance. A mocked wall clock ten minutes behind did not renew an expired monotonic budget or start another Task. A simulated boot-ID change blocked new work with `GOAL_BOOT_CHANGED_REVIEW`; this is a deliberate fail-closed choice, so unattended continuation across a real reboot needs a separately reviewed clock reconciliation rule.
+
+| ID | Current evidence | Result |
+|---|---|---|
+| T1 | Existing completed fixture Goal and terminal zero-work rerun | PASS for normal completion; exact time audit pending |
+| T2 | Existing delayed child Worker outer Deadline | PASS for timeout and terminal Checkpoint; exact whole-Goal bound pending |
+| T3 | Persistent UTC/monotonic Deadline and larger restart budget | PASS for no extension and unchanged Task attempts |
+| T4 | Existing slow code-repair candidate reaches Goal Deadline | PASS for source/DAG rollback and zero network calls |
+| T5 | New real Supervisor `SIGKILL`, restart with same outer Deadline | PASS for one Worker attempt, no duplicate completion, terminal timeout within six seconds |
+| T6 | Existing `SIGSTOP` Worker ignores termination, then research-only `SIGKILL` after two-second grace | PASS within six seconds |
+| T7 | Existing three repeated restarts plus new backward-clock injection | PASS for no budget renewal or new Task attempts |
+| T8 | Existing expired Goal is invoked again | PASS for blocked result and no new Task attempts |
+
+The test process measured the T5/T6 elapsed bounds with `time.monotonic()`. Exact start/end timestamps and allowed grace for every T1–T8 case are not yet in a unified audit artifact; `GOAL_DEADLINE_MATRIX_8_OF_8_VERIFIED` and `STRICT_GOAL_DEADLINE_VERIFIED` remain **BLOCKED**. Universal Agent 194 PASS, Regime190 55 PASS, `compileall` and `git diff --check` PASS for this code commit.
