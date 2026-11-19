@@ -94,6 +94,23 @@ class ApiRecoveryDagTests(unittest.TestCase):
                 'api_recovery_revision']['status'], 'REVISION_PREPARED')
             api_recovery.finalize_transaction(state, directory)
             self.assertEqual(state['api_recovery_revision']['status'], 'REVISION_ACTIVE')
+            # The journal may commit before the active checkpoint is rewritten.
+            # Reopening that prepared checkpoint must finish the same revision.
+            interrupted = json.loads((directory / 'state.json').read_text())
+            self.assertEqual(interrupted['api_recovery_revision']['status'],
+                             'REVISION_PREPARED')
+            api_recovery.finalize_transaction(interrupted, directory)
+            self.assertEqual(interrupted['api_recovery_revision']['status'],
+                             'REVISION_ACTIVE')
+            self.assertEqual(interrupted['active_revision_sha256'],
+                             state['active_revision_sha256'])
+            snapshot = deepcopy(interrupted)
+            with mock.patch.object(api_recovery, 'diagnose', return_value=evidence), \
+                 mock.patch.object(api_recovery, 'validate_approval', return_value={
+                     'approved': True}):
+                with self.assertRaisesRegex(ValueError, 'already exists'):
+                    api_recovery.replan(plan, interrupted, directory)
+            self.assertEqual(interrupted, snapshot)
             tx_path = directory / 'api_recovery_transaction_v1.json'
             changed = json.loads(tx_path.read_text())
             changed['previous_analysis_record']['attempts'] = 99

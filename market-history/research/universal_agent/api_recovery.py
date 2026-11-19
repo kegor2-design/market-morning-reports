@@ -193,6 +193,8 @@ def validate_approval(evidence: dict, program_dir: Path) -> dict | None:
 
 
 def replan(plan: dict, state: dict, program_dir: Path) -> bool:
+    if state.get('api_recovery_revision'):
+        raise ValueError('API recovery revision already exists')
     evidence = diagnose(plan, state, program_dir)
     if evidence is None:
         return False
