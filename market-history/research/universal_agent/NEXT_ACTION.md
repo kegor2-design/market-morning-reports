@@ -148,3 +148,26 @@ PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest
 ```
 
 The second command needs local loopback socket permission for the HTTP interruption tests. Both existing research programs are checkpointed; resuming them should not repeat completed source requests.
+# Session C recovery reliability handoff — 2026-11-18
+
+- Branch: `research/universal-agent-session-c-recovery-reliability-20261118`, based on `c903ef4f8a7bf93462689c34107465638496ed76`. The verified code and final report SHAs are recorded in the latest Git log and `AGENT_STATUS.json` after push.
+- Completed locally: API Recovery DAG prepare/commit journal; malformed-response rollback to the original DAG with failed request evidence retained; bounded 429 Retry-After wait in the persistent queue; persistent Goal deadline without reset on restart; shared Calendar/Schema/API Problem Solver selection. Existing completed fixture Goal `research_b7188d9b5674` remains `COMPLETED_EXPLORATORY` at queue generation 6. No external Provider or model call was made.
+- Remaining: full eight-point transaction fault matrix, exact child and Supervisor termination at Goal deadline, external Provider approval contract and approved live trial, isolated Self Repair DAG and rollback, actual AI plan with enforceable paid-model ceiling, official PIT and independent holdout. These gates remain BLOCKED.
+- Required approval: explicit bounded external Provider recovery scope before a new live request; an enforceable monetary ceiling and explicit model/provider approval before paid AI generation. Local fixture approval does not transfer to either scope.
+- Running research Worker: none expected after the test suite exits. Private Checkpoint: `.universal_private/session_c_api_recovery_e2e/state.json`. Do not delete or replay terminal Goals.
+
+Resume commands (Python module invocation needs no `chmod`):
+
+```bash
+cd /home/kegor2/market-morning-reports-session-c
+git fetch --all --prune
+git status --short --branch
+git log -3 --oneline
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.research_runtime status --queue-dir .universal_private/session_c_api_recovery_e2e
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/universal_agent/tests -q
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/regime190/tests -q
+```
+
+2026-11-19 continuation: verified code commit `90dcefd`; the parent Goal deadline is now passed to each child Research Job. A real delayed child was stopped at the outer deadline and saved `FAILED_TERMINAL` with no duplicate completion. A pre-commit transaction write failure left the prepared state intact and a replay committed it. Universal Agent 172 PASS, Regime190 55 PASS, compileall and diff check PASS. This is bounded child termination with shutdown grace; an exact whole-Goal deadline and the remaining P0 fault matrix are still pending. No external Provider or model calls were made.
+
+Next implementation: complete the P0 rollback fault matrix and strict whole-Goal deadline, then design a separate external Provider approval contract and isolated Self Repair DAG. Keep model and official-source claims blocked until their approval and evidence exist.

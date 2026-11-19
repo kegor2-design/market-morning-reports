@@ -44,3 +44,6 @@ The four tested goals now produce distinct contracts and DAGs:
 | Bitcoin options/on-chain volume | `research_7b94691cb148` | none | `RESEARCH_UNSUPPORTED` |
 
 An explicit Korean PIT block plus independent US rates request creates parent `research_1cd527aaf330` and child `research_83885459d618` with separate contracts and statuses. The parent remains blocked when the child completes exploratory research. A Korean-only goal never creates US rates work. ISO date windows are honored within the reviewed Treasury/SOFR range; unsupported or ambiguous dates fail closed. The AI planner is still unavailable: this is a reviewed rule-based planner with zero model calls. General open-ended planning remains blocked.
+# Recovery reliability continuation — 2026-11-18
+
+The reviewed dynamic Planner and existing Capability Registry were unchanged. The API Recovery Task now carries a sealed transaction journal and bounded Retry-After schedule into the persistent queue. Local fixture approval is the only executable API recovery scope. No external Provider approval contract, enforceable paid-model cost ceiling, actual model-generated plan, or AI-generated code patch was established. Model calls in this continuation: **0**. The corresponding gates remain BLOCKED.

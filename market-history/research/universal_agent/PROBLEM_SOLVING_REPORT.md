@@ -1,5 +1,15 @@
 # Session C problem solving checkpoint
 
+## Recovery reliability continuation — 2026-11-18
+
+API recovery now writes a prepared transaction journal before activating the revised DAG. The journal seals the original plan and Goal Contract hashes, prior and proposed DAG hashes, analysis dependency change, approval and failure evidence hashes, and completed Task hashes. The Supervisor checkpoints the candidate DAG, commits the journal, then marks the Revision active. An injected journal-write failure left the original in-memory state unchanged; a subsequent preparation reused the sealed Revision. Journal identity tampering was rejected.
+
+A malformed HTTP 200 recovery response was reproduced through an actual local HTTP server and child Research Worker. The failed recovery Task and request reservation remained in `retired_recovery_tasks`; the original DAG hash and blocked Goal were restored. The queue performed zero additional requests on restart. This is a local fixture rollback result. Failure injection at every Revision boundary and Supervisor termination during rollback remain unverified.
+
+The existing Calendar, Schema and API handlers now share `solve_recovery` selection in both the Program Supervisor and persistent queue. It checks the registered problem classification and selects at most one recovery action per pass. The individual handlers retain their evidence and permission checks. Isolated code Self Repair has not been wired into this DAG.
+
+For HTTP 429, a definite response now permits a bounded `Retry-After` value of 0–25 seconds or a valid HTTP date. The original source checkpoint time fixes the next eligible request time. A queue restart during a 15-second wait preserved that time and spent no launch or network budget; after the delay the approved recovery Task resumed the original analysis. Missing, invalid and excessive values fail closed. A two-second delta and HTTP-date parser are unit verified. External Provider approval and recovery remain blocked; the local fixture approval cannot authorize them.
+
 ## Versioned API recovery DAG — 2026-11-18
 
 The Problem Solver now diagnoses an original `DATA_ACQUISITION` Task only when its sealed Research Job and data recovery checkpoint show one definite HTTP 429/500/502/503/504 response. The diagnosis retains the original request hash, failed job hash, error-evidence hash, Source ID, series, period and original Goal Contract hash. HTTP 404/401/403 and uncertain timeout/reset outcomes cannot create a recovery Task. Local 429 recovery additionally requires `Retry-After: 0`; other rate-limit delays remain blocked pending a reviewed bounded schedule.
@@ -43,5 +53,7 @@ The calendar repair is limited to reviewed 2018 and 2019 SIFMA full closures. It
 | May 2018 rate analysis blocked | Three collection tasks reported `BLOCKED_EVIDENCE`; 23 weekday dates included a closure | Initially preserved blocked state and ran a separate June goal | Superseded by the original-Goal recovery above |
 | Korean indicator 116 PIT absent | The detached queue returned `BLOCKED_EVIDENCE` | Preserve original Goal and source evidence checkpoint | No official claim |
 | Unsupported A/C/D wording was classified as a generic queue failure | Program reports already said `RESEARCH_UNSUPPORTED` | Add explicit terminal `UNSUPPORTED` queue status and rerun each original goal | Three original contracts persisted with no executable tasks |
+
+The 2026-11-19 transaction fault test injected an `OSError` immediately before the API Revision journal commit. The persisted active Checkpoint stayed `REVISION_PREPARED` and the next finalization committed the same Revision. The original Goal and prepared DAG remained intact; this adds one failure case to the local fault matrix. The full eight-case rollback matrix remains incomplete.
 
 No AI Self Repair or code-generating model was used. No production branch or service changed.
