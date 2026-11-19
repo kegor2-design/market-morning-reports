@@ -42,3 +42,9 @@ Indicator 116 alone remained `RESEARCH_BLOCKED`. Under an explicitly approved in
 # Recovery reliability continuation — 2026-11-18
 
 The prior completed local fixture Goal `research_b7188d9b5674` and its source hashes were preserved. New isolated HTTP 503 and 429 fault runs used actual child Research Workers. A valid recovery response completed the original rate-analysis Goal exploratorily; an invalid 200 response instead rolled back the revised DAG to the original blocked plan, retained the failure record and spent request, and did not run analysis. Replaying either terminal queue made zero new requests. A delayed 429 run waited for the checkpointed eligibility time before recovery. All payloads in these trials are fixtures; no official market, PIT, holdout or predictive-performance claim follows from them.
+
+## 2026-11-19 fixture CODE_ERROR research continuation
+
+Goal `research_8b7007261c55` asked an isolated code fixture to verify the exact answer 42. The first DAG contained `analyze_fixture`, which raised a real `NameError` in a Bubblewrap Worker and saved its traceback and source hash. After a host-approved, prewritten candidate, the common Problem Solver inserted `code_repair_fixture`, validated the patch, and resumed `analyze_fixture`. The final output was exactly 42, independently checked by the host; the original Goal and plan hashes remained unchanged, network and model calls were zero, and a terminal Queue rerun processed zero jobs. Checkpoint: `.universal_private/session_c_code_repair_e2e/state.json` in the isolated Self Repair Worktree. This is a synthetic fixture result, with no market-data or predictive claim.
+
+The incorrect-answer and post-repair analysis-failure trials ended blocked after code and DAG Rollback. Their temporary Checkpoints were removed by the test harness after assertions; the tests remain in `test_code_recovery.py`. No official PIT or independent market holdout was added.

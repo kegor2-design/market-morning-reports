@@ -40,3 +40,21 @@ This verifies detached process survival after the launching shell exited, which 
 New Research Program checkpoints persist `goal_budget_seconds` and `goal_deadline_utc`. A restart with a larger invocation budget retains the original deadline; a deadline fault test confirmed no additional Task attempts and a `GOAL_DEADLINE_EXHAUSTED` blocked result. Legacy checkpoints gain a one-time deadline on their next execution. The Supervisor uses a monotonic clock within an invocation and passes the stored Goal deadline into each child Research Job. A real delayed Worker was stopped at a one-second outer deadline and saved `FAILED_TERMINAL` with zero duplicate completions. Shutdown grace may extend past the exact deadline; Supervisor SIGKILL during rollback and repeated restart timing faults still need verification, so `STRICT_GOAL_DEADLINE_VERIFIED` remains BLOCKED.
 
 The API recovery journal is saved under the existing program lock with atomic file replacement. Injecting a pre-commit journal write failure left the saved active Checkpoint in `REVISION_PREPARED`; a later replay committed it without changing original evidence. Prepared state is resumed by committing the journal after the candidate Checkpoint exists. Failed recovery retains its child Checkpoint hash and network reservation while restoring the prior DAG. A 429 queue wait stores the eligible UTC time and makes no busy-loop calls. The pre-existing completed fixture queue `research_b7188d9b5674` remained `COMPLETED_EXPLORATORY` at generation 6; it was inspected without rerunning its Tasks.
+
+## 2026-11-19 fault and deadline continuation
+
+The isolated code fixture added these reproducible fault points. `test_code_recovery.py` contains the assertions; each test uses a new private Goal directory, while the earlier completed API fixture Queue remains untouched.
+
+| Fault point | Evidence | Result |
+|---|---|---|
+| R1–R3 | Existing API approval rejection, journal-write failure, prepared-Checkpoint replay | Prior active state retained; prepared Revision commits once on replay |
+| R4–R5 | Existing API Recovery Worker SIGKILL and malformed HTTP 200 response | Uncertain request is not replayed; bad data restores prior DAG |
+| R6 | Correct code patch followed by corrupted analysis output | Original source and DAG restored; both error records retained |
+| R7 | Existing duplicate API Revision rejection | No second DAG mutation or request |
+| R8 | Actual Supervisor SIGKILL after code rollback Checkpoint write | Restart returned blocked with the original DAG and one analysis attempt |
+
+These cover the eight fault categories across two fixture capabilities. They do not yet prove every requested invariant for every fault point, nor an API-specific R6/R8 trial. The full P0 matrix gate stays BLOCKED. The fixture repair uses atomic Checkpoint writes, but its Revision artifact is not yet integrated with the API transaction journal.
+
+For runtime, prior tests cover normal completion, persistent Deadline after restart and child timeout. A new slow repair candidate was terminated by its Goal Deadline; the source and DAG rolled back with zero network reservations. Actual Supervisor SIGKILL during patch application resumed from the source backup. An uncooperative Worker shutdown-grace test, repeated restart budget audit, system clock change test and exact whole-Goal elapsed-time bound remain pending, so the P1 eight-case matrix and strict Goal gate stay BLOCKED. The persistent completed code fixture Queue processed zero jobs on rerun.
+
+Completed fixture Tasks now compare the saved analysis or repair source hash with the current `experiment.py` before program resume. A source-tampering injection was rejected while retaining the completed Checkpoint; the terminal Queue itself was not replayed.

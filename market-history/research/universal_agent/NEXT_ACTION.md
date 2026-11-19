@@ -173,3 +173,25 @@ PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest
 Additional P0 check at verified code commit `38a031b`: journal commit followed by an interrupted active-Checkpoint write resumes the same Revision; a duplicate Revision proposal is rejected before DAG mutation. The full eight-case matrix is still pending. Universal Agent 172 PASS after this change; Regime190 55 PASS on the preceding code commit.
 
 Next implementation: complete the P0 rollback fault matrix and strict whole-Goal deadline, then design a separate external Provider approval contract and isolated Self Repair DAG. Keep model and official-source claims blocked until their approval and evidence exist.
+
+## Session C Self Repair continuation — 2026-11-19
+
+- Worktree: `/home/kegor2/market-morning-reports-session-c-selfrepair`; branch: `research/universal-agent-session-c-selfrepair-completion-20261119`, from `eb13f9977226a708d1238218db7d445d880a05ff`. Latest verified code commit: `12d8d61`.
+- Completed: fixture-only `CODE_ERROR` detection, approval-gated `CODE_REPAIR_TASK`, existing Bubblewrap static and runtime validation, failed-patch code/DAG rollback, analysis-verification rollback, actual Supervisor SIGKILL during patch and rollback recovery, original Goal resumption, persistent Queue terminal deduplication. Local Goal `research_8b7007261c55` is `COMPLETED_EXPLORATORY` in `.universal_private/session_c_code_repair_e2e/state.json`; network/model calls are zero. The first blocked path-alias attempt was preserved and then recovered. No actual market or AI-generated repair result follows from this fixture.
+- External Provider approval: policy schema and exact Registry URL validator exist; live execution remains disabled. No external request or model call was made.
+- Still required: all P0 fault invariants at each of eight points, API-specific analysis-failure and rollback-SIGKILL trials, full P1 eight-case deadline matrix with shutdown grace, durable transaction journal for code repair, live Provider terms/access and bounded request approval, enforceable paid-model cost ceiling, official PIT and independent market holdout. Session C, general-purpose and production readiness remain false.
+- The new Worktree lacks Git-ignored Naver snapshots by default. Two files were copied from the preserved prior Worktree with SHA-256 `b243b958aae4ac360527f8d85e38c2696b8be4379bd77a0833ef977ec2595ae3` and `a3cccdd46ef9b6eb3cb6edf69f753f3b4e888f2b887b7b26f4c2e31126ade9fd`; they remain ignored and must not be committed.
+
+Resume commands:
+
+```bash
+cd /home/kegor2/market-morning-reports-session-c-selfrepair
+git fetch --all --prune
+git status --short --branch
+git log -3 --oneline
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.research_runtime status --queue-dir .universal_private/session_c_code_repair_e2e
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/universal_agent/tests -q
+PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/regime190/tests -q
+```
+
+The Universal Agent suite needs local loopback socket and Bubblewrap namespace permission. Python module execution needs no `chmod`. Next code task: integrate code repair with the existing durable DAG transaction journal, then finish remaining P0/P1 fault invariants without rerunning terminal Goals.

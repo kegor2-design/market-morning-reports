@@ -56,4 +56,12 @@ The calendar repair is limited to reviewed 2018 and 2019 SIFMA full closures. It
 
 The 2026-11-19 transaction fault test injected an `OSError` immediately before the API Revision journal commit. The persisted active Checkpoint stayed `REVISION_PREPARED` and the next finalization committed the same Revision. Reopening the prepared Checkpoint after journal commit also activated the same Revision. A duplicate Revision attempt now fails before DAG candidate mutation, leaving the active state unchanged. The original Goal and prepared DAG remained intact; the full eight-case rollback matrix remains incomplete.
 
-No AI Self Repair or code-generating model was used. No production branch or service changed.
+The earlier recovery reliability work used no AI Self Repair or code-generating model. No production branch or service changed.
+
+## 2026-11-19 isolated CODE_ERROR Research DAG
+
+A new fixture-only Goal runs `analyze_fixture` in Bubblewrap. Its deliberately undefined variable produced a sealed `CODE_ERROR` traceback hash. The common Problem Solver selected `CODE_REPAIR_TASK` only after a host-supplied candidate and approval were saved in the private program directory. The candidate passed the existing static validator and ran without network or model access. A correct candidate returned the predeclared answer 42; the original analysis Task then ran again under the same Goal ID and Contract. The persistent Queue `research_8b7007261c55` moved from `BLOCKED_EVIDENCE` to `COMPLETED_EXPLORATORY`. Its first recovery attempt was blocked by a relative-versus-absolute approval path mismatch. The approval was preserved, path validation was corrected, and the same Queue completed on resume.
+
+A candidate returning 41 failed verification and restored the original source hash and DAG. A second fault corrupted the analysis output after successful repair; this also restored the original source and DAG while preserving the first traceback and later bad-output hash. Actual Supervisor SIGKILL during patch application recovered the retained backup; SIGKILL immediately after a rollback Checkpoint write resumed blocked without duplicate analysis. These were reviewed fixture candidates, not model-generated patches. General AI repair remains blocked.
+
+The separate external Provider approval contract validates exact Registry URLs, HTTPS/TLS, no Redirects, one additional idempotent GET, zero cost, expiry, response size and original failure hashes. It returns `POLICY_VALIDATED_ONLY`; the executable API recovery path still accepts only `LOCAL_LOOPBACK_TEST`. No new external Provider call was made, and provider terms/access have not been independently approved for a live recovery trial.
