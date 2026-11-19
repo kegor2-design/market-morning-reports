@@ -91,6 +91,49 @@ class CodeRecoveryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'source changed'):
             run_research_program(GOAL, self.directory)
 
+    def test_attribute_and_type_errors_resume_distinct_queue_goals(self):
+        cases = {
+            'AttributeError': 'value = {"answer": 42}.missing\n',
+            'TypeError': 'value = "40" + 2\n',
+        }
+        for exception_type, failing_line in cases.items():
+            with self.subTest(exception_type=exception_type):
+                goal = ('Fixture code repair research: independently recover '
+                        + exception_type + ' and verify answer 42.')
+                plan = plan_goal(goal)
+                queue_dir = self.directory / ('queue_' + exception_type.lower())
+                submitted = submit(goal, queue_dir)
+                program = queue_dir / 'programs' / submitted['goal_id']
+                source = fixture_source(program)
+                source.write_text('import json\n' + failing_line +
+                    'with open("result.json", "w", encoding="utf-8") as stream:\n'
+                    '    json.dump({"answer": value}, stream)\n')
+                original_sha = hashlib.sha256(source.read_bytes()).hexdigest()
+                first = run(queue_dir, max_jobs=1)
+                self.assertEqual(first['statuses'][plan['goal_id']], 'BLOCKED_EVIDENCE')
+                blocked = json.loads((program / 'state.json').read_text())
+                evidence = json.loads((program / 'code_error_evidence.json').read_text())
+                self.assertEqual(evidence['python_exception_type'], exception_type,
+                                 evidence.get('error_tail'))
+                self.assertEqual(evidence['error_type'], 'CODE_ERROR')
+                self.assertEqual(evidence['source_sha256'], original_sha)
+                authorize_fixture(plan, blocked, program, candidate=GOOD,
+                                  approved_by='FIXTURE_TEST_OWNER')
+                second = run(queue_dir, max_jobs=1)
+                self.assertEqual(second['statuses'][plan['goal_id']],
+                                 'COMPLETED_EXPLORATORY')
+                final = json.loads((program / 'state.json').read_text())
+                self.assertEqual(final['goal_id'], blocked['goal_id'])
+                self.assertEqual(final['goal_contract_sha256'],
+                                 blocked['goal_contract_sha256'])
+                self.assertEqual(final['records']['analyze_fixture']['attempts'], 2)
+                self.assertEqual(final['records']['code_repair_fixture']['attempts'], 1)
+                self.assertEqual(final['network_requests_reserved'], 0)
+                self.assertEqual(final['model_calls'], 0)
+                self.assertEqual(json.loads((program /
+                    'fixture_analysis_result.json').read_text())['result']['answer'], 42)
+                self.assertEqual(run(queue_dir, max_jobs=1)['processed'], 0)
+
     def test_bad_patch_rolls_back_code_and_dag(self):
         first = self._initial_failure()
         source = fixture_source(self.directory)

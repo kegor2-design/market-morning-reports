@@ -4,6 +4,7 @@ import contextlib
 import hashlib
 import http.server
 import json
+import multiprocessing
 import os
 import signal
 import socket
@@ -17,7 +18,7 @@ from copy import deepcopy
 from pathlib import Path
 from unittest import mock
 
-from universal_agent import api_recovery
+from universal_agent import api_recovery, research_job
 from universal_agent.api_recovery import authorize_local
 from universal_agent.ai_research_planner import capability_registry
 from universal_agent.engine import canonical, write_state
@@ -25,8 +26,22 @@ from universal_agent.isolated_codex import PRIVATE_ROOT
 from universal_agent.research_planner import _task, dates_for, plan_goal
 from universal_agent.research_runtime import submit
 from universal_agent.problem_solver import recovery_capability_registry
+from universal_agent.process_supervisor import run_research_program
 
 GOAL = 'Study Treasury yield spread and SOFR from 2018-06-01 to 2018-06-29.'
+
+
+def _kill_after_api_rollback(directory):
+    from universal_agent import process_supervisor
+    original = process_supervisor.write_state
+    def checkpoint_then_kill(path, value):
+        original(path, value)
+        if (path.name == 'state.json' and
+                value.get('api_recovery_revision', {}).get('status') ==
+                'REVISION_ROLLED_BACK'):
+            os.kill(os.getpid(), signal.SIGKILL)
+    process_supervisor.write_state = checkpoint_then_kill
+    process_supervisor.run_research_program(GOAL, directory)
 
 
 class ApiRecoveryDagTests(unittest.TestCase):
@@ -151,6 +166,12 @@ class ApiRecoveryDagTests(unittest.TestCase):
     def test_bad_200_recovery_does_not_resume_analysis(self):
         self._exercise_recovery(503, bad_recovery=True)
 
+    def test_api_recovery_analysis_verification_failure_rolls_back(self):
+        self._exercise_recovery(503, bad_analysis=True)
+
+    def test_api_rollback_supervisor_sigkill_finishes_on_restart(self):
+        self._exercise_recovery(503, bad_recovery=True, kill_rollback=True)
+
     def test_sigkill_during_recovery_preserves_uncertain_request(self):
         self._exercise_recovery(503, kill_recovery=True)
 
@@ -159,7 +180,8 @@ class ApiRecoveryDagTests(unittest.TestCase):
 
     def _exercise_recovery(self, first_status, bad_recovery=False,
                            kill_recovery=False, tamper_approval=False,
-                           persist=False, retry_after='0'):
+                           persist=False, retry_after='0', bad_analysis=False,
+                           kill_rollback=False):
         plan = plan_goal(GOAL)
         days = dates_for(plan)
         csv = ('Date,2 Yr,10 Yr\n' + ''.join(
@@ -308,6 +330,33 @@ class ApiRecoveryDagTests(unittest.TestCase):
                 self.assertEqual(len(requests), 4)
                 return
             if bad_recovery:
+                if kill_rollback:
+                    child = multiprocessing.get_context('spawn').Process(
+                        target=_kill_after_api_rollback, args=(program_dir,))
+                    child.start()
+                    child.join(timeout=30)
+                    if child.is_alive():
+                        child.kill()
+                        child.join()
+                        self.fail('API rollback Supervisor did not stop')
+                    self.assertEqual(child.exitcode, -signal.SIGKILL)
+                    interrupted = json.loads((program_dir / 'state.json').read_text())
+                    self.assertEqual(interrupted['tasks'], first['tasks'])
+                    self.assertEqual(interrupted['goal_id'], first['goal_id'])
+                    self.assertEqual(interrupted['api_recovery_revision']['status'],
+                                     'REVISION_ROLLED_BACK')
+                    self.assertEqual(json.loads((program_dir /
+                        'api_recovery_transaction_v1.json').read_text())[
+                            'transaction_state'], 'REVISION_COMMITTED')
+                    resumed = run_research_program(GOAL, program_dir)
+                    self.assertEqual(resumed['status'], 'RESEARCH_BLOCKED')
+                    self.assertEqual(json.loads((program_dir /
+                        'api_recovery_transaction_v1.json').read_text())[
+                            'transaction_state'], 'REVISION_ROLLED_BACK')
+                    self.assertEqual(json.loads((program_dir / 'state.json').read_text())[
+                        'records']['analyze_rates']['attempts'], 0)
+                    self.assertEqual(len(requests), 4)
+                    return
                 outcome = self._run(queue_dir)['statuses'][job['goal_id']]
                 queue = json.loads((queue_dir / 'state.json').read_text())
                 self.assertEqual(outcome, 'BLOCKED_ENV', msg=str(queue['jobs'][job['goal_id']]))
@@ -326,6 +375,34 @@ class ApiRecoveryDagTests(unittest.TestCase):
                 self.assertNotEqual(blocked['records']['analyze_rates']['status'],
                                     'COMPLETED_EXPLORATORY')
                 self.assertEqual(self._run(queue_dir)['processed'], 0)
+                self.assertEqual(len(requests), 4)
+                return
+            if bad_analysis:
+                original_verify = research_job.verify_artifact
+                def fail_independent_analysis(manifest, job_plan, state_dir):
+                    item = original_verify(manifest, job_plan, state_dir)
+                    if manifest['mode'] == 'rate_analysis':
+                        raise ValueError('injected independent analysis mismatch')
+                    return item
+                with mock.patch.object(research_job, 'verify_artifact',
+                                       side_effect=fail_independent_analysis):
+                    outcome = run_research_program(GOAL, program_dir)
+                self.assertEqual(outcome['status'], 'RESEARCH_BLOCKED')
+                blocked = json.loads((program_dir / 'state.json').read_text())
+                self.assertEqual(blocked['tasks'], first['tasks'])
+                self.assertEqual(blocked['goal_id'], first['goal_id'])
+                self.assertEqual(blocked['plan_sha256'], first['plan_sha256'])
+                self.assertEqual(blocked['goal_contract_sha256'],
+                                 first['goal_contract_sha256'])
+                self.assertEqual(blocked['api_recovery_revision']['status'],
+                                 'REVISION_ROLLED_BACK')
+                self.assertEqual(blocked['retired_recovery_tasks'][0][
+                    'record']['status'], 'VERIFIED')
+                self.assertEqual(blocked['retired_recovery_tasks'][0][
+                    'analysis_record']['status'], 'FAILED')
+                self.assertEqual(blocked['records']['analyze_rates']['attempts'], 0)
+                self.assertEqual(blocked['recovery_network_requests_reserved'], 1)
+                self.assertEqual(blocked['network_requests_reserved'], 3)
                 self.assertEqual(len(requests), 4)
                 return
             self.assertEqual(self._run(queue_dir)['statuses'][job['goal_id']],

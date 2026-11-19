@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import signal
 import subprocess
 import sys
@@ -15,6 +16,15 @@ from pathlib import Path
 from .engine import canonical, locked_state, now, write_state
 from .guided_experiment import AI_ROOT, PRIVATE_ROOT
 from .self_repair import redact
+
+
+def _wall_utc_now() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _boot_id() -> str:
+    """Bind persisted monotonic deadlines to the current Linux boot."""
+    return Path('/proc/sys/kernel/random/boot_id').read_text().strip()
 
 
 def _program_task_key(goal_id: str, task: dict) -> str:
@@ -280,8 +290,10 @@ def run_research_program(goal: str, program_dir: Path | None = None,
             'network_requests_reserved': 0, 'model_calls': 0,
             'started_at_utc': now(),
             'goal_budget_seconds': max_seconds,
-            'goal_deadline_utc': (datetime.now(timezone.utc) +
-                                  timedelta(seconds=max_seconds)).isoformat()}
+            'goal_deadline_utc': (_wall_utc_now() +
+                                  timedelta(seconds=max_seconds)).isoformat(),
+            'goal_boot_id': _boot_id(),
+            'goal_deadline_monotonic': time.monotonic() + max_seconds}
         if (state['goal_id'] != plan['goal_id'] or state['plan_sha256'] != plan_hash or
                 state['goal_contract_sha256'] != contract_hash or
                 state.get('test_analysis_delay', 0) != test_analysis_delay):
@@ -289,7 +301,7 @@ def run_research_program(goal: str, program_dir: Path | None = None,
         if 'goal_deadline_utc' not in state:
             # Upgrade old checkpoints once; later invocations cannot renew this budget.
             state['goal_budget_seconds'] = max_seconds
-            state['goal_deadline_utc'] = (datetime.now(timezone.utc) +
+            state['goal_deadline_utc'] = (_wall_utc_now() +
                                            timedelta(seconds=max_seconds)).isoformat()
             write_state(checkpoint, state)
         goal_deadline = datetime.fromisoformat(state['goal_deadline_utc'])
@@ -297,8 +309,24 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                 type(state.get('goal_budget_seconds')) is not int or
                 not 10 <= state['goal_budget_seconds'] <= 300):
             raise ValueError('Invalid persistent goal deadline')
+        if 'goal_boot_id' not in state:
+            # Legacy checkpoints retain their original UTC limit. Bind the
+            # remaining interval once; a later restart cannot renew it.
+            state['goal_boot_id'] = _boot_id()
+            state['goal_deadline_monotonic'] = time.monotonic() + max(0.0,
+                (goal_deadline - _wall_utc_now()).total_seconds())
+            if state['status'] != 'RESEARCH_COMPLETED_EXPLORATORY':
+                write_state(checkpoint, state)
+        if (not isinstance(state.get('goal_boot_id'), str) or
+                type(state.get('goal_deadline_monotonic')) not in (int, float) or
+                state['goal_deadline_monotonic'] < 0):
+            raise ValueError('Invalid persistent monotonic goal deadline')
+        boot_changed = state['goal_boot_id'] != _boot_id()
         def remaining_goal_seconds() -> float:
-            return (goal_deadline - datetime.now(timezone.utc)).total_seconds()
+            if boot_changed:
+                return 0.0
+            return min((goal_deadline - _wall_utc_now()).total_seconds(),
+                       state['goal_deadline_monotonic'] - time.monotonic())
         for saved_task in state['tasks']:
             saved_record = state['records'][saved_task['task_id']]
             if saved_record.get('task_key') and saved_record['task_key'] != \
@@ -376,7 +404,8 @@ def run_research_program(goal: str, program_dir: Path | None = None,
             return _program_result(state, program_dir)
         if remaining_goal_seconds() <= 0 and state['status'] != 'RESEARCH_COMPLETED_EXPLORATORY':
             state['status'] = 'RESEARCH_BLOCKED'
-            state['next_action'] = 'GOAL_DEADLINE_EXHAUSTED'
+            state['next_action'] = ('GOAL_BOOT_CHANGED_REVIEW' if boot_changed
+                                    else 'GOAL_DEADLINE_EXHAUSTED')
             write_state(checkpoint, state)
             return _program_result(state, program_dir)
         if state['status'] == 'RESEARCH_BLOCKED':
@@ -430,6 +459,11 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                         raise ValueError('Separate API recovery budget exhausted')
                     state['recovery_network_requests_reserved'] = 1
                 write_state(checkpoint, state)
+            # A wall-clock rollback cannot enlarge the child's time allowance.
+            # The child turns this effective UTC limit into its own monotonic
+            # deadline before executing an external request or code repair.
+            task_deadline = min(goal_deadline, _wall_utc_now() + timedelta(
+                seconds=max(0.0, remaining_goal_seconds())))
             if task['task_type'] == 'DATA_DISCOVERY':
                 gaps = dates_for(plan)
                 record.update(status='VERIFIED', gaps=gaps,
@@ -516,12 +550,16 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                         reason='EXPLORATORY_FIXTURE_ONLY')
                 else:
                     error = execution.get('stderr', '')
+                    match = re.search(r'(?m)^(NameError|AttributeError|TypeError|'
+                        r'SyntaxError|ZeroDivisionError|IndexError):', error)
+                    exception_type = match.group(1) if match else None
                     kind = classify('RESEARCH_CODE', error, 'CODE_ERROR' if
-                        'NameError' in error else '')
+                        exception_type else '')
                     path = program_dir / ('code_error_evidence.json' if
                         record['attempts'] == 1 else 'code_error_after_repair.json')
                     write_state(path, {'goal_id': plan['goal_id'],
                         'task_id': task_id, 'error_type': kind,
+                        'python_exception_type': exception_type,
                         'traceback_sha256': hashlib.sha256(error.encode()).hexdigest(),
                         'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
                         'output_sha256': hashlib.sha256(output.read_bytes()).hexdigest()
@@ -535,7 +573,7 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                         reason='FIXTURE_CODE_ERROR', next_action='APPROVE_CODE_REPAIR_CANDIDATE')
             elif task['task_type'] == 'CODE_REPAIR_TASK':
                 from .code_recovery import execute_task
-                result = execute_task(plan, task, program_dir, goal_deadline)
+                result = execute_task(plan, task, program_dir, task_deadline)
                 path = program_dir / 'code_repair_result.json'
                 write_state(path, result)
                 record.update(status='VERIFIED' if result['status'] == 'REPAIRED'
@@ -555,7 +593,7 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                     from .source_schema_recovery import seed_revalidation
                     seed_revalidation(plan, task, child_manifest, program_dir, job_dir)
                 child = supervise_research(manifest_path, job_dir,
-                    outer_deadline_utc=goal_deadline)
+                    outer_deadline_utc=task_deadline)
                 record['checkpoint'] = str(job_dir / 'job.json')
                 record['checkpoint_sha256'] = hashlib.sha256(
                     (job_dir / 'job.json').read_bytes()).hexdigest()
@@ -616,7 +654,8 @@ def run_research_program(goal: str, program_dir: Path | None = None,
             state['status'] = 'RESEARCH_INCOMPLETE'
         if remaining_goal_seconds() <= 0 and state['status'] != 'RESEARCH_COMPLETED_EXPLORATORY':
             state['status'] = 'RESEARCH_BLOCKED'
-            state['next_action'] = 'GOAL_DEADLINE_EXHAUSTED'
+            state['next_action'] = ('GOAL_BOOT_CHANGED_REVIEW' if boot_changed
+                                    else 'GOAL_DEADLINE_EXHAUSTED')
         elif state.get('next_action') not in {
                 'GOAL_DEADLINE_INSUFFICIENT_FOR_TASK',
                 'REVIEW_FAILED_API_RECOVERY_EVIDENCE'}:

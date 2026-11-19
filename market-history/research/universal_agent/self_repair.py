@@ -89,7 +89,9 @@ def classify(stage: str, message: str, error_code: str = '') -> str:
         return 'AUTH_ERROR' if 'auth' in m or 'unauthorized' in m else 'PERMISSION_ERROR'
     if any(x in m for x in ('timeout', 'connection refused', 'network unreachable')):
         return 'NETWORK_ERROR'
-    if isinstance(message, str) and any(x in m for x in ('syntaxerror', 'nameerror', 'typeerror')):
+    if isinstance(message, str) and any(x in m for x in (
+            'syntaxerror', 'nameerror', 'attributeerror', 'typeerror',
+            'zerodivisionerror', 'indexerror')):
         return 'CODE_ERROR'
     if any(x in m for x in ('modulenotfounderror', 'no module named', 'importerror')):
         return 'DEPENDENCY_ERROR'

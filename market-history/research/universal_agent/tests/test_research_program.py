@@ -3,9 +3,12 @@ import copy
 import datetime
 import json
 import tempfile
+import time
 import unittest
 from pathlib import Path
+from unittest import mock
 
+from universal_agent import process_supervisor
 from universal_agent.research_planner import (plan_goal, validate_plan, _task,
     APPROVED_INDEPENDENT_RATES_GOAL)
 from universal_agent.process_supervisor import run_research_program
@@ -130,6 +133,42 @@ class ResearchProgramTests(unittest.TestCase):
                                  resumed['goal_deadline_utc'])
                 self.assertEqual({key: value['attempts'] for key, value in
                                   repeat_state['records'].items()}, attempts)
+
+    def test_clock_rollback_cannot_renew_persisted_goal_budget(self):
+        PRIVATE_ROOT.mkdir(mode=0o700, parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=PRIVATE_ROOT) as folder:
+            directory = Path(folder)
+            run_research_program(GOAL, directory, max_tasks=1, max_seconds=10)
+            saved = json.loads((directory / 'state.json').read_text())
+            attempts = {key: value['attempts'] for key, value in saved['records'].items()}
+            self.assertEqual(saved['goal_boot_id'], process_supervisor._boot_id())
+            # Fault inject elapsed monotonic time and a wall clock ten minutes behind.
+            saved['goal_deadline_monotonic'] = time.monotonic() - 1
+            write_state(directory / 'state.json', saved)
+            old_wall = datetime.datetime.now(datetime.timezone.utc) - \
+                datetime.timedelta(minutes=10)
+            with mock.patch.object(process_supervisor, '_wall_utc_now',
+                                   return_value=old_wall):
+                result = run_research_program(GOAL, directory, max_seconds=300)
+            self.assertEqual(result['next_action'], 'GOAL_DEADLINE_EXHAUSTED')
+            self.assertEqual({key: value['attempts'] for key, value in
+                json.loads((directory / 'state.json').read_text())['records'].items()},
+                attempts)
+
+    def test_boot_change_blocks_new_tasks_until_review(self):
+        PRIVATE_ROOT.mkdir(mode=0o700, parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=PRIVATE_ROOT) as folder:
+            directory = Path(folder)
+            run_research_program(GOAL, directory, max_tasks=1, max_seconds=10)
+            saved = json.loads((directory / 'state.json').read_text())
+            attempts = {key: value['attempts'] for key, value in saved['records'].items()}
+            with mock.patch.object(process_supervisor, '_boot_id',
+                                   return_value='injected-new-boot'):
+                result = run_research_program(GOAL, directory, max_seconds=300)
+            self.assertEqual(result['next_action'], 'GOAL_BOOT_CHANGED_REVIEW')
+            self.assertEqual({key: value['attempts'] for key, value in
+                json.loads((directory / 'state.json').read_text())['records'].items()},
+                attempts)
 
 
 if __name__ == '__main__':

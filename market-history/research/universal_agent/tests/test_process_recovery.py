@@ -112,6 +112,42 @@ class ProcessRecoveryTests(unittest.TestCase):
             if worker_pid and _worker_identity(worker_pid, self.job.resolve()) is not None:
                 os.kill(worker_pid, signal.SIGKILL)
 
+    def test_supervisor_sigkill_restart_preserves_outer_deadline(self):
+        deadline = datetime.now(timezone.utc) + timedelta(seconds=2)
+        context = multiprocessing.get_context('fork')
+        first = context.Process(target=_run_with_outer_deadline,
+                                args=(self.manifest, self.job, deadline))
+        started = time.monotonic()
+        first.start()
+        worker_pid = None
+        resumed = None
+        try:
+            worker_pid = self.active()['worker_pid']
+            os.kill(first.pid, signal.SIGKILL)
+            first.join(timeout=3)
+            self.assertEqual(first.exitcode, -signal.SIGKILL)
+            resumed = context.Process(target=_run_with_outer_deadline,
+                                      args=(self.manifest, self.job, deadline))
+            resumed.start()
+            resumed.join(timeout=6)
+            self.assertFalse(resumed.is_alive())
+            final = json.loads((self.job / 'job.json').read_text())
+            self.assertEqual(final['status'], 'FAILED_TERMINAL')
+            self.assertEqual(final['reason'], 'Wall-time budget exhausted')
+            self.assertEqual(final['attempts'], 1)
+            self.assertEqual(final['duplicate_completion_count'], 0)
+            self.assertIsNone(_worker_identity(worker_pid, self.job.resolve()))
+            self.assertLess(time.monotonic() - started, 6)
+        finally:
+            if first.is_alive():
+                first.kill()
+                first.join()
+            if resumed is not None and resumed.is_alive():
+                resumed.kill()
+                resumed.join()
+            if worker_pid and _worker_identity(worker_pid, self.job.resolve()) is not None:
+                os.kill(worker_pid, signal.SIGKILL)
+
     def test_worker_killed_after_result_before_final_state(self):
         data = json.loads(self.manifest.read_text())
         data.pop('fixture_delay_before_output_seconds')
