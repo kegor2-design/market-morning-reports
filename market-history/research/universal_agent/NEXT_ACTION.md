@@ -170,4 +170,6 @@ PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest
 
 2026-11-19 continuation: verified code commit `90dcefd`; the parent Goal deadline is now passed to each child Research Job. A real delayed child was stopped at the outer deadline and saved `FAILED_TERMINAL` with no duplicate completion. A pre-commit transaction write failure left the prepared state intact and a replay committed it. Universal Agent 172 PASS, Regime190 55 PASS, compileall and diff check PASS. This is bounded child termination with shutdown grace; an exact whole-Goal deadline and the remaining P0 fault matrix are still pending. No external Provider or model calls were made.
 
+Additional P0 check at verified code commit `38a031b`: journal commit followed by an interrupted active-Checkpoint write resumes the same Revision; a duplicate Revision proposal is rejected before DAG mutation. The full eight-case matrix is still pending. Universal Agent 172 PASS after this change; Regime190 55 PASS on the preceding code commit.
+
 Next implementation: complete the P0 rollback fault matrix and strict whole-Goal deadline, then design a separate external Provider approval contract and isolated Self Repair DAG. Keep model and official-source claims blocked until their approval and evidence exist.

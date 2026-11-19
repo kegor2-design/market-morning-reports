@@ -54,6 +54,6 @@ The calendar repair is limited to reviewed 2018 and 2019 SIFMA full closures. It
 | Korean indicator 116 PIT absent | The detached queue returned `BLOCKED_EVIDENCE` | Preserve original Goal and source evidence checkpoint | No official claim |
 | Unsupported A/C/D wording was classified as a generic queue failure | Program reports already said `RESEARCH_UNSUPPORTED` | Add explicit terminal `UNSUPPORTED` queue status and rerun each original goal | Three original contracts persisted with no executable tasks |
 
-The 2026-11-19 transaction fault test injected an `OSError` immediately before the API Revision journal commit. The persisted active Checkpoint stayed `REVISION_PREPARED` and the next finalization committed the same Revision. The original Goal and prepared DAG remained intact; this adds one failure case to the local fault matrix. The full eight-case rollback matrix remains incomplete.
+The 2026-11-19 transaction fault test injected an `OSError` immediately before the API Revision journal commit. The persisted active Checkpoint stayed `REVISION_PREPARED` and the next finalization committed the same Revision. Reopening the prepared Checkpoint after journal commit also activated the same Revision. A duplicate Revision attempt now fails before DAG candidate mutation, leaving the active state unchanged. The original Goal and prepared DAG remained intact; the full eight-case rollback matrix remains incomplete.
 
 No AI Self Repair or code-generating model was used. No production branch or service changed.
