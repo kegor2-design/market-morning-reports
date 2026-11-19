@@ -371,9 +371,7 @@ def run_research_program(goal: str, program_dir: Path | None = None,
             task = ready[0]
             task_id = task['task_id']
             record = state['records'][task_id]
-            if (task['task_type'] not in {'DATA_DISCOVERY', 'PIT_VALIDATION',
-                    'KR_INDEX_VALIDATION', 'KR_CRASH_ANALYSIS'} and
-                    remaining_goal_seconds() < 60):
+            if remaining_goal_seconds() <= 1:
                 state['status'] = 'RESEARCH_BLOCKED'
                 state['next_action'] = 'GOAL_DEADLINE_INSUFFICIENT_FOR_TASK'
                 write_state(checkpoint, state)
@@ -473,7 +471,8 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                 elif task['task_type'] == 'DATA_SCHEMA_REVALIDATION':
                     from .source_schema_recovery import seed_revalidation
                     seed_revalidation(plan, task, child_manifest, program_dir, job_dir)
-                child = supervise_research(manifest_path, job_dir)
+                child = supervise_research(manifest_path, job_dir,
+                    outer_deadline_utc=goal_deadline)
                 record['checkpoint'] = str(job_dir / 'job.json')
                 record['checkpoint_sha256'] = hashlib.sha256(
                     (job_dir / 'job.json').read_bytes()).hexdigest()

@@ -82,6 +82,16 @@ class ApiRecoveryDagTests(unittest.TestCase):
                 self.assertTrue(api_recovery.replan(plan, state, directory))
             self.assertEqual(state['api_recovery_revision']['status'], 'REVISION_PREPARED')
             write_state(directory / 'state.json', state)
+            def fail_commit(path, value):
+                if path.name == 'api_recovery_transaction_v1.json':
+                    raise OSError('injected pre-commit failure')
+                return real_write(path, value)
+            with mock.patch.object(api_recovery, 'write_state', side_effect=fail_commit):
+                with self.assertRaisesRegex(OSError, 'injected pre-commit failure'):
+                    api_recovery.finalize_transaction(state, directory)
+            self.assertEqual(state['api_recovery_revision']['status'], 'REVISION_PREPARED')
+            self.assertEqual(json.loads((directory / 'state.json').read_text())[
+                'api_recovery_revision']['status'], 'REVISION_PREPARED')
             api_recovery.finalize_transaction(state, directory)
             self.assertEqual(state['api_recovery_revision']['status'], 'REVISION_ACTIVE')
             tx_path = directory / 'api_recovery_transaction_v1.json'

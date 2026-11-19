@@ -521,7 +521,8 @@ def _conclude(manifest: dict, plan: dict, artifact: dict, output_sha: str) -> di
             'problem_state_sha256': result['problem_state_sha256']}
 
 
-def supervise(manifest_path: Path, state_dir: Path) -> dict:
+def supervise(manifest_path: Path, state_dir: Path, *,
+              outer_deadline_utc: datetime | None = None) -> dict:
     manifest, digest = manifest_load(manifest_path)
     state_dir = private(state_dir)
     if manifest['mode'] in {'guided_experiment', 'guided_e2e'}:
@@ -551,7 +552,13 @@ def supervise(manifest_path: Path, state_dir: Path) -> dict:
         state['supervisor_pid'] = os.getpid()
         elapsed = max(0.0, (datetime.now(timezone.utc) -
             datetime.fromisoformat(state['started_at_utc'])).total_seconds())
-        deadline = time.monotonic() + max(0.0, manifest['max_seconds'] - elapsed)
+        remaining = max(0.0, manifest['max_seconds'] - elapsed)
+        if outer_deadline_utc is not None:
+            if outer_deadline_utc.tzinfo is None:
+                raise ValueError('Outer deadline must be timezone-aware')
+            remaining = min(remaining, max(0.0, (outer_deadline_utc -
+                datetime.now(timezone.utc)).total_seconds()))
+        deadline = time.monotonic() + remaining
         stopping = False
         def stop(_signal, _frame):
             nonlocal stopping

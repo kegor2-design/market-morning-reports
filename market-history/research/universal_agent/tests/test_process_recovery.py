@@ -1,5 +1,6 @@
 """Real OS process interruption of the research-only Supervisor and Worker."""
 import json
+from datetime import datetime, timedelta, timezone
 import os
 import signal
 import subprocess
@@ -9,7 +10,7 @@ import time
 import unittest
 from pathlib import Path
 
-from universal_agent.research_job import PRIVATE_ROOT, _worker_identity
+from universal_agent.research_job import PRIVATE_ROOT, _worker_identity, supervise
 
 
 class ProcessRecoveryTests(unittest.TestCase):
@@ -67,6 +68,16 @@ class ProcessRecoveryTests(unittest.TestCase):
                 supervisor.kill()
                 supervisor.wait()
             supervisor.communicate()
+
+    def test_outer_goal_deadline_stops_owned_child_and_persists_failure(self):
+        deadline = datetime.now(timezone.utc) + timedelta(seconds=1)
+        result = supervise(self.manifest, self.job, outer_deadline_utc=deadline)
+        self.assertEqual(result['status'], 'FAILED_TERMINAL')
+        self.assertEqual(result['reason'], 'Wall-time budget exhausted')
+        self.assertEqual(result['duplicate_completion_count'], 0)
+        self.assertEqual(json.loads((self.job / 'job.json').read_text())['status'],
+                         'FAILED_TERMINAL')
+        self.assertIsNone(_worker_identity(result['worker_pid'], self.job.resolve()))
 
     def test_worker_killed_after_result_before_final_state(self):
         data = json.loads(self.manifest.read_text())
