@@ -40,7 +40,13 @@ RECOVERY_CAPABILITIES = {
         'permission': 'EXPLICIT_LOCAL_FIXTURE_APPROVAL', 'network_budget': 1,
         'model_budget': 0, 'max_retry': 0,
         'verification': 'independent_source_recompute',
-        'rollback': 'retain_original_failed_task', 'resume': 'original_goal'}}
+        'rollback': 'retain_original_failed_task', 'resume': 'original_goal'},
+    'CODE_ERROR': {'action': 'CODE_REPAIR_TASK',
+        'evidence': ['traceback_hash', 'original_source_hash', 'approved_candidate_hash'],
+        'permission': 'EXPLICIT_FIXTURE_CANDIDATE_APPROVAL',
+        'network_budget': 0, 'model_budget': 0, 'max_retry': 0,
+        'verification': 'exact_answer_42',
+        'rollback': 'restore_original_source_and_dag', 'resume': 'original_goal'}}
 
 
 def recovery_capability_registry() -> dict:
@@ -140,6 +146,27 @@ def solve_api_failure(plan: dict, state: dict, program_dir: Path,
     return proposal
 
 
+def solve_code_failure(plan: dict, state: dict, program_dir: Path,
+                       *, execute: bool = False) -> dict | None:
+    from .code_recovery import diagnose, replan
+    proposal = diagnose(plan, state, program_dir)
+    if proposal is None:
+        return None
+    if execute:
+        if not replan(plan, state, program_dir):
+            raise ValueError('Approved code repair was not applied')
+        state.setdefault('problem_history', []).append({
+            'problem_type': 'CODE_ERROR',
+            'steps': ['DETECT', 'CLASSIFY', 'COLLECT_EVIDENCE',
+                      'HOST_POLICY_VALIDATION', 'EXECUTE_REPAIR_TASK',
+                      'VERIFY_RESULT', 'RESUME_ORIGINAL_GOAL'],
+            'error_evidence_sha256': proposal['error_evidence_sha256'],
+            'selected_action': proposal['solution_action'],
+            'rollback_rule': proposal['rollback_rule'],
+            'model_calls': 0, 'network_requests_added': 0})
+    return proposal
+
+
 def solve_recovery(plan: dict, state: dict, program_dir: Path,
                    *, execute: bool = False) -> dict | None:
     """Use one reviewed selection boundary for existing recovery capabilities."""
@@ -149,6 +176,7 @@ def solve_recovery(plan: dict, state: dict, program_dir: Path,
         ('CALENDAR_MISMATCH', 'calendar_revision', solve_calendar_gap),
         ('SCHEMA_MISMATCH', 'schema_revision', solve_schema_gap),
         ('API_ERROR', 'api_recovery_revision', solve_api_failure),
+        ('CODE_ERROR', 'code_repair_revision', solve_code_failure),
     )
     for problem_type, revision_key, handler in choices:
         if state.get(revision_key):

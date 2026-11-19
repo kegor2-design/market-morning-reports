@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import tempfile
 import time
+from datetime import datetime, timezone
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -25,6 +26,7 @@ ERROR_TYPES = frozenset({
     'HYPOTHESIS_FAILURE', 'UNKNOWN_ERROR',
 })
 RESEARCH_ROOT = Path(__file__).resolve().parents[1]
+PRIVATE_RESEARCH_ROOT = RESEARCH_ROOT.parents[1] / '.universal_private'
 SECRET = re.compile(r'(?i)\b(authorization|api[_-]?key|token|password|secret)\s*[:=]\s*(?:Bearer\s+)?[^\s,;]+')
 
 
@@ -241,7 +243,7 @@ def probe_secure_runner() -> dict:
 
 def repair_research_source(path: Path, candidates: list[str], root: Path,
                            verify_result, *, max_candidates: int = 2,
-                           static_check=None) -> dict:
+                           static_check=None, deadline_utc: datetime | None = None) -> dict:
     """Apply a candidate only inside a research tree and roll back failed verification.
 
     The generated script is always executed by Agent 4.3's Bubblewrap runner;
@@ -252,7 +254,8 @@ def repair_research_source(path: Path, candidates: list[str], root: Path,
         return {'status': 'SAFE_BLOCKED', 'reason': 'Research scope or secure runner unavailable'}
     root = root.resolve(strict=True)
     path = path.resolve(strict=True)
-    if (not path.is_relative_to(root) or not root.is_relative_to(RESEARCH_ROOT)
+    if (not path.is_relative_to(root) or not (root.is_relative_to(RESEARCH_ROOT) or
+            root.is_relative_to(PRIVATE_RESEARCH_ROOT))
             or path.name != 'experiment.py'
             or not path.is_file()
             or probe_secure_runner()['status'] != 'SECURE_RUNNER_VERIFIED'):
@@ -260,6 +263,13 @@ def repair_research_source(path: Path, candidates: list[str], root: Path,
     from regime190.agent43_engine import _check_code, _isolated_python
     if static_check is None:
         static_check = _check_code
+    if deadline_utc is not None:
+        if deadline_utc.tzinfo is None:
+            raise ValueError('Repair deadline must be timezone-aware')
+        monotonic_deadline = time.monotonic() + max(0.0, (
+            deadline_utc - datetime.now(timezone.utc)).total_seconds())
+    else:
+        monotonic_deadline = None
     backup = path.with_name('.experiment.py.repair-backup')
     recovered_interruption = False
     if backup.exists():
@@ -302,7 +312,11 @@ def repair_research_source(path: Path, candidates: list[str], root: Path,
                     stream.flush()
                     os.fsync(stream.fileno())
                 os.replace(temp_name, path)
-                execution = _isolated_python(path.parent)
+                if monotonic_deadline is None:
+                    execution = _isolated_python(path.parent)
+                else:
+                    execution = _isolated_python(path.parent,
+                        timeout_seconds=max(0.0, monotonic_deadline - time.monotonic()))
                 ok = execution['exit_code'] == 0 and bool(verify_result(path, execution))
                 attempts.append({'status': 'VERIFIED' if ok else 'ROLLED_BACK',
                                  'candidate_sha256': hashlib.sha256(data).hexdigest()})

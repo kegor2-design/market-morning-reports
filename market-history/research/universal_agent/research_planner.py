@@ -25,7 +25,10 @@ ACTIONS = {'DATA_DISCOVERY': 'CHECK_EXISTING_DATA',
            'PIT_VALIDATION': 'EVIDENCE_WORKFLOW',
            'EXPERIMENT_EXECUTION': 'RATE_ANALYSIS',
            'KR_INDEX_VALIDATION': 'VERIFY_HASHED_INDEX',
-           'KR_CRASH_ANALYSIS': 'ANALYZE_KR_CRASH_WINDOWS'}
+           'KR_CRASH_ANALYSIS': 'ANALYZE_KR_CRASH_WINDOWS',
+           'FIXTURE_ANALYSIS': 'RUN_ISOLATED_FIXTURE',
+           'CODE_REPAIR_TASK': 'REPAIR_ISOLATED_FIXTURE'}
+FIXTURE_PREFIX = 'Fixture code repair research: '
 APPROVED_INDEPENDENT_RATES_GOAL = (
     'Study Treasury yield spread and SOFR from 2018-04-03 to 2018-04-30 '
     'as an explicitly approved independent exploratory research goal.')
@@ -87,6 +90,15 @@ def validate_plan(plan: dict) -> None:
                     not isinstance(task['inputs'].get('new_request_id'), str) or
                     len(task['inputs']['new_request_id']) != 24):
                 raise ValueError('Unreviewed API recovery task contract')
+        if task['task_type'] == 'CODE_REPAIR_TASK' and (
+                plan['market'] != 'ISOLATED_CODE_FIXTURE' or
+                task['task_id'] != 'code_repair_fixture' or
+                task['dependencies'] or
+                set(task['inputs']) != {'revision_sha256', 'failed_task_id'} or
+                task['inputs']['failed_task_id'] != 'analyze_fixture' or
+                not isinstance(task['inputs']['revision_sha256'], str) or
+                len(task['inputs']['revision_sha256']) != 64):
+            raise ValueError('Unreviewed code repair task contract')
         if task['resource_budget']['max_model_calls'] != 0 or \
                 task['resource_budget']['max_network_requests'] != \
                 (1 if task['task_type'] in {'DATA_ACQUISITION',
@@ -223,6 +235,21 @@ def validate_plan(plan: dict) -> None:
                 tasks[0]['inputs'] != {'indicator': '116'} or
                 plan['goal_contract']['allowed_actions'] != ['EVIDENCE_WORKFLOW']):
             raise ValueError('Unreviewed Korean indicator contract')
+    elif plan['market'] == 'ISOLATED_CODE_FIXTURE':
+        analysis = tasks[0]
+        repair = tasks[1] if len(tasks) == 2 else None
+        if (not plan['research_goal'].startswith(FIXTURE_PREFIX) or
+                plan['data_requirements'] != ['ISOLATED_CODE_FIXTURE'] or
+                plan['allowed_sources'] != ['LOCAL_CODE_FIXTURE'] or
+                plan['resource_budget']['max_network_requests'] != 0 or
+                plan['goal_contract']['allowed_actions'] !=
+                ['REPAIR_ISOLATED_FIXTURE', 'RUN_ISOLATED_FIXTURE'] or
+                len(tasks) not in (1, 2) or
+                analysis['task_type'] != 'FIXTURE_ANALYSIS' or
+                analysis['task_id'] != 'analyze_fixture' or analysis['inputs'] or
+                analysis['dependencies'] != (['code_repair_fixture'] if repair else []) or
+                (repair is not None and repair['task_type'] != 'CODE_REPAIR_TASK')):
+            raise ValueError('Unreviewed isolated code fixture contract')
     else:
         raise ValueError('Unsupported research market')
 
@@ -245,22 +272,33 @@ def plan_goal(goal: str) -> dict:
     if not isinstance(goal, str) or not 10 <= len(goal) <= 1000:
         raise ValueError('Research goal length invalid')
     lowered = goal.lower()
+    fixture = goal.startswith(FIXTURE_PREFIX)
     korean = 'indicator 116' in lowered or '지표 116' in goal
     kr_crash = '한국' in goal and '급락' in goal and '변동성' in goal
     rates = 'sofr' in lowered and ('treasury' in lowered or 'yield' in lowered or
                                   '금리차' in goal or '국채' in goal)
-    if not korean and not rates and not kr_crash:
+    if not korean and not rates and not kr_crash and not fixture:
         raise UnsupportedGoal('No reviewed data source and analysis action for this goal')
     fallback_approved = (korean and rates and not kr_crash and
                          '차단' in goal and '독립' in goal)
-    if sum((korean, rates, kr_crash)) > 1 and not fallback_approved:
+    if sum((korean, rates, kr_crash, fixture)) > 1 and not fallback_approved:
         raise UnsupportedGoal('Multiple research goals require separate goal contracts')
     if fallback_approved:
         rates = False
     if re.search(r'\d{4}년\s*\d{1,2}월', goal):
         raise UnsupportedGoal('Specify a supported research window as two YYYY-MM-DD dates')
     goal_id = 'research_' + hashlib.sha256(goal.encode()).hexdigest()[:12]
-    if korean:
+    if fixture:
+        if re.search(r'(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)', goal):
+            raise UnsupportedGoal('Fixture repair does not use market dates')
+        tasks = [_task('analyze_fixture', 'FIXTURE_ANALYSIS', 20)]
+        period = {'start': '2026-11-19', 'end': '2026-11-19', 'resolution': 'daily'}
+        requirements = ['ISOLATED_CODE_FIXTURE']
+        sources = ['LOCAL_CODE_FIXTURE']
+        hypothesis = 'A repaired isolated function returns the predeclared answer 42'
+        evaluation = ['independent exact fixture result check']
+        defaults = ['Synthetic fixture only; no market or PIT claim']
+    elif korean:
         if re.search(r'(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)', goal):
             raise UnsupportedGoal('Indicator 116 date-specific PIT research is not reviewed')
         tasks = [_task('pit_ind116', 'PIT_VALIDATION', 0, inputs={'indicator': '116'})]
@@ -306,23 +344,24 @@ def plan_goal(goal: str) -> dict:
                           inputs={'hypothesis': hypothesis, 'train_rows': 12}))
         if len(dates_for({'research_period': period})) < 16:
             raise UnsupportedGoal('Research period too short for sealed chronological split')
-    market = ('KR_EQUITY_CONTEXT' if korean else
+    market = ('ISOLATED_CODE_FIXTURE' if fixture else 'KR_EQUITY_CONTEXT' if korean else
               'KR_EQUITY_EXPLORATORY' if kr_crash else 'US_RATES')
     contract = {'version': 1, 'goal_id': goal_id, 'original_research_goal': goal,
                 'market': market, 'research_period': period,
-                'target': ('indicator 116 first-access PIT' if korean else
+                'target': ('fixture answer 42' if fixture else 'indicator 116 first-access PIT' if korean else
                            'KOSPI daily decline <= -5%' if kr_crash else 'next-day SOFR direction'),
                 'hypotheses': [hypothesis], 'data_requirements': requirements,
                 'allowed_sources': sources,
                 'allowed_actions': sorted({a for t in tasks for a in t['allowed_actions']} |
-                                          ({'DATA_RECOVERY'} if rates else set())),
+                                          ({'DATA_RECOVERY'} if rates else set()) |
+                                          ({'REPAIR_ISOLATED_FIXTURE'} if fixture else set())),
                 'evaluation_methods': evaluation,
                 'pit_policy': 'No official claim without row-level historical first-access proof',
                 'holdout_policy': 'No predictive claim without sealed independent market holdout',
                 'resource_budget': {'max_seconds': 300,
-                                    'max_network_requests': 0 if korean or kr_crash else 3,
+                                    'max_network_requests': 0 if korean or kr_crash or fixture else 3,
                                     'max_model_calls': 0,
-                                    'max_tasks': 1 if korean else 2 if kr_crash else 12},
+                                    'max_tasks': 1 if korean else 2 if kr_crash or fixture else 12},
                 'terminal_conditions': ['RESEARCH_COMPLETED_EXPLORATORY', 'RESEARCH_BLOCKED',
                                         'RESEARCH_FAILED', 'RESEARCH_CANCELLED'],
                 'approved_independent_goal_ids': [

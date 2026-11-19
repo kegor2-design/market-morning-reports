@@ -121,7 +121,8 @@ class ApiRecoveryDagTests(unittest.TestCase):
     def test_recovery_registry_has_separate_api_permission(self):
         capabilities = recovery_capability_registry()['capabilities']
         self.assertEqual(set(capabilities), {'CALENDAR_MISMATCH',
-                                             'SCHEMA_MISMATCH', 'API_ERROR'})
+                                             'SCHEMA_MISMATCH', 'API_ERROR',
+                                             'CODE_ERROR'})
         self.assertEqual(capabilities['API_ERROR']['permission'],
                          'EXPLICIT_LOCAL_FIXTURE_APPROVAL')
         self.assertEqual(capabilities['API_ERROR']['network_budget'], 1)

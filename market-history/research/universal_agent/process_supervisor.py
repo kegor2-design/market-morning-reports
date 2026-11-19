@@ -149,6 +149,8 @@ def _program_result(state: dict, program_dir: Path) -> dict:
         analysis = json.loads(artifact.read_text())['result']
     if state['records'].get('analyze_kr_crashes', {}).get('status') == 'COMPLETED_EXPLORATORY':
         analysis = json.loads((program_dir / 'kr_crash_result.json').read_text())['result']
+    if state['records'].get('analyze_fixture', {}).get('status') == 'COMPLETED_EXPLORATORY':
+        analysis = json.loads((program_dir / 'fixture_analysis_result.json').read_text())['result']
     result = {'goal_id': state['goal_id'], 'research_goal': state['plan']['research_goal'],
               'status': state['status'], 'goal_contract_sha256': state['goal_contract_sha256'],
               'task_statuses': {key: value['status'] for key, value in state['records'].items()},
@@ -171,6 +173,9 @@ def _program_result(state: dict, program_dir: Path) -> dict:
         result['api_recovery_revision'] = state['api_recovery_revision']
         result['recovery_network_requests_reserved'] = state.get(
             'recovery_network_requests_reserved', 0)
+        result['retired_recovery_tasks'] = state.get('retired_recovery_tasks', [])
+    if state.get('code_repair_revision'):
+        result['code_repair_revision'] = state['code_repair_revision']
         result['retired_recovery_tasks'] = state.get('retired_recovery_tasks', [])
     write_state(program_dir / 'research_report.json', result)
     return result
@@ -325,6 +330,16 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                     from .kr_crash_analysis import analyze
                     if json.loads(saved_checkpoint.read_text())['result'] != analyze():
                         raise ValueError('Korean crash analysis changed after checkpoint')
+                elif saved_task['task_type'] in {'FIXTURE_ANALYSIS', 'CODE_REPAIR_TASK'} and \
+                        saved_record['status'] in {'VERIFIED', 'COMPLETED_EXPLORATORY'}:
+                    from .code_recovery import fixture_source
+                    saved_result = json.loads(saved_checkpoint.read_text())
+                    expected_source = (saved_result['result']['source_sha256'] if
+                        saved_task['task_type'] == 'FIXTURE_ANALYSIS' else
+                        saved_result['source_sha256'])
+                    if hashlib.sha256(fixture_source(program_dir).read_bytes()).hexdigest() != \
+                            expected_source:
+                        raise ValueError('Completed code repair source changed')
         for retired in state.get('retired_recovery_tasks', []):
             saved_record = retired['record']
             if saved_record.get('checkpoint_sha256'):
@@ -460,6 +475,53 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                     record.update(status='COMPLETED_EXPLORATORY', checkpoint=str(path),
                         checkpoint_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
                         reason='EXPLORATORY_ONLY')
+            elif task['task_type'] == 'FIXTURE_ANALYSIS':
+                from regime190.agent43_engine import _isolated_python
+                from .code_recovery import fixture_source
+                from .self_repair import classify
+                source = fixture_source(program_dir)
+                execution = _isolated_python(source.parent,
+                    timeout_seconds=max(0.0, remaining_goal_seconds()))
+                output = source.parent / 'result.json'
+                if execution['exit_code'] == 0 and output.is_file() and not output.is_symlink() \
+                        and json.loads(output.read_text()) == {'answer': 42}:
+                    path = program_dir / 'fixture_analysis_result.json'
+                    write_state(path, {'result': {'answer': 42,
+                        'fixture_only': True, 'source_sha256': hashlib.sha256(
+                            source.read_bytes()).hexdigest()},
+                        'verification': 'independent_exact_answer_42'})
+                    record.update(status='COMPLETED_EXPLORATORY', checkpoint=str(path),
+                        checkpoint_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+                        reason='EXPLORATORY_FIXTURE_ONLY')
+                else:
+                    error = execution.get('stderr', '')
+                    kind = classify('RESEARCH_CODE', error, 'CODE_ERROR' if
+                        'NameError' in error else '')
+                    path = program_dir / ('code_error_evidence.json' if
+                        record['attempts'] == 1 else 'code_error_after_repair.json')
+                    write_state(path, {'goal_id': plan['goal_id'],
+                        'task_id': task_id, 'error_type': kind,
+                        'traceback_sha256': hashlib.sha256(error.encode()).hexdigest(),
+                        'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+                        'output_sha256': hashlib.sha256(output.read_bytes()).hexdigest()
+                            if output.is_file() and not output.is_symlink() else None,
+                        'exit_code': execution['exit_code'],
+                        'sandbox': execution.get('sandbox'),
+                        'error_tail': redact(error[-500:])})
+                    record.update(status='BLOCKED_EVIDENCE', problem_type=kind,
+                        checkpoint=str(path), checkpoint_sha256=hashlib.sha256(
+                            path.read_bytes()).hexdigest(),
+                        reason='FIXTURE_CODE_ERROR', next_action='APPROVE_CODE_REPAIR_CANDIDATE')
+            elif task['task_type'] == 'CODE_REPAIR_TASK':
+                from .code_recovery import execute_task
+                result = execute_task(plan, task, program_dir, goal_deadline)
+                path = program_dir / 'code_repair_result.json'
+                write_state(path, result)
+                record.update(status='VERIFIED' if result['status'] == 'REPAIRED'
+                    else 'BLOCKED_EVIDENCE', checkpoint=str(path),
+                    checkpoint_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+                    reason=result['status'], next_action='RESUME_ORIGINAL_GOAL' if
+                    result['status'] == 'REPAIRED' else 'REVIEW_FAILED_CODE_REPAIR')
             else:
                 child_manifest = _child_for(plan, task, program_dir, test_analysis_delay)
                 manifest_path = _program_manifest(program_dir / 'manifests' /
@@ -514,10 +576,14 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                 write_state(checkpoint, state)
                 finalize_transaction(state, program_dir)
                 write_state(checkpoint, state)
+        if state.get('code_repair_revision'):
+            from .code_recovery import rollback_failed_repair
+            if rollback_failed_repair(plan, state, program_dir):
+                write_state(checkpoint, state)
         if (program_dir / 'STOP').exists():
             state['status'] = 'RESEARCH_CANCELLED'
         elif any(state['records'].get(task_id, {}).get('status') == 'COMPLETED_EXPLORATORY'
-                 for task_id in ('analyze_rates', 'analyze_kr_crashes')):
+                 for task_id in ('analyze_rates', 'analyze_kr_crashes', 'analyze_fixture')):
             state['status'] = 'RESEARCH_COMPLETED_EXPLORATORY'
         elif any(record['status'].startswith('BLOCKED') for record in state['records'].values()):
             state['status'] = 'RESEARCH_BLOCKED'

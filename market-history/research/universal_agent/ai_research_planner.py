@@ -47,6 +47,11 @@ def capability_registry() -> dict:
                         {'type': 'object', 'required': ['indicator'],
                          'properties': {'indicator': {'const': '116'}}}
                         if task_type == 'PIT_VALIDATION' else
+                        {'type': 'object', 'required': ['revision_sha256', 'failed_task_id'],
+                         'properties': {'revision_sha256': {'type': 'string', 'minLength': 64,
+                                                            'maxLength': 64},
+                                        'failed_task_id': {'const': 'analyze_fixture'}}}
+                        if task_type == 'CODE_REPAIR_TASK' else
                         {'type': 'object', 'maxProperties': 0})
         sources = (['US_TREASURY', 'NYFED_REFERENCE_RATES']
                    if task_type in {'DATA_DISCOVERY', 'DATA_ACQUISITION',
@@ -54,6 +59,8 @@ def capability_registry() -> dict:
                                     'DATA_SCHEMA_REVALIDATION', 'EXPERIMENT_EXECUTION',
                                     'API_RECOVERY_RETRY'}
                    else ['FRED_ALFRED'] if task_type == 'PIT_VALIDATION'
+                   else ['LOCAL_CODE_FIXTURE'] if task_type in {
+                       'FIXTURE_ANALYSIS', 'CODE_REPAIR_TASK'}
                    else ['NAVER_HASHED_LOCAL'])
         capabilities[task_type] = {
             'capability_id': task_type, 'capability_type': 'RESEARCH_TASK',
@@ -63,10 +70,14 @@ def capability_registry() -> dict:
                                                 'API_RECOVERY_RETRY'} else [],
             'supported_research_types': (['US_RATES'] if sources[0] == 'US_TREASURY'
                                          else ['KR_EQUITY_CONTEXT'] if sources[0] == 'FRED_ALFRED'
+                                         else ['ISOLATED_CODE_FIXTURE'] if
+                                         sources[0] == 'LOCAL_CODE_FIXTURE'
                                          else ['KR_EQUITY_EXPLORATORY']),
             'required_sources': sources, 'action_id': action,
             'execution_permission': ('EXPLICIT_LOCAL_FIXTURE_APPROVAL'
                                      if task_type == 'API_RECOVERY_RETRY'
+                                     else 'EXPLICIT_FIXTURE_CANDIDATE_APPROVAL' if
+                                     task_type == 'CODE_REPAIR_TASK'
                                      else 'HOST_REVIEWED'),
             'resource_requirements': {'max_network_requests':
                                       1 if task_type in {'DATA_ACQUISITION',

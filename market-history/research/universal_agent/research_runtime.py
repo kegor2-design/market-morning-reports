@@ -229,6 +229,8 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
                 recovery_event = ('SCHEMA_RECOVERY_READY' if evidence['problem_type'] ==
                                   'SCHEMA_MISMATCH' else 'API_RECOVERY_READY' if
                                   evidence['problem_type'] == 'API_ERROR' else
+                                  'CODE_RECOVERY_READY' if evidence['problem_type'] ==
+                                  'CODE_ERROR' else
                                   'CALENDAR_RECOVERY_READY')
                 queue['events'].append({'at_utc': now(), 'goal_id': candidate['goal_id'],
                                         'event': recovery_event,

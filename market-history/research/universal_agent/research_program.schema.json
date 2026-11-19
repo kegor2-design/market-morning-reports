@@ -38,7 +38,8 @@
       "enum": [
         "US_RATES",
         "KR_EQUITY_CONTEXT",
-        "KR_EQUITY_EXPLORATORY"
+        "KR_EQUITY_EXPLORATORY",
+        "ISOLATED_CODE_FIXTURE"
       ]
     },
     "research_period": {
@@ -70,7 +71,8 @@
           "UST_10Y",
           "NYFED_SOFR",
           "INDICATOR_116_PIT_EVIDENCE",
-          "KOSPI_KOSDAQ_HASHED_SNAPSHOT"
+          "KOSPI_KOSDAQ_HASHED_SNAPSHOT",
+          "ISOLATED_CODE_FIXTURE"
         ]
       }
     },
@@ -102,7 +104,8 @@
           "US_TREASURY",
           "NYFED_REFERENCE_RATES",
           "FRED_ALFRED",
-          "NAVER_HASHED_LOCAL"
+          "NAVER_HASHED_LOCAL",
+          "LOCAL_CODE_FIXTURE"
         ]
       }
     },
@@ -203,7 +206,9 @@
               "PIT_VALIDATION",
               "EXPERIMENT_EXECUTION",
               "KR_INDEX_VALIDATION",
-              "KR_CRASH_ANALYSIS"
+              "KR_CRASH_ANALYSIS",
+              "FIXTURE_ANALYSIS",
+              "CODE_REPAIR_TASK"
             ]
           },
           "dependencies": {
@@ -243,7 +248,9 @@
                 "EVIDENCE_WORKFLOW",
                 "RATE_ANALYSIS",
                 "VERIFY_HASHED_INDEX",
-                "ANALYZE_KR_CRASH_WINDOWS"
+                "ANALYZE_KR_CRASH_WINDOWS",
+                "RUN_ISOLATED_FIXTURE",
+                "REPAIR_ISOLATED_FIXTURE"
               ]
             }
           },
@@ -318,7 +325,8 @@
           "enum": [
             "US_RATES",
             "KR_EQUITY_CONTEXT",
-            "KR_EQUITY_EXPLORATORY"
+            "KR_EQUITY_EXPLORATORY",
+            "ISOLATED_CODE_FIXTURE"
           ]
         },
         "research_period": {

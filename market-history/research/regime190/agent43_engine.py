@@ -335,7 +335,7 @@ def _limits() -> None:
     resource.setrlimit(resource.RLIMIT_NOFILE, (32, 32))
 
 
-def _isolated_python(work_dir: Path) -> dict:
+def _isolated_python(work_dir: Path, *, timeout_seconds: float | None = None) -> dict:
     work_dir = work_dir.resolve(strict=True)
     if not work_dir.is_dir():
         raise ValueError('Isolated work directory must exist')
@@ -358,9 +358,13 @@ def _isolated_python(work_dir: Path) -> dict:
                '--chdir', '/work',
                '--setenv', 'HOME', '/work', '--setenv', 'PATH', '/usr/bin:/bin',
                '--', '/usr/bin/python3', '-I', '-B', '-c', launcher]
+    if timeout_seconds is not None and timeout_seconds <= 0:
+        return {'exit_code': None, 'error': 'EXEC_TIMEOUT'}
     try:
         result = subprocess.run(command, cwd=work_dir, capture_output=True, text=True,
-                                timeout=MAX_EXEC_SECONDS + 5, check=False,
+                                timeout=min(MAX_EXEC_SECONDS + 5, timeout_seconds)
+                                if timeout_seconds is not None else MAX_EXEC_SECONDS + 5,
+                                check=False,
                                 env={'PATH': '/usr/bin:/bin'}, preexec_fn=_limits)
     except subprocess.TimeoutExpired:
         return {'exit_code': None, 'error': 'EXEC_TIMEOUT'}
