@@ -160,6 +160,8 @@ def _program_result(state: dict, program_dir: Path) -> dict:
         analysis = json.loads(artifact.read_text())['result']
     if state['records'].get('analyze_kr_crashes', {}).get('status') == 'COMPLETED_EXPLORATORY':
         analysis = json.loads((program_dir / 'kr_crash_result.json').read_text())['result']
+    if state['records'].get('analyze_kr_regime', {}).get('status') == 'COMPLETED_EXPLORATORY':
+        analysis = json.loads((program_dir / 'kr_regime_result.json').read_bytes())['result']
     if state['records'].get('analyze_fixture', {}).get('status') == 'COMPLETED_EXPLORATORY':
         analysis = json.loads((program_dir / 'fixture_analysis_result.json').read_text())['result']
     result = {'goal_id': state['goal_id'], 'research_goal': state['plan']['research_goal'],
@@ -236,6 +238,9 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                                               'REVIEWED_ANALYSIS_ACTION'],
                      'task_statuses': {}, 'model_calls': 0,
                      'network_requests_reserved': 0, 'official_market_claim': False}
+            if '한국' in goal and ('급락' in goal or '국면' in goal):
+                from .source_discovery import korean_requirements
+                state['source_candidates'] = korean_requirements()
             write_state(checkpoint, state)
             write_state(unsupported_dir / 'research_report.json', state)
             return state
@@ -302,7 +307,7 @@ def run_research_program(goal: str, program_dir: Path | None = None,
         if 'goal_deadline_utc' not in state:
             # Upgrade old checkpoints once; later invocations cannot renew this budget.
             state['goal_budget_seconds'] = max_seconds
-            state['goal_deadline_utc'] = (_wall_utc_now() +
+            state['goal_deadline_utc'] = (datetime.fromisoformat(state['started_at_utc']) +
                                            timedelta(seconds=max_seconds)).isoformat()
             write_state(checkpoint, state)
         goal_deadline = datetime.fromisoformat(state['goal_deadline_utc'])
@@ -348,17 +353,27 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                     from .research_job import manifest_load, plan_for, verify_artifact
                     manifest_path = program_dir / 'manifests' / (saved_task['task_id'] + '.json')
                     manifest, digest = manifest_load(manifest_path)
-                    verify_artifact(manifest, plan_for(manifest, digest),
-                                    program_dir / 'jobs' / saved_task['task_id'])
+                    child_state = json.loads(saved_checkpoint.read_bytes())
+                    if saved_record['status'] != 'FAILED' or child_state.get('output_sha256'):
+                        verify_artifact(manifest, plan_for(manifest, digest),
+                                        program_dir / 'jobs' / saved_task['task_id'])
+                    elif child_state['status'] != 'FAILED_TERMINAL':
+                        raise ValueError('Failed child checkpoint lacks terminal failure')
                 elif saved_task['task_type'] == 'KR_INDEX_VALIDATION':
                     from regime190.exploratory_backtest import load_indices
                     rows, provenance = load_indices('2010-01-01')
                     item = json.loads(saved_checkpoint.read_text())
                     if item['common_rows'] != len(rows) or item['source_provenance'] != provenance:
                         raise ValueError('Korean index source changed after validation')
+                elif saved_task['task_type'] == 'KR_REGIME_ANALYSIS' and saved_record['status'] == 'COMPLETED_EXPLORATORY':
+                    from .kr_regime_analysis import bounded
+                    if json.loads(saved_checkpoint.read_bytes())['result'] != bounded(60):
+                        raise ValueError('Regime190 transition evidence changed')
                 elif saved_task['task_type'] == 'KR_CRASH_ANALYSIS':
                     from .kr_crash_analysis import analyze
-                    if json.loads(saved_checkpoint.read_text())['result'] != analyze():
+                    from .kr_crash_analysis import walk_forward
+                    evaluate = walk_forward if saved_task['inputs'].get('evaluation') == 'expanding_annual' else analyze
+                    if json.loads(saved_checkpoint.read_text())['result'] != evaluate():
                         raise ValueError('Korean crash analysis changed after checkpoint')
                 elif saved_task['task_id'] == 'restore_kr_analysis' and saved_record['status'] == 'VERIFIED':
                     source = program_dir / 'kr_analysis_copy.py'
@@ -416,6 +431,21 @@ def run_research_program(goal: str, program_dir: Path | None = None,
             state['status'] = 'RESEARCH_CANCELLED'
             write_state(checkpoint, state)
             return _program_result(state, program_dir)
+        if not boot_changed and remaining_goal_seconds() <= 1:
+            # An attached worker can outlive its supervisor. Reap only the already
+            # identified child and give supervise no budget for another launch.
+            for active_task in state['tasks']:
+                task_id = active_task['task_id']
+                record = state['records'][task_id]
+                job_dir = program_dir / 'jobs' / task_id
+                if record['status'] == 'RUNNING' and (job_dir / 'job.json').is_file():
+                    manifest = program_dir / 'manifests' / (task_id + '.json')
+                    child = supervise_research(manifest, job_dir, outer_deadline_utc=datetime.now(timezone.utc))
+                    record.update(status='FAILED', reason=child.get('reason', 'Deadline at restart'),
+                                  checkpoint=str(job_dir / 'job.json'), checkpoint_sha256=hashlib.sha256(
+                                      (job_dir / 'job.json').read_bytes()).hexdigest())
+                    if state['selection_history'] and state['selection_history'][-1]['selected'] == task_id:
+                        state['selection_history'][-1].update(ended_at_utc=now(), ended_monotonic=time.monotonic())
         if remaining_goal_seconds() <= 0 and state['status'] != 'RESEARCH_COMPLETED_EXPLORATORY':
             state['status'] = 'RESEARCH_BLOCKED'
             state['next_action'] = ('GOAL_BOOT_CHANGED_REVIEW' if boot_changed
@@ -462,11 +492,17 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                 continue
             task_deadline = min(goal_deadline, _wall_utc_now() + timedelta(
                 seconds=max(0.0, min(task['resource_budget']['max_seconds'], remaining_goal_seconds()))))
-            selection = {'started_at_utc': now(), 'started_monotonic': time.monotonic(),
-                         'task_deadline_utc': task_deadline.isoformat()}
-            state['selection_history'].append({**selection, 'selected': task_id,
-                'candidates': [item['task_id'] for item in ready[1:]],
-                'reason': 'Highest-priority independent ready task'})
+            history = state['selection_history']
+            continuing = (record['status'] == 'RUNNING' and history and
+                          history[-1]['selected'] == task_id and 'started_at_utc' in history[-1]
+                          and 'ended_at_utc' not in history[-1])
+            if continuing:
+                task_deadline = min(task_deadline, datetime.fromisoformat(history[-1]['task_deadline_utc']))
+            else:
+                history.append({'started_at_utc': now(), 'started_monotonic': time.monotonic(),
+                    'task_deadline_utc': task_deadline.isoformat(), 'selected': task_id,
+                    'candidates': [item['task_id'] for item in ready[1:]],
+                    'reason': 'Highest-priority independent ready task'})
             if record['status'] != 'RUNNING':
                 record.update(status='RUNNING', attempts=record['attempts'] + 1,
                               task_key=_program_task_key(plan['goal_id'], task))
@@ -478,6 +514,8 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                     state['recovery_network_requests_reserved'] = 1
                 write_state(checkpoint, state)
             if task['task_type'] == 'DATA_DISCOVERY':
+                from .source_discovery import discover
+                record['source_search'] = discover(task['inputs']['series'])
                 gaps = dates_for(plan)
                 record.update(status='VERIFIED', gaps=gaps,
                               next_action='ADD_APPROVED_DATA_ACQUISITION')
@@ -527,6 +565,17 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                         'pit_status': 'PIT_UNVERIFIED'})
                     record.update(status='VERIFIED', checkpoint=str(path),
                         checkpoint_sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+            elif task['task_type'] == 'KR_REGIME_ANALYSIS':
+                from .kr_regime_analysis import bounded
+                try:
+                    result = bounded(min(60, remaining_goal_seconds()))
+                except ValueError as exc:
+                    record.update(status='BLOCKED_EVIDENCE', reason=str(exc))
+                else:
+                    path = program_dir / 'kr_regime_result.json'
+                    write_state(path, {'result': result})
+                    record.update(status='COMPLETED_EXPLORATORY', checkpoint=str(path),
+                                  checkpoint_sha256=hashlib.sha256(path.read_bytes()).hexdigest())
             elif task['task_type'] == 'KR_CRASH_ANALYSIS':
                 from .kr_crash_analysis import analyze
                 try:
@@ -534,6 +583,9 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                     if isolated:
                         from .kr_analysis_repair import run
                         result = run(program_dir, task_deadline)
+                    elif task['inputs'].get('evaluation') == 'expanding_annual':
+                        from .kr_crash_analysis import walk_forward
+                        result = walk_forward()
                     else:
                         result = analyze()
                 except (OSError, RuntimeError, ValueError) as exc:
@@ -689,7 +741,7 @@ def run_research_program(goal: str, program_dir: Path | None = None,
         if (program_dir / 'STOP').exists():
             state['status'] = 'RESEARCH_CANCELLED'
         elif any(state['records'].get(task_id, {}).get('status') == 'COMPLETED_EXPLORATORY'
-                 for task_id in ('analyze_rates', 'analyze_kr_crashes', 'analyze_fixture')):
+                 for task_id in ('analyze_rates', 'analyze_kr_crashes', 'analyze_kr_regime', 'analyze_fixture')):
             state['status'] = 'RESEARCH_COMPLETED_EXPLORATORY'
         elif any(record['status'].startswith('BLOCKED') for record in state['records'].values()):
             state['status'] = 'RESEARCH_BLOCKED'
@@ -708,10 +760,11 @@ def run_research_program(goal: str, program_dir: Path | None = None,
         write_state(checkpoint, state)
         if (state['status'] == 'RESEARCH_BLOCKED' and
                 plan['goal_contract']['approved_independent_goal_ids'] and
+                remaining_goal_seconds() >= 10 and
                 not (program_dir / 'STOP').exists()):
             from .research_planner import APPROVED_INDEPENDENT_RATES_GOAL
             child = run_research_program(APPROVED_INDEPENDENT_RATES_GOAL,
-                                         max_tasks=12, max_seconds=max_seconds)
+                                         max_tasks=12, max_seconds=min(max_seconds, int(remaining_goal_seconds())))
             child_id = plan['goal_contract']['approved_independent_goal_ids'][0]
             if child['goal_id'] != child_id:
                 raise ValueError('Independent goal identity changed')

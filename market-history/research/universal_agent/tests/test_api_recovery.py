@@ -303,16 +303,19 @@ class ApiRecoveryDagTests(unittest.TestCase):
                     queued['jobs'][job['goal_id']]['next_eligible_retry_at'])
                 time.sleep(max(0, (eligible - datetime.datetime.now(
                     datetime.timezone.utc)).total_seconds()) + 0.1)
-            def audit():
-                fault_audit.verify(audit_id, program_dir, before, len(requests))
+            def audit(**observation):
+                fault_audit.verify(audit_id, program_dir, before, len(requests), observation)
 
             before = fault_audit.snapshot(program_dir)
             if transaction_fault:
                 if transaction_fault == 'R7':
                     self._run(queue_dir)
                     active = json.loads((program_dir / 'state.json').read_bytes())
-                    with self.assertRaisesRegex(ValueError, 'already exists'):
+                    checkpoint_before = deepcopy(active)
+                    with self.assertRaisesRegex(ValueError, 'already exists') as refusal:
                         api_recovery.replan(plan, active, program_dir)
+                    self.assertEqual(checkpoint_before, active)
+                    observation = {'duplicate_rejection': str(refusal.exception)}
                 else:
                     state = deepcopy(first)
                     real_write = api_recovery.write_state
@@ -324,6 +327,8 @@ class ApiRecoveryDagTests(unittest.TestCase):
                         with mock.patch.object(api_recovery, 'write_state', side_effect=fail_write):
                             with self.assertRaisesRegex(OSError, 'audit journal fault'):
                                 api_recovery.replan(plan, state, program_dir)
+                        observation = {'journal_absent_after_failed_write': not (program_dir /
+                            'api_recovery_transaction_v1.json').exists(), 'state_unchanged': state == first}
                         self.assertEqual(state, first)
                         self.assertFalse((program_dir / 'api_recovery_transaction_v1.json').exists())
                         self._run(queue_dir)
@@ -343,18 +348,23 @@ class ApiRecoveryDagTests(unittest.TestCase):
                         with mock.patch.object(api_recovery, 'finalize_transaction', side_effect=interrupt_once):
                             research_runtime.run(queue_dir, max_jobs=1, max_seconds=120)
                         self.assertEqual(len(interruptions), 1)
-                audit()
+                        observation = {'interrupted_prepared_revision': interruptions[0]}
+                audit(**observation)
                 return
             if tamper_approval:
                 approval_path = program_dir / 'api_recovery_approval.json'
                 approval = json.loads(approval_path.read_text())
+                # Keep the issued record as well as the intentionally rejected presentation.
+                (program_dir / 'issued_approval.json').write_bytes(approval_path.read_bytes())
+                issued_hash = before['approval']['api_recovery_approval.json']
                 approval['max_network_requests'] = 2
                 approval_path.write_text(json.dumps(approval))
                 before = fault_audit.snapshot(program_dir)
                 self.assertEqual(self._run(queue_dir)['processed'], 0)
                 self.assertEqual(len(requests), 3)
                 self.assertFalse((program_dir / 'api_recovery_revision_v1.json').exists())
-                audit()
+                self.assertEqual(before['approval']['issued_approval.json'], issued_hash)
+                audit(issued_approval_sha256=issued_hash, rejected_budget=approval['max_network_requests'])
                 return
             if kill_recovery:
                 env = {'PATH': '/usr/bin:/bin',
@@ -385,7 +395,9 @@ class ApiRecoveryDagTests(unittest.TestCase):
                 self.assertEqual(saved['recovery_network_requests_reserved'], 1)
                 self.assertEqual(self._run(queue_dir)['processed'], 0)
                 self.assertEqual(len(requests), 4)
-                audit()
+                killed_job = json.loads(child_path.read_bytes())
+                self.assertIn(-signal.SIGKILL, [e.get('exit_code') for e in killed_job['events']])
+                audit(worker_exit=-signal.SIGKILL, recovery_reservations=saved['recovery_network_requests_reserved'])
                 return
             if bad_recovery:
                 if kill_rollback:
@@ -414,7 +426,8 @@ class ApiRecoveryDagTests(unittest.TestCase):
                     self.assertEqual(json.loads((program_dir / 'state.json').read_text())[
                         'records']['analyze_rates']['attempts'], 0)
                     self.assertEqual(len(requests), 4)
-                    audit()
+                    audit(supervisor_exit=child.exitcode, interrupted_journal='REVISION_COMMITTED',
+                          interrupted_state=interrupted['api_recovery_revision']['status'])
                     return
                 outcome = self._run(queue_dir)['statuses'][job['goal_id']]
                 queue = json.loads((queue_dir / 'state.json').read_text())
@@ -435,7 +448,8 @@ class ApiRecoveryDagTests(unittest.TestCase):
                                     'COMPLETED_EXPLORATORY')
                 self.assertEqual(self._run(queue_dir)['processed'], 0)
                 self.assertEqual(len(requests), 4)
-                audit()
+                audit(retired_status=blocked['retired_recovery_tasks'][0]['record']['status'],
+                      malformed_response_sha256=hashlib.sha256(b'bad csv').hexdigest())
                 return
             if bad_analysis:
                 original_verify = research_job.verify_artifact
@@ -464,7 +478,8 @@ class ApiRecoveryDagTests(unittest.TestCase):
                 self.assertEqual(blocked['recovery_network_requests_reserved'], 1)
                 self.assertEqual(blocked['network_requests_reserved'], 3)
                 self.assertEqual(len(requests), 4)
-                audit()
+                audit(retired_analysis_status=blocked['retired_recovery_tasks'][0]['analysis_record']['status'],
+                      retired_recovery_status=blocked['retired_recovery_tasks'][0]['record']['status'])
                 return
             self.assertEqual(self._run(queue_dir)['statuses'][job['goal_id']],
                              'COMPLETED_EXPLORATORY')

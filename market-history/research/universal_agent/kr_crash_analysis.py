@@ -43,3 +43,32 @@ def crash_windows(rows, provenance):
             'pit_status': 'PIT_UNVERIFIED', 'official_market_claim': False,
             'data_quality_status': 'EXPLORATORY_SNAPSHOT_WITH_UNRESOLVED_PROVIDER_MISMATCHES',
             'next_action': 'ACQUIRE_OFFICIAL_KRX_PRICES_AND_MARKET_CALENDAR'}
+
+
+def walk_forward():
+    """Expanding annual evaluation with at least three calendar years of history."""
+    rows, provenance = load_indices('2010-01-01')
+    rows = [row for row in rows if row['date'] <= '2025-12-31']
+    prices = [row['kospi']['close'] for row in rows]
+    returns = [b / a - 1 for a, b in zip(prices, prices[1:])]
+    observations = [(int(rows[i]['date'][:4]), statistics.pstdev(returns[i-21:i-1]),
+                     int(returns[i-1] <= -.05)) for i in range(61, len(rows))]
+    folds = []
+    for year in range(2013, 2026):
+        train = [(vol, crash) for date, vol, crash in observations if date < year]
+        test = [(vol, crash) for date, vol, crash in observations if date == year]
+        threshold = statistics.quantiles([v for v, _ in train], n=10, method='inclusive')[-1]
+        base = (1 + sum(y for _, y in train)) / (2 + len(train))
+        bins = [[y for v, y in train if (v >= threshold) == group] for group in (False, True)]
+        probs = [(sum(group) + 2 * base) / (len(group) + 2) for group in bins]
+        folds.append({'year': year, 'train_n': len(train), 'test_n': len(test),
+                      'events': sum(y for _, y in test),
+                      'brier_sum': sum((probs[v >= threshold] - y)**2 for v, y in test),
+                      'baseline_sum': sum((base - y)**2 for _, y in test)})
+    n = sum(f['test_n'] for f in folds)
+    return {'status': 'EXPLORATORY_ONLY', 'official_market_claim': False,
+            'pit_status': 'PIT_UNVERIFIED', 'holdout': 'PREVIOUSLY_STUDIED_SNAPSHOT',
+            'source_sha256': {k: v['sha256'] for k, v in provenance.items()},
+            'folds': folds, 'validation_n': n, 'crash_rule': 'KOSPI close-to-close <= -5%',
+            'brier': sum(f['brier_sum'] for f in folds) / n,
+            'baseline_brier': sum(f['baseline_sum'] for f in folds) / n}

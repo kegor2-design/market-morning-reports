@@ -42,10 +42,10 @@ def job(test_id, start, deadline, state, restarts):
            (deadline-start[0]).total_seconds(), 'single Research Job with outer Goal deadline')
 
 
-def program(test_id, start, state, restarts, deadline=None):
+def program(test_id, start, state, restarts, deadline=None, grace=()):
     tasks = [{k: row[k] for k in ('selected', 'started_at_utc', 'ended_at_utc', 'task_deadline_utc')}
              for row in state['selection_history']]
     assert tasks
     record(test_id, start, deadline or datetime.fromisoformat(state['goal_deadline_utc']),
-           tasks, [], restarts, state['goal_boot_id'], len(tasks)-len({t['selected'] for t in tasks}),
+           tasks, list(grace), restarts, state['goal_boot_id'], len(tasks)-len({t['selected'] for t in tasks}),
            state['goal_budget_seconds'], 'Research Program')

@@ -41,7 +41,7 @@ def export(row):
         (path / (row['test_id'] + '.json')).write_text(json.dumps(row, indent=2) + '\n')
 
 
-def verify(test_id, directory, before, calls):
+def verify(test_id, directory, before, calls, failure_observation):
     after = snapshot(directory)
     old, new = before['state'], after['state']
     tx_path = directory / 'api_recovery_transaction_v1.json'
@@ -86,7 +86,8 @@ def verify(test_id, directory, before, calls):
             'terminal goal state')
     failure = 'jobs/collect_ust_2y/data_recovery/data_recovery.json'
     require(after['requests'][failure] == before['requests'][failure], 'original failure evidence')
-    row = dict(test_id=test_id, goal_id=new['goal_id'], original_goal_hash=digest(old['plan']['research_goal']),
+    require(bool(failure_observation), 'injected failure observation')
+    row = dict(failure_observation=failure_observation, test_id=test_id, goal_id=new['goal_id'], original_goal_hash=digest(old['plan']['research_goal']),
                contract_hash=old['goal_contract_sha256'], plan_hash=old['plan_sha256'],
                original_dag_hash=original_dag, active_revision_hash=new.get('active_revision_sha256'),
                source_hash=digest(before['source']), completed_task_hash=digest(before['completed']),

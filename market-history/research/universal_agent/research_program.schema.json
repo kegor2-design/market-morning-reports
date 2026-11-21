@@ -207,6 +207,7 @@
               "EXPERIMENT_EXECUTION",
               "KR_INDEX_VALIDATION",
               "KR_CRASH_ANALYSIS",
+              "KR_REGIME_ANALYSIS",
               "FIXTURE_ANALYSIS",
               "CODE_REPAIR_TASK"
             ]
@@ -249,6 +250,7 @@
                 "RATE_ANALYSIS",
                 "VERIFY_HASHED_INDEX",
                 "ANALYZE_KR_CRASH_WINDOWS",
+                "EVALUATE_REGIME_TRANSITIONS",
                 "RUN_ISOLATED_FIXTURE",
                 "REPAIR_ISOLATED_FIXTURE",
                 "RESTORE_REVIEWED_KR_ANALYSIS"

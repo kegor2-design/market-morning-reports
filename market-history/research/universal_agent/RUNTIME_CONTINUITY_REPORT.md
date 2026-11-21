@@ -104,6 +104,10 @@ PYTHONPATH=market-history/research UNIVERSAL_AUDIT_DIR=.universal_private/finali
 ```json
 [
   {
+    "failure_observation": {
+      "issued_approval_sha256": "4749d1d7e76efe581b9056c229b854d788dbf4901cef824617b7818a5cc30c60",
+      "rejected_budget": 2
+    },
     "test_id": "R1",
     "goal_id": "research_a1c6e314ed8f",
     "original_goal_hash": "79fca008d45f90525f53862af0539c95c6cbd18bb8ebb43667b4405f60308c85",
@@ -112,10 +116,10 @@ PYTHONPATH=market-history/research UNIVERSAL_AUDIT_DIR=.universal_private/finali
     "original_dag_hash": "4bc867c6f60b0f732d20add09cbeab6802a7e9742a72b24127880a09743426ed",
     "active_revision_hash": null,
     "source_hash": "92705563242cfd7c5c897d0a1a5bb61db62d5bc8a608dc2e30907333acebe4bb",
-    "completed_task_hash": "2cd31c115dae17bf694fe8efffb3947792e681a14536ffd84ac2934ea19d5662",
-    "approval_ledger_hash": "565e786d46f24bd8b9809187e7cdcb7c90fd0afc13f4cddf99224d5a2e68467b",
-    "request_ledger_hash": "39364d5555d8adf96958647ca1194138fd32a3a92bac964ec8b33ce7e5f5b1b3",
-    "failure_evidence_hash": "f612284fa69f8de3ae987894210098a9f0e2365c49e6ca304a86995090f46956",
+    "completed_task_hash": "b63b6935837e6fd3a475df01340b737292c9e8462a54065330602e3f2730c0b7",
+    "approval_ledger_hash": "404d074ef2e506e2ced72598869d5d1374a880cf8700904a5f28e7f3fb1724d6",
+    "request_ledger_hash": "fb5298526d798f615b98d5e0c60bdb2a2fa53b7ba43bfbe3349cca7d81d6281c",
+    "failure_evidence_hash": "8d9740de2dd5f6566ebde2e09d34abe9a0061dbb99b77a4c9c0d227dce6e3dfa",
     "observed_http_calls": 3,
     "checkpoint_generation": [
       3,
@@ -127,18 +131,22 @@ PYTHONPATH=market-history/research UNIVERSAL_AUDIT_DIR=.universal_private/finali
     "final_verdict": "PASS"
   },
   {
+    "failure_observation": {
+      "journal_absent_after_failed_write": true,
+      "state_unchanged": true
+    },
     "test_id": "R2",
     "goal_id": "research_cad0218bb116",
     "original_goal_hash": "c5833856375337fa574c4fd945294516fc79d35adc9445c4f7969454c9b87148",
     "contract_hash": "ad2c39364feb69b8e40433c9a80531ac9a2c0d03e235c81297b02cf516e9d825",
     "plan_hash": "25a1701d91a6b263f4e5b906ed366f21c0ee1b1e1e9f6f336e4661d5556fc18f",
     "original_dag_hash": "4bc867c6f60b0f732d20add09cbeab6802a7e9742a72b24127880a09743426ed",
-    "active_revision_hash": "f1e794a7d74df64e16dc98f715516adb4575df58023cb10628e8c13237d4f9c3",
+    "active_revision_hash": "d8ae6a45155b067042227ca30b5759896cc18d068d920c7238f3fc6df64f406d",
     "source_hash": "92705563242cfd7c5c897d0a1a5bb61db62d5bc8a608dc2e30907333acebe4bb",
-    "completed_task_hash": "bd3681d1171680487ff6292f27a5f3c686ea5752c9ab2bad77135f17f98824d5",
-    "approval_ledger_hash": "414c3856d7eaa65306b1642fb7b3d3817b1039bafa548020a8c2a1f39c25d2c9",
-    "request_ledger_hash": "318f266ee632dd8f619a8080185f840e33f8cafdb56a5d8784cf620e86f90ad4",
-    "failure_evidence_hash": "9f84fe063dc232f6bf10b143f77388535bca7d2a1404b666ecdb1a19030c4ea0",
+    "completed_task_hash": "b12937eda119e8b8b53a87c63dcaa4e3d23a67b7e5c33189b9ef39b9822b49da",
+    "approval_ledger_hash": "3141ad1c2f6d59864f2bc50a336d7385e2b1b613b75b6c5b5f0e64533ca33ca3",
+    "request_ledger_hash": "85aa597794851629a2de7e823adaa898f2925d2e072dadfa69b523c9ac0c17b5",
+    "failure_evidence_hash": "0fedf300f6b500d98c9dcd843e37fb7fda9f81bdba10e65c7a7718dc6d7de044",
     "observed_http_calls": 4,
     "checkpoint_generation": [
       3,
@@ -150,18 +158,21 @@ PYTHONPATH=market-history/research UNIVERSAL_AUDIT_DIR=.universal_private/finali
     "final_verdict": "PASS"
   },
   {
+    "failure_observation": {
+      "interrupted_prepared_revision": "f172b3fe17f0d6de3189d26861f0495a9419ffc170f20e0ce854e6018067d30d"
+    },
     "test_id": "R3",
     "goal_id": "research_ddcca11b72c4",
     "original_goal_hash": "5d0852d0b4185570943ba49a04243ee921129f0d138bffd6d9633f295be39d16",
     "contract_hash": "0038232387fc61cfe8a41eb942b42252683fca7ce8b122a020a4d666f19102ed",
     "plan_hash": "46183c79bcfacfc0cb2a8495d40bd0d8547005f53d418aa2565ee72430080eac",
     "original_dag_hash": "4bc867c6f60b0f732d20add09cbeab6802a7e9742a72b24127880a09743426ed",
-    "active_revision_hash": "b3e36e389f975b304dd8b4905fd36cec78c0abc9f775d00c7edc3fc291c83dd2",
+    "active_revision_hash": "f172b3fe17f0d6de3189d26861f0495a9419ffc170f20e0ce854e6018067d30d",
     "source_hash": "92705563242cfd7c5c897d0a1a5bb61db62d5bc8a608dc2e30907333acebe4bb",
-    "completed_task_hash": "fc1eaaa1f342ca5aad7b0de7631284c541f59caab902731e1cb748c488c5f03e",
-    "approval_ledger_hash": "cf35b7dc822ceb55eeaa91ab51a1d367994c373a5f1ff7b5c168a28b4a94e011",
-    "request_ledger_hash": "395633410df05860cdbb684e6737097b072218d4e9795fba76fbb8b146b2be36",
-    "failure_evidence_hash": "858f408c3c61e6f10df62dbd0967004c9f989db41c1c1ae0f5abbe12e340e717",
+    "completed_task_hash": "bb712ade86d5f2f81354964c01f949d65b39170ea7c03c64f6a9052f33088e2c",
+    "approval_ledger_hash": "78179d97daf206dd68ab225014405a56dbb4a4e62e28ca5440bbf7ca140cb918",
+    "request_ledger_hash": "bdcffdaba0eef308847dc1c9b6957df5ca3fdead89e73dd7a54a11a620258fa0",
+    "failure_evidence_hash": "cbca060fdb00d9e9ef786c56059b71f0246d62c16443a829894855a872e9cf5d",
     "observed_http_calls": 4,
     "checkpoint_generation": [
       3,
@@ -173,6 +184,10 @@ PYTHONPATH=market-history/research UNIVERSAL_AUDIT_DIR=.universal_private/finali
     "final_verdict": "PASS"
   },
   {
+    "failure_observation": {
+      "worker_exit": -9,
+      "recovery_reservations": 1
+    },
     "test_id": "R4",
     "goal_id": "research_196ab1f564f1",
     "original_goal_hash": "ac29f3b557213a639b5573cb6feb9d91bc33001b4583bf27000e2f1cdc966edd",
@@ -181,10 +196,10 @@ PYTHONPATH=market-history/research UNIVERSAL_AUDIT_DIR=.universal_private/finali
     "original_dag_hash": "4bc867c6f60b0f732d20add09cbeab6802a7e9742a72b24127880a09743426ed",
     "active_revision_hash": null,
     "source_hash": "92705563242cfd7c5c897d0a1a5bb61db62d5bc8a608dc2e30907333acebe4bb",
-    "completed_task_hash": "8237b28d3f0414b609bb1425b102e6e48f018c7f0180ef9187935a51984820bd",
-    "approval_ledger_hash": "2c30ba7fdd2bad0092bcee6e2189b8c4da03eaacddd4beb85ca6c94787b92960",
-    "request_ledger_hash": "05e537fac4e3398791a6ce31812d8c5faeea7b455cafab1b2d3181051f55d3f7",
-    "failure_evidence_hash": "da12bf0896e20f47d9dae1acfd39d98a8cebc9cbf6f2ad15e5a84faffe1a07e4",
+    "completed_task_hash": "95e8a672d2326d7bc046c5a7b05f913bef26f4ea1d8c052a4f537325921f8493",
+    "approval_ledger_hash": "3a07e4c43b3d99e94041b841a00cbfbe98074df32e2df6bb9b239bdedd1bdbf4",
+    "request_ledger_hash": "1a424f173f53c5a9c9dc7bec66172c60d18b462b6af1f2c1a95eed62a0ab71f7",
+    "failure_evidence_hash": "ce523e7d9dc1672e1be54b843caee8e3fad564ad8f7398c651ad304b56a038e4",
     "observed_http_calls": 4,
     "checkpoint_generation": [
       3,
@@ -196,6 +211,10 @@ PYTHONPATH=market-history/research UNIVERSAL_AUDIT_DIR=.universal_private/finali
     "final_verdict": "PASS"
   },
   {
+    "failure_observation": {
+      "retired_status": "BLOCKED_EVIDENCE",
+      "malformed_response_sha256": "f82892290ec38e6650d4ed8a888cceefd7a0de13d8b017fa28b46ee7f993f1ec"
+    },
     "test_id": "R5",
     "goal_id": "research_087dbdc256a4",
     "original_goal_hash": "1b7375e14bb925c2305d3bab817164fdb67f67bea1460f3b9008d3bae85b2abf",
@@ -204,10 +223,10 @@ PYTHONPATH=market-history/research UNIVERSAL_AUDIT_DIR=.universal_private/finali
     "original_dag_hash": "4bc867c6f60b0f732d20add09cbeab6802a7e9742a72b24127880a09743426ed",
     "active_revision_hash": null,
     "source_hash": "92705563242cfd7c5c897d0a1a5bb61db62d5bc8a608dc2e30907333acebe4bb",
-    "completed_task_hash": "1d71a1f5616512a60e70a6c05bb4cd5208d1e73faa36d3965879b10a4a583ffb",
-    "approval_ledger_hash": "1ece677637a3cabfc38d2aa93f32396763e7dd158de39a4e53bb1a418d765e03",
-    "request_ledger_hash": "53be638a1001e4882445a5dfcfe2616eb5bd48fe1735561eb02a1e7b2a2c758b",
-    "failure_evidence_hash": "693bc3006c552551b2e04b70dab9b05dda87d6651500fad6d5b92d1ee3721b63",
+    "completed_task_hash": "ef26d93cc82e2c8f1473a0ed6720d72ea13f589ac594b08dc37faf1199aa7d89",
+    "approval_ledger_hash": "3a0b62d3747c1672f714a003fb7bda7f0454d04def77b03438ae8165fa85d52d",
+    "request_ledger_hash": "70c14b8a52261143e3d46684a8a31a851b34acdbb590aa59b2acf93d3101caa1",
+    "failure_evidence_hash": "6169659eb3783525807f46c73cbb0a5024b8abbb6cc3f836f6320c176686ce9b",
     "observed_http_calls": 4,
     "checkpoint_generation": [
       3,
@@ -219,6 +238,10 @@ PYTHONPATH=market-history/research UNIVERSAL_AUDIT_DIR=.universal_private/finali
     "final_verdict": "PASS"
   },
   {
+    "failure_observation": {
+      "retired_analysis_status": "FAILED",
+      "retired_recovery_status": "VERIFIED"
+    },
     "test_id": "R6",
     "goal_id": "research_cc8a1637112d",
     "original_goal_hash": "6998606d2d37f8f089fec20f57c08010a1908f945d3a8d8d8df063e3bde468d0",
@@ -227,10 +250,10 @@ PYTHONPATH=market-history/research UNIVERSAL_AUDIT_DIR=.universal_private/finali
     "original_dag_hash": "4bc867c6f60b0f732d20add09cbeab6802a7e9742a72b24127880a09743426ed",
     "active_revision_hash": null,
     "source_hash": "92705563242cfd7c5c897d0a1a5bb61db62d5bc8a608dc2e30907333acebe4bb",
-    "completed_task_hash": "ed5b1605a1ced2c21ee367c338933b89a116e1026440f96e600764f3293c7200",
-    "approval_ledger_hash": "c47f36daf7e607607bf1d5e6dd671ee2f6950ddafb6cc9fb309a74b5211ff64c",
-    "request_ledger_hash": "e05ba260866dc1ef81675872544f6d737f4adfd8286b8eba860320573a053cea",
-    "failure_evidence_hash": "8b8b2d3d36812a4bb11563f7697cae289d36b549d3f9105644660ae4e2bdc8a9",
+    "completed_task_hash": "493c7427c05b2b0642e1222e30611f2333e20db47b7a00c58c2f442ac7c950bf",
+    "approval_ledger_hash": "b27e66056e6947aa393c0b2e143f264577ce8d7951139ade927cb48c47e33e41",
+    "request_ledger_hash": "df6331a962feb6bfb897b0ae738b9f828b38d52edda96189f759e53499781498",
+    "failure_evidence_hash": "a3f1d2d79b6239c402766e8e390dc9c8ad080f069e4d1a85aa3db61d797f522f",
     "observed_http_calls": 4,
     "checkpoint_generation": [
       3,
@@ -242,18 +265,21 @@ PYTHONPATH=market-history/research UNIVERSAL_AUDIT_DIR=.universal_private/finali
     "final_verdict": "PASS"
   },
   {
+    "failure_observation": {
+      "duplicate_rejection": "API recovery revision already exists"
+    },
     "test_id": "R7",
     "goal_id": "research_ada757d273be",
     "original_goal_hash": "0fc45a4617a5a724c5ef46140b7a75046b7041fdb2b5e6d94d50fea5750cb89f",
     "contract_hash": "61e15069fab2af6ff99575693ad8c46ce1172cc245a19bfd86917b5fbdb5599a",
     "plan_hash": "6ee5c64db9f048d1ad9aa4cdfd5509016a44ff8dc22c02c43eefe5a300b6771f",
     "original_dag_hash": "4bc867c6f60b0f732d20add09cbeab6802a7e9742a72b24127880a09743426ed",
-    "active_revision_hash": "7e31fddbb5f6e6fcceea83f700e5bf08ec86a08b81b3b08958a10150c934cc38",
+    "active_revision_hash": "2fa17fe41b683d84cf9d57dfe71cf97db6e0ca3dbd964dd6398e702f34aa06f1",
     "source_hash": "92705563242cfd7c5c897d0a1a5bb61db62d5bc8a608dc2e30907333acebe4bb",
-    "completed_task_hash": "3102a448b05437a4caa5c8ebcc8b6d393ce24c0b9c5d656531f02a49aeb0a187",
-    "approval_ledger_hash": "09a1c4548e8977bad9286c47b386c648a6a033c9de57a81d0cebf1a09a85e8d4",
-    "request_ledger_hash": "d71ce8c8140dbb1ad787e6c1b95c4884de4a30786c26d4a3bcea863c7e5d10a2",
-    "failure_evidence_hash": "36aadfd19311a0419d1c27c296e72c105bfc449bea6769077f8e6c25271903e6",
+    "completed_task_hash": "70f7035451cc159380f3230d4c571448366670221bde3d46735df7ef9d0c0c37",
+    "approval_ledger_hash": "5b3dda59fb34f9975c9cd8ed4858ab078c3d75a39c33784c36478c6eb3f357fe",
+    "request_ledger_hash": "bc024639a18b082f7dc9136e88c0ff1f80272021158df6257b63a08e934e3c8a",
+    "failure_evidence_hash": "fe5fd99f6bf7269dca7eda38ab1efc6816d49ed926fc4f6bc208b96334fbc524",
     "observed_http_calls": 4,
     "checkpoint_generation": [
       3,
@@ -265,6 +291,11 @@ PYTHONPATH=market-history/research UNIVERSAL_AUDIT_DIR=.universal_private/finali
     "final_verdict": "PASS"
   },
   {
+    "failure_observation": {
+      "supervisor_exit": -9,
+      "interrupted_journal": "REVISION_COMMITTED",
+      "interrupted_state": "REVISION_ROLLED_BACK"
+    },
     "test_id": "R8",
     "goal_id": "research_2d5fc0a1cbe4",
     "original_goal_hash": "ed1c6625fac1baa7503dcefc2b1d112d500045b857b6088e62fbbf4c68ff6b0f",
@@ -273,10 +304,10 @@ PYTHONPATH=market-history/research UNIVERSAL_AUDIT_DIR=.universal_private/finali
     "original_dag_hash": "4bc867c6f60b0f732d20add09cbeab6802a7e9742a72b24127880a09743426ed",
     "active_revision_hash": null,
     "source_hash": "92705563242cfd7c5c897d0a1a5bb61db62d5bc8a608dc2e30907333acebe4bb",
-    "completed_task_hash": "bed13b443823a0f125f9cc73c1914257b898ad7a001b5f406ec87ac930bd6fa6",
-    "approval_ledger_hash": "7ba44a7d1494b3b37569f826a2f28fc54d7eff5bfc285feacb1ad8fc427e2362",
-    "request_ledger_hash": "121c22df81751ff171a2282665da394fdb0bdd8316f8be0e911057aaefbec0be",
-    "failure_evidence_hash": "eb046793be3efa2e0f57f8d83965d4f2fc3f30d625e3600867db5a18fd424ab0",
+    "completed_task_hash": "40d023ef86770ce775839963daf6b0f11f1cbd80b57d0e63a69f33887af709ca",
+    "approval_ledger_hash": "dc5379c6a7e0d199be618fad3b4cc0d82d1a51c45bb93cd8d6e6bb02706114b1",
+    "request_ledger_hash": "24f8c9cbcccd1e6a03bdce45e7a6bd34171d9e73ec95c59108bfcfa0f6d9f951",
+    "failure_evidence_hash": "541b63bfe83cf54c9b43d4439bc914126fd37d39d6d9f279d3735fad809616f5",
     "observed_http_calls": 4,
     "checkpoint_generation": [
       3,
@@ -545,3 +576,203 @@ Reproduce with `PYTHONPATH=market-history/research UNIVERSAL_AUDIT_DIR=.universa
   }
 ]
 ```
+
+## Integrated whole-Goal follow-up
+
+Four additional trials exercised the full Program path for normal completion, timeout, supervisor death and a stopped worker. Each includes initial planning, discovery or index validation, Task execution and final checkpoint. For the HTTP trials the owned Worker made one request. T5 attached to the existing Worker. T6 escalated after the measured grace. T3, T4, T7 and T8 above already used the Program path. Reproduce with `PYTHONPATH=market-history/research UNIVERSAL_AUDIT_DIR=.universal_private/finalization /home/kegor2/stock_env/bin/python -m unittest universal_agent.tests.test_whole_goal_deadline`.
+
+```json
+[
+  {
+    "test_id": "T1_program",
+    "scope": "Research Program",
+    "goal_start_utc": "2026-11-21T13:13:43.384617+00:00",
+    "deadline_utc": "2026-11-21T13:13:53.453909+00:00",
+    "end_utc": "2026-11-21T13:13:44.270809+00:00",
+    "elapsed_seconds": 0.8861872795969248,
+    "approved_budget_seconds": 10,
+    "remaining_seconds": 9.1831,
+    "restarts": 0,
+    "boot_id": "5ed0dd23-000d-4627-b80f-64922cb34c39",
+    "tasks": [
+      {
+        "selected": "validate_kr_index",
+        "started_at_utc": "2026-11-21T13:13:43.496035+00:00",
+        "ended_at_utc": "2026-11-21T13:13:43.626630+00:00",
+        "task_deadline_utc": "2026-11-21T13:13:53.453907+00:00"
+      },
+      {
+        "selected": "analyze_kr_crashes",
+        "started_at_utc": "2026-11-21T13:13:43.682650+00:00",
+        "ended_at_utc": "2026-11-21T13:13:44.148220+00:00",
+        "task_deadline_utc": "2026-11-21T13:13:53.453906+00:00"
+      }
+    ],
+    "shutdown_grace": [],
+    "post_deadline_starts": 0,
+    "duplicates": 0,
+    "final_verdict": "PASS"
+  },
+  {
+    "test_id": "T2_program",
+    "scope": "Research Program",
+    "goal_start_utc": "2026-11-21T13:14:07.422326+00:00",
+    "deadline_utc": "2026-11-21T13:14:17.484924+00:00",
+    "end_utc": "2026-11-21T13:14:17.664181+00:00",
+    "elapsed_seconds": 10.241856344044209,
+    "approved_budget_seconds": 10,
+    "remaining_seconds": 0,
+    "restarts": 1,
+    "boot_id": "5ed0dd23-000d-4627-b80f-64922cb34c39",
+    "tasks": [
+      {
+        "selected": "discover_ust_2y",
+        "started_at_utc": "2026-11-21T13:14:07.547133+00:00",
+        "ended_at_utc": "2026-11-21T13:14:07.606584+00:00",
+        "task_deadline_utc": "2026-11-21T13:14:17.484923+00:00"
+      },
+      {
+        "selected": "discover_ust_10y",
+        "started_at_utc": "2026-11-21T13:14:07.682734+00:00",
+        "ended_at_utc": "2026-11-21T13:14:07.735898+00:00",
+        "task_deadline_utc": "2026-11-21T13:14:17.484922+00:00"
+      },
+      {
+        "selected": "discover_nyfed_sofr",
+        "started_at_utc": "2026-11-21T13:14:07.789088+00:00",
+        "ended_at_utc": "2026-11-21T13:14:07.830911+00:00",
+        "task_deadline_utc": "2026-11-21T13:14:17.484922+00:00"
+      },
+      {
+        "selected": "collect_ust_2y",
+        "started_at_utc": "2026-11-21T13:14:12.827880+00:00",
+        "ended_at_utc": "2026-11-21T13:14:17.503565+00:00",
+        "task_deadline_utc": "2026-11-21T13:14:17.484923+00:00"
+      }
+    ],
+    "shutdown_grace": [
+      {
+        "event": "SHUTDOWN_GRACE_STARTED",
+        "at_utc": "2026-11-21T13:14:17.489146+00:00",
+        "monotonic": 10704361.443364363
+      },
+      {
+        "event": "SHUTDOWN_GRACE_ENDED",
+        "at_utc": "2026-11-21T13:14:17.496737+00:00",
+        "monotonic": 10704361.450951653
+      }
+    ],
+    "post_deadline_starts": 0,
+    "duplicates": 0,
+    "final_verdict": "PASS"
+  },
+  {
+    "test_id": "T5_program",
+    "scope": "Research Program",
+    "goal_start_utc": "2026-11-21T13:13:56.885877+00:00",
+    "deadline_utc": "2026-11-21T13:14:06.929279+00:00",
+    "end_utc": "2026-11-21T13:14:07.192943+00:00",
+    "elapsed_seconds": 10.307064272463322,
+    "approved_budget_seconds": 10,
+    "remaining_seconds": 0,
+    "restarts": 2,
+    "boot_id": "5ed0dd23-000d-4627-b80f-64922cb34c39",
+    "tasks": [
+      {
+        "selected": "discover_ust_2y",
+        "started_at_utc": "2026-11-21T13:13:56.971253+00:00",
+        "ended_at_utc": "2026-11-21T13:13:57.021664+00:00",
+        "task_deadline_utc": "2026-11-21T13:14:06.929278+00:00"
+      },
+      {
+        "selected": "discover_ust_10y",
+        "started_at_utc": "2026-11-21T13:13:57.072535+00:00",
+        "ended_at_utc": "2026-11-21T13:13:57.116567+00:00",
+        "task_deadline_utc": "2026-11-21T13:14:06.929278+00:00"
+      },
+      {
+        "selected": "discover_nyfed_sofr",
+        "started_at_utc": "2026-11-21T13:13:57.170215+00:00",
+        "ended_at_utc": "2026-11-21T13:13:57.229728+00:00",
+        "task_deadline_utc": "2026-11-21T13:14:06.929277+00:00"
+      },
+      {
+        "selected": "collect_ust_2y",
+        "started_at_utc": "2026-11-21T13:14:02.308743+00:00",
+        "ended_at_utc": "2026-11-21T13:14:06.987080+00:00",
+        "task_deadline_utc": "2026-11-21T13:14:06.929277+00:00"
+      }
+    ],
+    "shutdown_grace": [
+      {
+        "event": "SHUTDOWN_GRACE_STARTED",
+        "at_utc": "2026-11-21T13:14:06.976629+00:00",
+        "monotonic": 10704350.93083394
+      },
+      {
+        "event": "SHUTDOWN_GRACE_ENDED",
+        "at_utc": "2026-11-21T13:14:06.976808+00:00",
+        "monotonic": 10704350.931000195
+      }
+    ],
+    "post_deadline_starts": 0,
+    "duplicates": 0,
+    "final_verdict": "PASS"
+  },
+  {
+    "test_id": "T6_program",
+    "scope": "Research Program",
+    "goal_start_utc": "2026-11-21T13:13:44.322727+00:00",
+    "deadline_utc": "2026-11-21T13:13:54.374147+00:00",
+    "end_utc": "2026-11-21T13:13:56.579769+00:00",
+    "elapsed_seconds": 12.257046399638057,
+    "approved_budget_seconds": 10,
+    "remaining_seconds": 0,
+    "restarts": 1,
+    "boot_id": "5ed0dd23-000d-4627-b80f-64922cb34c39",
+    "tasks": [
+      {
+        "selected": "discover_ust_2y",
+        "started_at_utc": "2026-11-21T13:13:44.413639+00:00",
+        "ended_at_utc": "2026-11-21T13:13:44.455005+00:00",
+        "task_deadline_utc": "2026-11-21T13:13:54.374147+00:00"
+      },
+      {
+        "selected": "discover_ust_10y",
+        "started_at_utc": "2026-11-21T13:13:44.502899+00:00",
+        "ended_at_utc": "2026-11-21T13:13:44.549523+00:00",
+        "task_deadline_utc": "2026-11-21T13:13:54.374146+00:00"
+      },
+      {
+        "selected": "discover_nyfed_sofr",
+        "started_at_utc": "2026-11-21T13:13:44.622421+00:00",
+        "ended_at_utc": "2026-11-21T13:13:44.664939+00:00",
+        "task_deadline_utc": "2026-11-21T13:13:54.374145+00:00"
+      },
+      {
+        "selected": "collect_ust_2y",
+        "started_at_utc": "2026-11-21T13:13:49.833114+00:00",
+        "ended_at_utc": "2026-11-21T13:13:56.424891+00:00",
+        "task_deadline_utc": "2026-11-21T13:13:54.374143+00:00"
+      }
+    ],
+    "shutdown_grace": [
+      {
+        "event": "SHUTDOWN_GRACE_STARTED",
+        "at_utc": "2026-11-21T13:13:54.410215+00:00",
+        "monotonic": 10704338.364461794
+      },
+      {
+        "event": "SHUTDOWN_GRACE_ENDED",
+        "at_utc": "2026-11-21T13:13:56.410735+00:00",
+        "monotonic": 10704340.364968644
+      }
+    ],
+    "post_deadline_starts": 0,
+    "duplicates": 0,
+    "final_verdict": "PASS"
+  }
+]
+```
+
+The additional T5_late fault kills the original supervisor and starts its replacement after the actual persistent deadline. Only the already-running research child is identified and terminated. The original API reservation remains on disk, observed HTTP count is one, new starts zero. The original boot-change review still blocks dispatch. These elapsed bounds describe the running/recoverable supervisor trials. A machine outage or an indefinitely unavailable supervisor has no observable host shutdown bound.

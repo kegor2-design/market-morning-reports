@@ -256,7 +256,8 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
             if max_seconds - (time.monotonic() - started) < 10:
                 break
             # A lost supervisor can finish a durable rollback without launching a Task.
-            rollback_only = job['status'] == 'RUNNING' and bool(job.get('checkpoint_sha256'))
+            rollback_only = (job['status'] == 'RUNNING' and bool(job.get('checkpoint_sha256'))
+                             and job['attempt_count'] >= job['retry_policy']['max_launches'])
             if not rollback_only and job['attempt_count'] >= job['retry_policy']['max_launches']:
                 job.update(status='FAILED', last_error='Runtime launch budget exhausted',
                            next_action='REVIEW_FAILED_GOAL')

@@ -26,6 +26,7 @@ ACTIONS = {'DATA_DISCOVERY': 'CHECK_EXISTING_DATA',
            'EXPERIMENT_EXECUTION': 'RATE_ANALYSIS',
            'KR_INDEX_VALIDATION': 'VERIFY_HASHED_INDEX',
            'KR_CRASH_ANALYSIS': 'ANALYZE_KR_CRASH_WINDOWS',
+           'KR_REGIME_ANALYSIS': 'EVALUATE_REGIME_TRANSITIONS',
            'FIXTURE_ANALYSIS': 'RUN_ISOLATED_FIXTURE',
            'CODE_REPAIR_TASK': 'REPAIR_ISOLATED_FIXTURE'}
 FIXTURE_PREFIX = 'Fixture code repair research: '
@@ -227,12 +228,21 @@ def validate_plan(plan: dict) -> None:
                 not dates_for(plan)):
             raise ValueError('Unreviewed US rates research contract')
     elif plan['market'] == 'KR_EQUITY_EXPLORATORY':
+        regime = '국면' in plan['research_goal'] and '전환' in plan['research_goal']
         repairing = kr_restore and len(tasks) == 3
         required = ['KR_INDEX_VALIDATION', 'KR_CRASH_ANALYSIS'] + (['CODE_REPAIR_TASK'] if repairing else [])
         actions = ['ANALYZE_KR_CRASH_WINDOWS', 'VERIFY_HASHED_INDEX']
+        if regime:
+            required = ['KR_INDEX_VALIDATION', 'KR_REGIME_ANALYSIS']
+            actions = ['EVALUATE_REGIME_TRANSITIONS', 'VERIFY_HASHED_INDEX']
         if kr_restore:
             actions.append('RESTORE_REVIEWED_KR_ANALYSIS')
-        if (plan['data_requirements'] != ['KOSPI_KOSDAQ_HASHED_SNAPSHOT'] or
+        second_id = 'analyze_kr_regime' if regime else 'analyze_kr_crashes'
+        inputs = {'evaluation': 'expanding_annual'} if '워크포워드' in plan['research_goal'] and not regime else {}
+        if ([t['task_id'] for t in tasks] != ['validate_kr_index', second_id] +
+                (['restore_kr_analysis'] if repairing else []) or tasks[0]['inputs'] or
+                tasks[1]['inputs'] != inputs or tasks[0]['dependencies'] or
+                plan['data_requirements'] != ['KOSPI_KOSDAQ_HASHED_SNAPSHOT'] or
                 plan['allowed_sources'] != ['NAVER_HASHED_LOCAL'] or
                 [t['task_type'] for t in tasks] !=
                 required or
@@ -287,13 +297,14 @@ def plan_goal(goal: str) -> dict:
     fixture = goal.startswith(FIXTURE_PREFIX)
     korean = 'indicator 116' in lowered or '지표 116' in goal
     kr_crash = '한국' in goal and '급락' in goal and '변동성' in goal
+    regime = '한국' in goal and '국면' in goal and '전환' in goal
     rates = 'sofr' in lowered and ('treasury' in lowered or 'yield' in lowered or
                                   '금리차' in goal or '국채' in goal)
-    if not korean and not rates and not kr_crash and not fixture:
+    if not korean and not rates and not kr_crash and not regime and not fixture:
         raise UnsupportedGoal('No reviewed data source and analysis action for this goal')
     fallback_approved = (korean and rates and not kr_crash and
                          '차단' in goal and '독립' in goal)
-    if sum((korean, rates, kr_crash, fixture)) > 1 and not fallback_approved:
+    if sum((korean, rates, kr_crash, fixture, regime)) > 1 and not fallback_approved:
         raise UnsupportedGoal('Multiple research goals require separate goal contracts')
     if fallback_approved:
         rates = False
@@ -320,6 +331,17 @@ def plan_goal(goal: str) -> dict:
         hypothesis = 'Indicator 116 has verified first-access evidence before market decisions'
         evaluation = ['hashed source and as-of matrix validation']
         defaults = ['Existing reviewed indicator 116 evidence window retained']
+    elif regime:
+        if re.search(r'\d{4}-\d{2}-\d{2}', goal):
+            raise UnsupportedGoal('Regime190 has a frozen evaluation window')
+        period = {'start': '2018-01-01', 'end': '2021-12-31', 'resolution': 'daily'}
+        requirements = ['KOSPI_KOSDAQ_HASHED_SNAPSHOT']
+        sources = ['NAVER_HASHED_LOCAL']
+        hypothesis = 'Causal regime features predict a different future Regime190 state'
+        evaluation = ['Frozen Regime190 transition Brier scores against reviewed baselines']
+        defaults = ['Regime190 six-state labels; validation 2018–2021 with embargo']
+        tasks = [_task('validate_kr_index', 'KR_INDEX_VALIDATION', 0),
+                 _task('analyze_kr_regime', 'KR_REGIME_ANALYSIS', 10, dependencies=['validate_kr_index'])]
     elif kr_crash:
         if re.search(r'(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)', goal):
             raise UnsupportedGoal('Date-specific Korean crash research is not reviewed')
@@ -332,6 +354,12 @@ def plan_goal(goal: str) -> dict:
         tasks = [_task('validate_kr_index', 'KR_INDEX_VALIDATION', 0),
                  _task('analyze_kr_crashes', 'KR_CRASH_ANALYSIS', 10,
                        dependencies=['validate_kr_index'])]
+        if '워크포워드' in goal:
+            if '격리 복구' in goal:
+                raise UnsupportedGoal('Walk-forward and isolated restoration require separate goals')
+            tasks[1]['inputs'] = {'evaluation': 'expanding_annual'}
+            hypothesis = 'High prior realized volatility improves next-session crash Brier score'
+            evaluation = ['Expanding annual validation against prior crash frequency, 2013–2025']
     else:
         found = re.findall(r'(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)', goal)
         if len(found) not in (0, 2):
@@ -357,11 +385,11 @@ def plan_goal(goal: str) -> dict:
         if len(dates_for({'research_period': period})) < 16:
             raise UnsupportedGoal('Research period too short for sealed chronological split')
     market = ('ISOLATED_CODE_FIXTURE' if fixture else 'KR_EQUITY_CONTEXT' if korean else
-              'KR_EQUITY_EXPLORATORY' if kr_crash else 'US_RATES')
+              'KR_EQUITY_EXPLORATORY' if kr_crash or regime else 'US_RATES')
     contract = {'version': 1, 'goal_id': goal_id, 'original_research_goal': goal,
                 'market': market, 'research_period': period,
                 'target': ('fixture answer 42' if fixture else 'indicator 116 first-access PIT' if korean else
-                           'KOSPI daily decline <= -5%' if kr_crash else 'next-day SOFR direction'),
+                           'Regime190 state transition' if regime else 'KOSPI daily decline <= -5%' if kr_crash else 'next-day SOFR direction'),
                 'hypotheses': [hypothesis], 'data_requirements': requirements,
                 'allowed_sources': sources,
                 'allowed_actions': sorted({a for t in tasks for a in t['allowed_actions']} |
@@ -372,9 +400,9 @@ def plan_goal(goal: str) -> dict:
                 'pit_policy': 'No official claim without row-level historical first-access proof',
                 'holdout_policy': 'No predictive claim without sealed independent market holdout',
                 'resource_budget': {'max_seconds': 300,
-                                    'max_network_requests': 0 if korean or kr_crash or fixture else 3,
+                                    'max_network_requests': 0 if korean or kr_crash or regime or fixture else 3,
                                     'max_model_calls': 0,
-                                    'max_tasks': 3 if kr_crash and '격리 복구' in goal else 1 if korean else 2 if kr_crash or fixture else 12},
+                                    'max_tasks': 3 if kr_crash and '격리 복구' in goal else 1 if korean else 2 if kr_crash or regime or fixture else 12},
                 'terminal_conditions': ['RESEARCH_COMPLETED_EXPLORATORY', 'RESEARCH_BLOCKED',
                                         'RESEARCH_FAILED', 'RESEARCH_CANCELLED'],
                 'approved_independent_goal_ids': [
@@ -388,6 +416,7 @@ def plan_goal(goal: str) -> dict:
               'holdout_requirements': 'Sealed independent market holdout required for predictive claim',
               'allowed_sources': sources, 'resource_budget': contract['resource_budget'],
               'completion_criteria': ('Verified indicator PIT evidence' if korean else
+                'Exploratory regime transition evaluation' if regime else
                 'Exploratory crash-window description with hashed snapshot' if kr_crash else
                 'Exploratory rates analysis and independent source recomputation; no investment claim'),
               'safety_policy': {'read_only': True, 'official_claim_allowed': False,
