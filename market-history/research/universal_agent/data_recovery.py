@@ -188,7 +188,20 @@ def recover(request: dict, state_dir: Path, *, fetch=_fetch) -> dict:
                      current_phase='TERMINAL', pending_tasks=[], blocked_tasks=[request['task_id']])
         write_state(checkpoint, state)
         return state
-    if raw_file.exists():
+    from .source_discovery import archived_treasury
+    cached = None
+    if not raw_file.exists() and not receipt_file.exists() and state['network_requests'] == 0:
+        cached = archived_treasury(uri, state_dir)
+    if cached is not None:
+        payload = cached
+        state.update(content_sha256=_sha(payload), acquisition_mode='VERIFIED_LOCAL_ARCHIVE',
+                     network_requests=0)
+        raw_file.write_bytes(payload)
+        write_state(receipt_file, {'request_sha256': identity, 'source_uri': uri,
+            'content_sha256': state['content_sha256'], 'network_requests': 0,
+            'acquisition_mode': 'VERIFIED_LOCAL_ARCHIVE'})
+        write_state(checkpoint, state)
+    elif raw_file.exists():
         if not state.get('content_sha256'):
             if not receipt_file.exists():
                 state.update(status='BLOCKED_UNCERTAIN_API_CALL',
