@@ -216,3 +216,6 @@ PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universa
 PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/universal_agent/tests -q
 PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/regime190/tests -q
 ```
+
+## Finalization worktree, 2026-11-21
+Fetched priority HEAD b1b4b5739b2805fcc5f82ac28ce44061354c2423. Original attribute-repair queue generation 6, completed. Its private files remain in the priority worktree. A clean checkout requires both ignored naver daily CSV inputs from that worktree (validated by Regime190). Baseline UA 194 and Regime190 55 passed with stock_env and local loopback/Bubblewrap. Logs /tmp/session_c_final_base_{universal_agent,regime190}.log. Work continues on shared R1–R8 observations. Resume with `cd /home/kegor2/market-morning-reports-session-c-finalization && git status --short --branch`.

@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "session_a_completed": false,
-  "branch": "research/universal-agent-session-c-priority-completion-20261119",
-  "last_verified_commit": "f57f9b6",
+  "branch": "research/universal-agent-session-c-finalization-20261121",
+  "last_verified_commit": "b1b4b5739b2805fcc5f82ac28ce44061354c2423",
   "last_checkpoint": ".universal_private/session_c_attribute_repair_e2e_v3/state.json",
   "gates": {
     "GENERAL_DATA_ACQUISITION_CONNECTED": "PASS",
@@ -23,8 +23,8 @@
     "Validate interruption during a live unresolved network call in approved isolation",
     "Acquire historical row-level PIT access evidence and independent market holdout"
   ],
-  "next_action": "Read NEXT_ACTION.md; continue bounded non-calendar DAG repair and cost-enforced model adapter work",
-  "resume_command": "cd /home/kegor2/market-morning-reports-session-c && PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest discover -s market-history/research/universal_agent/tests -q",
+  "next_action": "Run common recovery audits",
+  "resume_command": "cd /home/kegor2/market-morning-reports-session-c-finalization && git status --short --branch",
   "session_b_completed": true,
   "session_b_branch": "research/universal-agent-session-b-completion-20261117",
   "session_b_base_commit": "497782dff9fe911ff9e1c4ff727aec3423d259bf",
@@ -249,8 +249,12 @@
       "INDEPENDENT_HOLDOUT_VERIFIED": "BLOCKED",
       "CORE_REGRESSION_VERIFIED": "PASS"
     },
-    "tests": {"universal_agent": "PASS 152", "regime190": "PASS 55",
-              "compileall": "PASS", "git_diff_check": "PASS"},
+    "tests": {
+      "universal_agent": "PASS 152",
+      "regime190": "PASS 55",
+      "compileall": "PASS",
+      "git_diff_check": "PASS"
+    },
     "running_worker": null
   },
   "session_c_candidate_acquisition_iteration": {
@@ -262,8 +266,12 @@
     "approval_gated_queue_registration": "PASS_SYNTHETIC",
     "real_model_calls": 0,
     "real_source_requests_from_new_candidate": 0,
-    "tests": {"universal_agent": "PASS 156", "regime190": "PASS 55",
-              "compileall": "PASS", "git_diff_check": "PASS"},
+    "tests": {
+      "universal_agent": "PASS 156",
+      "regime190": "PASS 55",
+      "compileall": "PASS",
+      "git_diff_check": "PASS"
+    },
     "actual_ai_plan_generation": "BLOCKED",
     "model_cost_enforcement": "BLOCKED",
     "general_purpose_capability_registry": "PARTIAL",
@@ -279,8 +287,12 @@
     "autonomous_api_recovery": "BLOCKED",
     "real_model_calls": 0,
     "official_provider_requests_added": 0,
-    "tests": {"universal_agent": "PASS 156", "regime190": "PASS 55",
-              "compileall": "PASS", "git_diff_check": "PASS"},
+    "tests": {
+      "universal_agent": "PASS 156",
+      "regime190": "PASS 55",
+      "compileall": "PASS",
+      "git_diff_check": "PASS"
+    },
     "running_worker": null
   },
   "session_c_local_http_recovery_iteration": {
@@ -293,8 +305,12 @@
     "original_goal_dag_resume": "BLOCKED",
     "official_provider_requests_added": 0,
     "real_model_calls": 0,
-    "tests": {"universal_agent": "PASS 157", "regime190": "PASS 55",
-              "compileall": "PASS", "git_diff_check": "PASS"},
+    "tests": {
+      "universal_agent": "PASS 157",
+      "regime190": "PASS 55",
+      "compileall": "PASS",
+      "git_diff_check": "PASS"
+    },
     "running_worker": null
   },
   "session_c_api_recovery_dag_iteration": {
@@ -315,8 +331,12 @@
     "official_provider_requests_added": 0,
     "running_worker": null,
     "gate_scope": "Real OS child Workers and local HTTP fixture only; no external provider or official market claim",
-    "tests": {"universal_agent": "PASS 167", "regime190": "PASS 55",
-              "compileall": "PASS", "git_diff_check": "PASS"},
+    "tests": {
+      "universal_agent": "PASS 167",
+      "regime190": "PASS 55",
+      "compileall": "PASS",
+      "git_diff_check": "PASS"
+    },
     "gates": {
       "API_FAILURE_EVIDENCE_VERIFIED": "PASS",
       "HTTP_ERROR_CLASSIFICATION_VERIFIED": "PASS",
@@ -359,8 +379,12 @@
     "private_checkpoint_preserved": ".universal_private/session_c_api_recovery_e2e/state.json",
     "model_calls": 0,
     "external_provider_calls": 0,
-    "tests": {"universal_agent": "PASS 172", "regime190": "PASS 55",
-              "compileall": "PASS", "git_diff_check": "PASS"},
+    "tests": {
+      "universal_agent": "PASS 172",
+      "regime190": "PASS 55",
+      "compileall": "PASS",
+      "git_diff_check": "PASS"
+    },
     "gates": {
       "DAG_TRANSACTION_VERIFIED": "BLOCKED",
       "DAG_REVISION_ATOMICITY_VERIFIED": "BLOCKED",
@@ -407,8 +431,12 @@
     "external_provider_calls": 0,
     "running_worker": null,
     "scope": "Host-approved fixture patch only; no market data, live Provider request or AI-generated code",
-    "tests": {"universal_agent": "PASS 188", "regime190": "PASS 55",
-              "compileall": "PASS", "git_diff_check": "PASS"},
+    "tests": {
+      "universal_agent": "PASS 188",
+      "regime190": "PASS 55",
+      "compileall": "PASS",
+      "git_diff_check": "PASS"
+    },
     "gates": {
       "ROLLBACK_FAULT_MATRIX_8_OF_8_VERIFIED": "BLOCKED",
       "DAG_TRANSACTION_VERIFIED": "BLOCKED",
@@ -453,11 +481,40 @@
     "last_verified_code_commit": "f57f9b6",
     "current_phase": "P0_P1_P2_PARTIAL_VERIFICATION",
     "current_task": "Complete remaining per-fault invariants and exact Goal timing matrix",
-    "modified_files": ["process_supervisor.py", "self_repair.py", "tests/test_api_recovery.py", "tests/test_code_recovery.py", "tests/test_process_recovery.py", "tests/test_research_program.py"],
-    "completed_tasks": ["API-specific R6 analysis verification rollback", "API-specific R8 Supervisor SIGKILL rollback replay", "same-boot monotonic Deadline persistence and clock rollback injection", "changed-boot fail-closed", "Supervisor Deadline restart", "AttributeError and TypeError original-Goal Queue resume"],
-    "pending_tasks": ["Complete all R1-R8 per-point invariants", "Complete T1-T8 exact elapsed-time and budget matrix", "Generalize code repair beyond reviewed fixture scope", "Obtain enforceable model cost control", "Official PIT and new independent market holdout"],
-    "blocked_tasks": ["Actual paid model generation: no enforceable per-call monetary ceiling", "Live external Provider recovery: no explicit reviewed additional-call approval", "Official Korean PIT: source evidence incomplete"],
-    "tests": {"universal_agent": "PASS 194", "regime190": "PASS 55", "compileall": "PASS", "git_diff_check": "PASS"},
+    "modified_files": [
+      "process_supervisor.py",
+      "self_repair.py",
+      "tests/test_api_recovery.py",
+      "tests/test_code_recovery.py",
+      "tests/test_process_recovery.py",
+      "tests/test_research_program.py"
+    ],
+    "completed_tasks": [
+      "API-specific R6 analysis verification rollback",
+      "API-specific R8 Supervisor SIGKILL rollback replay",
+      "same-boot monotonic Deadline persistence and clock rollback injection",
+      "changed-boot fail-closed",
+      "Supervisor Deadline restart",
+      "AttributeError and TypeError original-Goal Queue resume"
+    ],
+    "pending_tasks": [
+      "Complete all R1-R8 per-point invariants",
+      "Complete T1-T8 exact elapsed-time and budget matrix",
+      "Generalize code repair beyond reviewed fixture scope",
+      "Obtain enforceable model cost control",
+      "Official PIT and new independent market holdout"
+    ],
+    "blocked_tasks": [
+      "Actual paid model generation: no enforceable per-call monetary ceiling",
+      "Live external Provider recovery: no explicit reviewed additional-call approval",
+      "Official Korean PIT: source evidence incomplete"
+    ],
+    "tests": {
+      "universal_agent": "PASS 194",
+      "regime190": "PASS 55",
+      "compileall": "PASS",
+      "git_diff_check": "PASS"
+    },
     "running_worker": null,
     "private_checkpoint": ".universal_private/session_c_attribute_repair_e2e_v3/state.json",
     "fixture_goal_id": "research_3eb6de5bd6d8",
@@ -515,5 +572,10 @@
     },
     "running_worker": null,
     "next_action": "Implement a separately authorized API retry task with a new request identity and bounded budget; preserve blocked original attempt and source hashes"
+  },
+  "current_phase": "P0",
+  "baseline_tests": {
+    "universal_agent": 194,
+    "regime190": 55
   }
 }
