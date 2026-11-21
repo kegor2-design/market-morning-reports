@@ -180,23 +180,65 @@ def request_plan(goal: str, state_dir: Path, *, approval: dict | None = None,
               'dependencies without cycles; analysis must depend on all discovery tasks. '
               'Return only the candidate schema. Do not alter goal, source, action, '
               'budget, PIT or holdout policy.')
+    return _proposal(plan['goal_id'], prompt, state_dir, SCHEMA, 'ai_program',
+                     lambda candidate: validate_candidate(goal, candidate), approval, timeout, caller)
+
+
+def request_repair(goal, program_dir, *, approval=None, timeout=30, caller=call_structured):
+    from regime190.agent43_engine import _check_code
+    plan = plan_goal(goal)
+    if ('RESTORE_REVIEWED_KR_ANALYSIS' not in plan['goal_contract']['allowed_actions'] or
+            program_dir.is_symlink() or not program_dir.resolve().is_relative_to(PRIVATE_ROOT) or
+            type(timeout) is not int or not 1 <= timeout <= 90):
+        raise ValueError('Outside reviewed repair scope')
+    source = program_dir / 'kr_analysis_copy.py'
+    evidence = program_dir / 'kr_analysis_error.json'
+    if source.is_symlink() or evidence.is_symlink() or source.stat().st_size > 20000:
+        raise ValueError('Unsafe repair input')
+    failed_source = source.read_bytes()
+    digest = hashlib.sha256(failed_source).hexdigest()
+    fault = json.loads(evidence.read_bytes())
+    if fault['source_sha256'] != digest or fault['problem_type'] != 'CODE_ERROR':
+        raise ValueError('Failure identity changed')
+    schema = Path(__file__).with_name('repair_proposal.schema.json')
+    def check(candidate):
+        validate(candidate, json.loads(schema.read_bytes()))
+        if candidate['goal_id'] != plan['goal_id'] or candidate['failed_source_sha256'] != digest:
+            raise ValueError('Repair proposal is for a different failure')
+        _check_code(candidate['replacement'])
+    if not approval or approval.get('purpose') != 'PROPOSE_REPAIR' or approval.get('failed_source_sha256') != digest:
+        return {'status': 'APPROVAL_REQUIRED', 'model_calls': 0}
+    prompt = canonical({'goal_id': plan['goal_id'], 'goal': goal, 'failed_source_sha256': digest,
+                        'source': failed_source.decode(), 'diagnosis': fault['reason'],
+                        'target': source.name, 'task': 'Propose a replacement for isolated review'}).decode()
+    return _proposal(plan['goal_id'], prompt, program_dir, schema, 'ai_repair', check,
+                     approval, timeout, caller)
+
+
+def _proposal(goal_id, prompt, state_dir, schema, name, check, approval, timeout, caller):
     prompt_sha = hashlib.sha256(prompt.encode()).hexdigest()
-    schema_sha = hashlib.sha256(SCHEMA.read_bytes()).hexdigest()
-    request_path = state_dir / 'ai_program_request.json'
-    response_path = state_dir / 'ai_program_response.json'
+    schema_sha = hashlib.sha256(schema.read_bytes()).hexdigest()
+    request_path = state_dir / (name + '_request.json')
+    response_path = state_dir / (name + '_response.json')
+    if request_path.is_symlink() or response_path.is_symlink():
+        raise ValueError('Symlinked model artifact')
+    def read_candidate():
+        if response_path.is_symlink() or response_path.stat().st_size > 64_000:
+            raise ValueError('Unsafe or oversized model output')
+        return json.loads(response_path.read_bytes())
     if request_path.exists():
         request = json.loads(request_path.read_text())
         if request['prompt_sha256'] != prompt_sha or request['schema_sha256'] != schema_sha:
             raise ValueError('Model request identity changed')
-        if request.get('status') == 'VERIFIED' and response_path.is_file() and \
+        if request.get('status') == 'VERIFIED' and response_path.is_file() and response_path.stat().st_size <= 64_000 and \
                 hashlib.sha256(response_path.read_bytes()).hexdigest() == request.get('response_sha256'):
-            candidate = json.loads(response_path.read_text())
-            validate_candidate(goal, candidate)
+            candidate = read_candidate()
+            check(candidate)
             return {'status': 'VERIFIED', 'candidate': candidate,
                     'response_sha256': request['response_sha256'], 'reused': True}
         return {'status': 'BLOCKED_UNCERTAIN_MODEL_CALL', 'request_id': request['request_id']}
     if (approval is None or approval.get('status') != 'APPROVED' or
-            approval.get('goal_id') != plan['goal_id'] or
+            approval.get('goal_id') != goal_id or
             type(approval.get('max_calls')) is not int or
             approval['max_calls'] != 1 or
             type(approval.get('max_cost_usd')) not in (int, float) or
@@ -211,9 +253,9 @@ def request_plan(goal: str, state_dir: Path, *, approval: dict | None = None,
     # protocol until a budget-enforcing production adapter is reviewed.
     if caller is call_structured or approval.get('provider') != 'INJECTED_TEST':
         return {'status': 'BLOCKED_COST_ENFORCEMENT', 'model_calls': 0}
-    request_id = hashlib.sha256(canonical({'goal_id': plan['goal_id'],
+    request_id = hashlib.sha256(canonical({'goal_id': goal_id,
         'prompt_sha256': prompt_sha, 'schema_sha256': schema_sha})).hexdigest()[:24]
-    request = {'request_id': request_id, 'goal_id': plan['goal_id'],
+    request = {'request_id': request_id, 'goal_id': goal_id,
         'prompt_sha256': prompt_sha, 'schema_sha256': schema_sha,
         'max_calls': 1, 'max_seconds': timeout,
         'max_cost_usd': approval['max_cost_usd'], 'status': 'RESERVED',
@@ -221,7 +263,7 @@ def request_plan(goal: str, state_dir: Path, *, approval: dict | None = None,
     if not _try_reserve_request(request_path, request):
         return {'status': 'BLOCKED_UNCERTAIN_MODEL_CALL', 'request_id': request_id}
     try:
-        completed = caller(prompt, SCHEMA, 'ai_program_response.json', state_dir,
+        completed = caller(prompt, schema, response_path.name, state_dir,
                            timeout=timeout)
     except (OSError, subprocess.TimeoutExpired, RuntimeError) as exc:
         request.update(status='BLOCKED', error_type=classify_model_failure(
@@ -233,9 +275,9 @@ def request_plan(goal: str, state_dir: Path, *, approval: dict | None = None,
         write_state(request_path, request)
         return {'status': 'BLOCKED_MODEL', 'error_type': request['error_type']}
     try:
-        candidate = json.loads(response_path.read_text())
-        validate_candidate(goal, candidate)
-    except (OSError, ValueError, KeyError, ValidationError) as exc:
+        candidate = read_candidate()
+        check(candidate)
+    except (OSError, ValueError, KeyError, SyntaxError, ValidationError) as exc:
         request.update(status='BLOCKED', error_type='MODEL_OUTPUT_VALIDATION_FAILED')
         write_state(request_path, request)
         return {'status': 'BLOCKED_MODEL_OUTPUT', 'error_type': type(exc).__name__}

@@ -225,3 +225,5 @@ P0 verified in eight isolated loopback queues. Public row hashes and reproductio
 P1 recorded eight timed cases (33 tests OK). Four use a single Research Job outer deadline. Full multi-task matrix and strict deadline gate remain open. Test results and scopes are in RUNTIME_CONTINUITY_REPORT.md. Next development task is isolated repair of an existing analysis function.
 
 P2 is implemented for the explicit Korean crash-analysis isolation contract. Six tests passed, real Goal research_def345cbf0bc completed exploratory. Check the preserved queue with `PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m universal_agent.research_runtime status --queue-dir .universal_private/final_kr_research_b`. Next review the structured provider and local official-source reuse path.
+
+P3 mock planner and repair boundary verified (17 tests, /tmp/session_c_model.log). Live use still requires project-specific model and cost authorization, output-token enforcement and an accepted overrun policy. No model calls pending. P4/P5 continue independently.

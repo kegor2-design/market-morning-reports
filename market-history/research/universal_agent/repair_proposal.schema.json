@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["goal_id", "failed_source_sha256", "target", "replacement"],
+  "properties": {
+    "goal_id": {"type": "string", "pattern": "^research_[0-9a-f]{12}$"},
+    "failed_source_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "target": {"const": "kr_analysis_copy.py"},
+    "replacement": {"type": "string", "minLength": 100, "maxLength": 20000}
+  }
+}

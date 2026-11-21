@@ -284,3 +284,33 @@ class AIPlannerBoundaryTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class RepairProposalTests(unittest.TestCase):
+    def test_mock_repair_is_bound_to_one_failure_and_never_applied(self):
+        from universal_agent.ai_research_planner import request_repair
+        from universal_agent.kr_analysis_repair import reviewed_script
+        goal = '한국 급락 변동성 분석 격리 복구 후보 검증'
+        PRIVATE_ROOT.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=PRIVATE_ROOT) as tmp:
+            path = Path(tmp)
+            source = path / 'kr_analysis_copy.py'
+            source.write_text(reviewed_script().replace('statistics.median(controls)', 'broken(controls)'))
+            original = source.read_bytes()
+            digest = hashlib.sha256(original).hexdigest()
+            (path / 'kr_analysis_error.json').write_text(json.dumps({'source_sha256':digest,
+                'reason':'NameError', 'problem_type':'CODE_ERROR'}))
+            goal_id = plan_goal(goal)['goal_id']
+            approval = dict(status='APPROVED', goal_id=goal_id, max_calls=1, max_cost_usd=1,
+                max_seconds=30, purpose='PROPOSE_REPAIR', failed_source_sha256=digest, provider='INJECTED_TEST')
+            self.assertEqual(request_repair(goal, path, approval=approval)['status'], 'BLOCKED_COST_ENFORCEMENT')
+            calls = []
+            def provider(prompt, schema, name, directory, *, timeout):
+                calls.append(1)
+                (directory/name).write_text(json.dumps(dict(goal_id=goal_id, failed_source_sha256=digest,
+                    target=source.name, replacement=reviewed_script())))
+                return subprocess.CompletedProcess([], 0)
+            for _ in range(2):
+                self.assertEqual(request_repair(goal, path, approval=approval, caller=provider)['status'], 'VERIFIED')
+            self.assertEqual(calls, [1])
+            self.assertEqual(source.read_bytes(), original)
