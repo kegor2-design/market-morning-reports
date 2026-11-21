@@ -92,3 +92,200 @@ The Goal checkpoint now stores a Linux boot ID and absolute monotonic Deadline a
 | T8 | Existing expired Goal is invoked again | PASS for blocked result and no new Task attempts |
 
 The test process measured the T5/T6 elapsed bounds with `time.monotonic()`. Exact start/end timestamps and allowed grace for every T1–T8 case are not yet in a unified audit artifact; `GOAL_DEADLINE_MATRIX_8_OF_8_VERIFIED` and `STRICT_GOAL_DEADLINE_VERIFIED` remain **BLOCKED**. Universal Agent 194 PASS, Regime190 55 PASS, `compileall` and `git diff --check` PASS for this code commit.
+
+## 2026-11-21 R1–R8 real loopback audit
+
+Each trial used a separate Goal and temporary queue. Hashes below cover the original files and records, and the request hash includes the final local ledger. Generation and sealed references are checked through the normal queue loader. Model use is measured by zero program and queue counters. An empty active revision means the original DAG is active. R1 snapshots the rejected approval at injection. R4 initially detected two worker starts for one authorized request. The interrupted one-shot recovery now stops after its first child. R8 pins the prior sealed generation and reconciles the rollback without launching another task. Reproduce from the worktree root with:
+
+```sh
+PYTHONPATH=market-history/research UNIVERSAL_AUDIT_DIR=.universal_private/finalization /home/kegor2/stock_env/bin/python -m unittest universal_agent.tests.test_api_recovery
+```
+
+```json
+[
+  {
+    "test_id": "R1",
+    "goal_id": "research_a1c6e314ed8f",
+    "original_goal_hash": "79fca008d45f90525f53862af0539c95c6cbd18bb8ebb43667b4405f60308c85",
+    "contract_hash": "32e6718dffb80f4a63416caac2152a8bcb9a287fdeea77e93b882f36aa0767ad",
+    "plan_hash": "042d8e951be7bb9f9edd3329d6536b27093ca1f15332c5c712841b2bbc905406",
+    "original_dag_hash": "4bc867c6f60b0f732d20add09cbeab6802a7e9742a72b24127880a09743426ed",
+    "active_revision_hash": null,
+    "source_hash": "92705563242cfd7c5c897d0a1a5bb61db62d5bc8a608dc2e30907333acebe4bb",
+    "completed_task_hash": "2cd31c115dae17bf694fe8efffb3947792e681a14536ffd84ac2934ea19d5662",
+    "approval_ledger_hash": "565e786d46f24bd8b9809187e7cdcb7c90fd0afc13f4cddf99224d5a2e68467b",
+    "request_ledger_hash": "39364d5555d8adf96958647ca1194138fd32a3a92bac964ec8b33ce7e5f5b1b3",
+    "failure_evidence_hash": "f612284fa69f8de3ae987894210098a9f0e2365c49e6ca304a86995090f46956",
+    "observed_http_calls": 3,
+    "checkpoint_generation": [
+      3,
+      4
+    ],
+    "model_calls": 0,
+    "duplicate_execution_count": 0,
+    "invariant_violations": [],
+    "final_verdict": "PASS"
+  },
+  {
+    "test_id": "R2",
+    "goal_id": "research_cad0218bb116",
+    "original_goal_hash": "c5833856375337fa574c4fd945294516fc79d35adc9445c4f7969454c9b87148",
+    "contract_hash": "ad2c39364feb69b8e40433c9a80531ac9a2c0d03e235c81297b02cf516e9d825",
+    "plan_hash": "25a1701d91a6b263f4e5b906ed366f21c0ee1b1e1e9f6f336e4661d5556fc18f",
+    "original_dag_hash": "4bc867c6f60b0f732d20add09cbeab6802a7e9742a72b24127880a09743426ed",
+    "active_revision_hash": "f1e794a7d74df64e16dc98f715516adb4575df58023cb10628e8c13237d4f9c3",
+    "source_hash": "92705563242cfd7c5c897d0a1a5bb61db62d5bc8a608dc2e30907333acebe4bb",
+    "completed_task_hash": "bd3681d1171680487ff6292f27a5f3c686ea5752c9ab2bad77135f17f98824d5",
+    "approval_ledger_hash": "414c3856d7eaa65306b1642fb7b3d3817b1039bafa548020a8c2a1f39c25d2c9",
+    "request_ledger_hash": "318f266ee632dd8f619a8080185f840e33f8cafdb56a5d8784cf620e86f90ad4",
+    "failure_evidence_hash": "9f84fe063dc232f6bf10b143f77388535bca7d2a1404b666ecdb1a19030c4ea0",
+    "observed_http_calls": 4,
+    "checkpoint_generation": [
+      3,
+      6
+    ],
+    "model_calls": 0,
+    "duplicate_execution_count": 0,
+    "invariant_violations": [],
+    "final_verdict": "PASS"
+  },
+  {
+    "test_id": "R3",
+    "goal_id": "research_ddcca11b72c4",
+    "original_goal_hash": "5d0852d0b4185570943ba49a04243ee921129f0d138bffd6d9633f295be39d16",
+    "contract_hash": "0038232387fc61cfe8a41eb942b42252683fca7ce8b122a020a4d666f19102ed",
+    "plan_hash": "46183c79bcfacfc0cb2a8495d40bd0d8547005f53d418aa2565ee72430080eac",
+    "original_dag_hash": "4bc867c6f60b0f732d20add09cbeab6802a7e9742a72b24127880a09743426ed",
+    "active_revision_hash": "b3e36e389f975b304dd8b4905fd36cec78c0abc9f775d00c7edc3fc291c83dd2",
+    "source_hash": "92705563242cfd7c5c897d0a1a5bb61db62d5bc8a608dc2e30907333acebe4bb",
+    "completed_task_hash": "fc1eaaa1f342ca5aad7b0de7631284c541f59caab902731e1cb748c488c5f03e",
+    "approval_ledger_hash": "cf35b7dc822ceb55eeaa91ab51a1d367994c373a5f1ff7b5c168a28b4a94e011",
+    "request_ledger_hash": "395633410df05860cdbb684e6737097b072218d4e9795fba76fbb8b146b2be36",
+    "failure_evidence_hash": "858f408c3c61e6f10df62dbd0967004c9f989db41c1c1ae0f5abbe12e340e717",
+    "observed_http_calls": 4,
+    "checkpoint_generation": [
+      3,
+      6
+    ],
+    "model_calls": 0,
+    "duplicate_execution_count": 0,
+    "invariant_violations": [],
+    "final_verdict": "PASS"
+  },
+  {
+    "test_id": "R4",
+    "goal_id": "research_196ab1f564f1",
+    "original_goal_hash": "ac29f3b557213a639b5573cb6feb9d91bc33001b4583bf27000e2f1cdc966edd",
+    "contract_hash": "640ceef61da66f6383ba90c6ac836b8c19d8cf6002017255d67b86cca5a3839d",
+    "plan_hash": "b1a3f8bbe6a67f77ede82f7b450646f1d73325ff42646cbb46cfcc34b94d50f9",
+    "original_dag_hash": "4bc867c6f60b0f732d20add09cbeab6802a7e9742a72b24127880a09743426ed",
+    "active_revision_hash": null,
+    "source_hash": "92705563242cfd7c5c897d0a1a5bb61db62d5bc8a608dc2e30907333acebe4bb",
+    "completed_task_hash": "8237b28d3f0414b609bb1425b102e6e48f018c7f0180ef9187935a51984820bd",
+    "approval_ledger_hash": "2c30ba7fdd2bad0092bcee6e2189b8c4da03eaacddd4beb85ca6c94787b92960",
+    "request_ledger_hash": "05e537fac4e3398791a6ce31812d8c5faeea7b455cafab1b2d3181051f55d3f7",
+    "failure_evidence_hash": "da12bf0896e20f47d9dae1acfd39d98a8cebc9cbf6f2ad15e5a84faffe1a07e4",
+    "observed_http_calls": 4,
+    "checkpoint_generation": [
+      3,
+      6
+    ],
+    "model_calls": 0,
+    "duplicate_execution_count": 0,
+    "invariant_violations": [],
+    "final_verdict": "PASS"
+  },
+  {
+    "test_id": "R5",
+    "goal_id": "research_087dbdc256a4",
+    "original_goal_hash": "1b7375e14bb925c2305d3bab817164fdb67f67bea1460f3b9008d3bae85b2abf",
+    "contract_hash": "a5b710c36f962e8022b57876a2f4f0a43177ac0b7000a3338c441e52dd5276a7",
+    "plan_hash": "df3b23956c87452041831116dca1ee0c3ca4edbf435b2194add020f9e4013cbb",
+    "original_dag_hash": "4bc867c6f60b0f732d20add09cbeab6802a7e9742a72b24127880a09743426ed",
+    "active_revision_hash": null,
+    "source_hash": "92705563242cfd7c5c897d0a1a5bb61db62d5bc8a608dc2e30907333acebe4bb",
+    "completed_task_hash": "1d71a1f5616512a60e70a6c05bb4cd5208d1e73faa36d3965879b10a4a583ffb",
+    "approval_ledger_hash": "1ece677637a3cabfc38d2aa93f32396763e7dd158de39a4e53bb1a418d765e03",
+    "request_ledger_hash": "53be638a1001e4882445a5dfcfe2616eb5bd48fe1735561eb02a1e7b2a2c758b",
+    "failure_evidence_hash": "693bc3006c552551b2e04b70dab9b05dda87d6651500fad6d5b92d1ee3721b63",
+    "observed_http_calls": 4,
+    "checkpoint_generation": [
+      3,
+      6
+    ],
+    "model_calls": 0,
+    "duplicate_execution_count": 0,
+    "invariant_violations": [],
+    "final_verdict": "PASS"
+  },
+  {
+    "test_id": "R6",
+    "goal_id": "research_cc8a1637112d",
+    "original_goal_hash": "6998606d2d37f8f089fec20f57c08010a1908f945d3a8d8d8df063e3bde468d0",
+    "contract_hash": "cf0f11ddce18daf0caa4713d8b37fa3ae1420d8aaf39ab14b1bd43e4a1e1784a",
+    "plan_hash": "0bcae4680ec494c12c2e4ece702a2a7e050c11d43c4b5fdf7ddfac4b0dddfdfb",
+    "original_dag_hash": "4bc867c6f60b0f732d20add09cbeab6802a7e9742a72b24127880a09743426ed",
+    "active_revision_hash": null,
+    "source_hash": "92705563242cfd7c5c897d0a1a5bb61db62d5bc8a608dc2e30907333acebe4bb",
+    "completed_task_hash": "ed5b1605a1ced2c21ee367c338933b89a116e1026440f96e600764f3293c7200",
+    "approval_ledger_hash": "c47f36daf7e607607bf1d5e6dd671ee2f6950ddafb6cc9fb309a74b5211ff64c",
+    "request_ledger_hash": "e05ba260866dc1ef81675872544f6d737f4adfd8286b8eba860320573a053cea",
+    "failure_evidence_hash": "8b8b2d3d36812a4bb11563f7697cae289d36b549d3f9105644660ae4e2bdc8a9",
+    "observed_http_calls": 4,
+    "checkpoint_generation": [
+      3,
+      6
+    ],
+    "model_calls": 0,
+    "duplicate_execution_count": 0,
+    "invariant_violations": [],
+    "final_verdict": "PASS"
+  },
+  {
+    "test_id": "R7",
+    "goal_id": "research_ada757d273be",
+    "original_goal_hash": "0fc45a4617a5a724c5ef46140b7a75046b7041fdb2b5e6d94d50fea5750cb89f",
+    "contract_hash": "61e15069fab2af6ff99575693ad8c46ce1172cc245a19bfd86917b5fbdb5599a",
+    "plan_hash": "6ee5c64db9f048d1ad9aa4cdfd5509016a44ff8dc22c02c43eefe5a300b6771f",
+    "original_dag_hash": "4bc867c6f60b0f732d20add09cbeab6802a7e9742a72b24127880a09743426ed",
+    "active_revision_hash": "7e31fddbb5f6e6fcceea83f700e5bf08ec86a08b81b3b08958a10150c934cc38",
+    "source_hash": "92705563242cfd7c5c897d0a1a5bb61db62d5bc8a608dc2e30907333acebe4bb",
+    "completed_task_hash": "3102a448b05437a4caa5c8ebcc8b6d393ce24c0b9c5d656531f02a49aeb0a187",
+    "approval_ledger_hash": "09a1c4548e8977bad9286c47b386c648a6a033c9de57a81d0cebf1a09a85e8d4",
+    "request_ledger_hash": "d71ce8c8140dbb1ad787e6c1b95c4884de4a30786c26d4a3bcea863c7e5d10a2",
+    "failure_evidence_hash": "36aadfd19311a0419d1c27c296e72c105bfc449bea6769077f8e6c25271903e6",
+    "observed_http_calls": 4,
+    "checkpoint_generation": [
+      3,
+      6
+    ],
+    "model_calls": 0,
+    "duplicate_execution_count": 0,
+    "invariant_violations": [],
+    "final_verdict": "PASS"
+  },
+  {
+    "test_id": "R8",
+    "goal_id": "research_2d5fc0a1cbe4",
+    "original_goal_hash": "ed1c6625fac1baa7503dcefc2b1d112d500045b857b6088e62fbbf4c68ff6b0f",
+    "contract_hash": "8ce41b258edb8aa4b05a01cd0709a09f7b580017a78c5c3295bdedb53b3f9f07",
+    "plan_hash": "6e23904074006a7d602b310caaa33f0700c16177d6941ce7847ccc7bb7a63537",
+    "original_dag_hash": "4bc867c6f60b0f732d20add09cbeab6802a7e9742a72b24127880a09743426ed",
+    "active_revision_hash": null,
+    "source_hash": "92705563242cfd7c5c897d0a1a5bb61db62d5bc8a608dc2e30907333acebe4bb",
+    "completed_task_hash": "bed13b443823a0f125f9cc73c1914257b898ad7a001b5f406ec87ac930bd6fa6",
+    "approval_ledger_hash": "7ba44a7d1494b3b37569f826a2f28fc54d7eff5bfc285feacb1ad8fc427e2362",
+    "request_ledger_hash": "121c22df81751ff171a2282665da394fdb0bdd8316f8be0e911057aaefbec0be",
+    "failure_evidence_hash": "eb046793be3efa2e0f57f8d83965d4f2fc3f30d625e3600867db5a18fd424ab0",
+    "observed_http_calls": 4,
+    "checkpoint_generation": [
+      3,
+      7
+    ],
+    "model_calls": 0,
+    "duplicate_execution_count": 0,
+    "invariant_violations": [],
+    "final_verdict": "PASS"
+  }
+]
+```

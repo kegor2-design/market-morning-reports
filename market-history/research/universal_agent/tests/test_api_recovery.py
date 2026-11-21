@@ -18,7 +18,8 @@ from copy import deepcopy
 from pathlib import Path
 from unittest import mock
 
-from universal_agent import api_recovery, research_job
+from universal_agent.tests import fault_audit
+from universal_agent import api_recovery, research_job, research_runtime
 from universal_agent.api_recovery import authorize_local
 from universal_agent.ai_research_planner import capability_registry
 from universal_agent.engine import canonical, write_state
@@ -26,7 +27,6 @@ from universal_agent.isolated_codex import PRIVATE_ROOT
 from universal_agent.research_planner import _task, dates_for, plan_goal
 from universal_agent.research_runtime import submit
 from universal_agent.problem_solver import recovery_capability_registry
-from universal_agent.process_supervisor import run_research_program
 
 GOAL = 'Study Treasury yield spread and SOFR from 2018-06-01 to 2018-06-29.'
 
@@ -41,7 +41,7 @@ def _kill_after_api_rollback(directory):
                 'REVISION_ROLLED_BACK'):
             os.kill(os.getpid(), signal.SIGKILL)
     process_supervisor.write_state = checkpoint_then_kill
-    process_supervisor.run_research_program(GOAL, directory)
+    research_runtime.run(directory.parents[1], max_jobs=1, max_seconds=120)
 
 
 class ApiRecoveryDagTests(unittest.TestCase):
@@ -178,10 +178,19 @@ class ApiRecoveryDagTests(unittest.TestCase):
     def test_tampered_approval_cannot_create_recovery_task(self):
         self._exercise_recovery(503, tamper_approval=True)
 
+    def test_journal_write_failure_with_real_checkpoint(self):
+        self._exercise_recovery(503, transaction_fault='R2')
+
+    def test_commit_interruption_with_real_checkpoint(self):
+        self._exercise_recovery(503, transaction_fault='R3')
+
+    def test_duplicate_revision_with_real_checkpoint(self):
+        self._exercise_recovery(503, transaction_fault='R7')
+
     def _exercise_recovery(self, first_status, bad_recovery=False,
                            kill_recovery=False, tamper_approval=False,
                            persist=False, retry_after='0', bad_analysis=False,
-                           kill_rollback=False):
+                           kill_rollback=False, transaction_fault=None):
         plan = plan_goal(GOAL)
         days = dates_for(plan)
         csv = ('Date,2 Yr,10 Yr\n' + ''.join(
@@ -239,7 +248,11 @@ class ApiRecoveryDagTests(unittest.TestCase):
                    tempfile.TemporaryDirectory(dir=PRIVATE_ROOT))
         with context as folder:
             queue_dir = Path(folder)
-            job = submit(GOAL, queue_dir)
+            audit_id = (transaction_fault or ('R1' if tamper_approval else 'R4' if kill_recovery
+                else 'R8' if kill_rollback else 'R5' if bad_recovery else 'R6' if bad_analysis else None))
+            goal = GOAL if audit_id is None else GOAL + ' Trial ' + audit_id
+            plan = plan_goal(goal)
+            job = submit(goal, queue_dir)
             program_dir = queue_dir / 'programs' / job['goal_id']
             program_dir.mkdir(parents=True, exist_ok=True)
             uris = {'UST_2Y': f'http://127.0.0.1:{server.server_port}/treasury.csv',
@@ -290,14 +303,58 @@ class ApiRecoveryDagTests(unittest.TestCase):
                     queued['jobs'][job['goal_id']]['next_eligible_retry_at'])
                 time.sleep(max(0, (eligible - datetime.datetime.now(
                     datetime.timezone.utc)).total_seconds()) + 0.1)
+            def audit():
+                fault_audit.verify(audit_id, program_dir, before, len(requests))
+
+            before = fault_audit.snapshot(program_dir)
+            if transaction_fault:
+                if transaction_fault == 'R7':
+                    self._run(queue_dir)
+                    active = json.loads((program_dir / 'state.json').read_bytes())
+                    with self.assertRaisesRegex(ValueError, 'already exists'):
+                        api_recovery.replan(plan, active, program_dir)
+                else:
+                    state = deepcopy(first)
+                    real_write = api_recovery.write_state
+                    def fail_write(path, value):
+                        if path.name == 'api_recovery_transaction_v1.json':
+                            raise OSError('audit journal fault')
+                        real_write(path, value)
+                    if transaction_fault == 'R2':
+                        with mock.patch.object(api_recovery, 'write_state', side_effect=fail_write):
+                            with self.assertRaisesRegex(OSError, 'audit journal fault'):
+                                api_recovery.replan(plan, state, program_dir)
+                        self.assertEqual(state, first)
+                        self.assertFalse((program_dir / 'api_recovery_transaction_v1.json').exists())
+                        self._run(queue_dir)
+                    else:
+                        finalize = api_recovery.finalize_transaction
+                        interruptions = []
+                        def interrupt_once(candidate, directory):
+                            if not interruptions:
+                                with mock.patch.object(api_recovery, 'write_state', side_effect=fail_write):
+                                    with self.assertRaisesRegex(OSError, 'audit journal fault'):
+                                        finalize(candidate, directory)
+                                saved = json.loads((directory / 'state.json').read_bytes())
+                                self.assertEqual(saved, candidate)
+                                self.assertEqual(candidate['api_recovery_revision']['status'], 'REVISION_PREPARED')
+                                interruptions.append(saved['api_recovery_revision']['sha256'])
+                            finalize(candidate, directory)
+                        with mock.patch.object(api_recovery, 'finalize_transaction', side_effect=interrupt_once):
+                            research_runtime.run(queue_dir, max_jobs=1, max_seconds=120)
+                        self.assertEqual(len(interruptions), 1)
+                audit()
+                return
             if tamper_approval:
                 approval_path = program_dir / 'api_recovery_approval.json'
                 approval = json.loads(approval_path.read_text())
                 approval['max_network_requests'] = 2
                 approval_path.write_text(json.dumps(approval))
+                before = fault_audit.snapshot(program_dir)
                 self.assertEqual(self._run(queue_dir)['processed'], 0)
                 self.assertEqual(len(requests), 3)
                 self.assertFalse((program_dir / 'api_recovery_revision_v1.json').exists())
+                audit()
                 return
             if kill_recovery:
                 env = {'PATH': '/usr/bin:/bin',
@@ -328,6 +385,7 @@ class ApiRecoveryDagTests(unittest.TestCase):
                 self.assertEqual(saved['recovery_network_requests_reserved'], 1)
                 self.assertEqual(self._run(queue_dir)['processed'], 0)
                 self.assertEqual(len(requests), 4)
+                audit()
                 return
             if bad_recovery:
                 if kill_rollback:
@@ -348,14 +406,15 @@ class ApiRecoveryDagTests(unittest.TestCase):
                     self.assertEqual(json.loads((program_dir /
                         'api_recovery_transaction_v1.json').read_text())[
                             'transaction_state'], 'REVISION_COMMITTED')
-                    resumed = run_research_program(GOAL, program_dir)
-                    self.assertEqual(resumed['status'], 'RESEARCH_BLOCKED')
+                    resumed = self._run(queue_dir)
+                    self.assertEqual(resumed['statuses'][job['goal_id']], 'BLOCKED_ENV')
                     self.assertEqual(json.loads((program_dir /
                         'api_recovery_transaction_v1.json').read_text())[
                             'transaction_state'], 'REVISION_ROLLED_BACK')
                     self.assertEqual(json.loads((program_dir / 'state.json').read_text())[
                         'records']['analyze_rates']['attempts'], 0)
                     self.assertEqual(len(requests), 4)
+                    audit()
                     return
                 outcome = self._run(queue_dir)['statuses'][job['goal_id']]
                 queue = json.loads((queue_dir / 'state.json').read_text())
@@ -376,6 +435,7 @@ class ApiRecoveryDagTests(unittest.TestCase):
                                     'COMPLETED_EXPLORATORY')
                 self.assertEqual(self._run(queue_dir)['processed'], 0)
                 self.assertEqual(len(requests), 4)
+                audit()
                 return
             if bad_analysis:
                 original_verify = research_job.verify_artifact
@@ -386,8 +446,8 @@ class ApiRecoveryDagTests(unittest.TestCase):
                     return item
                 with mock.patch.object(research_job, 'verify_artifact',
                                        side_effect=fail_independent_analysis):
-                    outcome = run_research_program(GOAL, program_dir)
-                self.assertEqual(outcome['status'], 'RESEARCH_BLOCKED')
+                    outcome = research_runtime.run(queue_dir, max_jobs=1, max_seconds=120)
+                self.assertEqual(outcome['statuses'][job['goal_id']], 'BLOCKED_ENV')
                 blocked = json.loads((program_dir / 'state.json').read_text())
                 self.assertEqual(blocked['tasks'], first['tasks'])
                 self.assertEqual(blocked['goal_id'], first['goal_id'])
@@ -404,6 +464,7 @@ class ApiRecoveryDagTests(unittest.TestCase):
                 self.assertEqual(blocked['recovery_network_requests_reserved'], 1)
                 self.assertEqual(blocked['network_requests_reserved'], 3)
                 self.assertEqual(len(requests), 4)
+                audit()
                 return
             self.assertEqual(self._run(queue_dir)['statuses'][job['goal_id']],
                              'COMPLETED_EXPLORATORY')

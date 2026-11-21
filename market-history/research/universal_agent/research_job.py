@@ -681,6 +681,13 @@ def supervise(manifest_path: Path, state_dir: Path, *,
                     state['worker_crashes'] += 1
                     state['events'].append({'at_utc': now(), 'event': 'CRASH_OR_FAILURE_DETECTED',
                                             'recovery_artifact_present': artifact.exists()})
+                    if (manifest['mode'] == 'data_recovery' and
+                            manifest['data_request']['task_id'].startswith('api_recover_') and
+                            not artifact.exists()):
+                        state.update(status='FAILED_TERMINAL',
+                                     reason='Interrupted one-shot API recovery; review reserved request')
+                        write_state(path, state)
+                        break
                 write_state(path, state)
             if stopping:
                 state['status'] = 'RESEARCH_BLOCKED_WITH_EVIDENCE'

@@ -255,12 +255,28 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
             job = candidates[0]
             if max_seconds - (time.monotonic() - started) < 10:
                 break
-            if job['attempt_count'] >= job['retry_policy']['max_launches']:
+            # A lost supervisor can finish a durable rollback without launching a Task.
+            rollback_only = job['status'] == 'RUNNING' and bool(job.get('checkpoint_sha256'))
+            if not rollback_only and job['attempt_count'] >= job['retry_policy']['max_launches']:
                 job.update(status='FAILED', last_error='Runtime launch budget exhausted',
                            next_action='REVIEW_FAILED_GOAL')
                 _save(path, queue)
                 continue
-            job['attempt_count'] += 1
+            if not rollback_only:
+                job['attempt_count'] += 1
+                # The program atomically replaces these two files. Pin their approved
+                # generation so queue integrity checks survive a crash during recovery.
+                for field in ('checkpoint', 'output'):
+                    if job.get(field + '_sha256'):
+                        src = Path(job[field])
+                        dst = src.with_name(field + '-' + job[field + '_sha256'] + '.json')
+                        try:
+                            os.link(src, dst, follow_symlinks=False)
+                        except FileExistsError:
+                            pass
+                        if _sha(dst) != job[field + '_sha256']:
+                            raise ValueError('Changed prior queue generation')
+                        job[field] = str(dst)
             job['status'] = 'RUNNING'
             job['worker_identity'] = {'pid': os.getpid(), 'started_at_utc': now()}
             queue['events'].append({'at_utc': now(), 'goal_id': job['goal_id'],
@@ -282,7 +298,7 @@ def run(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
                 result = run_research_program(job['research_goal'], program_dir=program_dir,
                     max_seconds=min(job['resource_budget']['max_seconds'],
                                     max(10, int(max_seconds - (time.monotonic() - started)))),
-                    ai_candidate=job.get('ai_candidate'))
+                    ai_candidate=job.get('ai_candidate'), rollback_only=rollback_only)
                 program = json.loads((program_dir / 'state.json').read_text())
                 _sync_tasks(job, program)
                 job['network_requests_reserved'] = program['network_requests_reserved']

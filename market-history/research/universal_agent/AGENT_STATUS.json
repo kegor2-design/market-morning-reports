@@ -12,7 +12,11 @@
     "AUTO_REPAIR_AND_ROLLBACK_VERIFIED": "PASS",
     "CHECKPOINT_RECOVERY_VERIFIED": "PASS",
     "CORE_REGRESSION_VERIFIED": "PASS",
-    "SANDBOX_POLICY_VERIFIED": "PASS"
+    "SANDBOX_POLICY_VERIFIED": "PASS",
+    "ROLLBACK_FAULT_MATRIX_8_OF_8_VERIFIED": "PASS",
+    "DAG_TRANSACTION_VERIFIED": "PASS",
+    "DAG_ROLLBACK_VERIFIED": "PASS",
+    "CHECKPOINT_INTEGRITY_VERIFIED": "PASS"
   },
   "gate_scope": "Reviewed US Treasury 2Y/10Y and NY Fed SOFR adapters; real H.15 revision case; Bubblewrap-capable approved user execution. PIT and investment claims remain blocked.",
   "ready_for_live_market_research": false,
@@ -573,9 +577,19 @@
     "running_worker": null,
     "next_action": "Implement a separately authorized API retry task with a new request identity and bounded budget; preserve blocked original attempt and source hashes"
   },
-  "current_phase": "P0",
+  "current_phase": "P1",
   "baseline_tests": {
     "universal_agent": 194,
     "regime190": 55
+  },
+  "rollback_audit": {
+    "R1": "PASS",
+    "R2": "PASS",
+    "R3": "PASS",
+    "R4": "PASS",
+    "R5": "PASS",
+    "R6": "PASS",
+    "R7": "PASS",
+    "R8": "PASS"
   }
 }

@@ -193,7 +193,7 @@ def _program_result(state: dict, program_dir: Path) -> dict:
 
 def run_research_program(goal: str, program_dir: Path | None = None,
                          *, max_tasks: int = 12, max_seconds: int = 300,
-                         test_analysis_delay: int = 0,
+                         test_analysis_delay: int = 0, rollback_only: bool = False,
                          ai_candidate: dict | None = None) -> dict:
     """Sequentially run reviewed DAG tasks through existing Research Job Supervisor."""
     from .isolated_codex import PRIVATE_ROOT as JOB_ROOT
@@ -390,6 +390,14 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                         for key, value in state['records'].items()}):
                 raise ValueError('Completed research report changed')
             return completed
+        if rollback_only:
+            if (state['status'] != 'RESEARCH_BLOCKED' or
+                    state.get('api_recovery_revision', {}).get('status') != 'REVISION_ROLLED_BACK'):
+                raise ValueError('Interrupted recovery requires checkpoint review')
+            from .api_recovery import finalize_transaction
+            finalize_transaction(state, program_dir)
+            write_state(checkpoint, state)
+            return _program_result(state, program_dir)
         if state.get('api_recovery_revision'):
             from .api_recovery import finalize_transaction
             finalize_transaction(state, program_dir)
