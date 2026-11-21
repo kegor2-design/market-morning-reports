@@ -2,7 +2,7 @@
   "schema_version": 1,
   "session_a_completed": false,
   "branch": "research/universal-agent-session-c-finalization-20261121",
-  "last_verified_commit": "b1b4b5739b2805fcc5f82ac28ce44061354c2423",
+  "last_verified_commit": "3987dfee60a8135ff56f1f0b209f04bc50d096ea",
   "last_checkpoint": ".universal_private/session_c_attribute_repair_e2e_v3/state.json",
   "gates": {
     "GENERAL_DATA_ACQUISITION_CONNECTED": "PASS",
@@ -16,7 +16,11 @@
     "ROLLBACK_FAULT_MATRIX_8_OF_8_VERIFIED": "PASS",
     "DAG_TRANSACTION_VERIFIED": "PASS",
     "DAG_ROLLBACK_VERIFIED": "PASS",
-    "CHECKPOINT_INTEGRITY_VERIFIED": "PASS"
+    "CHECKPOINT_INTEGRITY_VERIFIED": "PASS",
+    "GOAL_DEADLINE_MATRIX_8_OF_8_VERIFIED": "BLOCKED",
+    "STRICT_GOAL_DEADLINE_VERIFIED": "BLOCKED",
+    "BUDGET_PERSISTENCE_VERIFIED": "PASS",
+    "NO_POST_DEADLINE_EXECUTION_VERIFIED": "BLOCKED"
   },
   "gate_scope": "Reviewed US Treasury 2Y/10Y and NY Fed SOFR adapters; real H.15 revision case; Bubblewrap-capable approved user execution. PIT and investment claims remain blocked.",
   "ready_for_live_market_research": false,
@@ -577,7 +581,7 @@
     "running_worker": null,
     "next_action": "Implement a separately authorized API retry task with a new request identity and bounded budget; preserve blocked original attempt and source hashes"
   },
-  "current_phase": "P1",
+  "current_phase": "P2",
   "baseline_tests": {
     "universal_agent": 194,
     "regime190": 55

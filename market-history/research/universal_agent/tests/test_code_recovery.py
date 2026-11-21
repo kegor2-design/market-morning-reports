@@ -14,6 +14,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
 
+from universal_agent.tests import time_audit
 from universal_agent import code_recovery
 from universal_agent.code_recovery import authorize_fixture, fixture_source, replan
 from universal_agent.engine import write_state
@@ -187,6 +188,7 @@ class CodeRecoveryTests(unittest.TestCase):
         self.assertEqual(saved['network_requests_reserved'], 0)
 
     def test_goal_deadline_during_repair_restores_code_and_blocks(self):
+        start = time_audit.clock()
         state = self._initial_failure()
         source = fixture_source(self.directory)
         original_sha = hashlib.sha256(source.read_bytes()).hexdigest()
@@ -202,6 +204,8 @@ class CodeRecoveryTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256(source.read_bytes()).hexdigest(), original_sha)
         self.assertEqual(saved['records']['analyze_fixture']['attempts'], 1)
         self.assertEqual(saved['network_requests_reserved'], 0)
+
+        time_audit.program('T4', start, saved, 1)
 
     def test_no_approval_or_unapproved_goal_cannot_repair(self):
         self._initial_failure()

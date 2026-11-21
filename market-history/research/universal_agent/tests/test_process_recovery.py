@@ -11,6 +11,7 @@ import time
 import unittest
 from pathlib import Path
 
+from universal_agent.tests import time_audit
 from universal_agent.research_job import PRIVATE_ROOT, _worker_identity, supervise
 
 
@@ -74,8 +75,16 @@ class ProcessRecoveryTests(unittest.TestCase):
                 supervisor.wait()
             supervisor.communicate()
 
+    def test_normal_completion_time_audit(self):
+        start = time_audit.clock()
+        deadline = start[0] + timedelta(seconds=10)
+        result = supervise(self.manifest, self.job, outer_deadline_utc=deadline)
+        self.assertEqual(result['status'], 'VERIFIED_RESEARCH_CONCLUSION')
+        time_audit.job('T1', start, deadline, result, 0)
+
     def test_outer_goal_deadline_stops_owned_child_and_persists_failure(self):
-        deadline = datetime.now(timezone.utc) + timedelta(seconds=1)
+        audit_start = time_audit.clock()
+        deadline = audit_start[0] + timedelta(seconds=1)
         result = supervise(self.manifest, self.job, outer_deadline_utc=deadline)
         self.assertEqual(result['status'], 'FAILED_TERMINAL')
         self.assertEqual(result['reason'], 'Wall-time budget exhausted')
@@ -84,8 +93,11 @@ class ProcessRecoveryTests(unittest.TestCase):
                          'FAILED_TERMINAL')
         self.assertIsNone(_worker_identity(result['worker_pid'], self.job.resolve()))
 
+        time_audit.job('T2', audit_start, deadline, result, 0)
+
     def test_stopped_owned_worker_is_killed_after_shutdown_grace(self):
-        deadline = datetime.now(timezone.utc) + timedelta(seconds=1)
+        audit_start = time_audit.clock()
+        deadline = audit_start[0] + timedelta(seconds=1)
         supervisor = multiprocessing.get_context('fork').Process(
             target=_run_with_outer_deadline,
             args=(self.manifest, self.job, deadline))
@@ -102,6 +114,7 @@ class ProcessRecoveryTests(unittest.TestCase):
             self.assertEqual(final['status'], 'FAILED_TERMINAL')
             self.assertEqual(final['reason'], 'Wall-time budget exhausted')
             self.assertIsNone(_worker_identity(worker_pid, self.job.resolve()))
+            time_audit.job('T6', audit_start, deadline, final, 0)
             self.assertLess(time.monotonic() - started, 6)
             self.assertTrue(any(event.get('event') == 'WORKER_EXITED' and
                 event.get('exit_code') == -signal.SIGKILL for event in final['events']))
@@ -113,7 +126,8 @@ class ProcessRecoveryTests(unittest.TestCase):
                 os.kill(worker_pid, signal.SIGKILL)
 
     def test_supervisor_sigkill_restart_preserves_outer_deadline(self):
-        deadline = datetime.now(timezone.utc) + timedelta(seconds=2)
+        audit_start = time_audit.clock()
+        deadline = audit_start[0] + timedelta(seconds=2)
         context = multiprocessing.get_context('fork')
         first = context.Process(target=_run_with_outer_deadline,
                                 args=(self.manifest, self.job, deadline))
@@ -137,6 +151,7 @@ class ProcessRecoveryTests(unittest.TestCase):
             self.assertEqual(final['attempts'], 1)
             self.assertEqual(final['duplicate_completion_count'], 0)
             self.assertIsNone(_worker_identity(worker_pid, self.job.resolve()))
+            time_audit.job('T5', audit_start, deadline, final, 1)
             self.assertLess(time.monotonic() - started, 6)
         finally:
             if first.is_alive():

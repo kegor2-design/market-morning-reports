@@ -454,7 +454,11 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                 record.update(status='BLOCKED_ENV', reason='Program network budget exhausted')
                 write_state(checkpoint, state)
                 continue
-            state['selection_history'].append({'selected': task_id,
+            task_deadline = min(goal_deadline, _wall_utc_now() + timedelta(
+                seconds=max(0.0, min(task['resource_budget']['max_seconds'], remaining_goal_seconds()))))
+            selection = {'started_at_utc': now(), 'started_monotonic': time.monotonic(),
+                         'task_deadline_utc': task_deadline.isoformat()}
+            state['selection_history'].append({**selection, 'selected': task_id,
                 'candidates': [item['task_id'] for item in ready[1:]],
                 'reason': 'Highest-priority independent ready task'})
             if record['status'] != 'RUNNING':
@@ -467,11 +471,6 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                         raise ValueError('Separate API recovery budget exhausted')
                     state['recovery_network_requests_reserved'] = 1
                 write_state(checkpoint, state)
-            # A wall-clock rollback cannot enlarge the child's time allowance.
-            # The child turns this effective UTC limit into its own monotonic
-            # deadline before executing an external request or code repair.
-            task_deadline = min(goal_deadline, _wall_utc_now() + timedelta(
-                seconds=max(0.0, remaining_goal_seconds())))
             if task['task_type'] == 'DATA_DISCOVERY':
                 gaps = dates_for(plan)
                 record.update(status='VERIFIED', gaps=gaps,
@@ -627,6 +626,7 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                     record.update(status='BLOCKED_EVIDENCE' if child['status'] ==
                                   'RESEARCH_BLOCKED_WITH_EVIDENCE' else 'FAILED',
                                   next_action='RUN_INDEPENDENT_ALLOWED_TASK')
+            state['selection_history'][-1].update(ended_at_utc=now(), ended_monotonic=time.monotonic())
             executed += 1
             write_state(checkpoint, state)
             _program_result(state, program_dir)

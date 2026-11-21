@@ -8,6 +8,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+from universal_agent.tests import time_audit
 from universal_agent import process_supervisor
 from universal_agent.research_planner import (plan_goal, validate_plan, _task,
     APPROVED_INDEPENDENT_RATES_GOAL)
@@ -154,6 +155,32 @@ class ResearchProgramTests(unittest.TestCase):
             self.assertEqual({key: value['attempts'] for key, value in
                 json.loads((directory / 'state.json').read_text())['records'].items()},
                 attempts)
+
+    def test_elapsed_goal_restart_audit(self):
+        PRIVATE_ROOT.mkdir(mode=0o700, parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=PRIVATE_ROOT) as folder:
+            directory = Path(folder)
+            goal = GOAL + ' Deadline audit.'
+            start = time_audit.clock()
+            run_research_program(goal, directory, max_tasks=1, max_seconds=10)
+            path = directory / 'state.json'
+            first = json.loads(path.read_bytes())
+            run_research_program(goal, directory, max_tasks=1, max_seconds=300)
+            second = json.loads(path.read_bytes())
+            for key in ('goal_deadline_utc', 'goal_deadline_monotonic', 'goal_budget_seconds'):
+                self.assertEqual(second[key], first[key])
+            time_audit.program('T3', start, second, 1)
+            time.sleep(max(0, first['goal_deadline_monotonic'] - time.monotonic()) + .01)
+            for i, case in enumerate(('T7', 'T7', 'T8'), 2):
+                with mock.patch.object(process_supervisor, '_wall_utc_now',
+                        return_value=start[0] - datetime.timedelta(minutes=10)):
+                    result = run_research_program(goal, directory, max_seconds=300)
+                self.assertEqual(result['next_action'], 'GOAL_DEADLINE_EXHAUSTED')
+                after = json.loads(path.read_bytes())
+                self.assertEqual(after['selection_history'], second['selection_history'])
+                self.assertEqual(after['records'], second['records'])
+                self.assertEqual(after['network_requests_reserved'], second['network_requests_reserved'])
+                time_audit.program(case, start, after, i)
 
     def test_boot_change_blocks_new_tasks_until_review(self):
         PRIVATE_ROOT.mkdir(mode=0o700, parents=True, exist_ok=True)

@@ -559,6 +559,38 @@ def supervise(manifest_path: Path, state_dir: Path, *,
             remaining = min(remaining, max(0.0, (outer_deadline_utc -
                 datetime.now(timezone.utc)).total_seconds()))
         deadline = time.monotonic() + remaining
+        from .process_supervisor import _boot_id
+        boot = _boot_id()
+        if state.get('deadline_boot_id', boot) != boot:
+            state.update(status='RESEARCH_BLOCKED_WITH_EVIDENCE', reason='GOAL_BOOT_CHANGED_REVIEW')
+            write_state(path, state)
+            return state
+        deadline = min(deadline, state.get('deadline_monotonic', deadline))
+        state.update(deadline_boot_id=boot, deadline_monotonic=deadline)
+        def event(name):
+            state['events'].append({'event': name, 'at_utc': now(), 'monotonic': time.monotonic()})
+
+        def stop_attached(pid, ticks):
+            if ticks is None or _worker_identity(pid, state_dir) != ticks:
+                return
+            event('SHUTDOWN_GRACE_STARTED')
+            try:
+                os.killpg(pid, signal.SIGTERM)
+                end = time.monotonic() + 2
+                while _worker_identity(pid, state_dir) == ticks and time.monotonic() < end:
+                    time.sleep(.01)
+                event('SHUTDOWN_GRACE_ENDED')
+                if _worker_identity(pid, state_dir) == ticks:
+                    os.killpg(pid, signal.SIGKILL)
+                    end = time.monotonic() + .5
+                    while _worker_identity(pid, state_dir) == ticks and time.monotonic() < end:
+                        time.sleep(.01)
+                    if _worker_identity(pid, state_dir) == ticks:
+                        raise RuntimeError('Research worker termination unconfirmed')
+            except ProcessLookupError:
+                if state['events'][-1]['event'] == 'SHUTDOWN_GRACE_STARTED':
+                    event('SHUTDOWN_GRACE_ENDED')
+
         stopping = False
         def stop(_signal, _frame):
             nonlocal stopping
@@ -633,7 +665,7 @@ def supervise(manifest_path: Path, state_dir: Path, *,
                                time.monotonic() < deadline and not stopping):
                             time.sleep(.05)
                         if _worker_identity(orphan_pid, state_dir) == start_ticks:
-                            os.killpg(orphan_pid, signal.SIGTERM)
+                            stop_attached(orphan_pid, start_ticks)
                         state['events'].append({'at_utc': now(),
                             'event': 'SURVIVING_WORKER_EXITED', 'worker_pid': orphan_pid,
                             'artifact_present': artifact.exists()})
@@ -646,6 +678,8 @@ def supervise(manifest_path: Path, state_dir: Path, *,
                            '--manifest', str(manifest_path.resolve()),
                            '--state-dir', str(state_dir), '--task-key', plan['task_key']]
                 env = {'PATH': '/usr/bin:/bin', 'PYTHONPATH': str(Path(__file__).resolve().parents[1])}
+                if time.monotonic() >= deadline:
+                    break
                 worker = subprocess.Popen(command, cwd=Path(__file__).resolve().parents[3],
                                           env=env, stdin=subprocess.DEVNULL,
                                           stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
@@ -668,11 +702,13 @@ def supervise(manifest_path: Path, state_dir: Path, *,
                         break
                     time.sleep(.05)
                 if worker.poll() is None:
+                    event('SHUTDOWN_GRACE_STARTED')
                     os.killpg(worker.pid, signal.SIGTERM)
                     try:
                         worker.wait(timeout=2)
                     except subprocess.TimeoutExpired:
                         os.killpg(worker.pid, signal.SIGKILL)
+                    event('SHUTDOWN_GRACE_ENDED')
                 _, stderr = worker.communicate(timeout=3)
                 state['events'].append({'at_utc': now(), 'event': 'WORKER_EXITED',
                                         'worker_pid': worker.pid, 'exit_code': worker.returncode,
@@ -694,6 +730,7 @@ def supervise(manifest_path: Path, state_dir: Path, *,
                 state['reason'] = 'STOP requested'
             elif time.monotonic() >= deadline and state['status'] == 'RUNNING':
                 state['status'] = 'FAILED_TERMINAL'
+                stop_attached(state.get('worker_pid'), state.get('worker_start_ticks'))
                 state['reason'] = 'Wall-time budget exhausted'
             write_state(path, state)
             return state

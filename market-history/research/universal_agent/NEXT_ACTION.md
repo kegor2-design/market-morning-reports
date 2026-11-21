@@ -221,3 +221,5 @@ PYTHONPATH=market-history/research /home/kegor2/stock_env/bin/python -m unittest
 Fetched priority HEAD b1b4b5739b2805fcc5f82ac28ce44061354c2423. Original attribute-repair queue generation 6, completed. Its private files remain in the priority worktree. A clean checkout requires both ignored naver daily CSV inputs from that worktree (validated by Regime190). Baseline UA 194 and Regime190 55 passed with stock_env and local loopback/Bubblewrap. Logs /tmp/session_c_final_base_{universal_agent,regime190}.log. Work continues on shared R1–R8 observations. Resume with `cd /home/kegor2/market-morning-reports-session-c-finalization && git status --short --branch`.
 
 P0 verified in eight isolated loopback queues. Public row hashes and reproduction are in RUNTIME_CONTINUITY_REPORT.md. Phase P1 measures Goal and single-job deadlines, including attached-worker shutdown.
+
+P1 recorded eight timed cases (33 tests OK). Four use a single Research Job outer deadline. Full multi-task matrix and strict deadline gate remain open. Test results and scopes are in RUNTIME_CONTINUITY_REPORT.md. Next development task is isolated repair of an existing analysis function.

@@ -289,3 +289,259 @@ PYTHONPATH=market-history/research UNIVERSAL_AUDIT_DIR=.universal_private/finali
   }
 ]
 ```
+
+## Deadline trial measurements
+
+T1/2/5/6 time the single Research Job including shutdown. T3/7/8 measure one shared 10-second Program from before creation, including actual waiting and repeated invocation. T4 times initial failure through rollback, with a shortened UTC deadline after approval. Scheduling tolerance is 100 ms for grace, 600 ms for checkpoint and reap. Whole multi-task Program coverage for the four single-job trials remains pending.
+
+Reproduce with `PYTHONPATH=market-history/research UNIVERSAL_AUDIT_DIR=.universal_private/finalization /home/kegor2/stock_env/bin/python -m unittest universal_agent.tests.test_process_recovery universal_agent.tests.test_research_program universal_agent.tests.test_code_recovery`.
+
+```json
+[
+  {
+    "test_id": "T1",
+    "scope": "single Research Job with outer Goal deadline",
+    "goal_start_utc": "2026-11-21T13:04:17.646217+00:00",
+    "deadline_utc": "2026-11-21T13:04:27.646217+00:00",
+    "end_utc": "2026-11-21T13:04:21.124902+00:00",
+    "elapsed_seconds": 3.4786842204630375,
+    "approved_budget_seconds": 10.0,
+    "remaining_seconds": 6.521315,
+    "restarts": 0,
+    "boot_id": "5ed0dd23-000d-4627-b80f-64922cb34c39",
+    "tasks": [
+      {
+        "started_at_utc": "2026-11-21T13:04:17.810350+00:00",
+        "ended_at_utc": "2026-11-21T13:04:21.109186+00:00",
+        "task_deadline_utc": "2026-11-21T13:04:27.646217+00:00"
+      }
+    ],
+    "shutdown_grace": [],
+    "post_deadline_starts": 0,
+    "duplicates": 0,
+    "final_verdict": "PASS"
+  },
+  {
+    "test_id": "T2",
+    "scope": "single Research Job with outer Goal deadline",
+    "goal_start_utc": "2026-11-21T13:04:21.126863+00:00",
+    "deadline_utc": "2026-11-21T13:04:22.126863+00:00",
+    "end_utc": "2026-11-21T13:04:22.144679+00:00",
+    "elapsed_seconds": 1.0178148243576288,
+    "approved_budget_seconds": 1.0,
+    "remaining_seconds": 0,
+    "restarts": 0,
+    "boot_id": "5ed0dd23-000d-4627-b80f-64922cb34c39",
+    "tasks": [
+      {
+        "started_at_utc": "2026-11-21T13:04:21.217707+00:00",
+        "ended_at_utc": "2026-11-21T13:04:22.135328+00:00",
+        "task_deadline_utc": "2026-11-21T13:04:22.126863+00:00"
+      }
+    ],
+    "shutdown_grace": [
+      {
+        "event": "SHUTDOWN_GRACE_STARTED",
+        "at_utc": "2026-11-21T13:04:22.127606+00:00",
+        "monotonic": 10703766.08182046
+      },
+      {
+        "event": "SHUTDOWN_GRACE_ENDED",
+        "at_utc": "2026-11-21T13:04:22.135143+00:00",
+        "monotonic": 10703766.089352725
+      }
+    ],
+    "post_deadline_starts": 0,
+    "duplicates": 0,
+    "final_verdict": "PASS"
+  },
+  {
+    "test_id": "T3",
+    "scope": "Research Program",
+    "goal_start_utc": "2026-11-21T13:04:36.490580+00:00",
+    "deadline_utc": "2026-11-21T13:04:46.537997+00:00",
+    "end_utc": "2026-11-21T13:04:36.993058+00:00",
+    "elapsed_seconds": 0.5024767182767391,
+    "approved_budget_seconds": 10,
+    "remaining_seconds": 9.544939,
+    "restarts": 1,
+    "boot_id": "5ed0dd23-000d-4627-b80f-64922cb34c39",
+    "tasks": [
+      {
+        "selected": "discover_ust_2y",
+        "started_at_utc": "2026-11-21T13:04:36.579331+00:00",
+        "ended_at_utc": "2026-11-21T13:04:36.621534+00:00",
+        "task_deadline_utc": "2026-11-21T13:04:46.537996+00:00"
+      },
+      {
+        "selected": "discover_ust_10y",
+        "started_at_utc": "2026-11-21T13:04:36.842735+00:00",
+        "ended_at_utc": "2026-11-21T13:04:36.897024+00:00",
+        "task_deadline_utc": "2026-11-21T13:04:46.537995+00:00"
+      }
+    ],
+    "shutdown_grace": [],
+    "post_deadline_starts": 0,
+    "duplicates": 0,
+    "final_verdict": "PASS"
+  },
+  {
+    "test_id": "T4",
+    "scope": "Research Program",
+    "goal_start_utc": "2026-11-21T13:04:54.166086+00:00",
+    "deadline_utc": "2026-11-21T13:04:56.415896+00:00",
+    "end_utc": "2026-11-21T13:04:56.591309+00:00",
+    "elapsed_seconds": 2.425221975892782,
+    "approved_budget_seconds": 300,
+    "remaining_seconds": 0,
+    "restarts": 1,
+    "boot_id": "5ed0dd23-000d-4627-b80f-64922cb34c39",
+    "tasks": [
+      {
+        "selected": "analyze_fixture",
+        "started_at_utc": "2026-11-21T13:04:54.242676+00:00",
+        "ended_at_utc": "2026-11-21T13:04:54.319035+00:00",
+        "task_deadline_utc": "2026-11-21T13:05:54.242654+00:00"
+      },
+      {
+        "selected": "code_repair_fixture",
+        "started_at_utc": "2026-11-21T13:04:54.549251+00:00",
+        "ended_at_utc": "2026-11-21T13:04:56.431099+00:00",
+        "task_deadline_utc": "2026-11-21T13:04:56.415891+00:00"
+      }
+    ],
+    "shutdown_grace": [],
+    "post_deadline_starts": 0,
+    "duplicates": 0,
+    "final_verdict": "PASS"
+  },
+  {
+    "test_id": "T5",
+    "scope": "single Research Job with outer Goal deadline",
+    "goal_start_utc": "2026-11-21T13:04:28.960154+00:00",
+    "deadline_utc": "2026-11-21T13:04:30.960154+00:00",
+    "end_utc": "2026-11-21T13:04:31.028664+00:00",
+    "elapsed_seconds": 2.0685153175145388,
+    "approved_budget_seconds": 2.0,
+    "remaining_seconds": 0,
+    "restarts": 1,
+    "boot_id": "5ed0dd23-000d-4627-b80f-64922cb34c39",
+    "tasks": [
+      {
+        "started_at_utc": "2026-11-21T13:04:29.065432+00:00",
+        "ended_at_utc": "2026-11-21T13:04:31.010925+00:00",
+        "task_deadline_utc": "2026-11-21T13:04:30.960154+00:00"
+      }
+    ],
+    "shutdown_grace": [
+      {
+        "event": "SHUTDOWN_GRACE_STARTED",
+        "at_utc": "2026-11-21T13:04:31.010440+00:00",
+        "monotonic": 10703774.964647615
+      },
+      {
+        "event": "SHUTDOWN_GRACE_ENDED",
+        "at_utc": "2026-11-21T13:04:31.010730+00:00",
+        "monotonic": 10703774.96492593
+      }
+    ],
+    "post_deadline_starts": 0,
+    "duplicates": 0,
+    "final_verdict": "PASS"
+  },
+  {
+    "test_id": "T6",
+    "scope": "single Research Job with outer Goal deadline",
+    "goal_start_utc": "2026-11-21T13:04:22.145937+00:00",
+    "deadline_utc": "2026-11-21T13:04:23.145937+00:00",
+    "end_utc": "2026-11-21T13:04:25.184163+00:00",
+    "elapsed_seconds": 3.0382308959960938,
+    "approved_budget_seconds": 1.0,
+    "remaining_seconds": 0,
+    "restarts": 0,
+    "boot_id": "5ed0dd23-000d-4627-b80f-64922cb34c39",
+    "tasks": [
+      {
+        "started_at_utc": "2026-11-21T13:04:22.300853+00:00",
+        "ended_at_utc": "2026-11-21T13:04:25.171354+00:00",
+        "task_deadline_utc": "2026-11-21T13:04:23.145937+00:00"
+      }
+    ],
+    "shutdown_grace": [
+      {
+        "event": "SHUTDOWN_GRACE_STARTED",
+        "at_utc": "2026-11-21T13:04:23.163583+00:00",
+        "monotonic": 10703767.117803052
+      },
+      {
+        "event": "SHUTDOWN_GRACE_ENDED",
+        "at_utc": "2026-11-21T13:04:25.165317+00:00",
+        "monotonic": 10703769.11953277
+      }
+    ],
+    "post_deadline_starts": 0,
+    "duplicates": 0,
+    "final_verdict": "PASS"
+  },
+  {
+    "test_id": "T7",
+    "scope": "Research Program",
+    "goal_start_utc": "2026-11-21T13:04:36.490580+00:00",
+    "deadline_utc": "2026-11-21T13:04:46.537997+00:00",
+    "end_utc": "2026-11-21T13:04:46.758218+00:00",
+    "elapsed_seconds": 10.267635896801949,
+    "approved_budget_seconds": 10,
+    "remaining_seconds": 0,
+    "restarts": 3,
+    "boot_id": "5ed0dd23-000d-4627-b80f-64922cb34c39",
+    "tasks": [
+      {
+        "selected": "discover_ust_2y",
+        "started_at_utc": "2026-11-21T13:04:36.579331+00:00",
+        "ended_at_utc": "2026-11-21T13:04:36.621534+00:00",
+        "task_deadline_utc": "2026-11-21T13:04:46.537996+00:00"
+      },
+      {
+        "selected": "discover_ust_10y",
+        "started_at_utc": "2026-11-21T13:04:36.842735+00:00",
+        "ended_at_utc": "2026-11-21T13:04:36.897024+00:00",
+        "task_deadline_utc": "2026-11-21T13:04:46.537995+00:00"
+      }
+    ],
+    "shutdown_grace": [],
+    "post_deadline_starts": 0,
+    "duplicates": 0,
+    "final_verdict": "PASS"
+  },
+  {
+    "test_id": "T8",
+    "scope": "Research Program",
+    "goal_start_utc": "2026-11-21T13:04:36.490580+00:00",
+    "deadline_utc": "2026-11-21T13:04:46.537997+00:00",
+    "end_utc": "2026-11-21T13:04:46.849212+00:00",
+    "elapsed_seconds": 10.358628967776895,
+    "approved_budget_seconds": 10,
+    "remaining_seconds": 0,
+    "restarts": 4,
+    "boot_id": "5ed0dd23-000d-4627-b80f-64922cb34c39",
+    "tasks": [
+      {
+        "selected": "discover_ust_2y",
+        "started_at_utc": "2026-11-21T13:04:36.579331+00:00",
+        "ended_at_utc": "2026-11-21T13:04:36.621534+00:00",
+        "task_deadline_utc": "2026-11-21T13:04:46.537996+00:00"
+      },
+      {
+        "selected": "discover_ust_10y",
+        "started_at_utc": "2026-11-21T13:04:36.842735+00:00",
+        "ended_at_utc": "2026-11-21T13:04:36.897024+00:00",
+        "task_deadline_utc": "2026-11-21T13:04:46.537995+00:00"
+      }
+    ],
+    "shutdown_grace": [],
+    "post_deadline_starts": 0,
+    "duplicates": 0,
+    "final_verdict": "PASS"
+  }
+]
+```
