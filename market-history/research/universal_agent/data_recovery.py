@@ -400,8 +400,6 @@ def verify_recovery(request: dict, state_dir: Path) -> dict:
         raise ValueError('Source content hash changed')
     uri = request.get('fixture_source_uri') or adapter.uri(
         request['series'], request['start'], request['end'])
-    if state['source_records'][0]['source_uri'] != uri:
-        raise ValueError('Source URI changed')
     values = adapter.parse(request['series'], payload, set(request['expected_dates']))
     gaps = [day for day in request['expected_dates'] if day not in request['existing']]
     recovered = {day: values[day] for day in gaps if day in values}
@@ -418,9 +416,27 @@ def verify_recovery(request: dict, state_dir: Path) -> dict:
     if mismatches and state['status'] not in {'DATA_MISMATCH',
                                                'DATA_MISMATCH_RESOLVED_PIT_UNVERIFIED'}:
         raise ValueError('Mismatch status inconsistent with source values')
-    if state['source_records'][0]['first_accessible_at'] is not None or \
-            state['source_records'][0]['published_at'] is not None:
+    expected_id = ('LOCAL_HTTP_FIXTURE_' if request.get('fixture_source_uri') else '') + adapter.source_id
+    primary = [row for row in state['source_records'] if row['source_id'] == expected_id]
+    if any(row['source_uri'] != uri or row['content_sha256'] != state['content_sha256']
+           or row['unit'] != request['unit'] for row in primary):
+        raise ValueError('Source URI, digest or unit changed')
+    if any(row['first_accessible_at'] is not None or row['published_at'] is not None
+           for row in primary):
         raise ValueError('Unsupported PIT timestamp promotion')
+    if (len(primary) != len(values) or
+            {row['observation_date']: row['value'] for row in primary} != values):
+        raise ValueError('Observation records differ from the verified source')
+    allowed_ids = {expected_id}
+    if request.get('existing_source') == 'FRED_INITIAL_HASHED':
+        allowed_ids.add('FRED_ALFRED')
+    if state['status'] == 'DATA_MISMATCH_RESOLVED_PIT_UNVERIFIED':
+        allowed_ids.add('FED_H15')
+        notices = [row for row in state['source_records'] if row['source_id'] == 'FED_H15']
+        if notices != list(state['resolved_mismatches'].values()):
+            raise ValueError('Official revision records changed')
+    if any(row['source_id'] not in allowed_ids for row in state['source_records']):
+        raise ValueError('Unreviewed observation provenance')
     if request.get('existing_source') == 'FRED_INITIAL_HASHED':
         from .revision_evidence import first_vintage
         prior = [first_vintage(request['series'], day, str(request['existing'][day]))

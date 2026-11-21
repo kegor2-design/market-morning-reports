@@ -63,7 +63,8 @@ class SourceAdapter:
                 raise ValueError('NY Fed response shape changed')
             items = []
             for row in response['refRates']:
-                if row.get('type') != 'SOFR' or 'effectiveDate' not in row:
+                if (not isinstance(row, dict) or row.get('type') != 'SOFR' or
+                        not isinstance(row.get('effectiveDate'), str) or 'percentRate' not in row):
                     raise ValueError('NY Fed rate type or date changed')
                 day = datetime.strptime(row['effectiveDate'], '%Y-%m-%d').date().isoformat()
                 items.append((day, str(row['percentRate'])))

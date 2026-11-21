@@ -49,6 +49,18 @@ class DataRecoveryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'hash mismatch'):
             recover(request(), self.root, fetch=fetch)
 
+    def test_every_observation_is_recomputed_and_pit_checked(self):
+        from universal_agent.data_recovery import verify_recovery
+        state = recover(request(), self.root, fetch=lambda *_: (CSV, 1))
+        path = self.root / 'data_recovery.json'
+        for field, replacement in [('value', '0'), ('published_at', '2010-01-01')]:
+            original = state['source_records'][-1][field]
+            state['source_records'][-1][field] = replacement
+            path.write_text(json.dumps(state))
+            with self.assertRaises(ValueError):
+                verify_recovery(request(), self.root)
+            state['source_records'][-1][field] = original
+
     def test_mismatch_is_preserved_and_not_silently_corrected(self):
         saved = recover(request(existing={'2015-04-01': '187'}), self.root,
                         fetch=lambda *_: (CSV, 1))
