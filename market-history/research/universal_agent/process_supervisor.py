@@ -10,6 +10,7 @@ import signal
 import subprocess
 import sys
 import time
+from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -282,7 +283,7 @@ def run_research_program(goal: str, program_dir: Path | None = None,
             'schema_version': 1, 'goal_id': plan['goal_id'], 'plan_sha256': plan_hash,
             'goal_contract_sha256': contract_hash,
             'test_analysis_delay': test_analysis_delay,
-            'plan': plan, 'tasks': list(plan['tasks']),
+            'plan': plan, 'tasks': deepcopy(plan['tasks']),
             'records': {task['task_id']: {'status': 'PENDING', 'attempts': 0}
                         for task in plan['tasks']},
             'status': 'RESEARCH_INCOMPLETE',
@@ -359,6 +360,11 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                     from .kr_crash_analysis import analyze
                     if json.loads(saved_checkpoint.read_text())['result'] != analyze():
                         raise ValueError('Korean crash analysis changed after checkpoint')
+                elif saved_task['task_id'] == 'restore_kr_analysis' and saved_record['status'] == 'VERIFIED':
+                    source = program_dir / 'kr_analysis_copy.py'
+                    saved_result = json.loads(saved_checkpoint.read_bytes())
+                    if source.is_symlink() or hashlib.sha256(source.read_bytes()).hexdigest() != saved_result['after_sha256']:
+                        raise ValueError('Completed Korean repair source changed')
                 elif saved_task['task_type'] in {'FIXTURE_ANALYSIS', 'CODE_REPAIR_TASK'} and \
                         saved_record['status'] in {'VERIFIED', 'COMPLETED_EXPLORATORY'}:
                     from .code_recovery import fixture_source
@@ -524,11 +530,32 @@ def run_research_program(goal: str, program_dir: Path | None = None,
             elif task['task_type'] == 'KR_CRASH_ANALYSIS':
                 from .kr_crash_analysis import analyze
                 try:
-                    result = analyze()
-                except (OSError, ValueError) as exc:
+                    isolated = 'RESTORE_REVIEWED_KR_ANALYSIS' in plan['goal_contract']['allowed_actions']
+                    if isolated:
+                        from .kr_analysis_repair import run
+                        result = run(program_dir, task_deadline)
+                    else:
+                        result = analyze()
+                except (OSError, RuntimeError, ValueError) as exc:
                     record.update(status='BLOCKED_ENV' if isinstance(exc, OSError)
                                   else 'BLOCKED_EVIDENCE', reason=type(exc).__name__,
                                   next_action='REVIEW_KR_SOURCE_AND_ANALYSIS')
+                    evidence = program_dir / 'kr_analysis_error.json'
+                    if (isolated and str(exc) == 'Isolated analysis failed verification' and
+                            'restore_kr_analysis' not in state['records']):
+                        from .research_planner import _task
+                        repair = _task('restore_kr_analysis', 'CODE_REPAIR_TASK', 10,
+                            dependencies=['validate_kr_index'], inputs={'failed_task_id': task_id})
+                        repair['allowed_actions'] = ['RESTORE_REVIEWED_KR_ANALYSIS']
+                        state['tasks'].append(repair)
+                        state['records']['restore_kr_analysis'] = {'status': 'PENDING', 'attempts': 0}
+                        state['replanning_history'].append({'cause': 'CODE_ERROR', 'failed_task': task_id,
+                            'error_sha256': hashlib.sha256(evidence.read_bytes()).hexdigest(),
+                            'original_record': dict(record), 'candidate_origin': 'HOST_SUPPLIED_PATCH'})
+                        task['dependencies'] = ['restore_kr_analysis']
+                        record.clear()
+                        record.update(status='PENDING', attempts=0)
+                        validate_plan(dict(plan, tasks=state['tasks']))
                 else:
                     path = program_dir / 'kr_crash_result.json'
                     write_state(path, {'result': result,
@@ -578,6 +605,16 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                         checkpoint=str(path), checkpoint_sha256=hashlib.sha256(
                             path.read_bytes()).hexdigest(),
                         reason='FIXTURE_CODE_ERROR', next_action='APPROVE_CODE_REPAIR_CANDIDATE')
+            elif task_id == 'restore_kr_analysis':
+                from .kr_analysis_repair import run
+                evidence = program_dir / 'kr_analysis_error.json'
+                if hashlib.sha256(evidence.read_bytes()).hexdigest() != state['replanning_history'][-1]['error_sha256']:
+                    raise ValueError('Korean repair evidence changed')
+                result = run(program_dir, task_deadline, repair=True)
+                path = program_dir / 'kr_analysis_repair_result.json'
+                write_state(path, result)
+                record.update(status='VERIFIED' if result['status'] == 'REPAIRED' else 'BLOCKED_EVIDENCE',
+                              checkpoint=str(path), checkpoint_sha256=hashlib.sha256(path.read_bytes()).hexdigest())
             elif task['task_type'] == 'CODE_REPAIR_TASK':
                 from .code_recovery import execute_task
                 result = execute_task(plan, task, program_dir, task_deadline)

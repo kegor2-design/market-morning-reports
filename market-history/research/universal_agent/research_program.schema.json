@@ -250,7 +250,8 @@
                 "VERIFY_HASHED_INDEX",
                 "ANALYZE_KR_CRASH_WINDOWS",
                 "RUN_ISOLATED_FIXTURE",
-                "REPAIR_ISOLATED_FIXTURE"
+                "REPAIR_ISOLATED_FIXTURE",
+                "RESTORE_REVIEWED_KR_ANALYSIS"
               ]
             }
           },

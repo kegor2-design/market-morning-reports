@@ -58,8 +58,11 @@ def validate_plan(plan: dict) -> None:
     if len(identities) != len(set(identities)):
         raise ValueError('Duplicate task type and inputs')
     graph = {task['task_id']: task['dependencies'] for task in tasks}
+    kr_restore = plan['market'] == 'KR_EQUITY_EXPLORATORY' and '격리 복구' in plan['research_goal']
     for task in tasks:
-        if task['allowed_actions'] != [ACTIONS[task['task_type']]]:
+        kr_repair = kr_restore and task['task_type'] == 'CODE_REPAIR_TASK'
+        action = 'RESTORE_REVIEWED_KR_ANALYSIS' if kr_repair else ACTIONS[task['task_type']]
+        if task['allowed_actions'] != [action]:
             raise ValueError('Unreviewed task action')
         if any(dep not in graph or dep == task['task_id'] for dep in task['dependencies']):
             raise ValueError('Unknown or self dependency')
@@ -90,7 +93,11 @@ def validate_plan(plan: dict) -> None:
                     not isinstance(task['inputs'].get('new_request_id'), str) or
                     len(task['inputs']['new_request_id']) != 24):
                 raise ValueError('Unreviewed API recovery task contract')
-        if task['task_type'] == 'CODE_REPAIR_TASK' and (
+        if kr_repair:
+            if (task['task_id'] != 'restore_kr_analysis' or task['dependencies'] != ['validate_kr_index']
+                    or task['inputs'] != {'failed_task_id': 'analyze_kr_crashes'}):
+                raise ValueError('Invalid Korean repair contract')
+        elif task['task_type'] == 'CODE_REPAIR_TASK' and (
                 plan['market'] != 'ISOLATED_CODE_FIXTURE' or
                 task['task_id'] != 'code_repair_fixture' or
                 task['dependencies'] or
@@ -220,13 +227,18 @@ def validate_plan(plan: dict) -> None:
                 not dates_for(plan)):
             raise ValueError('Unreviewed US rates research contract')
     elif plan['market'] == 'KR_EQUITY_EXPLORATORY':
+        repairing = kr_restore and len(tasks) == 3
+        required = ['KR_INDEX_VALIDATION', 'KR_CRASH_ANALYSIS'] + (['CODE_REPAIR_TASK'] if repairing else [])
+        actions = ['ANALYZE_KR_CRASH_WINDOWS', 'VERIFY_HASHED_INDEX']
+        if kr_restore:
+            actions.append('RESTORE_REVIEWED_KR_ANALYSIS')
         if (plan['data_requirements'] != ['KOSPI_KOSDAQ_HASHED_SNAPSHOT'] or
                 plan['allowed_sources'] != ['NAVER_HASHED_LOCAL'] or
                 [t['task_type'] for t in tasks] !=
-                ['KR_INDEX_VALIDATION', 'KR_CRASH_ANALYSIS'] or
-                tasks[1]['dependencies'] != [tasks[0]['task_id']] or
+                required or
+                tasks[1]['dependencies'] != (['restore_kr_analysis'] if repairing else [tasks[0]['task_id']]) or
                 plan['goal_contract']['allowed_actions'] !=
-                ['ANALYZE_KR_CRASH_WINDOWS', 'VERIFY_HASHED_INDEX']):
+                sorted(actions)):
             raise ValueError('Unreviewed Korean crash research contract')
     elif plan['market'] == 'KR_EQUITY_CONTEXT':
         if (plan['data_requirements'] != ['INDICATOR_116_PIT_EVIDENCE'] or
@@ -354,14 +366,15 @@ def plan_goal(goal: str) -> dict:
                 'allowed_sources': sources,
                 'allowed_actions': sorted({a for t in tasks for a in t['allowed_actions']} |
                                           ({'DATA_RECOVERY'} if rates else set()) |
-                                          ({'REPAIR_ISOLATED_FIXTURE'} if fixture else set())),
+                                          ({'REPAIR_ISOLATED_FIXTURE'} if fixture else set()) |
+                                          ({'RESTORE_REVIEWED_KR_ANALYSIS'} if kr_crash and '격리 복구' in goal else set())),
                 'evaluation_methods': evaluation,
                 'pit_policy': 'No official claim without row-level historical first-access proof',
                 'holdout_policy': 'No predictive claim without sealed independent market holdout',
                 'resource_budget': {'max_seconds': 300,
                                     'max_network_requests': 0 if korean or kr_crash or fixture else 3,
                                     'max_model_calls': 0,
-                                    'max_tasks': 1 if korean else 2 if kr_crash or fixture else 12},
+                                    'max_tasks': 3 if kr_crash and '격리 복구' in goal else 1 if korean else 2 if kr_crash or fixture else 12},
                 'terminal_conditions': ['RESEARCH_COMPLETED_EXPLORATORY', 'RESEARCH_BLOCKED',
                                         'RESEARCH_FAILED', 'RESEARCH_CANCELLED'],
                 'approved_independent_goal_ids': [

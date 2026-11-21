@@ -8,6 +8,10 @@ from regime190.exploratory_backtest import load_indices
 
 def analyze() -> dict:
     rows, provenance = load_indices('2010-01-01')
+    return crash_windows(rows, provenance)
+
+
+def crash_windows(rows, provenance):
     rows = [row for row in rows if row['date'] <= '2025-12-31']
     closes = [row['kospi']['close'] for row in rows]
     returns = [closes[i] / closes[i-1] - 1 for i in range(1, len(closes))]
