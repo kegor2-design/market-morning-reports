@@ -90,3 +90,29 @@ class AnalysisRepairTests(unittest.TestCase):
 
     def test_unapproved_file(self):
         self.trial('import statistics', 'import statistics\nopen("unapproved.txt", "w")', blocked=True)
+
+    def test_shifted_window_is_corrected_without_losing_local_edits(self):
+        self.trial('returns[day_index-21:day_index-1]', 'returns[day_index-20:day_index]')
+
+    def test_approved_wrong_value_restores_original_dag(self):
+        import hashlib
+        PRIVATE_ROOT.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=PRIVATE_ROOT) as tmp:
+            q = Path(tmp)
+            job = submit('한국 급락 변동성 격리 복구 오류 패치 검증', q)
+            program = q/'programs'/job['goal_id']
+            program.mkdir(parents=True)
+            broken = reviewed_script().replace('statistics.median(controls)', 'wrong(controls)')
+            wrong = reviewed_script().replace("False,", "0,")
+            self.assertNotEqual(wrong, reviewed_script())
+            (program/'kr_analysis_copy.py').write_text(broken)
+            (program/'manual_kr_candidate.py').write_text(wrong)
+            (program/'kr_patch_approval.json').write_text(json.dumps({
+                'status': 'APPROVED', 'origin': 'MANUAL_PATCH', 'goal_id': job['goal_id'],
+                'failed_source_sha256': hashlib.sha256(broken.encode()).hexdigest(),
+                'replacement_sha256': hashlib.sha256(wrong.encode()).hexdigest()}))
+            self.assertEqual(run(q)['statuses'][job['goal_id']], 'BLOCKED_EVIDENCE')
+            state = json.loads((program/'state.json').read_bytes())
+            self.assertEqual(state['tasks'], state['plan']['tasks'])
+            self.assertEqual((program/'kr_analysis_copy.py').read_text(), broken)
+            self.assertEqual(state['replanning_history'][-1]['status'], 'ROLLED_BACK')

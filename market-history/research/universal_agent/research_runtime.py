@@ -455,11 +455,12 @@ def plan_with_model(goal, directory, *, approval=None, caller=None):
     design = result['candidate']
     candidate = design['executable_candidate']
     if candidate is None:
-        from .source_discovery import discover
+        from .source_discovery import capability_review
+        review = capability_review(design['required_data'], design['methods'])
         return {'goal_id': goal_id, 'status': 'BLOCKED_MISSING_CAPABILITIES',
                 'response_sha256': result['response_sha256'],
                 'required': design['missing_capabilities'],
-                'sources': [discover(key) for key in design['required_data']]}
+                'discovery': review}
     job = submit(goal, directory, ai_candidate=candidate)
     # Planning has its own permit and ledger outside the execution budget.
     # Attach it even after a crash between enqueue and the following save.

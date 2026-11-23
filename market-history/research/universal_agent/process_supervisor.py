@@ -238,6 +238,8 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                                               'REVIEWED_ANALYSIS_ACTION'],
                      'task_statuses': {}, 'model_calls': 0,
                      'network_requests_reserved': 0, 'official_market_claim': False}
+            from .source_discovery import explicit_requirements
+            state['capability_review'] = explicit_requirements(goal)
             if '한국' in goal and ('급락' in goal or '국면' in goal):
                 from .source_discovery import korean_requirements
                 state['source_candidates'] = korean_requirements()
@@ -603,7 +605,7 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                         state['records']['restore_kr_analysis'] = {'status': 'PENDING', 'attempts': 0}
                         state['replanning_history'].append({'cause': 'CODE_ERROR', 'failed_task': task_id,
                             'error_sha256': hashlib.sha256(evidence.read_bytes()).hexdigest(),
-                            'original_record': dict(record), 'candidate_origin': 'HOST_SUPPLIED_PATCH'})
+                            'original_record': dict(record), 'candidate_origin': 'PENDING_SELECTION'})
                         task['dependencies'] = ['restore_kr_analysis']
                         record.clear()
                         record.update(status='PENDING', attempts=0)
@@ -662,7 +664,20 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                 evidence = program_dir / 'kr_analysis_error.json'
                 if hashlib.sha256(evidence.read_bytes()).hexdigest() != state['replanning_history'][-1]['error_sha256']:
                     raise ValueError('Korean repair evidence changed')
-                result = run(program_dir, task_deadline, repair=True)
+                try:
+                    result = run(program_dir, task_deadline, repair=True)
+                except (ValueError, OSError, RuntimeError, KeyError) as exc:
+                    result = {'status': 'SAFE_BLOCKED', 'reason': type(exc).__name__}
+                revision = state['replanning_history'][-1]
+                revision['candidate_origin'] = result.get('candidate_origin', 'REJECTED')
+                if result['status'] != 'REPAIRED':
+                    # No staged candidate reached the active copy. Restore the
+                    # original task dependencies and retain the failure evidence.
+                    state['tasks'] = deepcopy(plan['tasks'])
+                    state['records']['analyze_kr_crashes'] = revision['original_record']
+                    state['records'].pop(task_id)
+                    revision['status'] = 'ROLLED_BACK'
+                    revision['failed_repair'] = result
                 path = program_dir / 'kr_analysis_repair_result.json'
                 write_state(path, result)
                 record.update(status='VERIFIED' if result['status'] == 'REPAIRED' else 'BLOCKED_EVIDENCE',
