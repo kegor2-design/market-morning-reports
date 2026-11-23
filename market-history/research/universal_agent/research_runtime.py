@@ -411,10 +411,70 @@ def launch(directory: Path, *, max_jobs: int = 3, max_seconds: int = 300,
         os.close(fd)
 
 
+def _attach_design(queue, goal_id, directory):
+    job = queue['jobs'][goal_id]
+    ledger = directory / 'ai_design_request.json'
+    if not ledger.is_file() or job.get('ai_candidate') is None:
+        return False
+    request = json.loads(ledger.read_bytes())
+    response = directory / 'ai_design_response.json'
+    if (request.get('status') != 'VERIFIED' or request['goal_id'] != goal_id
+            or _sha(response) != request['response_sha256']
+            or json.loads(response.read_bytes())['executable_candidate'] != job['ai_candidate']):
+        raise ValueError('Design ledger does not match queued research')
+    evidence = {'request_id': request['request_id'], 'request_sha256': _sha(ledger),
+                'response_sha256': request['response_sha256'],
+                'provider': request['provider'], 'usage': request.get('usage')}
+    if job.get('planning_request') == evidence:
+        return False
+    if job.get('planning_request'):
+        raise ValueError('Sealed planning ledger changed')
+    job['planning_request'] = evidence
+    job['planning_calls_reserved'] = int(request['provider'] == 'OPENAI_RESPONSES')
+    queue['planning_calls_reserved'] = sum(j.get('planning_calls_reserved', 0)
+                                          for j in queue['jobs'].values())
+    return True
+
+
+def plan_with_model(goal, directory, *, approval=None, caller=None):
+    from .ai_research_planner import propose_design
+    directory = _root(directory)
+    goal_id = 'research_' + hashlib.sha256(goal.encode()).hexdigest()[:12]
+    design_dir = directory / 'proposals' / goal_id
+    # Serialize with normal submissions, including duplicate or terminal goals.
+    with locked_state(directory) as path:
+        queue = _load(path)
+        if goal_id in queue['jobs']:
+            if _attach_design(queue, goal_id, design_dir):
+                _save(path, queue)
+            return {'goal_id': goal_id, 'status': queue['jobs'][goal_id]['status']}
+        result = propose_design(goal, design_dir, approval=approval,
+                                **({'caller': caller} if caller is not None else {}))
+    if result['status'] != 'VERIFIED':
+        return result
+    design = result['candidate']
+    candidate = design['executable_candidate']
+    if candidate is None:
+        from .source_discovery import discover
+        return {'goal_id': goal_id, 'status': 'BLOCKED_MISSING_CAPABILITIES',
+                'response_sha256': result['response_sha256'],
+                'required': design['missing_capabilities'],
+                'sources': [discover(key) for key in design['required_data']]}
+    job = submit(goal, directory, ai_candidate=candidate)
+    # Planning has its own permit and ledger outside the execution budget.
+    # Attach it even after a crash between enqueue and the following save.
+    with locked_state(directory) as path:
+        queue = _load(path)
+        _attach_design(queue, goal_id, design_dir)
+        _save(path, queue)
+    return {'goal_id': job['goal_id'], 'status': job['status'],
+            'response_sha256': result['response_sha256']}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument('action', choices=('submit', 'run', 'launch', 'status', 'stop',
-                                           'reconcile-calendar'))
+                                           'reconcile-calendar', 'propose-plan', 'propose-repair'))
     parser.add_argument('--queue-dir', type=Path, required=True)
     parser.add_argument('--goal')
     parser.add_argument('--approval-required', action='store_true')
@@ -422,7 +482,26 @@ def main() -> int:
     parser.add_argument('--max-jobs', type=int, default=3)
     parser.add_argument('--max-seconds', type=int, default=300)
     parser.add_argument('--startup-delay', type=int, default=0)
+    parser.add_argument('--model-approval', type=Path)
     args = parser.parse_args()
+    if args.action in {'propose-plan', 'propose-repair'}:
+        if not args.goal:
+            parser.error('A research goal is required')
+        approval = {'status': 'PREFLIGHT'}
+        if args.model_approval:
+            permit = args.model_approval
+            if (permit.is_symlink() or not permit.is_file() or permit.stat().st_uid != os.getuid()
+                    or permit.stat().st_mode & 0o077 or permit.stat().st_size > 8192):
+                parser.error('Model approval must be an owner-only file')
+            approval = json.loads(permit.read_bytes())
+        if args.action == 'propose-plan':
+            result = plan_with_model(args.goal, args.queue_dir, approval=approval)
+        else:
+            from .ai_research_planner import request_repair
+            program = _root(args.queue_dir) / 'programs' / plan_goal(args.goal)['goal_id']
+            result = request_repair(args.goal, program, approval=approval)
+        print(json.dumps({k: v for k, v in result.items() if k != 'candidate'}))
+        return 0
     if args.action == 'submit':
         if not args.goal:
             parser.error('submit requires --goal')

@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "goal_id": {
+      "type": "string",
+      "pattern": "^research_[0-9a-f]{12}$"
+    },
+    "interpretation": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "holdout_plan": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "pit_requirements": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "resource_estimate": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "stopping_condition": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "hypotheses": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      },
+      "minItems": 1,
+      "maxItems": 16,
+      "uniqueItems": true
+    },
+    "target_variables": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      },
+      "minItems": 1,
+      "maxItems": 16,
+      "uniqueItems": true
+    },
+    "required_data": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      },
+      "minItems": 1,
+      "maxItems": 16,
+      "uniqueItems": true
+    },
+    "source_candidates": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      },
+      "minItems": 1,
+      "maxItems": 16,
+      "uniqueItems": true
+    },
+    "methods": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      },
+      "minItems": 1,
+      "maxItems": 16,
+      "uniqueItems": true
+    },
+    "validation_metrics": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      },
+      "minItems": 1,
+      "maxItems": 16,
+      "uniqueItems": true
+    },
+    "missing_capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      },
+      "minItems": 0,
+      "maxItems": 16,
+      "uniqueItems": true
+    },
+    "executable_candidate": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "goal_id",
+    "interpretation",
+    "holdout_plan",
+    "pit_requirements",
+    "resource_estimate",
+    "stopping_condition",
+    "hypotheses",
+    "target_variables",
+    "required_data",
+    "source_candidates",
+    "methods",
+    "validation_metrics",
+    "missing_capabilities",
+    "executable_candidate"
+  ]
+}

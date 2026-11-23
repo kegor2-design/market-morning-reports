@@ -6,7 +6,9 @@ new capability or changes a sealed Goal Contract.
 """
 from __future__ import annotations
 
+import fcntl
 import hashlib
+import os
 import json
 import math
 import subprocess
@@ -206,7 +208,8 @@ def request_repair(goal, program_dir, *, approval=None, timeout=30, caller=call_
         if candidate['goal_id'] != plan['goal_id'] or candidate['failed_source_sha256'] != digest:
             raise ValueError('Repair proposal is for a different failure')
         _check_code(candidate['replacement'])
-    if not approval or approval.get('purpose') != 'PROPOSE_REPAIR' or approval.get('failed_source_sha256') != digest:
+    if (not approval or (approval.get('status') != 'PREFLIGHT' and
+            (approval.get('purpose') != 'PROPOSE_REPAIR' or approval.get('failed_source_sha256') != digest))):
         return {'status': 'APPROVAL_REQUIRED', 'model_calls': 0}
     prompt = canonical({'goal_id': plan['goal_id'], 'goal': goal, 'failed_source_sha256': digest,
                         'source': failed_source.decode(), 'diagnosis': fault['reason'],
@@ -237,6 +240,11 @@ def _proposal(goal_id, prompt, state_dir, schema, name, check, approval, timeout
             return {'status': 'VERIFIED', 'candidate': candidate,
                     'response_sha256': request['response_sha256'], 'reused': True}
         return {'status': 'BLOCKED_UNCERTAIN_MODEL_CALL', 'request_id': request['request_id']}
+    if approval and approval.get('status') == 'PREFLIGHT':
+        from .model_transport import prepare
+        purpose = 'PROPOSE_REPAIR' if name == 'ai_repair' else 'PROPOSE_PLAN'
+        _, scope = prepare(prompt, schema, state_dir, purpose, goal_id, timeout)
+        return {'status': 'APPROVAL_REQUIRED', 'model_calls': 0, 'required_scope': scope}
     if (approval is None or approval.get('status') != 'APPROVED' or
             approval.get('goal_id') != goal_id or
             type(approval.get('max_calls')) is not int or
@@ -247,11 +255,14 @@ def _proposal(goal_id, prompt, state_dir, schema, name, check, approval, timeout
             type(approval.get('max_seconds')) is not int or
             approval['max_seconds'] < timeout):
         return {'status': 'APPROVAL_REQUIRED', 'model_calls': 0}
-    # The existing Codex CLI exposes a wall-time limit but no enforceable
-    # per-call monetary ceiling. A declared dollar amount is not enforcement.
-    # Only a caller injected by a test provider can exercise the reservation
-    # protocol until a budget-enforcing production adapter is reviewed.
-    if caller is call_structured or approval.get('provider') != 'INJECTED_TEST':
+    from . import model_transport
+    live = approval.get('provider') == 'OPENAI_RESPONSES' and caller is call_structured
+    if live:
+        purpose = 'PROPOSE_REPAIR' if name == 'ai_repair' else 'PROPOSE_PLAN'
+        body, scope = model_transport.prepare(prompt, schema, state_dir, purpose, goal_id, timeout)
+        if not model_transport.authorized(scope, approval):
+            return {'status': 'APPROVAL_REQUIRED', 'model_calls': 0, 'required_scope': scope}
+    elif caller is call_structured or approval.get('provider') != 'INJECTED_TEST':
         return {'status': 'BLOCKED_COST_ENFORCEMENT', 'model_calls': 0}
     request_id = hashlib.sha256(canonical({'goal_id': goal_id,
         'prompt_sha256': prompt_sha, 'schema_sha256': schema_sha})).hexdigest()[:24]
@@ -260,20 +271,44 @@ def _proposal(goal_id, prompt, state_dir, schema, name, check, approval, timeout
         'max_calls': 1, 'max_seconds': timeout,
         'max_cost_usd': approval['max_cost_usd'], 'status': 'RESERVED',
         'created_at_utc': now()}
-    if not _try_reserve_request(request_path, request):
-        return {'status': 'BLOCKED_UNCERTAIN_MODEL_CALL', 'request_id': request_id}
+    request['provider'] = approval['provider']
+    if live:
+        request.update(scope=scope, approval_sha256=hashlib.sha256(canonical(approval)).hexdigest(),
+                       project=approval['project'], billing_overrun_accepted=True)
+    # The project lock serializes live proposals from this worktree. The
+    # durable goal/purpose reservation survives a client or supervisor crash.
+    lock_fd = None
+    reserved = False
     try:
-        completed = caller(prompt, schema, response_path.name, state_dir,
-                           timeout=timeout)
-    except (OSError, subprocess.TimeoutExpired, RuntimeError) as exc:
+        if live:
+            lock_fd = os.open(PRIVATE_ROOT / '.model.lock', os.O_CREAT | os.O_NOFOLLOW | os.O_RDWR, 0o600)
+            try:
+                fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                return {'status': 'MODEL_BUSY', 'model_calls': 0}
+        if not _try_reserve_request(request_path, request):
+            return {'status': 'BLOCKED_UNCERTAIN_MODEL_CALL', 'request_id': request_id}
+        reserved = True
+        if live:
+            output, request['usage'] = model_transport.exchange(body, state_dir, timeout)
+            with response_path.open('xb') as stream:
+                stream.write(output)
+                stream.flush()
+                os.fsync(stream.fileno())
+        else:
+            completed = caller(prompt, schema, response_path.name, state_dir, timeout=timeout)
+            if completed.returncode != 0:
+                raise RuntimeError(completed.stderr or 'Model call failed')
+    except (OSError, subprocess.TimeoutExpired, RuntimeError, ValueError, KeyError, TypeError) as exc:
+        if not reserved:
+            raise
         request.update(status='BLOCKED', error_type=classify_model_failure(
             str(exc), timed_out=isinstance(exc, subprocess.TimeoutExpired)))
         write_state(request_path, request)
         return {'status': 'BLOCKED_MODEL', 'error_type': request['error_type']}
-    if completed.returncode != 0:
-        request.update(status='BLOCKED', error_type=classify_model_failure(completed.stderr))
-        write_state(request_path, request)
-        return {'status': 'BLOCKED_MODEL', 'error_type': request['error_type']}
+    finally:
+        if lock_fd is not None:
+            os.close(lock_fd)
     try:
         candidate = read_candidate()
         check(candidate)
@@ -286,3 +321,44 @@ def _proposal(goal_id, prompt, state_dir, schema, name, check, approval, timeout
     write_state(request_path, request)
     return {'status': 'VERIFIED', 'candidate': candidate,
             'response_sha256': request['response_sha256'], 'reused': False}
+
+
+def propose_design(goal, state_dir, *, approval=None, timeout=60, caller=call_structured):
+    """Design unsupported research too. Only a reviewed projection may enter the queue."""
+    from .research_planner import UnsupportedGoal
+    if (state_dir.is_symlink() or not state_dir.resolve().is_relative_to(PRIVATE_ROOT)
+            or type(timeout) is not int or not 1 <= timeout <= 90):
+        raise ValueError('Design outside reviewed scope')
+    try:
+        baseline = plan_goal(goal)
+    except UnsupportedGoal:
+        baseline = None
+    goal_id = 'research_' + hashlib.sha256(goal.encode()).hexdigest()[:12]
+    schema = Path(__file__).with_name('research_design.schema.json')
+    projection = None if baseline is None else {
+        k: baseline[k] for k in ('goal_contract', 'tasks', 'evaluation_methods')}
+    prompt = canonical({'goal': goal, 'goal_id': goal_id, 'host_plan': projection,
+        'reviewed_signals': SIGNALS, 'candidate_schema': json.loads(SCHEMA.read_bytes()),
+        'instruction': 'Design a falsifiable study for the full goal. Specify missing capabilities '
+        'and return a null executable_candidate if any required data, action or validation is '
+        'unavailable. Otherwise propose the executable DAG using only reviewed capabilities. '
+        'Keep independent verification, PIT and stopping criteria explicit.'}).decode()
+    def check(design):
+        validate(design, json.loads(schema.read_bytes()))
+        if design['goal_id'] != goal_id:
+            raise ValueError('Design goal changed')
+        candidate = design['executable_candidate']
+        if candidate is None:
+            if not design['missing_capabilities']:
+                raise ValueError('Missing capability diagnosis required')
+            return
+        compiled = validate_candidate(goal, candidate)
+        if (baseline is None or design['missing_capabilities']
+                or set(design['required_data']) != set(compiled['data_requirements'])
+                or set(design['source_candidates']) != set(compiled['allowed_sources'])
+                or design['hypotheses'] != compiled['research_hypotheses']
+                or design['target_variables'] != [compiled['goal_contract']['target']]
+                or design['methods'] != compiled['evaluation_methods']):
+            raise ValueError('Design exceeds executable host projection')
+    state_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
+    return _proposal(goal_id, prompt, state_dir, schema, 'ai_design', check, approval, timeout, caller)
