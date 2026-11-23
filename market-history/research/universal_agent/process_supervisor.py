@@ -369,13 +369,19 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                         raise ValueError('Korean index source changed after validation')
                 elif saved_task['task_type'] == 'KR_REGIME_ANALYSIS' and saved_record['status'] == 'COMPLETED_EXPLORATORY':
                     from .kr_regime_analysis import bounded
-                    if json.loads(saved_checkpoint.read_bytes())['result'] != bounded(60):
+                    followup = 'regime' if saved_task['inputs'].get('evaluation') == 'kis_followup' else None
+                    if json.loads(saved_checkpoint.read_bytes())['result'] != bounded(60, followup):
                         raise ValueError('Regime190 transition evidence changed')
-                elif saved_task['task_type'] == 'KR_CRASH_ANALYSIS':
+                elif saved_task['task_type'] == 'KR_CRASH_ANALYSIS' and saved_record['status'] == 'COMPLETED_EXPLORATORY':
                     from .kr_crash_analysis import analyze
                     from .kr_crash_analysis import walk_forward
                     evaluate = walk_forward if saved_task['inputs'].get('evaluation') == 'expanding_annual' else analyze
-                    if json.loads(saved_checkpoint.read_text())['result'] != evaluate():
+                    if saved_task['inputs'].get('evaluation') == 'kis_followup':
+                        from .kr_regime_analysis import bounded
+                        expected = bounded(60, 'crash')
+                    else:
+                        expected = evaluate()
+                    if json.loads(saved_checkpoint.read_text())['result'] != expected:
                         raise ValueError('Korean crash analysis changed after checkpoint')
                 elif saved_task['task_id'] == 'restore_kr_analysis' and saved_record['status'] == 'VERIFIED':
                     source = program_dir / 'kr_analysis_copy.py'
@@ -570,7 +576,8 @@ def run_research_program(goal: str, program_dir: Path | None = None,
             elif task['task_type'] == 'KR_REGIME_ANALYSIS':
                 from .kr_regime_analysis import bounded
                 try:
-                    result = bounded(min(60, remaining_goal_seconds()))
+                    followup = 'regime' if task['inputs'].get('evaluation') == 'kis_followup' else None
+                    result = bounded(min(60, remaining_goal_seconds()), followup)
                 except ValueError as exc:
                     record.update(status='BLOCKED_EVIDENCE', reason=str(exc))
                 else:
@@ -585,6 +592,9 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                     if isolated:
                         from .kr_analysis_repair import run
                         result = run(program_dir, task_deadline)
+                    elif task['inputs'].get('evaluation') == 'kis_followup':
+                        from .kr_regime_analysis import bounded
+                        result = bounded(min(60, remaining_goal_seconds()), 'crash')
                     elif task['inputs'].get('evaluation') == 'expanding_annual':
                         from .kr_crash_analysis import walk_forward
                         result = walk_forward()
@@ -594,6 +604,8 @@ def run_research_program(goal: str, program_dir: Path | None = None,
                     record.update(status='BLOCKED_ENV' if isinstance(exc, OSError)
                                   else 'BLOCKED_EVIDENCE', reason=type(exc).__name__,
                                   next_action='REVIEW_KR_SOURCE_AND_ANALYSIS')
+                    if task['inputs'].get('evaluation') == 'kis_followup':
+                        record['reason'] = str(exc)[:200]
                     evidence = program_dir / 'kr_analysis_error.json'
                     if (isolated and str(exc) == 'Isolated analysis failed verification' and
                             'restore_kr_analysis' not in state['records']):

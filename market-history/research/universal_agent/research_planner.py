@@ -239,11 +239,20 @@ def validate_plan(plan: dict) -> None:
             actions.append('RESTORE_REVIEWED_KR_ANALYSIS')
         second_id = 'analyze_kr_regime' if regime else 'analyze_kr_crashes'
         inputs = {'evaluation': 'expanding_annual'} if '워크포워드' in plan['research_goal'] and not regime else {}
+        sources = ['NAVER_HASHED_LOCAL']
+        requirements = ['KOSPI_KOSDAQ_HASHED_SNAPSHOT']
+        if 'KIS 후속' in plan['research_goal']:
+            inputs = {'evaluation': 'kis_followup'}
+            sources.append('KIS_HASHED_LOCAL')
+            requirements.append('KIS_FORWARD_INDEX_CLOSES')
+            if kr_restore or plan['research_period'] != {
+                    'start':'2026-10-21', 'end':'2026-11-23', 'resolution':'daily'}:
+                raise ValueError('Unreviewed follow-up window')
         if ([t['task_id'] for t in tasks] != ['validate_kr_index', second_id] +
                 (['restore_kr_analysis'] if repairing else []) or tasks[0]['inputs'] or
                 tasks[1]['inputs'] != inputs or tasks[0]['dependencies'] or
-                plan['data_requirements'] != ['KOSPI_KOSDAQ_HASHED_SNAPSHOT'] or
-                plan['allowed_sources'] != ['NAVER_HASHED_LOCAL'] or
+                plan['data_requirements'] != requirements or
+                plan['allowed_sources'] != sources or
                 [t['task_type'] for t in tasks] !=
                 required or
                 tasks[1]['dependencies'] != (['restore_kr_analysis'] if repairing else [tasks[0]['task_id']]) or
@@ -384,6 +393,17 @@ def plan_goal(goal: str) -> dict:
                           inputs={'hypothesis': hypothesis, 'train_rows': 12}))
         if len(dates_for({'research_period': period})) < 16:
             raise UnsupportedGoal('Research period too short for sealed chronological split')
+    if 'KIS 후속' in goal and (regime or kr_crash):
+        if '격리 복구' in goal or '워크포워드' in goal:
+            raise UnsupportedGoal('Follow-up requires its own frozen contract')
+        period = {'start':'2026-10-21','end':'2026-11-23','resolution':'daily'}
+        tasks[1]['inputs'] = {'evaluation': 'kis_followup'}
+        sources.append('KIS_HASHED_LOCAL')
+        requirements.append('KIS_FORWARD_INDEX_CLOSES')
+        hypothesis = ('Frozen six-state transition probabilities improve follow-up Brier score'
+                      if regime else 'Prior volatility improves next-session crash Brier score')
+        evaluation = ['Frozen temporal follow-up against prespecified baselines']
+        defaults = ['Use the registered KIS window and pinned local source with overlap checks']
     market = ('ISOLATED_CODE_FIXTURE' if fixture else 'KR_EQUITY_CONTEXT' if korean else
               'KR_EQUITY_EXPLORATORY' if kr_crash or regime else 'US_RATES')
     contract = {'version': 1, 'goal_id': goal_id, 'original_research_goal': goal,

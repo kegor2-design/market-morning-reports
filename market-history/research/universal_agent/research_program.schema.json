@@ -72,6 +72,7 @@
           "NYFED_SOFR",
           "INDICATOR_116_PIT_EVIDENCE",
           "KOSPI_KOSDAQ_HASHED_SNAPSHOT",
+          "KIS_FORWARD_INDEX_CLOSES",
           "ISOLATED_CODE_FIXTURE"
         ]
       }
@@ -105,6 +106,7 @@
           "NYFED_REFERENCE_RATES",
           "FRED_ALFRED",
           "NAVER_HASHED_LOCAL",
+          "KIS_HASHED_LOCAL",
           "LOCAL_CODE_FIXTURE"
         ]
       }

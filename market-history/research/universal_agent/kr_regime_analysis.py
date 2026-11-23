@@ -17,17 +17,29 @@ def evaluate():
                                       data['baseline_comparison_exploratory'].items()}}
 
 
-def bounded(seconds):
+def bounded(seconds, followup=None):
     if seconds <= 0:
         raise ValueError('Regime analysis deadline exhausted')
+    if followup not in (None, 'regime', 'crash'):
+        raise ValueError('Unknown Korean evaluation')
     try:
-        child = subprocess.run([sys.executable, '-m', 'universal_agent.kr_regime_analysis'],
+        child = subprocess.run([sys.executable, '-m', 'universal_agent.kr_regime_analysis',
+                                *([followup] if followup else [])],
             env={'PATH': os.defpath, 'PYTHONPATH': str(Path(__file__).resolve().parents[1])},
             capture_output=True, check=True, timeout=seconds)
-    except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as exc:
+    except subprocess.CalledProcessError as exc:
+        line = (exc.stderr or b'').decode(errors='replace').strip().splitlines()
+        if followup and line and line[-1].startswith('ValueError:'):
+            raise ValueError(line[-1][:200]) from exc
+        raise ValueError('Regime analysis failed') from exc
+    except subprocess.TimeoutExpired as exc:
         raise ValueError('Regime analysis timed out or failed') from exc
     return json.loads(child.stdout)
 
 
 if __name__ == '__main__':
-    print(json.dumps(evaluate()))
+    if sys.argv[1:]:
+        from .kr_forward_validation import evaluate as forward
+        print(json.dumps(forward(regimes=sys.argv[1] == 'regime')))
+    else:
+        print(json.dumps(evaluate()))
