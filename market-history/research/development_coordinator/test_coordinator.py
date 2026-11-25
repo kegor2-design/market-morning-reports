@@ -12,6 +12,7 @@ from pathlib import Path
 
 SCRIPT = Path(__file__).with_name("coordinator.py").resolve()
 BRANCH = "research/coordinator-pilot"
+AGENT = "market-history/research/universal_agent/engine.py"
 ISSUE = "https://github.com/kegor2-design/market-morning-reports/issues/123"
 
 
@@ -286,20 +287,38 @@ class CoordinatorTest(unittest.TestCase):
         self.assert_blocked(previous)
 
     def linked_worktree(self):
+        source = self.repo / AGENT
+        source.parent.mkdir(parents=True)
+        source.write_text("answer = 41\n")
+        (source.parent / "sibling.py").write_text("value = 1\n")
+        self.git("add", AGENT, str(source.parent / "sibling.py"))
+        self.git("commit", "-qm", "Fixture Agent source")
+        self.base = self.git("rev-parse", "HEAD")
         linked = self.root / "linked"
         self.git("branch", "-m", "primary")
         self.git("worktree", "add", "-q", "-b", BRANCH, str(linked), self.base)
         self.repo = linked
+        self.scope = Path(self.git("rev-parse", "--absolute-git-dir")) / "agent-development-scope.json"
+        self.scope.write_text(json.dumps({"issue_url": ISSUE, "branch": BRANCH,
+                                          "base": self.base, "allowed_files": [AGENT]}))
+        self.scope.chmod(0o600)
 
     def fake_codex(self, body, *, chatgpt=True):
         shim = self.root / "codex"
+        home = self.root / "home"
+        self.codex_executable = home / ".codex" / "release" / "bin" / "codex"
+        self.codex_executable.parent.mkdir(parents=True, exist_ok=True)
+        if not shim.is_symlink():
+            shim.symlink_to(self.codex_executable)
         login = "Logged in using ChatGPT" if chatgpt else "Logged in using an API key"
         shim.write_text(f"#!{sys.executable}\nimport json, os, sys, time\nfrom pathlib import Path\n"
                         f"if sys.argv[1:] == ['login', 'status']:\n    print({login!r})\n    sys.exit(0)\n"
+                        "if 'sandbox' in sys.argv[1:]: sys.exit(0)\n"
                         + body)
         shim.chmod(0o700)
         return {**os.environ, "PATH": str(self.root) + os.pathsep + os.environ["PATH"],
-                "OPENAI_API_KEY": "test-only"}
+                "HOME": str(home), "CODEX_HOME": str(home / ".codex"),
+                "TMPDIR": str(self.root), "OPENAI_API_KEY": "test-only"}
 
     def dispatch(self, env, *, approved=None, timeout=5, code=0):
         return self.cli("exec", self.issue, BRANCH, self.base, "--worktree",
@@ -323,28 +342,49 @@ class CoordinatorTest(unittest.TestCase):
         issue["body"] = f"--add-dir /; $(touch {marker})"
         self.issue.write_text(json.dumps(issue))
         env = self.fake_codex(
-            "Path('edit.json').write_text(json.dumps([sys.argv[1:], sys.stdin.read(),"
+            f"Path({AGENT!r}).write_text(json.dumps([sys.argv[1:], sys.stdin.read(),"
             "os.getcwd(), 'OPENAI_API_KEY' in os.environ]))\n")
         self.dispatch(env)
-        argv, packet, cwd, has_api_key = json.loads((self.repo / "edit.json").read_text())
+        argv, packet, cwd, has_api_key = json.loads((self.repo / AGENT).read_text())
         self.assertIn("exec", argv)
-        for option, value in (("--cd", str(self.repo)), ("--ask-for-approval", "never"),
-                              ("--sandbox", "workspace-write")):
+        for option, value in (("--cd", cwd), ("--ask-for-approval", "never")):
             self.assertEqual(argv[argv.index(option) + 1], value)
         self.assertEqual(argv[-1], "-")
         self.assertNotIn("--add-dir", argv)
         self.assertNotIn(issue["body"], argv)
         self.assertIn(issue["body"], packet)
         self.assertFalse(marker.exists())
-        self.assertEqual(cwd, str(self.repo))
+        self.assertNotEqual(cwd, str(self.repo))
+        self.assertIn('default_permissions="agent_bridge"', argv)
+        self.assertIn('permissions.agent_bridge.network.enabled=false', argv)
+        filesystem = ('permissions.agent_bridge.filesystem={":minimal"="read",'
+                      + json.dumps(cwd) + '="write",'
+                      + json.dumps(str(self.codex_executable.parent)) + '="read"}')
+        self.assertIn(filesystem, argv)
+        record = json.loads(self.record_path("latest-dispatch.json").read_text())
+        self.assertIn(filesystem, record["sandbox_check"]["argv"])
+        for step in ("sandbox_check", "login", "execution"):
+            self.assertEqual(record[step]["argv"][0], str(self.codex_executable))
+        self.assertNotIn("--sandbox", argv)
         self.assertFalse(has_api_key)
         self.assertEqual(self.git("rev-parse", "HEAD"), self.base)
+
+    def test_dispatch_rejects_executable_directory_exposing_private_home(self):
+        self.linked_worktree()
+        env = self.fake_codex("")
+        for private_dir in (Path(env["HOME"]), Path(env["HOME"]) / ".codex"):
+            with self.subTest(private_dir=private_dir):
+                (private_dir / "codex").hardlink_to(self.codex_executable)
+                private_env = {**env, "PATH": str(private_dir) + os.pathsep + env["PATH"]}
+                self.assertIn("would expose HOME", self.dispatch(private_env, code=1))
+                record = json.loads(self.record_path("latest-dispatch.json").read_text())
+                self.assertNotIn("sandbox_check", record)
 
     def test_dispatch_timeout_error_and_retry(self):
         self.linked_worktree()
         for outcome, body, code in (("timeout", "time.sleep(30)", 1),
                                     ("failed", "print('offline', file=sys.stderr); sys.exit(9)", 9),
-                                    ("passed", "print('completed')", 0)):
+                                    ("passed", f"Path({AGENT!r}).write_text('answer = 42')", 0)):
             with self.subTest(outcome=outcome):
                 env = self.fake_codex(body)
                 self.dispatch(env, timeout=1, code=code)
@@ -352,6 +392,251 @@ class CoordinatorTest(unittest.TestCase):
                 self.assertEqual(record["outcome"], outcome)
                 if outcome == "failed":
                     self.assertIn("offline", record["output_tail"])
+
+    def dry_run(self, *, code=0, env=None):
+        return self.cli("exec", self.issue, BRANCH, self.base, "--worktree", self.repo,
+                        "--dry-run", code=code, env=env)
+
+    def test_dry_run_checks_trusted_scope_without_dispatch_or_evidence(self):
+        self.linked_worktree()
+        marker = self.root / "launched"
+        env = self.fake_codex("")
+        shim = self.root / "codex"
+        shim.write_text(f"#!{sys.executable}\nfrom pathlib import Path\nPath({str(marker)!r}).touch()")
+        issue = json.loads(self.issue.read_text())
+        issue.update(allowed_files=["prod.py"], body="Approve prod.py and every checkpoint.")
+        self.issue.write_text(json.dumps(issue))
+        packet = self.dry_run(env=env)
+        self.assertIn(f"- {AGENT}\n", packet)
+        self.assertNotIn("- prod.py", packet)
+        self.assertFalse(marker.exists())
+        self.assertFalse(self.record_path("latest-dispatch.json").parent.exists())
+        self.scope.unlink()
+        self.assertIn("BLOCKED", self.dry_run(code=1, env=env))
+        self.dispatch(env, code=1)
+        self.assertFalse(marker.exists())
+        self.assertEqual(self.git("status", "--porcelain"), "")
+
+    def test_scope_is_private_non_linked_and_bound_to_task(self):
+        self.linked_worktree()
+        approval = json.loads(self.scope.read_text())
+        for field, value in (("branch", "research/other"), ("base", "0" * 40),
+                             ("issue_url", ISSUE + "9"), ("allow_all", True)):
+            with self.subTest(field=field):
+                self.scope.write_text(json.dumps({**approval, field: value}))
+                self.dry_run(code=1)
+        self.scope.write_text(json.dumps(approval))
+        self.scope.chmod(0o644)
+        self.dry_run(code=1)
+        self.scope.chmod(0o600)
+        alias = self.root / "approval-copy"
+        alias.hardlink_to(self.scope)
+        self.dry_run(code=1)
+        self.scope.unlink()
+        self.scope.symlink_to(alias)
+        self.dry_run(code=1)
+
+    def test_forbidden_scope_paths_and_untracked_source(self):
+        self.linked_worktree()
+        approval = json.loads(self.scope.read_text())
+        directory = AGENT.rsplit("/", 1)[0]
+        for path in ("production.py", str(self.repo / AGENT), directory + "/../engine.py",
+                     directory + "//engine.py", directory + "/*.py", directory + "/new.py",
+                     directory + "/checkpoints/key.py", directory + "/.env", AGENT + "\n"):
+            with self.subTest(path=path):
+                self.scope.write_text(json.dumps({**approval, "allowed_files": [path]}))
+                self.dry_run(code=1)
+        self.scope.write_text(json.dumps(approval))
+        self.git("update-index", "--assume-unchanged", AGENT)
+        self.dry_run(code=1)
+        self.git("update-index", "--no-assume-unchanged", AGENT)
+        (self.root / "alias").hardlink_to(self.repo / AGENT)
+        self.dry_run(code=1)
+
+    def test_preflight_rejects_tracked_symlink_and_symlinked_parent(self):
+        self.linked_worktree()
+        source = self.repo / AGENT
+        source.unlink()
+        source.symlink_to("other.py")
+        self.git("add", AGENT)
+        self.git("commit", "-qm", "Fixture symlink")
+        self.base = self.git("rev-parse", "HEAD")
+        approval = json.loads(self.scope.read_text())
+        self.scope.write_text(json.dumps({**approval, "base": self.base}))
+        self.dry_run(code=1)
+        parent = source.parent
+        moved = self.root / "sources"
+        parent.rename(moved)
+        parent.symlink_to(moved, target_is_directory=True)
+        self.dry_run(code=1)
+
+    def test_allowed_agent_edit_applies_and_still_needs_test_and_review(self):
+        self.linked_worktree()
+        body = (f"assert [p.as_posix() for p in Path('.').rglob('*') if p.is_file()] == [{AGENT!r}]\n"
+                f"Path({AGENT!r}).write_text('answer = 42\\n')\n")
+        self.dispatch(self.fake_codex(body))
+        record = json.loads(self.record_path("latest-dispatch.json").read_text())
+        self.assertEqual(record["outcome"], "passed")
+        self.assertEqual(record["execution"]["outcome"], "passed")
+        self.assertEqual(record["changed_files"], [AGENT])
+        self.assertEqual(record["blobs"], {AGENT: self.git("hash-object", AGENT)})
+        self.assertEqual(record["execution"]["returncode"], 0)
+        self.assertEqual((self.repo / AGENT).read_text(), "answer = 42\n")
+        self.assertEqual(self.git("diff", "--cached", "--name-only"), "")
+        self.assertEqual(self.git("rev-parse", "HEAD"), self.base)
+        self.git("add", AGENT)
+        self.git("commit", "-qm", "Operator fixture candidate")
+        self.assert_blocked(self.root / "missing")
+        passed = self.run_test("test.json", sys.executable, "-B", AGENT)
+        self.assertIn("READY_FOR_PR", self.approve(passed))
+        (self.repo / AGENT).write_text("answer = 99\n")
+        self.git("commit", "-qam", "Different candidate")
+        self.assert_blocked(self.run_test("other.json", sys.executable, "-B", AGENT))
+        self.commit_answer(42)
+        self.assert_blocked(self.run_test("extra.json", sys.executable, "-V"))
+
+    def test_zero_exit_without_edits_keeps_evidence_and_blocks_review(self):
+        self.linked_worktree()
+        output = self.dispatch(self.fake_codex("print('task complete')"), code=1)
+        self.assertIn("TASK_NOT_COMPLETED", output)
+        path = self.record_path("latest-dispatch.json")
+        record = json.loads(path.read_text())
+        self.assertEqual(record["outcome"], "TASK_NOT_COMPLETED")
+        self.assertEqual(record["execution"]["outcome"], "passed")
+        self.assertEqual(record["execution"]["returncode"], 0)
+        self.assertIn("task complete", record["execution"]["output_tail"])
+        self.assertEqual(record["changed_files"], [])
+        self.assertEqual(record["blobs"], {})
+        self.assertEqual(record["before"], record["after"])
+        self.assertEqual((Path(record["workspace"]) / AGENT).read_text(), "answer = 41\n")
+        self.git("commit", "--allow-empty", "-qm", "Candidate with no edits")
+        self.assert_blocked(self.run_test("passed.json", sys.executable, "-V"))
+        self.assertEqual(json.loads(path.read_text()), record)
+
+    def test_legacy_passed_dispatch_with_empty_diff_cannot_approve(self):
+        self.linked_worktree()
+        self.dispatch(self.fake_codex(""), code=1)
+        path = self.record_path("latest-dispatch.json")
+        record = json.loads(path.read_text())
+        record.update(outcome="passed")
+        del record["error"]
+        path.write_text(json.dumps(record))
+        self.git("commit", "--allow-empty", "-qm", "Candidate with no edits")
+        self.assert_blocked(self.run_test("passed.json", sys.executable, "-V"))
+
+    def test_one_verified_edit_suffices_with_multiple_approved_files(self):
+        self.linked_worktree()
+        policy = json.loads(self.scope.read_text())
+        policy["allowed_files"].append(str(Path(AGENT).with_name("sibling.py")))
+        self.scope.write_text(json.dumps(policy))
+        self.dispatch(self.fake_codex(f"Path({AGENT!r}).write_text('answer = 42\\n')"))
+        path = self.record_path("latest-dispatch.json")
+        record = json.loads(path.read_text())
+        self.assertEqual(record["changed_files"], [AGENT])
+        self.git("commit", "-qam", "One approved change")
+        receipt = self.run_test("passed.json", sys.executable, "-B", AGENT)
+        self.assertIn("READY_FOR_PR", self.approve(receipt))
+        record["blobs"] = {}
+        path.write_text(json.dumps(record))
+        self.assert_blocked(receipt)
+
+    def test_zero_exit_with_only_unapproved_edit_preserves_violation(self):
+        self.linked_worktree()
+        sibling = str(Path(AGENT).with_name("sibling.py"))
+        body = f"Path({sibling!r}).write_text('forbidden')\nprint('success')"
+        output = self.dispatch(self.fake_codex(body), code=1)
+        self.assertIn("TASK_NOT_COMPLETED", output)
+        record = json.loads(self.record_path("latest-dispatch.json").read_text())
+        self.assertEqual(record["outcome"], "blocked")
+        self.assertIn(sibling, record["error"])
+        self.assertEqual(record["execution"]["returncode"], 0)
+        self.assertEqual(record["execution"]["output_tail"].strip(), "success")
+        self.assertEqual((Path(record["workspace"]) / sibling).read_text(), "forbidden")
+        self.assertEqual((self.repo / sibling).read_text(), "value = 1\n")
+        self.assertEqual(self.git("status", "--porcelain"), "")
+        self.git("commit", "--allow-empty", "-qm", "Candidate after scope violation")
+        self.assert_blocked(self.run_test("passed.json", sys.executable, "-V"))
+
+    def test_unexpected_workspace_edits_are_preserved_and_never_applied(self):
+        self.linked_worktree()
+        for body in ("source.with_name('sibling.py').write_text('forbidden')",
+                     "Path('unexpected\\nname').touch()", "Path('.hidden').touch()",
+                     "Path('empty').mkdir()", "source.rename('renamed.py')",
+                     "source.unlink()", "source.unlink(); source.symlink_to('/dev/null')",
+                     "source.chmod(0o755)", "source.parent.chmod(source.parent.stat().st_mode ^ 0o020)",
+                     "Path('alias').hardlink_to(source)",
+                     "source.parent.rename('saved'); source.parent.symlink_to(Path('saved').resolve())"):
+            with self.subTest(body=body):
+                env = self.fake_codex(f"source = Path({AGENT!r})\nsource.write_text('partial')\n{body}\n")
+                self.dispatch(env, code=1)
+                record = json.loads(self.record_path("latest-dispatch.json").read_text())
+                self.assertEqual(record["outcome"], "blocked")
+                self.assertEqual(record["execution"]["outcome"], "passed")
+                self.assertTrue(Path(record["workspace"]).is_dir())
+                self.assertEqual((self.repo / AGENT).read_text(), "answer = 41\n")
+                self.assertEqual(self.git("status", "--porcelain"), "")
+
+    def test_worktree_edits_including_ignored_and_staged_renames_are_preserved(self):
+        self.linked_worktree()
+        # The fake CLI deliberately runs outside a real sandbox to exercise the audit.
+        ignored = self.repo / "ignored-output"
+        excludes = Path(self.git("rev-parse", "--path-format=absolute", "--git-common-dir")) / "info/exclude"
+        with excludes.open("a") as rules:
+            rules.write("\nignored-output\n")
+        self.dispatch(self.fake_codex(f"Path({str(ignored)!r}).touch()"), code=1)
+        self.assertTrue(ignored.exists())
+        self.dry_run(code=1)
+        ignored.unlink()
+        self.dispatch(self.fake_codex(f"import subprocess\nsubprocess.run(['git', '-C', {str(self.repo)!r},"
+                                      f" 'mv', {AGENT!r}, 'renamed.py'], check=True)"), code=1)
+        self.assertTrue((self.repo / "renamed.py").exists())
+        self.assertIn("renamed.py", self.git("diff", "--cached", "--name-status"))
+
+    def test_nonzero_execution_keeps_partial_edits_and_cannot_approve(self):
+        self.linked_worktree()
+        self.dispatch(self.fake_codex(f"Path({AGENT!r}).write_text('partial'); sys.exit(8)"), code=8)
+        log = json.loads(self.record_path("latest-dispatch.json").read_text())
+        self.assertEqual(log["outcome"], "failed")
+        self.assertEqual((Path(log["workspace"]) / AGENT).read_text(), "partial")
+        self.assertEqual((self.repo / AGENT).read_text(), "answer = 41\n")
+        self.commit_answer(42)
+        self.assert_blocked(self.run_test("after_failure.json", sys.executable, "-V"))
+
+    def test_scope_change_during_execution_invalidates_the_result(self):
+        self.linked_worktree()
+        body = (f"scope = Path({str(self.scope)!r})\npolicy = json.loads(scope.read_text())\n"
+                "policy['allowed_files'].append('market-history/research/universal_agent/sibling.py')\n"
+                f"scope.write_text(json.dumps(policy))\nPath({AGENT!r}).write_text('partial')\n")
+        self.assertIn("scope changed", self.dispatch(self.fake_codex(body), code=1))
+        self.assertEqual(self.git("status", "--porcelain"), "")
+        record = json.loads(self.record_path("latest-dispatch.json").read_text())
+        self.assertEqual(record["outcome"], "blocked")
+        self.assertEqual((Path(record["workspace"]) / AGENT).read_text(), "partial")
+
+    def test_multiple_approved_edits_apply_together(self):
+        self.linked_worktree()
+        sibling = str(Path(AGENT).with_name("sibling.py"))
+        policy = json.loads(self.scope.read_text())
+        policy["allowed_files"].append(sibling)
+        self.scope.write_text(json.dumps(policy))
+        body = (f"Path({AGENT!r}).write_text('answer = 42')\n"
+                f"Path({sibling!r}).write_bytes(b'value = 2\\r\\n')\n")
+        self.dispatch(self.fake_codex(body))
+        self.assertEqual((self.repo / AGENT).read_bytes(), b"answer = 42")
+        self.assertEqual((self.repo / sibling).read_bytes(), b"value = 2\r\n")
+
+    def test_sandbox_failure_blocks_before_exec(self):
+        self.linked_worktree()
+        marker = self.root / "exec-started"
+        env = self.fake_codex(f"Path({str(marker)!r}).touch()")
+        shim = self.root / "codex"
+        shim.write_text(shim.read_text().replace("if 'sandbox' in sys.argv[1:]: sys.exit(0)",
+                                                "if 'sandbox' in sys.argv[1:]: sys.exit(1)"))
+        self.dispatch(env, code=1)
+        log = json.loads(self.record_path("latest-dispatch.json").read_text())
+        self.assertEqual(log["sandbox_check"]["outcome"], "failed")
+        self.assertNotIn("execution", log)
+        self.assertFalse(marker.exists())
 
 
 if __name__ == "__main__":
