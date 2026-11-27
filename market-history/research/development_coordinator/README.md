@@ -4,7 +4,7 @@ The coordinator takes a local Issue snapshot, hands it to the local Codex CLI,
 runs an operator-selected test, and records a review decision for a Git commit.
 `READY_FOR_PR` is a local review result. Publishing requires a separate action.
 
-## Phase 2.1 feedback loop
+## Phase 2.1.1 feedback loop
 
 Use the private Phase 1.5 file grant described below. Start at the root of
 a fresh linked worktree, using trusted copies of `coordinator.py`,
@@ -34,13 +34,47 @@ Each implementation uses the existing verified dispatch and compares the
 resulting Git blobs before committing. Every attempt uses the original file
 grant. The reviewer receives the cumulative diff, Issue completion criteria,
 test argv, exit status and up to 8 KiB of output in a separate ephemeral
-ChatGPT-backed CLI session with a read-only workspace. Its JSON decision is
-`accept`, `revise` or `block` with nonempty findings. On revision the next
+ChatGPT-backed CLI session with a read-only workspace. The reviewer judges code correctness and the supplied acceptance evidence. Its JSON
+decision is `accept`, `revise`, `block`, or `unverified` with nonempty findings.
+An unassigned external requirement produces `unverified`. Both that decision
+and a code block stop the loop. On revision the next
 implementer receives those findings and the actual test evidence.
 `READY_FOR_PR` requires a nonempty scoped diff, `git diff --check`, a clean
 candidate with the dispatched blobs, passing local receipt and reviewer
 acceptance. The coordinator records an empty unittest discovery as a test
 error. The operator determines whether the selected tests cover the goal.
+
+### Workflow evidence after code acceptance
+
+At startup, map each additional completion requirement in the Issue to a named
+operator-approved command. Repeat the option for multiple checks. The argv and
+names are frozen alongside the Issue and compared on resume. A code-only task
+needs just the built-in Git, role and acceptance checks.
+
+```bash
+--workflow-check 'calendar regression' '["python3","-B","market-history/research/universal_agent/tests/test_calendar.py"]'
+```
+
+The reviewer sees which requirements the coordinator owns. After code acceptance,
+the coordinator runs the named checks on the same candidate, with the same
+read-only projection, input grant, network restrictions and remaining time as
+the acceptance test. Each check has its own private execution record and
+matching external receipt. For a required suite or attestation unavailable
+under this grant, use e.g. `--workflow-check 'full integration suite' null`.
+This records a named evidence block even when the code review accepts.
+Issue prose cannot add commands. The operator is responsible for mapping
+the full set of requirements to meaningful tests. The gate cannot derive
+arbitrary test coverage from natural language or import an external PASS claim.
+
+Before publishing a local readiness decision the coordinator verifies the
+actual role executions, sandbox probes, review reply, reservation ledger,
+candidate SHA, scoped Git blobs, acceptance receipt and each workflow
+receipt. The completion record links their run IDs. Resume revalidates a
+completed result without relaunching roles or tests. An interrupted run
+continues under the original budget. A legacy result missing the role binding
+needs a fresh run for a new readiness decision. Existing terminal blocks stay
+terminal. Standalone manual acceptance is available in worktrees without a
+loop checkpoint.
 
 One initial implementation can receive up to two revisions. The default
 deadline is 900 seconds and the absolute maximum is 1,800 seconds, including

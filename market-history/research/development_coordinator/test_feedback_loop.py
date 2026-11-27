@@ -1,5 +1,8 @@
 import json
 import os
+import signal
+import subprocess
+import sys
 import time
 import unittest
 from pathlib import Path
@@ -145,18 +148,93 @@ class FeedbackLoopTest(unittest.TestCase):
         run = self.launch(self.models(review="dict(decision='accept', allowed_files=['prod.py'])"), code=1)
         self.assertEqual(run["cause"]["category"], "model")
 
+    def test_external_criterion_review_and_workflow_gate(self):
+        name = "Independent workflow oracle"
+        issue = json.loads(self.issue.read_bytes())
+        issue["body"] += " Completion requires the Independent workflow oracle and READY_FOR_PR."
+        self.issue.write_text(json.dumps(issue))
+        review = ("dict(decision='accept', findings='Code verified, oracle pending') "
+                  "if 'coordinator_checks' in prompt and 'Independent workflow oracle' in prompt "
+                  "else dict(decision='block', findings='External evidence missing')")
+        run = self.launch(self.models(review=review), "--workflow-check", name, json.dumps(self.command))
+        result = run["attempts"][0]["workflow_results"][name]
+        self.assertEqual(run["completion"]["workflow_run_ids"][name], result["test"]["run_id"])
+        self.assertNotEqual(result["test"]["run_id"], run["completion"]["acceptance_run_id"])
+        self.assertEqual(result["test"]["head"], run["completion"]["head"])
+        self.assertEqual((run["calls"], run["retries"]), (2, 0))
+
+    def test_unavailable_workflow_evidence_blocks_accepted_code(self):
+        run = self.launch(self.models(), "--workflow-check", "Full system suite", "null", code=1)
+        self.assertEqual((run["reviewer"]["decision"], run["cause"]["category"]), ("accept", "evidence"))
+        self.assertIn("Full system suite", run["cause"]["reason"])
+        self.assertNotIn("completion", run)
+        args = ("review", fixtures.ISSUE, fixtures.BRANCH, self.base, run["attempts"][0]["receipt"], "accept", "OK")
+        self.assertIn("loop-resume", self.cli(*args, code=1))
+
+    def test_failing_workflow_receipt_blocks(self):
+        cmd = ["python3", "-c", "raise SystemExit(9)"]
+        run = self.launch(self.models(), "--workflow-check", "oracle", json.dumps(cmd), code=1)
+        self.assertEqual(run["attempts"][0]["workflow_results"]["oracle"]["test"]["returncode"], 9)
+        self.assertEqual((run["status"], run["cause"]["phase"]), ("BLOCKED", "complete"))
+
+    def test_unmapped_evidence_cannot_be_accepted(self):
+        env = self.models(review="dict(decision='unverified', findings='Unmapped requirement: full suite')")
+        run = self.launch(env, code=1)
+        self.assertEqual((run["status"], run["cause"]["category"]), ("BLOCKED", "evidence"))
+
+    def test_genuine_code_block_is_preserved(self):
+        env = self.models(review="dict(decision='block', findings='Required edge case is missing')")
+        run = self.launch(env, code=1)
+        self.assertEqual(run["status"], "BLOCKED")
+        self.assertIn("edge case", run["cause"]["reason"])
+
+    def test_resume_rejects_replaced_review_execution(self):
+        env = self.models()
+        run = self.launch(env)
+        record = Path(run["attempts"][-1]["review_execution"])
+        review = json.loads(record.read_bytes())
+        review["head"] = self.base
+        record.write_text(json.dumps(review))
+        self.cli("loop-resume", env=env, code=1)
+        final = json.loads(self.record.read_bytes())
+        self.assertEqual((final["cause"]["category"], final["calls"]), ("evidence", 2))
+        self.assertNotIn("completion", final)
+
+    def test_resume_rejects_swapped_workflow_receipt(self):
+        env = self.models()
+        run = self.launch(env, "--workflow-check", "oracle", json.dumps(self.command))
+        attempt = run["attempts"][0]
+        Path(attempt["workflow_results"]["oracle"]["receipt"]).write_bytes(Path(attempt["receipt"]).read_bytes())
+        self.cli("loop-resume", env=env, code=1)
+        self.assertEqual(json.loads(self.record.read_bytes())["cause"]["category"], "evidence")
+
     def test_interrupted_review_resumes_with_original_test_and_budget(self):
         marker = self.root / "review-interrupted"
-        # Stop the coordinator during the second role, after its call was reserved.
-        review = (f"(os.kill(os.getppid(), signal.SIGINT), Path({str(marker)!r}).touch(), "
-                  "dict(decision='block',findings='interrupted'))[-1]")
-        env = self.models(review=review)
-        shim = self.root / "codex"
-        shim.write_text(shim.read_text().replace("prompt = sys.stdin.read()", "import signal\nprompt = sys.stdin.read()"))
-        result = self.cli_result(*self.args(), env=env)
-        self.assertNotEqual(result.returncode, 0)
+        # Hold the fake reviewer at a known boundary. Also reproduce shells that
+        # start background commands with SIGINT ignored across exec.
+        env = self.models(review=f"(Path({str(marker)!r}).touch(), time.sleep(12))[1]")
+        old = signal.signal(signal.SIGINT, signal.SIG_IGN)
+        try:
+            proc = subprocess.Popen([sys.executable, "-B", fixtures.SCRIPT, *map(str, self.args("--timeout", "15"))],
+                                    cwd=self.repo, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        finally:
+            signal.signal(signal.SIGINT, old)
+        try:
+            deadline = time.monotonic() + 10
+            while not marker.exists() and time.monotonic() < deadline and proc.poll() is None:
+                time.sleep(0.01)
+            self.assertTrue(marker.exists(), "Reviewer did not reach its execution barrier.")
+            reserved = json.loads(self.record.read_bytes())
+            self.assertEqual((reserved["phase"], reserved["calls"]), ("review", 2))
+            proc.send_signal(signal.SIGINT)
+            output, _ = proc.communicate(timeout=5)
+            self.assertEqual(proc.returncode, 130, output)
+        finally:
+            if proc.poll() is None:
+                proc.kill()
+            proc.communicate()
         partial = json.loads(self.record.read_bytes())
-        self.assertEqual((partial["phase"], partial["calls"]), ("review", 2))
+        self.assertEqual(partial, reserved)
         self.cli("loop-resume", env=self.models())
         run = json.loads(self.record.read_bytes())
         self.assertEqual((run["calls"], run["status"]), (3, "READY_FOR_PR"))
