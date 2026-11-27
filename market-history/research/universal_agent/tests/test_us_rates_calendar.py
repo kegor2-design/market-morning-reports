@@ -1,9 +1,26 @@
 import unittest
+from datetime import date
 
 from universal_agent.us_rates_calendar import expected_observations, publication_metadata
 
 
 class USRatesCalendarTests(unittest.TestCase):
+    def test_both_bounds_require_canonical_dates(self):
+        invalid_bounds = (
+            '20180528', '2018-W22-1', '2018-5-28', '2018-05-1',
+            ' 2018-05-28', '2018-05-28\n', '２０１８-０５-２８',
+            '2018-02-29', '2018-04-31', None, True, False, 20180528,
+            b'2018-05-28', date(2018, 5, 28),
+        )
+        for bound in invalid_bounds:
+            for argument, start, end in (
+                ('start', bound, '2018-05-31'),
+                ('end', '2018-05-01', bound),
+            ):
+                with self.subTest(argument=argument, bound=bound):
+                    with self.assertRaises(ValueError):
+                        expected_observations(start, end, 'UST_2Y')
+
     def test_memorial_day_excluded_but_adjacent_observations_kept(self):
         for series in ('UST_2Y', 'UST_10Y', 'NYFED_SOFR'):
             dates, closed = expected_observations('2018-05-01', '2018-05-31', series)
