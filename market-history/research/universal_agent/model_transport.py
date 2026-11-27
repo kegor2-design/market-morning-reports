@@ -1,6 +1,7 @@
 """Single text-only Responses request with a separately reviewed host permit."""
 import hashlib
 import json
+import math
 import os
 import re
 import subprocess
@@ -32,6 +33,11 @@ def prepare(prompt, schema, directory, purpose, goal_id, seconds):
 def authorized(scope, approval):
     if not approval or any(approval.get(k) != v for k, v in scope.items()):
         return False
+    max_cost_usd = approval.get('max_cost_usd')
+    if type(max_cost_usd) not in (int, float):
+        return False
+    if max_cost_usd < 0 or (type(max_cost_usd) is float and not math.isfinite(max_cost_usd)):
+        return False
     try:
         expires = datetime.fromisoformat(approval['expires_at_utc'])
         valid = expires.tzinfo is not None and expires > datetime.now(timezone.utc)
@@ -41,7 +47,7 @@ def authorized(scope, approval):
     # Conservative byte-based estimate for the pinned model, including an
     # allowance for framing. The operator separately accepts billing variance.
     estimate = ((scope['input_bytes'] + 256) * 0.25 + OUTPUT_TOKENS * 2) / 1_000_000
-    return (approval.get('max_cost_usd', 0) >= estimate and valid and approval.get('status') == 'APPROVED'
+    return (max_cost_usd >= estimate and valid and approval.get('status') == 'APPROVED'
             and approval.get('accept_billing_overrun') is True
             and re.fullmatch(r'proj_[a-zA-Z0-9_-]+', project) is not None
             and approval.get('project') == project

@@ -6,12 +6,14 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from universal_agent.ai_research_planner import (capability_registry, request_plan,
                                                   validate_candidate)
 from universal_agent.engine import canonical
 from universal_agent.rate_analysis import SIGNALS
 from universal_agent.isolated_codex import PRIVATE_ROOT
+from universal_agent.model_transport import MODEL, OUTPUT_TOKENS, authorized
 from universal_agent.research_planner import plan_goal
 from universal_agent.research_runtime import run, submit
 from universal_agent.source_adapters import REGISTRY
@@ -153,6 +155,25 @@ class AIPlannerBoundaryTests(unittest.TestCase):
             self.assertEqual(result['status'], 'APPROVAL_REQUIRED')
             self.assertEqual(called, [])
             self.assertFalse((Path(folder) / 'ai_program_request.json').exists())
+
+    def test_model_transport_requires_valid_cost_approval(self):
+        scope = {'provider': 'OPENAI_RESPONSES', 'model': MODEL, 'goal_id': 'test-goal',
+                 'purpose': 'plan', 'state_directory': '/test/state',
+                 'body_sha256': 'a' * 64, 'max_calls': 1, 'max_seconds': 30,
+                 'input_bytes': 128, 'max_output_tokens': OUTPUT_TOKENS}
+        approval = dict(scope, status='APPROVED', expires_at_utc='9999-01-01T00:00:00+00:00',
+                        accept_billing_overrun=True, project='proj_test')
+        with patch.dict('os.environ', {'OPENAI_PROJECT_ID': 'proj_test',
+                                       'OPENAI_API_KEY': 'fake-test-key'}, clear=True):
+            for cost in (1, 0.01, 10 ** 400):
+                with self.subTest(valid_cost=cost):
+                    self.assertIs(authorized(scope, dict(approval, max_cost_usd=cost)), True)
+
+            self.assertIs(authorized(scope, approval), False)
+            for cost in (True, False, '1', None, {}, [], object(), -1, -0.01, 0, 0.001,
+                         float('nan'), float('inf'), float('-inf')):
+                with self.subTest(invalid_or_insufficient_cost=cost):
+                    self.assertIs(authorized(scope, dict(approval, max_cost_usd=cost)), False)
 
     def test_nonfinite_or_boolean_model_budget_is_rejected_before_reservation(self):
         PRIVATE_ROOT.mkdir(mode=0o700, parents=True, exist_ok=True)
