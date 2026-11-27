@@ -237,6 +237,29 @@ def verify_review_scope(state, args, current):
             raise ValueError(f"Candidate differs from the dispatched edit: {name!r}")
 
 
+def verify_test_receipt(latest, evidence, current):
+    if not latest.exists():
+        raise ValueError("No coordinator test execution for this worktree.")
+    record = latest.read_bytes()
+    test = json.loads(record)
+    # The external receipt never selects what is executed or supplies the verdict.
+    if test.get("outcome") not in ("passed", "failed", "timeout", "launch_error"):
+        raise ValueError("Latest test attempt lacks completed verification.")
+    with os.fdopen(os.open(evidence, os.O_RDONLY | os.O_NONBLOCK), "rb") as receipt:
+        if (not stat.S_ISREG(os.fstat(receipt.fileno()).st_mode)
+                or receipt.read(len(record) + 1) != record):
+            raise ValueError("Unverified or stale test receipt. Run the test again.")
+    if (test["head"] != current["head"] or test["branch"] != current["branch"] or
+            test["before"] != current or test["after"] != current):
+        raise ValueError("Test evidence is stale. Test the current candidate again.")
+    if not (test["argv"] and test["cwd"] and test["run_id"] and
+            0 < test["started_at"] <= test["finished_at"] and test["duration_seconds"] >= 0):
+        raise ValueError("Incomplete coordinator execution record.")
+    if not 0 <= time.time() - test["finished_at"] <= MAX_AGE_SECONDS:
+        raise ValueError("Test evidence is stale. Run the test again.")
+    return test
+
+
 def review_candidate(args, state):
     report = {"issue": args.issue_url, "branch": args.branch, "base": args.base,
               "decision": args.decision, "notes": args.notes, "reviewed_at": time.time(),
@@ -255,26 +278,7 @@ def review_candidate(args, state):
             raise ValueError("Expected a candidate commit descended from the pinned base.")
         if args.decision not in ("revise", "accept") or not (args.notes or "").strip():
             raise ValueError("A completed code review requires a decision and findings.")
-        latest = state / "latest-test.json"
-        if not latest.exists():
-            raise ValueError("No coordinator test execution for this worktree.")
-        record = latest.read_bytes()
-        test = json.loads(record)
-        # The external receipt never selects what is executed or supplies the verdict.
-        if test.get("outcome") not in ("passed", "failed", "timeout", "launch_error"):
-            raise ValueError("Latest test attempt lacks completed verification.")
-        with os.fdopen(os.open(args.evidence, os.O_RDONLY | os.O_NONBLOCK), "rb") as receipt:
-            if (not stat.S_ISREG(os.fstat(receipt.fileno()).st_mode)
-                    or receipt.read(len(record) + 1) != record):
-                raise ValueError("Unverified or stale test receipt. Run the test again.")
-        if (test["head"] != head or test["branch"] != args.branch or
-                test["before"] != current or test["after"] != current):
-            raise ValueError("Test evidence is stale. Test the current candidate again.")
-        if not (test["argv"] and test["cwd"] and test["run_id"] and
-                0 < test["started_at"] <= test["finished_at"] and test["duration_seconds"] >= 0):
-            raise ValueError("Incomplete coordinator execution record.")
-        if not 0 <= time.time() - test["finished_at"] <= MAX_AGE_SECONDS:
-            raise ValueError("Test evidence is stale. Run the test again.")
+        test = verify_test_receipt(state / "latest-test.json", args.evidence, current)
         report["run_id"] = test["run_id"]
         if args.decision == "accept":
             if test["outcome"] != "passed" or test["returncode"] != 0:
@@ -527,6 +531,8 @@ def main():
                 return test_candidate(args.branch, command, args.evidence, args.timeout, state)
             if args.action == "exec":
                 return dispatch(args, state)
+            if args.decision == "accept" and (state / feedback_loop.CHECKPOINT).exists():
+                raise ValueError("Use loop-resume to verify the complete workflow before acceptance.")
             return review_candidate(args, state)
     except ERRORS as error:
         prefix = "BLOCKED — " if args.action in ("exec", "review") else ""
