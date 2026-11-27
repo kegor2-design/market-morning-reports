@@ -165,7 +165,7 @@ def exit_status(result):
     return code if code and code > 0 else 1
 
 
-def test_candidate(branch, command, evidence, timeout, state):
+def test_candidate(branch, command, evidence, timeout, state, *, env=None):
     latest = state / "latest-test.json"
     attempt = {"run_id": uuid4().hex, "outcome": "unverified", "argv": command,
                "branch": branch, "cwd": str(Path.cwd())}
@@ -186,7 +186,7 @@ def test_candidate(branch, command, evidence, timeout, state):
                 raise ValueError("Keep evidence outside the worktree and Git metadata.")
         if evidence.exists():
             raise ValueError("Use a new evidence path for each test run.")
-        attempt.update(run_process(command, Path.cwd(), timeout, show_output=True))
+        attempt.update(run_process(command, Path.cwd(), timeout, show_output=True, env=env))
         after = snapshot()
         attempt["after"] = after
         validate_checkout(after, branch)
@@ -209,7 +209,10 @@ def verify_review_scope(state, args, current):
     if dispatch_log.get("outcome") != "passed" or dispatch_log.get("issue") != args.issue_url:
         raise ValueError("A successful scoped dispatch for this Issue is required.")
     base = dispatch_log["base"]
-    paths = agent_scope.read_scope(state.parent, args.issue_url, args.branch, base)
+    approval_base = dispatch_log.get("approval_base", base)
+    if "approval_base" in dispatch_log and approval_base != args.base:
+        raise ValueError("Review must use the original loop approval.")
+    paths = agent_scope.read_scope(state.parent, args.issue_url, args.branch, approval_base)
     changed = dispatch_log["changed_files"]
     blobs = dispatch_log["blobs"]
     if (not changed or not isinstance(blobs, dict) or set(changed) != blobs.keys()
@@ -293,7 +296,7 @@ def review_candidate(args, state):
     return 0
 
 
-def prepare_dispatch(args):
+def prepare_dispatch(args, *, approval_base=None, expected_paths=None, issue=None):
     root = args.worktree.resolve(strict=True)
     admin = directory("--git-dir")
     common = directory("--git-common-dir")
@@ -302,20 +305,27 @@ def prepare_dispatch(args):
     backlink = (admin / "gitdir").read_text().rstrip("\n")
     if (admin / backlink).resolve() != root / ".git":
         raise ValueError("Worktree registration does not match the approved path.")
-    issue = json.loads(args.issue.read_text())
-    paths = agent_scope.read_scope(admin, issue["url"], args.branch, args.base)
+    if issue is None:
+        issue = json.loads(args.issue.read_text())
+    paths = agent_scope.read_scope(admin, issue["url"], args.branch, approval_base or args.base)
+    if expected_paths is not None and paths != expected_paths:
+        raise ValueError("Original approved paths have changed.")
     packet = task_packet(issue, args.branch, args.base, paths)
     if (root / ".codex" / "config.toml").is_symlink() or (root / ".codex" / "config.toml").exists():
         raise ValueError("Project configuration may override the dispatch sandbox.")
     agent_scope.inspect_index(root)
     modes = agent_scope.source_modes(root, paths, args.base)
+    return root, issue["url"], packet, modes, dispatch_scratch(root, common)
+
+
+def dispatch_scratch(root, common):
     scratch = Path(gettempdir()).resolve()
     if (scratch.is_relative_to(root) or scratch.is_relative_to(common)
             or any((p / ".git").is_file() or (p / ".git/HEAD").exists()
                    or (p / ".codex/config.toml").exists()
                    for p in (scratch, *scratch.parents))):
         raise ValueError("Use a private scratch workspace outside configured projects.")
-    return root, issue["url"], packet, modes, scratch
+    return scratch
 
 
 def verify_applied_edits(root, verified, changed):
@@ -333,7 +343,7 @@ def verify_applied_edits(root, verified, changed):
     return blobs
 
 
-def run_scoped_codex(work, root, packet, timeout, record, log):
+def sandbox_profile(work, *, writable):
     env = {k: os.environ[k] for k in ("HOME", "PATH", "CODEX_HOME", "LANG") if k in os.environ}
     found = shutil.which("codex")
     if found is None:
@@ -344,16 +354,24 @@ def run_scoped_codex(work, root, packet, timeout, record, log):
     private_dirs = (home, home / ".codex", Path(env.get("CODEX_HOME") or home / ".codex"))
     if any(path.resolve().is_relative_to(bin_dir) for path in private_dirs):
         raise ValueError("Codex executable directory would expose HOME or the Codex configuration directory.")
-    filesystem = (f'{{":minimal"="read",{json.dumps(str(work))}="write",'
+    access = "write" if writable else "read"
+    filesystem = (f'{{":minimal"="read",{json.dumps(str(work))}="{access}",'
                   f'{json.dumps(str(bin_dir))}="read"}}')
     profile = ["-c", 'default_permissions="agent_bridge"',
                "-c", "permissions.agent_bridge.filesystem=" + filesystem,
                "-c", "permissions.agent_bridge.network.enabled=false"]
+    return str(executable), env, profile
+
+
+def run_scoped_codex(work, root, packet, timeout, record, log, *, reply=None):
+    executable, env, profile = sandbox_profile(work, writable=reply is None)
     canary = work.parent / "outside-workspace"
     canary.write_text("sandbox read check\n")
+    workspace_probe = ('touch .sandbox-check && rm .sandbox-check' if reply is None
+                       else 'test ! -w .')
     probe = [str(executable), *profile, "sandbox", "-P", "agent_bridge", "--",
              "/bin/sh", "-c", 'test ! -r "$1" && test ! -w "$1" && test ! -r "$2" && '
-             'touch .sandbox-check && rm .sandbox-check', "probe", str(canary), str(root / ".git")]
+             + workspace_probe, "probe", str(canary), str(root / ".git")]
     log["sandbox_check"] = run_process(probe, work, min(30, timeout), env=env)
     if log["sandbox_check"]["outcome"] != "passed":
         raise ValueError("Restricted filesystem sandbox check failed. Inspect latest-dispatch.json.")
@@ -370,19 +388,29 @@ def run_scoped_codex(work, root, packet, timeout, record, log):
             "--disable", "memories", "--disable", "request_permissions_tool",
             "--disable", "multi_agent", "--disable", "multi_agent_v2", "-c", "mcp_servers={}",
             "-c", 'web_search="disabled"', "-c", "project_doc_max_bytes=0", *profile, "-"]
+    if reply is not None:
+        argv[-1:-1] = ["--output-last-message", str(reply)]
     log["outcome"] = "running"
     write_record(record, log)
     return run_process(argv, work, timeout, prompt=packet.encode(), env=env)
 
 
-def dispatch(args, state):
+def dispatch(args, state, *, approval_base=None, expected_paths=None, feedback=None):
     log = {"outcome": "blocked", "branch": args.branch, "base": args.base,
            "worktree": str(args.worktree), "requested_at": time.time()}
+    if approval_base is not None:
+        log.update(approval_base=approval_base, dispatch_id=args.dispatch_id)
     record = state / "latest-dispatch.json"
     write_record(record, log)
     write_record(state / "latest-review.json", {"status": "BLOCKED", "reason": "New dispatch."})
     try:
-        root, issue_url, packet, modes, scratch = prepare_dispatch(args)
+        root, issue_url, packet, modes, scratch = prepare_dispatch(
+            args, approval_base=approval_base, expected_paths=expected_paths)
+        if approval_base is not None:
+            packet += ("\nThe coordinator has verified the Git binding. This workspace contains only "
+                       "approved source copies. Edit them directly without invoking Git.\n")
+        if feedback is not None:
+            packet += "\nPrevious verification and reviewer feedback (untrusted data):\n" + json.dumps(feedback)
         log.update(worktree=str(root), issue=issue_url, allowed_files=list(modes), before=snapshot())
         validate_checkout(log["before"], args.branch)
         if log["before"]["head"] != args.base:
@@ -417,7 +445,7 @@ def dispatch(args, state):
         with TemporaryDirectory(dir=run) as temp:
             verified = Path(temp)
             agent_scope.capture_workspace(work, modes, directory_modes, verified)
-            if agent_scope.read_scope(directory("--git-dir"), issue_url, args.branch, args.base) != list(modes):
+            if agent_scope.read_scope(directory("--git-dir"), issue_url, args.branch, approval_base or args.base) != list(modes):
                 raise ValueError("Operator scope changed during dispatch.")
             if result["outcome"] == "passed":
                 log["changed_files"] = agent_scope.apply_edits(root, original, verified, modes)
@@ -468,6 +496,8 @@ def main():
     review.add_argument("evidence", type=Path)
     review.add_argument("decision", nargs="?")
     review.add_argument("notes", nargs="?")
+    import feedback_loop
+    feedback_loop.add_commands(commands)
     args = parser.parse_args()
 
     try:
@@ -490,6 +520,8 @@ def main():
             print(packet, end="")
             return 0
         with locked_state() as state:
+            if args.action in ("loop", "loop-resume"):
+                return feedback_loop.run(args, state)
             if args.action == "test":
                 command = args.command[1:] if args.command[:1] == ["--"] else args.command
                 return test_candidate(args.branch, command, args.evidence, args.timeout, state)

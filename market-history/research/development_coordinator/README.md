@@ -1,8 +1,87 @@
-# Development Coordinator Phase 1.5
+# Development Coordinator
 
 The coordinator takes a local Issue snapshot, hands it to the local Codex CLI,
 runs an operator-selected test, and records a review decision for a Git commit.
 `READY_FOR_PR` is a local review result. Publishing requires a separate action.
+
+## Phase 2.1 feedback loop
+
+Use the private Phase 1.5 file grant described below. Start at the root of
+a fresh linked worktree, using trusted copies of `coordinator.py`,
+`agent_scope.py` and `feedback_loop.py`. Starting `loop` approves the
+Issue snapshot, test argv, extra test inputs, disclosure of the candidate
+diff and sanitized test output to ChatGPT, and local candidate commits
+on this branch. Inspect the test and its inputs before launch. For example,
+with an approved implementation file and a separately pinned regression:
+
+```bash
+python3 -B "$cli" loop "$issue" "$branch" "$base" --worktree "$worktree" \
+  --test-input market-history/research/universal_agent/tests/test_answer.py \
+  --test-argv '["python3","-B","market-history/research/universal_agent/tests/test_answer.py"]' \
+  --evidence-dir "$scratch" --timeout 900 --max-calls 6
+```
+
+Replace the example test filename and argv with the actual regression.
+Supply each required tracked Agent Python dependency with `--test-input`.
+Use a test outside the edit grant for an immutable acceptance check. The
+regression gets a read-only copy of these inputs and the approved files
+from the exact candidate commit, at their repository-relative paths. The
+coordinator probes the test sandbox and launches the command with disabled
+networking and a minimal environment. Missing declared inputs block before
+the first model dispatch. Select tests that run in this environment.
+
+Each implementation uses the existing verified dispatch and compares the
+resulting Git blobs before committing. Every attempt uses the original file
+grant. The reviewer receives the cumulative diff, Issue completion criteria,
+test argv, exit status and up to 8 KiB of output in a separate ephemeral
+ChatGPT-backed CLI session with a read-only workspace. Its JSON decision is
+`accept`, `revise` or `block` with nonempty findings. On revision the next
+implementer receives those findings and the actual test evidence.
+`READY_FOR_PR` requires a nonempty scoped diff, `git diff --check`, a clean
+candidate with the dispatched blobs, passing local receipt and reviewer
+acceptance. The coordinator records an empty unittest discovery as a test
+error. The operator determines whether the selected tests cover the goal.
+
+One initial implementation can receive up to two revisions. The default
+deadline is 900 seconds and the absolute maximum is 1,800 seconds, including
+time spent interrupted. At most six role invocations can be reserved across
+all attempts. A reservation is written before launch and survives interruption.
+The accounting unit is one implementer or reviewer CLI invocation. Codex
+manages its internal inference steps and transport retries within that session.
+Model output cannot choose the next command, grant paths or raise budgets.
+
+```bash
+python3 -B "$cli" loop-resume
+```
+
+Resume from the same worktree root. Its private Git administration directory
+contains `development-coordinator/feedback-loop.json`, an atomically replaced
+checkpoint with the candidate SHA, changed paths, phase, budgets, each dispatch,
+tests, verdicts and cause. Receipts and reviewer output live in a private run
+directory below `--evidence-dir` (default is temporary storage). For recovery
+across host restarts, select a durable, operator-owned directory with mode 0700
+outside the worktree and Git metadata. Retain this directory with the worktree.
+Verified dispatches can proceed to commit after interruption. A test or role
+with an uncertain outcome may run again within the original budget. Unexpected
+worktree changes require inspection. A resumed completed result rechecks the
+candidate against the Phase 1.5 receipt and its freshness window.
+
+The terminal records distinguish code, test, environment, permission, model
+and budget failures. `BLOCKED_ENV` identifies missing regression dependencies,
+`FAILED` covers exhausted revisions and no-op implementations, and `BLOCKED`
+records other blocking causes. The summary reports the last verified SHA and
+the checkpoint retains the exact failing phase. Inspect records before starting
+a new approval in a fresh worktree. Local candidate commits may include a
+failed attempt. Publishing and merging require separate actions.
+
+For an explicit live smoke test after the mock suite passes, run
+`python3 -B live_feedback_smoke.py` from this directory. It creates a
+disposable two-worktree repository with one synthetic Python file, a local
+synthetic Issue snapshot and a real return-value assertion. It prints the
+checkpoint path. Use `--fixture-parent /path/to/durable/storage` to retain the
+fixture, its Git checkpoint and its private evidence directory together.
+Only this explicit command launches live roles for the smoke
+test. The regression verification command below exercises both offline suites.
 
 ## Worktree health
 
@@ -229,7 +308,7 @@ local user, outside the Codex sandbox. Their output can contain sensitive
 data. Use a trusted test environment and private evidence paths.
 
 GitHub Issue retrieval/creation, comments, push, draft PR creation and merge
-are unimplemented in the coordinator. Commits and code review are manual.
+are unimplemented in the coordinator. The Phase 1.5 commands use manual commits and review. The Phase 2.1 loop above automates local candidate commits and review.
 The earlier 2026-11-24 pilot reported GitHub write denial and a Codex Cloud
 authentication failure. The local workflow uses ChatGPT-authenticated
 `codex exec` and has no Cloud dispatch dependency.
