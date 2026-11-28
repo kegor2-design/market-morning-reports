@@ -4,6 +4,25 @@ The coordinator takes a local Issue snapshot, hands it to the local Codex CLI,
 runs an operator-selected test, and records a review decision for a Git commit.
 `READY_FOR_PR` is a local review result. Publishing requires a separate action.
 
+## Phase 3.1 external regression evidence verifier (experimental)
+
+The read-only `verify-external-regressions` command checks an independently
+SHA256-pinned JSON plan and three outside-worktree unittest-v receipts/logs.
+The pinned plan identifies base/candidate SHAs, exact baseline test IDs, explicitly
+approved new IDs, and the full argv of each suite. The candidate must be a
+clean checkout descended from the base. Receipt SHA/argv/outcome, original
+log SHA-256, verbose test identities/counts, zero skips, and exact IDs are checked.
+Renamed or missing tests block even if the total number is unchanged.
+
+Use `python3 -B coordinator.py verify-external-regressions --help` for options.
+The v1 plan/receipt format is documented in the Phase 3.1 patch notes. Older
+Phase 3.0 `-q` log/receipt formats are not interchangeable: rerun using `-v`
+and a trusted external executor that emits the v1 records. This command
+never launches tests, edits the tree, grants a merge, or submits a PR.
+A matching hash alone does **not** authenticate execution against a party
+that can alter both logs and receipts; the publisher must independently
+establish executor provenance before PR automation.
+
 ## Phase 2.1.1 feedback loop
 
 Use the private Phase 1.5 file grant described below. Start at the root of
