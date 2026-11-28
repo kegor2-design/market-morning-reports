@@ -2,6 +2,7 @@
 
 import argparse
 import fcntl
+import hashlib
 import json
 import os
 import re
@@ -202,6 +203,13 @@ def test_candidate(branch, command, evidence, timeout, state, *, env=None):
 
 
 def verify_review_scope(state, args, current):
+    profile = getattr(args, "approval_profile", "agent")
+    root = Path(current["worktree"])
+    head = current["head"]
+    net_paths = agent_scope.changed_paths(root, args.base, head)
+    if profile == "agent" and any(
+            name.startswith(agent_scope.COORDINATOR_DIRECTORY) for name in net_paths):
+        raise ValueError("Standard review cannot accept Coordinator self-development.")
     record = state / "latest-dispatch.json"
     if not record.exists() and not (state.parent / agent_scope.APPROVAL).exists():
         return  # Phase 1 also supports independently prepared candidates.
@@ -212,16 +220,16 @@ def verify_review_scope(state, args, current):
     approval_base = dispatch_log.get("approval_base", base)
     if "approval_base" in dispatch_log and approval_base != args.base:
         raise ValueError("Review must use the original loop approval.")
-    paths = agent_scope.read_scope(state.parent, args.issue_url, args.branch, approval_base)
+    paths = agent_scope.read_approved_scope(
+        state.parent, args.issue_url, args.branch, approval_base, profile)
     changed = dispatch_log["changed_files"]
     blobs = dispatch_log["blobs"]
     if (not changed or not isinstance(blobs, dict) or set(changed) != blobs.keys()
             or not blobs.keys() <= set(paths)):
         raise ValueError("Scoped review requires verified approved source modifications.")
-    root = Path(current["worktree"])
-    head = current["head"]
     if (dispatch_log["worktree"] != str(root) or dispatch_log["branch"] != args.branch
-            or paths != dispatch_log["allowed_files"]):
+            or paths != dispatch_log["allowed_files"]
+            or dispatch_log.get("approval_profile", "agent") != profile):
         raise ValueError("Dispatch approval has changed.")
     for first, last in ((args.base, base), (base, head)):
         subprocess.run(["git", "merge-base", "--is-ancestor", first, last], timeout=30, check=True)
@@ -300,7 +308,8 @@ def review_candidate(args, state):
     return 0
 
 
-def prepare_dispatch(args, *, approval_base=None, expected_paths=None, issue=None):
+def prepare_dispatch(args, *, approval_base=None, expected_paths=None, issue=None,
+                     approval_profile="agent"):
     root = args.worktree.resolve(strict=True)
     admin = directory("--git-dir")
     common = directory("--git-common-dir")
@@ -311,7 +320,8 @@ def prepare_dispatch(args, *, approval_base=None, expected_paths=None, issue=Non
         raise ValueError("Worktree registration does not match the approved path.")
     if issue is None:
         issue = json.loads(args.issue.read_text())
-    paths = agent_scope.read_scope(admin, issue["url"], args.branch, approval_base or args.base)
+    paths = agent_scope.read_approved_scope(
+        admin, issue["url"], args.branch, approval_base or args.base, approval_profile)
     if expected_paths is not None and paths != expected_paths:
         raise ValueError("Original approved paths have changed.")
     packet = task_packet(issue, args.branch, args.base, paths)
@@ -320,6 +330,36 @@ def prepare_dispatch(args, *, approval_base=None, expected_paths=None, issue=Non
     agent_scope.inspect_index(root)
     modes = agent_scope.source_modes(root, paths, args.base)
     return root, issue["url"], packet, modes, dispatch_scratch(root, common)
+
+
+def verify_trusted_runtime(root, base, sources):
+    """Bind a self-development controller to source bytes from the approved base."""
+    common = directory("--git-common-dir")
+    verified = {}
+    for source in sources:
+        source = source.resolve(strict=True)
+        if source.is_relative_to(root) or source.is_relative_to(common):
+            raise ValueError("Run Coordinator self-development from a trusted baseline copy outside the candidate and Git metadata.")
+        info = source.stat()
+        if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid()
+                or info.st_nlink != 1 or info.st_mode & 0o022):
+            raise ValueError("Trusted Coordinator runtime files must be operator-owned, single-link and not group/world writable.")
+        name = agent_scope.COORDINATOR_DIRECTORY + source.name
+        if source.name not in agent_scope.TRUSTED_RUNTIME_FILES:
+            raise ValueError("Unexpected trusted Coordinator runtime module.")
+        env = {"PATH": os.environ.get("PATH", os.defpath), "GIT_NO_REPLACE_OBJECTS": "1",
+               "GIT_NO_LAZY_FETCH": "1", "GIT_ALLOW_PROTOCOL": ""}
+        expected = subprocess.check_output(
+            ["git", "--no-optional-locks", "--no-replace-objects", "-C", root,
+             "cat-file", "blob", base + ":" + name], timeout=30, env=env)
+        actual = source.read_bytes()
+        if actual != expected:
+            raise ValueError(f"Trusted runtime differs from the pinned baseline: {name!r}")
+        verified[name] = hashlib.sha256(actual).hexdigest()
+    if set(verified) != {agent_scope.COORDINATOR_DIRECTORY + name
+                        for name in agent_scope.TRUSTED_RUNTIME_FILES}:
+        raise ValueError("Trusted runtime must include all four pinned Coordinator modules.")
+    return verified
 
 
 def dispatch_scratch(root, common):
@@ -399,17 +439,20 @@ def run_scoped_codex(work, root, packet, timeout, record, log, *, reply=None):
     return run_process(argv, work, timeout, prompt=packet.encode(), env=env)
 
 
-def dispatch(args, state, *, approval_base=None, expected_paths=None, feedback=None):
+def dispatch(args, state, *, approval_base=None, expected_paths=None, feedback=None,
+             approval_profile="agent"):
     log = {"outcome": "blocked", "branch": args.branch, "base": args.base,
            "worktree": str(args.worktree), "requested_at": time.time()}
     if approval_base is not None:
         log.update(approval_base=approval_base, dispatch_id=args.dispatch_id)
+    log["approval_profile"] = approval_profile
     record = state / "latest-dispatch.json"
     write_record(record, log)
     write_record(state / "latest-review.json", {"status": "BLOCKED", "reason": "New dispatch."})
     try:
         root, issue_url, packet, modes, scratch = prepare_dispatch(
-            args, approval_base=approval_base, expected_paths=expected_paths)
+            args, approval_base=approval_base, expected_paths=expected_paths,
+            approval_profile=approval_profile)
         if approval_base is not None:
             packet += ("\nThe coordinator has verified the Git binding. This workspace contains only "
                        "approved source copies. Edit them directly without invoking Git.\n")
@@ -449,7 +492,9 @@ def dispatch(args, state, *, approval_base=None, expected_paths=None, feedback=N
         with TemporaryDirectory(dir=run) as temp:
             verified = Path(temp)
             agent_scope.capture_workspace(work, modes, directory_modes, verified)
-            if agent_scope.read_scope(directory("--git-dir"), issue_url, args.branch, approval_base or args.base) != list(modes):
+            if agent_scope.read_approved_scope(
+                    directory("--git-dir"), issue_url, args.branch,
+                    approval_base or args.base, approval_profile) != list(modes):
                 raise ValueError("Operator scope changed during dispatch.")
             if result["outcome"] == "passed":
                 log["changed_files"] = agent_scope.apply_edits(root, original, verified, modes)
@@ -529,6 +574,14 @@ def main():
             return 0
         with locked_state() as state:
             if args.action in ("loop", "loop-resume"):
+                if (args.action == "loop"
+                        and args.approval_profile == "coordinator-self-development"):
+                    agent_scope.require_isolated_runtime(args.worktree, args.base)
+                elif args.action == "loop-resume" and (state / feedback_loop.CHECKPOINT).exists():
+                    checkpoint = feedback_loop.load(state / feedback_loop.CHECKPOINT)
+                    if checkpoint.get("approval_profile") == "coordinator-self-development":
+                        agent_scope.require_isolated_runtime(
+                            Path(checkpoint["worktree"]), checkpoint["base"])
                 return feedback_loop.run(args, state)
             if args.action == "test":
                 command = args.command[1:] if args.command[:1] == ["--"] else args.command

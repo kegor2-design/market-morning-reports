@@ -4,6 +4,68 @@ The coordinator takes a local Issue snapshot, hands it to the local Codex CLI,
 runs an operator-selected test, and records a review decision for a Git commit.
 `READY_FOR_PR` is a local review result. Publishing requires a separate action.
 
+## Phase 3.2A Coordinator self-development profile
+
+Coordinator self-development is disabled by default. The ordinary `agent`
+approval remains restricted to Universal Agent Python files, and ordinary
+review refuses any candidate that changes the Coordinator directory. An
+operator must explicitly select `--approval-profile coordinator-self-development`
+and create a separate private `coordinator-self-development-scope.json` in the
+linked worktree's Git administration directory. Its exact fields are
+`issue_url`, `branch`, `base`, and `allowed_files`. The allowed paths must be
+existing tracked regular files selected from `agent_scope.py`, `coordinator.py`,
+`feedback_loop.py`, `test_coordinator.py`, `test_feedback_loop.py`, and
+`README.md` in this directory. The approval file must be operator-owned mode
+0600, must not be a symlink or hard link, and is re-read throughout the run.
+
+The self-development command must not be launched from candidate code. Copy
+the baseline commit's `coordinator.py`, `agent_scope.py`, `feedback_loop.py`,
+and `external_regression_gate.py` to an otherwise empty, mode-0700,
+operator-owned runtime directory outside the candidate worktree and Git
+metadata. `external_regression_gate.py` is an immutable runtime dependency; it
+is deliberately absent from the editable self-development allowlist.
+
+Use `agent_scope.py` as the standard-library-only bootstrap under Python
+isolated mode. Before adding the trusted directory to `sys.path`, it verifies
+that the directory contains exactly those four modules, checks ownership,
+file types, links and permissions, and compares every byte with the approved
+baseline Git blobs while replacement objects, lazy fetch and Git protocols are
+disabled. It then imports all project modules only from that directory and
+emits a `TRUSTED_RUNTIME` attestation on stderr. `-I` ignores ambient
+`PYTHONPATH`; `-S` prevents site initialization; `-B` prevents bytecode files.
+The same four baseline bindings are checked again by the controller on every
+start and resume. The controller also requires Python's live `isolated`,
+`no_site`, and `dont_write_bytecode` flags, the launcher's pre-import
+attestation, the trusted directory as the first import location, and absence
+of the candidate worktree from the remaining import path. Running
+`coordinator.py` directly, including `loop-resume`, is rejected before a
+self-development checkpoint can be created or changed. A candidate therefore
+cannot replace its own verifier.
+
+Example after preparing the trusted runtime and approval:
+
+```bash
+cd "$candidate_worktree"
+python3 -I -B -S "$trusted_runtime/agent_scope.py" \
+  "$trusted_runtime" "$candidate_worktree" "$base_sha" -- loop \
+  "$issue_json" "$branch" "$base_sha" --worktree "$candidate_worktree" \
+  --approval-profile coordinator-self-development \
+  --test-argv '["python3","-B","-m","unittest","discover","-s","market-history/research/development_coordinator"]' \
+  --test-input market-history/research/development_coordinator/agent_scope.py \
+  --test-input market-history/research/development_coordinator/coordinator.py \
+  --test-input market-history/research/development_coordinator/feedback_loop.py \
+  --test-input market-history/research/development_coordinator/external_regression_gate.py \
+  --test-input market-history/research/development_coordinator/test_coordinator.py \
+  --test-input market-history/research/development_coordinator/test_feedback_loop.py \
+  --test-input market-history/research/development_coordinator/test_external_regression_gate.py
+```
+
+After the explicit profile gate, the existing bounded loop is reused without
+a second implementation: isolated implementer workspace, fixed call/time and
+revision budgets, immutable test argv and workflow checks, read-only candidate
+test sandbox, independent reviewer, durable evidence, checkpointed resume, and
+the final `READY_FOR_PR` gate. It never pushes, publishes, deploys, or merges.
+
 ## Phase 3.1 external regression evidence verifier (experimental)
 
 The read-only `verify-external-regressions` command checks an independently

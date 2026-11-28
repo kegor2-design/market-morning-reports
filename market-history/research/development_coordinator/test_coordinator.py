@@ -9,6 +9,10 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from unittest.mock import patch
+
+import agent_scope
+import coordinator
 
 SCRIPT = Path(__file__).with_name("coordinator.py").resolve()
 BRANCH = "research/coordinator-pilot"
@@ -70,6 +74,43 @@ class CoordinatorTest(unittest.TestCase):
         self.assertIs(report["clean"], True)
         self.assertEqual(index.read_bytes(), before)
         self.assertFalse((self.repo / ".git" / "development-coordinator").exists())
+
+    def test_self_development_approval_is_separate_exact_and_fail_closed(self):
+        admin = self.repo / ".git"
+        path = admin / agent_scope.SELF_DEVELOPMENT_APPROVAL
+        name = agent_scope.COORDINATOR_DIRECTORY + "coordinator.py"
+        grant = {"issue_url": ISSUE, "branch": BRANCH, "base": self.base,
+                 "allowed_files": [name]}
+        path.write_text(json.dumps(grant))
+        path.chmod(0o600)
+        self.assertEqual(agent_scope.read_self_development_scope(
+            admin, ISSUE, BRANCH, self.base), [name])
+        for paths in ([], [name, name], [AGENT],
+                      [agent_scope.COORDINATOR_DIRECTORY + "external_regression_gate.py"]):
+            with self.subTest(paths=paths):
+                path.write_text(json.dumps({**grant, "allowed_files": paths}))
+                with self.assertRaisesRegex(ValueError, "exact Coordinator"):
+                    agent_scope.read_self_development_scope(admin, ISSUE, BRANCH, self.base)
+        path.unlink()
+        with self.assertRaises(FileNotFoundError):
+            agent_scope.read_self_development_scope(admin, ISSUE, BRANCH, self.base)
+
+    def test_trusted_runtime_rejects_candidate_location_and_byte_changes(self):
+        sources = [Path("/trusted") / name for name in
+                   ("coordinator.py", "agent_scope.py", "feedback_loop.py")]
+        info = type("Info", (), {"st_mode": 0o100600, "st_uid": os.getuid(), "st_nlink": 1})()
+        with (patch("coordinator.directory", return_value=Path("/git-common")),
+              patch.object(Path, "resolve", side_effect=lambda **_: Path("/candidate/coordinator.py"))):
+            with self.assertRaisesRegex(ValueError, "outside the candidate"):
+                coordinator.verify_trusted_runtime(Path("/candidate"), self.base, sources[:1])
+        with (patch("coordinator.directory", return_value=Path("/git-common")),
+              patch.object(Path, "resolve", side_effect=lambda **_: sources.pop(0)),
+              patch.object(Path, "stat", return_value=info),
+              patch.object(Path, "read_bytes", return_value=b"changed"),
+              patch("coordinator.subprocess.check_output", return_value=b"baseline")):
+            with self.assertRaisesRegex(ValueError, "differs from the pinned baseline"):
+                coordinator.verify_trusted_runtime(Path("/candidate"), self.base,
+                                                   [Path("coordinator.py")])
 
     def test_health_reports_dirty_worktree_from_subdirectory(self):
         subdir = self.repo / "nested"
