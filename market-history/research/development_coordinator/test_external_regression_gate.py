@@ -83,6 +83,40 @@ class ExternalRegressionGateTest(unittest.TestCase):
             with patch.object(gate.subprocess, "run", side_effect=self._git_run):
                 return gate.verify(self.plan_path, self.plan_hash, self.evidence)
 
+
+    def test_numeric_unittest_names(self):
+        from external_regression_gate import _unittest_log
+
+        names = [
+            "test_404_is_not_promoted_to_recovery_task",
+            "test_429_requires_new_approval_then_resumes",
+            "test_429_retry_after_delay_survives_queue_restart",
+            "test_503_recovery_resumes_original_goal_and_never_replays",
+        ]
+
+        lines = [
+            f"{name} (test_api_recovery.ApiRecoveryDagTests.{name}) ... ok"
+            for name in names
+        ]
+
+        log = "\\n".join(
+            lines + [
+                "",
+                "----------------------------------------------------------------------",
+                f"Ran {len(names)} tests in 0.010s",
+                "",
+                "OK",
+                "",
+            ]
+        ).replace("\\n", "\n").encode("utf-8")
+
+        expected = {
+            f"test_api_recovery.ApiRecoveryDagTests.{name}"
+            for name in names
+        }
+
+        self.assertEqual(_unittest_log(log), expected)
+
     def test_verified_receipts(self):
         result = self.run_gate()
         self.assertEqual((result["status"], result["total"], result["approved_new"]), ("VERIFIED", 3, 0))

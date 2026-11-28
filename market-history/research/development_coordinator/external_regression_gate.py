@@ -19,7 +19,7 @@ SUITES = ("universal_agent", "regime190", "development_coordinator")
 SHA = re.compile(r"[0-9a-f]{40}\Z")
 DIGEST = re.compile(r"[0-9a-f]{64}\Z")
 TEST_ID = re.compile(r"[A-Za-z_][\w]*(?:\.[A-Za-z_][\w]*){2,}\Z", re.ASCII)
-RESULT = re.compile(r"test_[A-Za-z_][\w]* \(([A-Za-z_][\w.]*)\) \.\.\. (.+)\Z", re.ASCII)
+RESULT = re.compile(r"test_[A-Za-z0-9_][\w]* \(([A-Za-z_][\w.]*)\) \.\.\. (.+)\Z", re.ASCII)
 RUN_COUNT = re.compile(r"Ran (\d+) tests? in ", re.ASCII)
 
 
