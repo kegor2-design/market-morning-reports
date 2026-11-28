@@ -345,10 +345,7 @@ def verify_trusted_runtime(root, base, sources):
                 or info.st_nlink != 1 or info.st_mode & 0o022):
             raise ValueError("Trusted Coordinator runtime files must be operator-owned, single-link and not group/world writable.")
         name = agent_scope.COORDINATOR_DIRECTORY + source.name
-        if name not in {
-                agent_scope.COORDINATOR_DIRECTORY + "coordinator.py",
-                agent_scope.COORDINATOR_DIRECTORY + "agent_scope.py",
-                agent_scope.COORDINATOR_DIRECTORY + "feedback_loop.py"}:
+        if source.name not in agent_scope.TRUSTED_RUNTIME_FILES:
             raise ValueError("Unexpected trusted Coordinator runtime module.")
         env = {"PATH": os.environ.get("PATH", os.defpath), "GIT_NO_REPLACE_OBJECTS": "1",
                "GIT_NO_LAZY_FETCH": "1", "GIT_ALLOW_PROTOCOL": ""}
@@ -359,8 +356,9 @@ def verify_trusted_runtime(root, base, sources):
         if actual != expected:
             raise ValueError(f"Trusted runtime differs from the pinned baseline: {name!r}")
         verified[name] = hashlib.sha256(actual).hexdigest()
-    if len(verified) != 3:
-        raise ValueError("Trusted runtime must include Coordinator, scope and feedback-loop modules.")
+    if set(verified) != {agent_scope.COORDINATOR_DIRECTORY + name
+                        for name in agent_scope.TRUSTED_RUNTIME_FILES}:
+        raise ValueError("Trusted runtime must include all four pinned Coordinator modules.")
     return verified
 
 

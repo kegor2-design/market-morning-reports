@@ -12,6 +12,7 @@ from uuid import uuid4
 
 import agent_scope as scope
 import coordinator as c
+import external_regression_gate as external_gate
 
 
 MAX_CALLS = 6
@@ -82,7 +83,8 @@ def start(args):
     trusted_runtime = None
     if profile == "coordinator-self-development":
         trusted_runtime = c.verify_trusted_runtime(
-            root, args.base, (Path(c.__file__), Path(scope.__file__), Path(__file__)))
+            root, args.base, (Path(c.__file__), Path(scope.__file__), Path(__file__),
+                              Path(external_gate.__file__)))
     root, url, _, modes, scratch = c.prepare_dispatch(
         args, issue=issue, approval_profile=profile)
     parent = scratch
@@ -115,7 +117,8 @@ def validate(state, run):
     profile = run.get("approval_profile", "agent")
     if profile == "coordinator-self-development":
         trusted = c.verify_trusted_runtime(
-            root, run["base"], (Path(c.__file__), Path(scope.__file__), Path(__file__)))
+            root, run["base"], (Path(c.__file__), Path(scope.__file__), Path(__file__),
+                                Path(external_gate.__file__)))
         if trusted != run.get("trusted_runtime"):
             raise Stop("permission", "Trusted baseline runtime changed.")
     elif profile != "agent" or run.get("trusted_runtime") is not None:

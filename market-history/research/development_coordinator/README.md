@@ -19,23 +19,29 @@ existing tracked regular files selected from `agent_scope.py`, `coordinator.py`,
 0600, must not be a symlink or hard link, and is re-read throughout the run.
 
 The self-development command must not be launched from candidate code. Copy
-the baseline commit's `coordinator.py`, `agent_scope.py`, and `feedback_loop.py`
-to a private operator-controlled runtime directory outside the candidate
-worktree and Git metadata, preserving their names. Launch `coordinator.py`
-from that directory while the current directory remains the candidate
-worktree. On start and every resume, the controller compares all three runtime
-files byte-for-byte with their blobs at the approved base SHA, using Git with
-replacement objects and lazy fetching disabled. A candidate that edits these
-files therefore cannot change the controller that verifies, tests, reviews,
-or resumes its own run. The first adoption of this profile still requires
-independent review because a baseline predating Phase 3.2A cannot establish
-this trust anchor.
+the baseline commit's `coordinator.py`, `agent_scope.py`, `feedback_loop.py`,
+and `external_regression_gate.py` to an otherwise empty, mode-0700,
+operator-owned runtime directory outside the candidate worktree and Git
+metadata. `external_regression_gate.py` is an immutable runtime dependency; it
+is deliberately absent from the editable self-development allowlist.
+
+Use `agent_scope.py` as the standard-library-only bootstrap under Python
+isolated mode. Before adding the trusted directory to `sys.path`, it verifies
+that the directory contains exactly those four modules, checks ownership,
+file types, links and permissions, and compares every byte with the approved
+baseline Git blobs while replacement objects, lazy fetch and Git protocols are
+disabled. It then imports all project modules only from that directory and
+emits a `TRUSTED_RUNTIME` attestation on stderr. `-I` ignores ambient
+`PYTHONPATH`; `-S` prevents site initialization; `-B` prevents bytecode files.
+The same four baseline bindings are checked again by the controller on every
+start and resume. A candidate therefore cannot replace its own verifier.
 
 Example after preparing the trusted runtime and approval:
 
 ```bash
 cd "$candidate_worktree"
-python3 -I -B "$trusted_runtime/coordinator.py" loop \
+python3 -I -B -S "$trusted_runtime/agent_scope.py" \
+  "$trusted_runtime" "$candidate_worktree" "$base_sha" -- loop \
   "$issue_json" "$branch" "$base_sha" --worktree "$candidate_worktree" \
   --approval-profile coordinator-self-development \
   --test-argv '["python3","-B","-m","unittest","discover","-s","market-history/research/development_coordinator"]' \

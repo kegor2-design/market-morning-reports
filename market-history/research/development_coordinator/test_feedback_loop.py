@@ -246,7 +246,7 @@ class FeedbackLoopTest(unittest.TestCase):
         directory = self.repo / feedback_loop.scope.COORDINATOR_DIRECTORY
         directory.mkdir(parents=True)
         runtime = Path(feedback_loop.__file__).parent
-        for name in ("coordinator.py", "agent_scope.py", "feedback_loop.py"):
+        for name in feedback_loop.scope.TRUSTED_RUNTIME_FILES:
             (directory / name).write_bytes((runtime / name).read_bytes())
         self.git("add", str(directory))
         self.git("commit", "-qm", "Fixture trusted Coordinator baseline")
@@ -260,7 +260,13 @@ class FeedbackLoopTest(unittest.TestCase):
         approval.chmod(0o600)
         self.command = ["python3", "-B", "-c",
                         f"from pathlib import Path; assert Path({target!r}).read_text().endswith('# pilot change\\n')"]
-        return target, approval
+        trusted = self.root / "trusted-runtime"
+        trusted.mkdir(mode=0o700)
+        for name in feedback_loop.scope.TRUSTED_RUNTIME_FILES:
+            destination = trusted / name
+            destination.write_bytes((runtime / name).read_bytes())
+            destination.chmod(0o600)
+        return target, approval, trusted
 
     def self_models(self, target):
         body = ("prompt = sys.stdin.read()\n"
@@ -282,7 +288,7 @@ class FeedbackLoopTest(unittest.TestCase):
         return env
 
     def test_self_development_reuses_bounded_loop_and_trusted_runtime(self):
-        target, _ = self.prepare_self_development()
+        target, _, _ = self.prepare_self_development()
         env = self.self_models(target)
         run = self.launch(env, "--approval-profile", "coordinator-self-development")
         self.assertEqual((run["status"], run["calls"], run["retries"]), ("READY_FOR_PR", 2, 0))
@@ -290,11 +296,11 @@ class FeedbackLoopTest(unittest.TestCase):
         self.assertEqual(run["changed_files"], [target])
         self.assertEqual(set(run["trusted_runtime"]), {
             feedback_loop.scope.COORDINATOR_DIRECTORY + name
-            for name in ("coordinator.py", "agent_scope.py", "feedback_loop.py")})
+            for name in feedback_loop.scope.TRUSTED_RUNTIME_FILES})
         self.cli("loop-resume", env=env)
 
     def test_self_development_fails_closed_on_grant_or_runtime_change(self):
-        target, approval = self.prepare_self_development()
+        target, approval, _ = self.prepare_self_development()
         with (patch.object(Path, "cwd", return_value=self.repo),
               patch.object(feedback_loop.c, "verify_trusted_runtime",
                            side_effect=ValueError("untrusted runtime"))):
@@ -309,6 +315,76 @@ class FeedbackLoopTest(unittest.TestCase):
         self.cli(*self.args("--approval-profile", "coordinator-self-development"),
                  env=self.self_models(target), code=1)
         self.assertFalse(self.record.exists())
+
+    def launch_trusted(self, trusted, *controller, base=None, env=None):
+        return subprocess.run(
+            [sys.executable, "-I", "-B", "-S", str(trusted / "agent_scope.py"),
+             str(trusted), str(self.repo), base or self.base, "--", *map(str, controller)],
+            cwd=self.repo, env=env, capture_output=True, text=True, timeout=20)
+
+    def test_external_isolated_launcher_imports_only_four_pinned_modules(self):
+        target, approval, trusted = self.prepare_self_development()
+        injected = self.root / "candidate-injection"
+        injected.mkdir()
+        marker = self.root / "injected-module-loaded"
+        for name in feedback_loop.scope.TRUSTED_RUNTIME_FILES:
+            (injected / name).write_text(f"from pathlib import Path; Path({str(marker)!r}).touch()\n")
+        env = {**os.environ, "PYTHONPATH": str(injected)}
+        result = self.launch_trusted(trusted, "health", env=env)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse(marker.exists())
+        line = next(line for line in result.stderr.splitlines() if line.startswith("TRUSTED_RUNTIME "))
+        attestation = json.loads(line.removeprefix("TRUSTED_RUNTIME "))
+        self.assertEqual(attestation["baseline"], self.base)
+        self.assertEqual(set(attestation["modules"]), {
+            feedback_loop.scope.COORDINATOR_DIRECTORY + name
+            for name in feedback_loop.scope.TRUSTED_RUNTIME_FILES})
+        self.assertEqual({Path(path).parent for path in attestation["origins"].values()}, {trusted})
+
+        gate = trusted / "external_regression_gate.py"
+        original = gate.read_bytes()
+        gate.write_bytes(original + b"\n# corrupt\n")
+        blocked = self.launch_trusted(trusted, "health", env=env)
+        self.assertNotEqual(blocked.returncode, 0)
+        self.assertIn("external_regression_gate.py", blocked.stderr)
+        gate.write_bytes(original)
+
+        extra = trusted / "candidate_module.py"
+        extra.write_text("raise RuntimeError('must not load')\n")
+        blocked = self.launch_trusted(trusted, "health", env=env)
+        self.assertNotEqual(blocked.returncode, 0)
+        self.assertIn("unapproved modules", blocked.stderr)
+        extra.unlink()
+
+        blocked = self.launch_trusted(trusted, "health", base="0" * 40, env=env)
+        self.assertNotEqual(blocked.returncode, 0)
+        self.assertIn("BLOCKED", blocked.stderr)
+
+        grant = json.loads(approval.read_text())
+        approval.write_text(json.dumps({**grant, "branch": "research/wrong"}))
+        loop = self.launch_trusted(
+            trusted, "loop", self.issue, fixtures.BRANCH, self.base,
+            "--worktree", self.repo, "--approval-profile", "coordinator-self-development",
+            "--test-argv", json.dumps(self.command), "--timeout", "10", "--max-calls", "2",
+            env=env)
+        self.assertNotEqual(loop.returncode, 0)
+        self.assertIn("approval does not match", loop.stderr)
+        self.assertFalse(marker.exists())
+
+        approval.write_text(json.dumps(grant))
+        candidate_gate = self.repo / feedback_loop.scope.COORDINATOR_DIRECTORY / "external_regression_gate.py"
+        candidate_bytes = candidate_gate.read_bytes()
+        candidate_gate.write_bytes(candidate_bytes + b"\n# candidate injection\n")
+        try:
+            loop = self.launch_trusted(
+                trusted, "loop", self.issue, fixtures.BRANCH, self.base,
+                "--worktree", self.repo, "--approval-profile", "coordinator-self-development",
+                "--test-argv", json.dumps(self.command), "--timeout", "10", "--max-calls", "2",
+                env=env)
+            self.assertNotEqual(loop.returncode, 0)
+            self.assertIn("clean worktree", loop.stderr)
+        finally:
+            candidate_gate.write_bytes(candidate_bytes)
 
 
 if __name__ == "__main__":
