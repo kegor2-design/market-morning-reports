@@ -7,6 +7,7 @@ Unreviewed years fail closed rather than being inferred from weekday rules.
 """
 from __future__ import annotations
 
+import re
 from datetime import date, timedelta
 
 SIFMA_ARCHIVE = 'https://www.sifma.org/resources/guides-playbooks/us-holiday-archive'
@@ -28,11 +29,17 @@ SOURCE = {'UST_2Y': 'US_TREASURY', 'UST_10Y': 'US_TREASURY',
           'NYFED_SOFR': 'NYFED_REFERENCE_RATES'}
 
 
+def _parse_date_bound(value: str) -> date:
+    if not isinstance(value, str) or not re.fullmatch(r'[0-9]{4}-[0-9]{2}-[0-9]{2}', value):
+        raise ValueError('Date bounds must use ASCII YYYY-MM-DD')
+    return date.fromisoformat(value)
+
+
 def expected_observations(start: str, end: str, series: str) -> tuple[list[str], list[str]]:
     """Return reviewed observation dates and in-window official full closures."""
     if series not in SOURCE:
         raise ValueError('Unreviewed calendar series')
-    first, last = date.fromisoformat(start), date.fromisoformat(end)
+    first, last = _parse_date_bound(start), _parse_date_bound(end)
     if first > last or first.year != last.year or first.year not in FULL_CLOSE or \
             (last - first).days > 31:
         raise ValueError('No reviewed source calendar for period')
