@@ -502,6 +502,8 @@ def main():
     review.add_argument("notes", nargs="?")
     import feedback_loop
     feedback_loop.add_commands(commands)
+    import external_regression_gate
+    external_regression_gate.add_commands(commands)
     args = parser.parse_args()
 
     try:
@@ -512,6 +514,8 @@ def main():
             print(json.dumps({"schema_version": 1, "branch": state["branch"],
                               "head": state["head"], "clean": not state["status"]}))
             return 0
+        if args.action == "verify-external-regressions":
+            return external_regression_gate.run(args)
         if args.action == "packet":
             issue = json.loads(args.issue.read_text())
             admin = directory("--git-dir")
