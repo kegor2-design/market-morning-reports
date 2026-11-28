@@ -4,6 +4,56 @@ The coordinator takes a local Issue snapshot, hands it to the local Codex CLI,
 runs an operator-selected test, and records a review decision for a Git commit.
 `READY_FOR_PR` is a local review result. Publishing requires a separate action.
 
+## Phase 3.2A Coordinator self-development profile
+
+Coordinator self-development is disabled by default. The ordinary `agent`
+approval remains restricted to Universal Agent Python files, and ordinary
+review refuses any candidate that changes the Coordinator directory. An
+operator must explicitly select `--approval-profile coordinator-self-development`
+and create a separate private `coordinator-self-development-scope.json` in the
+linked worktree's Git administration directory. Its exact fields are
+`issue_url`, `branch`, `base`, and `allowed_files`. The allowed paths must be
+existing tracked regular files selected from `agent_scope.py`, `coordinator.py`,
+`feedback_loop.py`, `test_coordinator.py`, `test_feedback_loop.py`, and
+`README.md` in this directory. The approval file must be operator-owned mode
+0600, must not be a symlink or hard link, and is re-read throughout the run.
+
+The self-development command must not be launched from candidate code. Copy
+the baseline commit's `coordinator.py`, `agent_scope.py`, and `feedback_loop.py`
+to a private operator-controlled runtime directory outside the candidate
+worktree and Git metadata, preserving their names. Launch `coordinator.py`
+from that directory while the current directory remains the candidate
+worktree. On start and every resume, the controller compares all three runtime
+files byte-for-byte with their blobs at the approved base SHA, using Git with
+replacement objects and lazy fetching disabled. A candidate that edits these
+files therefore cannot change the controller that verifies, tests, reviews,
+or resumes its own run. The first adoption of this profile still requires
+independent review because a baseline predating Phase 3.2A cannot establish
+this trust anchor.
+
+Example after preparing the trusted runtime and approval:
+
+```bash
+cd "$candidate_worktree"
+python3 -I -B "$trusted_runtime/coordinator.py" loop \
+  "$issue_json" "$branch" "$base_sha" --worktree "$candidate_worktree" \
+  --approval-profile coordinator-self-development \
+  --test-argv '["python3","-B","-m","unittest","discover","-s","market-history/research/development_coordinator"]' \
+  --test-input market-history/research/development_coordinator/agent_scope.py \
+  --test-input market-history/research/development_coordinator/coordinator.py \
+  --test-input market-history/research/development_coordinator/feedback_loop.py \
+  --test-input market-history/research/development_coordinator/external_regression_gate.py \
+  --test-input market-history/research/development_coordinator/test_coordinator.py \
+  --test-input market-history/research/development_coordinator/test_feedback_loop.py \
+  --test-input market-history/research/development_coordinator/test_external_regression_gate.py
+```
+
+After the explicit profile gate, the existing bounded loop is reused without
+a second implementation: isolated implementer workspace, fixed call/time and
+revision budgets, immutable test argv and workflow checks, read-only candidate
+test sandbox, independent reviewer, durable evidence, checkpointed resume, and
+the final `READY_FOR_PR` gate. It never pushes, publishes, deploys, or merges.
+
 ## Phase 3.1 external regression evidence verifier (experimental)
 
 The read-only `verify-external-regressions` command checks an independently

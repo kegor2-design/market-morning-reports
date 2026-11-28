@@ -10,21 +10,40 @@ from pathlib import Path
 
 APPROVAL = "agent-development-scope.json"
 SOURCE = re.compile(r"market-history/research/universal_agent/(?:tests/)?[A-Za-z_][A-Za-z_0-9]*\.py")
+SELF_DEVELOPMENT_APPROVAL = "coordinator-self-development-scope.json"
+COORDINATOR_DIRECTORY = "market-history/research/development_coordinator/"
+SELF_DEVELOPMENT_FILES = frozenset(COORDINATOR_DIRECTORY + name for name in (
+    "agent_scope.py", "coordinator.py", "feedback_loop.py", "test_coordinator.py",
+    "test_feedback_loop.py", "README.md",
+))
+COORDINATOR_TEST_INPUT = re.compile(
+    re.escape(COORDINATOR_DIRECTORY) + r"[A-Za-z_][A-Za-z_0-9]*\.py"
+)
 
 
 def git_bytes(root, *args):
     return subprocess.check_output(["git", "--no-optional-locks", "-C", root, *args], timeout=30)
 
 
-def read_scope(admin, issue_url, branch, base):
-    path = admin / APPROVAL
+def read_private_json(path):
     # Open once, without following links or waiting on a FIFO.
     with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), "rb") as f:
         meta = os.fstat(f.fileno())
         if (not stat.S_ISREG(meta.st_mode) or meta.st_uid != os.getuid()
                 or meta.st_nlink != 1 or meta.st_mode & 0o077):
             raise ValueError("Use a private, operator-owned regular scope file (mode 0600).")
-        scope = json.load(f)
+        return json.load(f, object_pairs_hook=unique_object)
+
+
+def unique_object(pairs):
+    value = dict(pairs)
+    if len(value) != len(pairs):
+        raise ValueError("Approval contains a duplicate field.")
+    return value
+
+
+def read_scope(admin, issue_url, branch, base):
+    scope = read_private_json(admin / APPROVAL)
     binding = {"issue_url": issue_url, "branch": branch, "base": base}
     if not isinstance(scope, dict) or scope.keys() != {*binding, "allowed_files"}:
         raise ValueError("Invalid operator scope fields.")
@@ -36,6 +55,29 @@ def read_scope(admin, issue_url, branch, base):
             or len(set(paths)) != len(paths)):
         raise ValueError("Approve distinct, exact Agent Python source paths.")
     return sorted(paths)
+
+
+def read_self_development_scope(admin, issue_url, branch, base):
+    scope = read_private_json(admin / SELF_DEVELOPMENT_APPROVAL)
+    binding = {"issue_url": issue_url, "branch": branch, "base": base}
+    if not isinstance(scope, dict) or scope.keys() != {*binding, "allowed_files"}:
+        raise ValueError("Invalid Coordinator self-development approval fields.")
+    if any(scope[key] != value for key, value in binding.items()):
+        raise ValueError("Coordinator self-development approval does not match the Issue, branch and pinned base.")
+    paths = scope["allowed_files"]
+    if (not isinstance(paths, list) or not paths
+            or not all(isinstance(name, str) and name in SELF_DEVELOPMENT_FILES for name in paths)
+            or len(set(paths)) != len(paths)):
+        raise ValueError("Approve distinct, exact Coordinator self-development paths.")
+    return sorted(paths)
+
+
+def read_approved_scope(admin, issue_url, branch, base, profile="agent"):
+    if profile == "agent":
+        return read_scope(admin, issue_url, branch, base)
+    if profile == "coordinator-self-development":
+        return read_self_development_scope(admin, issue_url, branch, base)
+    raise ValueError("Unknown approval profile.")
 
 
 def regular_file(root, name):

@@ -6,7 +6,9 @@ import sys
 import time
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
+import feedback_loop
 import test_coordinator as fixtures
 
 
@@ -239,6 +241,74 @@ class FeedbackLoopTest(unittest.TestCase):
         run = json.loads(self.record.read_bytes())
         self.assertEqual((run["calls"], run["status"]), (3, "READY_FOR_PR"))
         self.assertEqual(partial["attempts"][0]["receipt"], run["attempts"][0]["receipt"])
+
+    def prepare_self_development(self):
+        directory = self.repo / feedback_loop.scope.COORDINATOR_DIRECTORY
+        directory.mkdir(parents=True)
+        runtime = Path(feedback_loop.__file__).parent
+        for name in ("coordinator.py", "agent_scope.py", "feedback_loop.py"):
+            (directory / name).write_bytes((runtime / name).read_bytes())
+        self.git("add", str(directory))
+        self.git("commit", "-qm", "Fixture trusted Coordinator baseline")
+        self.base = self.git("rev-parse", "HEAD")
+        agent_grant = json.loads(self.scope.read_text())
+        self.scope.write_text(json.dumps({**agent_grant, "base": self.base}))
+        target = feedback_loop.scope.COORDINATOR_DIRECTORY + "feedback_loop.py"
+        approval = self.scope.parent / feedback_loop.scope.SELF_DEVELOPMENT_APPROVAL
+        approval.write_text(json.dumps({"issue_url": fixtures.ISSUE, "branch": fixtures.BRANCH,
+                                        "base": self.base, "allowed_files": [target]}))
+        approval.chmod(0o600)
+        self.command = ["python3", "-B", "-c",
+                        f"from pathlib import Path; assert Path({target!r}).read_text().endswith('# pilot change\\n')"]
+        return target, approval
+
+    def self_models(self, target):
+        body = ("prompt = sys.stdin.read()\n"
+                "if '--output-last-message' in sys.argv:\n"
+                "    Path(sys.argv[sys.argv.index('--output-last-message')+1]).write_text("
+                "json.dumps(dict(decision='accept', findings='Reviewed the isolated Coordinator pilot.')))\n"
+                "    sys.exit(0)\n"
+                f"source = Path({target!r})\n"
+                "source.write_text(source.read_text() + '# pilot change\\n')\n")
+        env = self.fake_codex(body)
+        shim = self.root / "codex"
+        shim.write_text(shim.read_text().replace(
+            "if 'sandbox' in sys.argv[1:]: sys.exit(0)",
+            "if 'sandbox' in sys.argv[1:]:\n"
+            "    args = sys.argv[sys.argv.index('--')+1:]\n"
+            "    if args[0] == '/usr/bin/env':\n"
+            "        os.chdir(sys.argv[sys.argv.index('-C')+1]); os.execv(args[0], args)\n"
+            "    sys.exit(0)"))
+        return env
+
+    def test_self_development_reuses_bounded_loop_and_trusted_runtime(self):
+        target, _ = self.prepare_self_development()
+        env = self.self_models(target)
+        run = self.launch(env, "--approval-profile", "coordinator-self-development")
+        self.assertEqual((run["status"], run["calls"], run["retries"]), ("READY_FOR_PR", 2, 0))
+        self.assertEqual(run["approval_profile"], "coordinator-self-development")
+        self.assertEqual(run["changed_files"], [target])
+        self.assertEqual(set(run["trusted_runtime"]), {
+            feedback_loop.scope.COORDINATOR_DIRECTORY + name
+            for name in ("coordinator.py", "agent_scope.py", "feedback_loop.py")})
+        self.cli("loop-resume", env=env)
+
+    def test_self_development_fails_closed_on_grant_or_runtime_change(self):
+        target, approval = self.prepare_self_development()
+        with (patch.object(Path, "cwd", return_value=self.repo),
+              patch.object(feedback_loop.c, "verify_trusted_runtime",
+                           side_effect=ValueError("untrusted runtime"))):
+            with self.assertRaisesRegex(ValueError, "untrusted runtime"):
+                args = type("Args", (), dict(
+                    worktree=self.repo, timeout=10, max_calls=2, test_argv=self.command,
+                    workflow_check=[], inputs=[], issue=self.issue, branch=fixtures.BRANCH,
+                    base=self.base, evidence_dir=None,
+                    approval_profile="coordinator-self-development"))()
+                feedback_loop.start(args)
+        approval.unlink()
+        self.cli(*self.args("--approval-profile", "coordinator-self-development"),
+                 env=self.self_models(target), code=1)
+        self.assertFalse(self.record.exists())
 
 
 if __name__ == "__main__":

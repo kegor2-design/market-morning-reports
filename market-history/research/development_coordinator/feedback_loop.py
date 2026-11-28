@@ -42,6 +42,8 @@ def add_commands(commands):
     p.add_argument("--timeout", type=c.positive_seconds, default=900)
     p.add_argument("--evidence-dir", type=Path, help="Existing private directory for durable receipts.")
     p.add_argument("--max-calls", type=c.positive_seconds, default=MAX_CALLS)
+    p.add_argument("--approval-profile", choices=("agent", "coordinator-self-development"),
+                   default="agent", help="Select a separate operator approval boundary.")
     commands.add_parser("loop-resume", help="Continue the worktree's pinned run.")
 
 
@@ -68,13 +70,21 @@ def start(args):
         if not requirement.strip() or requirement in checks or (argv is not None and not valid_argv(argv)):
             raise ValueError("Supply distinct completion requirements with a JSON argv or null.")
         checks[requirement] = argv
-    if any(not scope.SOURCE.fullmatch(p) for p in args.inputs):
-        raise ValueError("Test inputs must be exact Agent Python paths.")
+    profile = args.approval_profile
+    input_pattern = scope.SOURCE if profile == "agent" else scope.COORDINATOR_TEST_INPUT
+    if any(not input_pattern.fullmatch(p) for p in args.inputs):
+        raise ValueError("Test inputs must be exact source paths for the selected approval profile.")
     raw = load(args.issue)
     issue = {k: raw[k] for k in ("url", "state", "title", "body")}
     if not all(isinstance(v, str) for v in issue.values()):
         raise ValueError("Issue fields must be strings.")
-    root, url, _, modes, scratch = c.prepare_dispatch(args, issue=issue)
+    root = args.worktree.resolve(strict=True)
+    trusted_runtime = None
+    if profile == "coordinator-self-development":
+        trusted_runtime = c.verify_trusted_runtime(
+            root, args.base, (Path(c.__file__), Path(scope.__file__), Path(__file__)))
+    root, url, _, modes, scratch = c.prepare_dispatch(
+        args, issue=issue, approval_profile=profile)
     parent = scratch
     if args.evidence_dir:
         parent = args.evidence_dir.resolve(strict=True)
@@ -85,8 +95,9 @@ def start(args):
     evidence = Path(mkdtemp(prefix="coordinator-feedback-", dir=parent))
     c.write_record(evidence / "issue.json", issue, exclusive=True)
     c.write_record(evidence / "workflow-checks.json", checks, exclusive=True)
-    return dict(version=2, workflow_checks=checks, run_id=uuid4().hex, status="RUNNING", phase="implement",
+    return dict(version=3, workflow_checks=checks, run_id=uuid4().hex, status="RUNNING", phase="implement",
                 issue=issue, issue_url=url, branch=args.branch, base=args.base, head=args.base,
+                approval_profile=profile, trusted_runtime=trusted_runtime,
                 worktree=str(root), allowed_files=list(modes), test_inputs=sorted(set(args.inputs)),
                 test_argv=cmd, started_at=now, deadline=now + args.timeout, max_calls=args.max_calls,
                 calls=0, retries=0, attempts=[{}], changed_files=[], reviewer=None,
@@ -99,9 +110,18 @@ def validate(state, run):
         raise Stop("permission", "Resume from the original worktree root.")
     if load(Path(run["evidence"]) / "issue.json") != run["issue"]:
         raise Stop("permission", "Pinned task specification changed.")
-    if run["version"] == 2 and load(Path(run["evidence"]) / "workflow-checks.json") != run["workflow_checks"]:
+    if run["version"] >= 2 and load(Path(run["evidence"]) / "workflow-checks.json") != run["workflow_checks"]:
         raise Stop("evidence", "Pinned workflow checks changed.")
-    paths = scope.read_scope(state.parent, run["issue_url"], run["branch"], run["base"])
+    profile = run.get("approval_profile", "agent")
+    if profile == "coordinator-self-development":
+        trusted = c.verify_trusted_runtime(
+            root, run["base"], (Path(c.__file__), Path(scope.__file__), Path(__file__)))
+        if trusted != run.get("trusted_runtime"):
+            raise Stop("permission", "Trusted baseline runtime changed.")
+    elif profile != "agent" or run.get("trusted_runtime") is not None:
+        raise Stop("permission", "Invalid approval profile checkpoint.")
+    paths = scope.read_approved_scope(
+        state.parent, run["issue_url"], run["branch"], run["base"], profile)
     if paths != run["allowed_files"]:
         raise Stop("permission", "Original operator grant changed.")
     if c.git("branch", "--show-current") != run["branch"]:
@@ -144,7 +164,7 @@ def implement(state, run, evidence, attempt):
                                dispatch_id=attempt["dispatch_id"])
         try:
             c.dispatch(args, state, approval_base=run["base"], expected_paths=run["allowed_files"],
-                       feedback=run.get("feedback"))
+                       feedback=run.get("feedback"), approval_profile=run.get("approval_profile", "agent"))
         except c.ERRORS:
             dispatch_failure(load(record))
         finally:
@@ -181,7 +201,8 @@ def commit(state, run, attempt):
         raise Stop("permission", "Unexpected candidate parent.")
     current = c.snapshot()
     c.validate_checkout(current, run["branch"])
-    args = SimpleNamespace(issue_url=run["issue_url"], branch=run["branch"], base=run["base"])
+    args = SimpleNamespace(issue_url=run["issue_url"], branch=run["branch"], base=run["base"],
+                           approval_profile=run.get("approval_profile", "agent"))
     c.verify_review_scope(state, args, current)
     run["head"] = attempt["head"] = head
     run["changed_files"] = scope.changed_paths(root, run["base"], head)
@@ -343,7 +364,9 @@ def decide(state, run, attempt):
 
 def review_args(run, attempt, decision):
     return SimpleNamespace(issue_url=run["issue_url"], base=run["base"], branch=run["branch"],
-                           evidence=attempt["receipt"], decision=decision, notes=attempt["reviewer"]["findings"])
+                           evidence=attempt["receipt"], decision=decision,
+                           notes=attempt["reviewer"]["findings"],
+                           approval_profile=run.get("approval_profile", "agent"))
 
 
 def passed(record):
