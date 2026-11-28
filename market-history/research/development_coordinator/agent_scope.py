@@ -26,6 +26,7 @@ TRUSTED_RUNTIME_FILES = frozenset((
 COORDINATOR_TEST_INPUT = re.compile(
     re.escape(COORDINATOR_DIRECTORY) + r"[A-Za-z_][A-Za-z_0-9]*\.py"
 )
+_ISOLATED_RUNTIME = None
 
 
 def git_bytes(root, *args):
@@ -236,6 +237,29 @@ def validate_runtime_directory(trusted, worktree, base):
     return trusted, verified
 
 
+def require_isolated_runtime(worktree, base):
+    """Require the pre-import attestation created only by the isolated launcher."""
+    if (sys.flags.isolated != 1 or sys.flags.no_site != 1
+            or sys.flags.dont_write_bytecode != 1):
+        raise ValueError("Coordinator self-development requires Python -I -B -S isolated mode.")
+    worktree = worktree.resolve(strict=True)
+    attestation = _ISOLATED_RUNTIME
+    if (not isinstance(attestation, dict)
+            or attestation.get("baseline") != base
+            or attestation.get("worktree") != str(worktree)
+            or set(attestation.get("modules", {})) != {
+                COORDINATOR_DIRECTORY + name for name in TRUSTED_RUNTIME_FILES}):
+        raise ValueError("Coordinator self-development requires the validated isolated launcher.")
+    trusted = Path(attestation.get("trusted_directory", "")).resolve(strict=True)
+    if not sys.path or Path(sys.path[0]).resolve(strict=True) != trusted:
+        raise ValueError("Trusted runtime is not the first isolated import location.")
+    for entry in sys.path[1:]:
+        resolved = Path(entry).resolve()
+        if resolved == worktree or resolved.is_relative_to(worktree):
+            raise ValueError("Candidate worktree is exposed on the isolated import path.")
+    return attestation
+
+
 def isolated_launcher(argv=None):
     """Validate then import the four-module controller from one private directory."""
     parser = argparse.ArgumentParser(description="Launch a pinned Coordinator runtime in Python isolated mode.")
@@ -267,6 +291,9 @@ def isolated_launcher(argv=None):
     # -I ignores PYTHONPATH and neither the script directory nor CWD is on sys.path.
     # Add only the directory whose complete contents and four blobs were verified.
     sys.path.insert(0, str(trusted))
+    global _ISOLATED_RUNTIME
+    _ISOLATED_RUNTIME = {"baseline": args.base, "worktree": str(args.worktree.resolve()),
+                         "trusted_directory": str(trusted), "modules": verified}
     sys.modules["agent_scope"] = sys.modules[__name__]
     modules = {name: importlib.import_module(name) for name in
                ("coordinator", "feedback_loop", "external_regression_gate")}

@@ -34,7 +34,13 @@ disabled. It then imports all project modules only from that directory and
 emits a `TRUSTED_RUNTIME` attestation on stderr. `-I` ignores ambient
 `PYTHONPATH`; `-S` prevents site initialization; `-B` prevents bytecode files.
 The same four baseline bindings are checked again by the controller on every
-start and resume. A candidate therefore cannot replace its own verifier.
+start and resume. The controller also requires Python's live `isolated`,
+`no_site`, and `dont_write_bytecode` flags, the launcher's pre-import
+attestation, the trusted directory as the first import location, and absence
+of the candidate worktree from the remaining import path. Running
+`coordinator.py` directly, including `loop-resume`, is rejected before a
+self-development checkpoint can be created or changed. A candidate therefore
+cannot replace its own verifier.
 
 Example after preparing the trusted runtime and approval:
 

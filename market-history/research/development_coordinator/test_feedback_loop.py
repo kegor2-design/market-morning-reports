@@ -6,7 +6,6 @@ import sys
 import time
 import unittest
 from pathlib import Path
-from unittest.mock import patch
 
 import feedback_loop
 import test_coordinator as fixtures
@@ -288,32 +287,39 @@ class FeedbackLoopTest(unittest.TestCase):
         return env
 
     def test_self_development_reuses_bounded_loop_and_trusted_runtime(self):
-        target, _, _ = self.prepare_self_development()
+        target, _, trusted = self.prepare_self_development()
         env = self.self_models(target)
-        run = self.launch(env, "--approval-profile", "coordinator-self-development")
+        launched = self.launch_trusted(
+            trusted, *self.args("--approval-profile", "coordinator-self-development"), env=env)
+        self.assertEqual(launched.returncode, 0, launched.stdout + launched.stderr)
+        self.assertIn("TRUSTED_RUNTIME ", launched.stderr)
+        run = json.loads(self.record.read_bytes())
         self.assertEqual((run["status"], run["calls"], run["retries"]), ("READY_FOR_PR", 2, 0))
         self.assertEqual(run["approval_profile"], "coordinator-self-development")
         self.assertEqual(run["changed_files"], [target])
         self.assertEqual(set(run["trusted_runtime"]), {
             feedback_loop.scope.COORDINATOR_DIRECTORY + name
             for name in feedback_loop.scope.TRUSTED_RUNTIME_FILES})
-        self.cli("loop-resume", env=env)
+        direct_resume = self.cli_result("loop-resume", env=env)
+        self.assertNotEqual(direct_resume.returncode, 0)
+        self.assertIn("requires Python -I -B -S isolated mode", direct_resume.stderr)
+        self.assertEqual(run, json.loads(self.record.read_bytes()))
+        resumed = self.launch_trusted(trusted, "loop-resume", env=env)
+        self.assertEqual(resumed.returncode, 0, resumed.stdout + resumed.stderr)
+        self.assertEqual(run, json.loads(self.record.read_bytes()))
 
     def test_self_development_fails_closed_on_grant_or_runtime_change(self):
-        target, approval, _ = self.prepare_self_development()
-        with (patch.object(Path, "cwd", return_value=self.repo),
-              patch.object(feedback_loop.c, "verify_trusted_runtime",
-                           side_effect=ValueError("untrusted runtime"))):
-            with self.assertRaisesRegex(ValueError, "untrusted runtime"):
-                args = type("Args", (), dict(
-                    worktree=self.repo, timeout=10, max_calls=2, test_argv=self.command,
-                    workflow_check=[], inputs=[], issue=self.issue, branch=fixtures.BRANCH,
-                    base=self.base, evidence_dir=None,
-                    approval_profile="coordinator-self-development"))()
-                feedback_loop.start(args)
+        target, approval, trusted = self.prepare_self_development()
+        env = self.self_models(target)
+        direct = self.cli_result(
+            *self.args("--approval-profile", "coordinator-self-development"), env=env)
+        self.assertNotEqual(direct.returncode, 0)
+        self.assertIn("requires Python -I -B -S isolated mode", direct.stderr)
+        self.assertFalse(self.record.exists())
         approval.unlink()
-        self.cli(*self.args("--approval-profile", "coordinator-self-development"),
-                 env=self.self_models(target), code=1)
+        missing = self.launch_trusted(
+            trusted, *self.args("--approval-profile", "coordinator-self-development"), env=env)
+        self.assertNotEqual(missing.returncode, 0)
         self.assertFalse(self.record.exists())
 
     def launch_trusted(self, trusted, *controller, base=None, env=None):

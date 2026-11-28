@@ -82,6 +82,7 @@ def start(args):
     root = args.worktree.resolve(strict=True)
     trusted_runtime = None
     if profile == "coordinator-self-development":
+        scope.require_isolated_runtime(root, args.base)
         trusted_runtime = c.verify_trusted_runtime(
             root, args.base, (Path(c.__file__), Path(scope.__file__), Path(__file__),
                               Path(external_gate.__file__)))
@@ -116,6 +117,7 @@ def validate(state, run):
         raise Stop("evidence", "Pinned workflow checks changed.")
     profile = run.get("approval_profile", "agent")
     if profile == "coordinator-self-development":
+        scope.require_isolated_runtime(root, run["base"])
         trusted = c.verify_trusted_runtime(
             root, run["base"], (Path(c.__file__), Path(scope.__file__), Path(__file__),
                                 Path(external_gate.__file__)))

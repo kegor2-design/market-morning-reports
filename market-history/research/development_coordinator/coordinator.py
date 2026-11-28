@@ -574,6 +574,14 @@ def main():
             return 0
         with locked_state() as state:
             if args.action in ("loop", "loop-resume"):
+                if (args.action == "loop"
+                        and args.approval_profile == "coordinator-self-development"):
+                    agent_scope.require_isolated_runtime(args.worktree, args.base)
+                elif args.action == "loop-resume" and (state / feedback_loop.CHECKPOINT).exists():
+                    checkpoint = feedback_loop.load(state / feedback_loop.CHECKPOINT)
+                    if checkpoint.get("approval_profile") == "coordinator-self-development":
+                        agent_scope.require_isolated_runtime(
+                            Path(checkpoint["worktree"]), checkpoint["base"])
                 return feedback_loop.run(args, state)
             if args.action == "test":
                 command = args.command[1:] if args.command[:1] == ["--"] else args.command
